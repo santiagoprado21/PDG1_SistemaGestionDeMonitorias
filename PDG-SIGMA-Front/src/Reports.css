@@ -1,0 +1,148 @@
+:root {
+  --main-color: #5454e8;
+  --hover-color: rgb(66, 65, 65);
+  --main-font-family: jakarta_bold, Arial, cursive;
+}
+
+.reports-top-bar {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.reports-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  margin-left: 200px; 
+  font-family: var(--main-font-family);
+}
+
+.reports-container {
+    display: flex;
+    margin-left: 200px; 
+  }
+  
+  .reports-content {
+    flex: 1;
+    padding-bottom: 2em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+  }
+  
+  .chart-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+  }
+
+  .reports-summary {
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem 2rem 0 2rem;
+    gap: 1rem;
+  }
+  
+  .summary-card {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .summary-card h4 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .completadas {
+    align-content: center;
+    height: 14.8em;
+    width: 8em;
+    background-color: rgb(0, 196, 159);
+  }
+  
+  .tardias {
+    align-content: center;
+    height: 14.8em;
+    width: 8em;
+    background-color: rgb(255, 187, 40);
+  }
+  
+  .pendientes {
+    align-content: center;
+    height: 14.8em;
+    width: 8em;
+    background-color: rgb(255, 82, 82);
+  }
+  
+  .chart-download-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  
+  .chart-download-button {
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .chart-download-button:hover {
+    background-color: var(--hover-color);
+  }
+  
+  .filters-container {
+    margin-left: 250px; 
+    margin-right: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    flex: 1 1 200px;
+  }
+  
+  .filter-group label {
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+  
+  .filter-group select,
+  .filter-group input[type="date"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .required {
+    color: red;
+    margin-left: 4px;
+    font-weight: bold;
+  }
+  
