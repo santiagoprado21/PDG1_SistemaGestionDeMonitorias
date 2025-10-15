@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 const BACKEND_URL = 'http://localhost:5433';
 //const BACKEND_URL = 'https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net';
+=======
+//const BACKEND_URL = 'http://localhost:5433';
+const BACKEND_URL = 'https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net';
+>>>>>>> origin/dev
 
 export { BACKEND_URL };
 
