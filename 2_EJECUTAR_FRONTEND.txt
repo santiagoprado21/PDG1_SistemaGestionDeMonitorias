@@ -1,0 +1,14 @@
+========================================
+       EJECUTAR FRONTEND (React)
+========================================
+
+IMPORTANTE: El backend debe estar corriendo primero!
+
+
+cd "C:\dev\SwMonitorias\PDG-SIGMA-Front"
+
+npm i
+
+npm start
+
+

@@ -1,0 +1,171 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║          SISTEMA DE MONITORÍAS SIGMA - INSTRUCCIONES             ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+📋 PASO 1: CREAR LAS BASES DE DATOS (solo la primera vez)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Opción A - Usar pgAdmin (RECOMENDADO):
+  1. Abre pgAdmin
+  2. Conecta al servidor PostgreSQL
+  3. Click derecho en "Databases" → Create → Database
+  4. Crea: sigma_db
+  5. Repite y crea: banner_db
+
+Opción B - Usar script SQL:
+  1. Abre pgAdmin → Tools → Query Tool
+  2. Abre el archivo: crear_bases_datos.sql
+  3. Ejecuta el script (botón ▶ o F5)
+
+
+📋 PASO 1.5: CREAR USUARIOS DE PRUEBA (solo la primera vez)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANTE: Ejecuta esto DESPUÉS de iniciar los backends por primera vez
+(esto permite que las tablas se creen automáticamente)
+
+  1. Inicia el Backend Principal (1_EJECUTAR_BACKEND.bat)
+  2. Espera a que termine de cargar (mensaje "Started SigmaApplication")
+  3. Inicia el API Banner (OPCIONAL_API_Banner.bat)
+  4. Espera a que termine de cargar
+  5. Abre pgAdmin
+  6. Click derecho en "banner_db" → Query Tool
+  7. Abre: 1_datos_banner.sql y ejecuta (botón ▶ o F5)
+  8. Click derecho en "sigma_db" → Query Tool
+  9. Abre: 2_datos_sigma.sql y ejecuta (botón ▶ o F5)
+
+¡Ya tienes usuarios para probar la aplicación! Ver credenciales abajo ↓
+
+
+🚀 PASO 2: EJECUTAR EL BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Doble clic en: 1_EJECUTAR_BACKEND.bat
+  2. Espera hasta ver el mensaje: "Started SigmaApplication"
+  3. DEJA ESTA VENTANA ABIERTA
+
+
+🎨 PASO 3: EJECUTAR EL FRONTEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Doble clic en: 2_EJECUTAR_FRONTEND.bat
+  2. Tu navegador se abrirá automáticamente en http://localhost:3000
+  3. DEJA ESTA VENTANA ABIERTA
+
+¡LISTO! El sistema está funcionando 🎉
+
+
+📊 RESUMEN DE CONFIGURACIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Backend Principal:
+   - Puerto: 5433
+   - URL: http://localhost:5433
+   - Base de datos: sigma_db
+
+✅ Frontend React:
+   - Puerto: 3000
+   - URL: http://localhost:3000
+   - Conecta a: http://localhost:5433
+
+✅ API Banner (OPCIONAL):
+   - Puerto: 5434
+   - URL: http://localhost:5434
+   - Base de datos: banner_db
+
+
+⚠️ IMPORTANTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❗ PostgreSQL DEBE estar corriendo
+   Verifica en: services.msc → postgresql
+
+❗ Inicia el BACKEND PRIMERO, luego el FRONTEND
+
+❗ Si tu contraseña de PostgreSQL NO es "manager":
+   Edita estos archivos y cambia la contraseña:
+   - API-Banner-main\src\main\resources\application-local.properties
+   - PDG-SIGMA-BACKEND-main\src\main\resources\application-local.properties
+   Busca: spring.datasource.password=manager
+
+
+🔧 PROBLEMAS COMUNES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ "No se puede conectar a la base de datos"
+   → Verifica que PostgreSQL esté corriendo
+   → Verifica que las bases de datos sigma_db y banner_db existan
+   → Verifica la contraseña en application-local.properties
+
+❌ "Puerto 5433 ya en uso"
+   → Ya hay un backend corriendo, cierra la ventana anterior
+   → O usa: netstat -ano | findstr :5433
+   → Termina el proceso: taskkill /PID [numero] /F
+
+❌ Frontend muestra página en blanco
+   → Verifica que el backend esté corriendo
+   → Abre http://localhost:5433 para verificar
+
+❌ "npm install" falla
+   → Ejecuta: npm cache clean --force
+   → Intenta de nuevo: npm install
+
+
+🛑 DETENER EL SISTEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Ve a cada ventana de CMD
+  2. Presiona: Ctrl + C
+  3. Si pregunta "Terminate batch job (Y/N)?", escribe: Y
+
+
+💡 CONSEJOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ La primera ejecución tarda más (descarga dependencias)
+✅ Usa pgAdmin para ver las tablas y datos
+✅ Los logs en las ventanas CMD te ayudan a encontrar errores
+✅ Mantén las ventanas abiertas mientras uses el sistema
+
+
+📂 ARCHIVOS CREADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 crear_bases_datos.sql       → Script SQL para crear BD
+📄 1_datos_banner.sql          → Usuarios para banner_db
+📄 2_datos_sigma.sql           → Usuarios para sigma_db
+🚀 1_EJECUTAR_BACKEND.bat      → Inicia el backend
+🚀 2_EJECUTAR_FRONTEND.bat     → Inicia el frontend
+🚀 OPCIONAL_API_Banner.bat     → Inicia API Banner
+📄 INSTRUCCIONES.txt           → Este archivo
+
+
+🔐 CREDENCIALES DE PRUEBA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ESTUDIANTES (pueden postularse como monitores):
+  📌 Usuario: 2220001  |  Contraseña: 123456
+  📌 Usuario: 2220002  |  Contraseña: 123456
+  📌 Usuario: 2220003  |  Contraseña: 123456
+  📌 Usuario: 2220004  |  Contraseña: 123456
+  📌 Usuario: 2220005  |  Contraseña: 123456
+
+PROFESORES (pueden crear y gestionar monitorías):
+  👨‍🏫 Usuario: 1001  |  Contraseña: prof123
+  👨‍🏫 Usuario: 1002  |  Contraseña: prof123
+  👨‍🏫 Usuario: 1003  |  Contraseña: prof123
+  👨‍🏫 Usuario: 1004  |  Contraseña: prof123
+
+JEFE DE DEPARTAMENTO (acceso completo):
+  👔 Usuario: 5001  |  Contraseña: jefe123
+
+
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                    ¡Éxito con tu proyecto! 🚀                   ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
