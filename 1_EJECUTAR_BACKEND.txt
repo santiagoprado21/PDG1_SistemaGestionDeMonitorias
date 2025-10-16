@@ -1,0 +1,10 @@
+
+========================================
+    EJECUTAR BACKEND PRINCIPAL (SIGMA)
+========================================
+
+
+cd "C:\dev\SwMonitorias\PDG-SIGMA-BACKEND-main"
+.\mvnw.cmd spring-boot:run
+
+

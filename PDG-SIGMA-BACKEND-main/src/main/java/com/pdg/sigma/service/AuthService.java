@@ -38,8 +38,8 @@ public class AuthService {
     private final WebClient webClient;
 
     public AuthService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://api-banner-production.up.railway.app").build();
-        //this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build();
+        //this.webClient = webClientBuilder.baseUrl("https://api-banner-production.up.railway.app").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:5434").build();
     }
 
     public AuthDTO loginUser(AuthDTO auth) throws Exception{

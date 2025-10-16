@@ -10,8 +10,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
+<<<<<<< HEAD
+                .allowedOrigins("http://localhost:3000")
+                //.allowedOrigins("https://pdg-sigma.vercel.app/")
+=======
                 //.allowedOrigins("http://localhost:3000")
                 .allowedOrigins("https://pdg-sigma.vercel.app/")
+>>>>>>> origin/dev
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
