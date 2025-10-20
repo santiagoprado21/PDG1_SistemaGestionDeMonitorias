@@ -155,6 +155,13 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
                 List<MonitoringMonitor> applications = monitoringMonitorRepository.findByMonitoring(monitoring);
                 
                 for (MonitoringMonitor mm : applications) {
+                    // FILTRO: Solo incluir postulaciones que el profesor seleccionó
+                    // y que aún pueden ser aprobadas/rechazadas por el jefe
+                    String estado = mm.getEstadoSeleccion();
+                    if (estado == null || estado.isEmpty() || "no seleccionado".equalsIgnoreCase(estado)) {
+                        continue; // Skip postulaciones que el profesor no seleccionó
+                    }
+                    
                     Monitor monitor = mm.getMonitor();
                     
                     PendingApplicationDTO dto = new PendingApplicationDTO();
