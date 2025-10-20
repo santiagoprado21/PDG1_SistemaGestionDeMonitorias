@@ -65,7 +65,8 @@ function ApproveApplications() {
         if (filterStatus !== "Todos") {
             filtered = filtered.filter(app => {
                 if (filterStatus === "Pendiente") {
-                    return app.estadoSeleccion === "no seleccionado" || app.estadoSeleccion === "seleccionado";
+                    // "Pendiente" = postulaciones que el profesor seleccionó pero el jefe aún no ha procesado
+                    return app.estadoSeleccion === "seleccionado";
                 } else if (filterStatus === "Aprobado") {
                     return app.estadoSeleccion === "aprobado";
                 } else if (filterStatus === "Rechazado") {
