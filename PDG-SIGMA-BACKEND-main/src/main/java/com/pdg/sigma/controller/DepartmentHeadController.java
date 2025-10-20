@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,8 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pdg.sigma.domain.DepartmentHead;
 import com.pdg.sigma.domain.HeadProgram;
 import com.pdg.sigma.domain.Professor;
+import com.pdg.sigma.dto.ApproveApplicationRequest;
+import com.pdg.sigma.dto.PendingApplicationDTO;
 import com.pdg.sigma.repository.HeadProgramRepository;
 import com.pdg.sigma.service.DepartmentHeadService;
+import com.pdg.sigma.service.DepartmentHeadServiceImpl;
+import com.pdg.sigma.service.MonitoringMonitorServiceImpl;
 
 @RestController
 @RequestMapping("/department-head")
@@ -31,6 +36,12 @@ public class DepartmentHeadController {
 
     @Autowired
     private DepartmentHeadService departmentHeadService;
+
+    @Autowired
+    private DepartmentHeadServiceImpl departmentHeadServiceImpl;
+
+    @Autowired
+    private MonitoringMonitorServiceImpl monitoringMonitorService;
 
     @Autowired
     private HeadProgramRepository headProgramRepository;
@@ -95,5 +106,50 @@ public class DepartmentHeadController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
 
+    }
+
+    @GetMapping("/{id}/pending-applications")
+    public ResponseEntity<?> getPendingApplications(@PathVariable String id, @RequestAttribute("role") String role) {
+        try {
+            // Verificar que el usuario sea jefe de departamento
+            if (!"jfedpto".equalsIgnoreCase(role)) {
+                return ResponseEntity.status(403).body("Acceso denegado. Solo jefes de departamento pueden ver las postulaciones.");
+            }
+            
+            List<PendingApplicationDTO> applications = departmentHeadServiceImpl.getPendingApplications(id);
+            return ResponseEntity.ok(applications);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/approve")
+    public ResponseEntity<?> approveApplication(@RequestBody ApproveApplicationRequest request, @RequestAttribute("role") String role) {
+        try {
+            // Verificar que el usuario sea jefe de departamento
+            if (!"jfedpto".equalsIgnoreCase(role)) {
+                return ResponseEntity.status(403).body("Acceso denegado. Solo jefes de departamento pueden aprobar postulaciones.");
+            }
+            
+            monitoringMonitorService.approveApplication(request);
+            return ResponseEntity.ok("Postulación aprobada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject")
+    public ResponseEntity<?> rejectApplication(@RequestBody ApproveApplicationRequest request, @RequestAttribute("role") String role) {
+        try {
+            // Verificar que el usuario sea jefe de departamento
+            if (!"jfedpto".equalsIgnoreCase(role)) {
+                return ResponseEntity.status(403).body("Acceso denegado. Solo jefes de departamento pueden rechazar postulaciones.");
+            }
+            
+            monitoringMonitorService.rejectApplication(request);
+            return ResponseEntity.ok("Postulación rechazada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 }

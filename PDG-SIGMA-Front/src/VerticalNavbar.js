@@ -197,6 +197,18 @@ function VerticalNavbar() {
           </>
         )}
 
+        {/* Acceso exclusivo para Jefe de Departamento */}
+        {role === "jfedpto" && (
+          <>
+            <NavLink
+              to="/ApproveApplications"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Aprobar Postulaciones
+            </NavLink>
+          </>
+        )}
+
         {(role === "professor" || role === "jfedpto") && (
           <>
             <NavLink

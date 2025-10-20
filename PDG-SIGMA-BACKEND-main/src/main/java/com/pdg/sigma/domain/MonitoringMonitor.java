@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @AllArgsConstructor
@@ -20,6 +22,15 @@ public class MonitoringMonitor {
 
     @Column(name = "estado_seleccion", nullable = false)
     private String estadoSeleccion = "no seleccionado";
+
+    @Column(name = "comentario_decision", columnDefinition = "TEXT")
+    private String comentarioDecision;
+
+    @Column(name = "fecha_decision")
+    private LocalDateTime fechaDecision;
+
+    @Column(name = "decidido_por")
+    private String decididoPor;
 
     @ManyToOne
     @JoinColumn(name = "monitoring_id", nullable = false)

@@ -1,5 +1,6 @@
 package com.pdg.sigma.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -7,8 +8,11 @@ import java.util.stream.Collectors;
 
 import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
+import com.pdg.sigma.dto.PendingApplicationDTO;
 import com.pdg.sigma.repository.CourseRepository;
 import com.pdg.sigma.repository.HeadProgramRepository;
+import com.pdg.sigma.repository.MonitoringRepository;
+import com.pdg.sigma.repository.MonitoringMonitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +33,12 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private MonitoringRepository monitoringRepository;
+
+    @Autowired
+    private MonitoringMonitorRepository monitoringMonitorRepository;
 
     @Override
     public List<DepartmentHead> findAll() {
@@ -114,5 +124,62 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
     @Override
     public List<HeadProgram> getProgramsByDepartmentHead(String departmentHeadId) {
         return headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+    }
+
+    public List<PendingApplicationDTO> getPendingApplications(String departmentHeadId) throws Exception {
+        // 1. Obtener los programas del jefe de departamento
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+        if (headPrograms.isEmpty()) {
+            throw new Exception("No se encontraron programas para este jefe de departamento");
+        }
+
+        // 2. Obtener todos los cursos de esos programas
+        List<Long> programIds = headPrograms.stream()
+                .map(hp -> hp.getProgram().getId())
+                .collect(Collectors.toList());
+        
+        List<Course> courses = courseRepository.findByProgramIdIn(programIds);
+        if (courses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 3. Obtener todas las monitorías de esos cursos
+        List<PendingApplicationDTO> pendingApplications = new ArrayList<>();
+        
+        for (Course course : courses) {
+            Optional<Monitoring> monitoringOpt = monitoringRepository.findByCourse(course);
+            if (monitoringOpt.isPresent()) {
+                Monitoring monitoring = monitoringOpt.get();
+                
+                // 4. Obtener todas las postulaciones de esta monitoría
+                List<MonitoringMonitor> applications = monitoringMonitorRepository.findByMonitoring(monitoring);
+                
+                for (MonitoringMonitor mm : applications) {
+                    Monitor monitor = mm.getMonitor();
+                    
+                    PendingApplicationDTO dto = new PendingApplicationDTO();
+                    dto.setId(mm.getId());
+                    dto.setMonitoringId(monitoring.getId());
+                    dto.setCourseName(course.getName());
+                    dto.setProfessorName(monitoring.getProfessor().getName());
+                    dto.setMonitorName(monitor.getName() + " " + monitor.getLastName());
+                    dto.setMonitorCode(monitor.getCode());
+                    dto.setMonitorEmail(monitor.getEmail());
+                    dto.setGradeAverage(monitor.getGradeAverage());
+                    dto.setGradeCourse(monitor.getGradeCourse());
+                    dto.setSemester(monitor.getSemester());
+                    dto.setEstadoSeleccion(mm.getEstadoSeleccion());
+                    dto.setComentarioDecision(mm.getComentarioDecision());
+                    dto.setFechaDecision(mm.getFechaDecision());
+                    dto.setDecididoPor(mm.getDecididoPor());
+                    dto.setProgramName(course.getProgram().getName());
+                    dto.setSchoolName(course.getProgram().getSchool().getName());
+                    
+                    pendingApplications.add(dto);
+                }
+            }
+        }
+        
+        return pendingApplications;
     }
 }
