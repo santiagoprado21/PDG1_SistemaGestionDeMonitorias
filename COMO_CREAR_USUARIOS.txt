@@ -39,7 +39,18 @@ Solo necesitas ejecutar el archivo: datos_prueba.sql
    → Click en el botón ▶ (Ejecutar) o presiona F5
    → Verás un mensaje de confirmación con las credenciales
 
-✅ PASO 4: ¡Listo para probar!
+✅ PASO 4: Ejecutar datos académicos (Facultades, Programas, Cursos)
+   → En pgAdmin, click derecho en "banner_db" → Query Tool
+   → Abre el archivo: 3_datos_academicos.sql
+   → Click en ▶ Ejecutar (F5)
+   
+   → Luego, click derecho en "sigma_db" → Query Tool
+   → Abre el archivo: 4_datos_academicos_sigma.sql
+   → Click en ▶ Ejecutar (F5)
+   
+   ⚠️ IMPORTANTE: Sin estos datos NO podrás crear monitorías
+
+✅ PASO 5: ¡Listo para probar!
    → Inicia el frontend: 2_EJECUTAR_FRONTEND.bat
    → Ve a: http://localhost:3000
    → Prueba con cualquiera de las credenciales de abajo
@@ -60,21 +71,26 @@ Solo necesitas ejecutar el archivo: datos_prueba.sql
 └──────────┴────────────┴─────────────┴────────────────────────────┘
 
 👨‍🏫 PROFESORES (Pueden crear y gestionar monitorías)
-┌──────────┬────────────┬────────────────────────────┐
-│ Usuario  │ Contraseña │ Nombre                      │
-├──────────┼────────────┼────────────────────────────┤
-│ 1001     │ prof123    │ Dr. Roberto Castillo       │
-│ 1002     │ prof123    │ Dra. Patricia Méndez       │
-│ 1003     │ prof123    │ Dr. Fernando Ríos          │
-│ 1004     │ prof123    │ Dra. Isabel Vargas         │
-└──────────┴────────────┴────────────────────────────┘
+┌──────────┬────────────┬────────────────────────────┬─────────────────────────────────┐
+│ Usuario  │ Contraseña │ Nombre                      │ Cursos Asignados                │
+├──────────┼────────────┼────────────────────────────┼─────────────────────────────────┤
+│ 1001     │ prof123    │ Dr. Roberto Castillo       │ Programación I, Estructuras,    │
+│          │            │                             │ Desarrollo Web                  │
+├──────────┼────────────┼────────────────────────────┼─────────────────────────────────┤
+│ 1002     │ prof123    │ Dra. Patricia Méndez       │ Bases de Datos, IA              │
+├──────────┼────────────┼────────────────────────────┼─────────────────────────────────┤
+│ 1003     │ prof123    │ Dr. Fernando Ríos          │ Estadística, Inv. Operaciones   │
+├──────────┼────────────┼────────────────────────────┼─────────────────────────────────┤
+│ 1004     │ prof123    │ Dra. Isabel Vargas         │ Cálculo, Álgebra Lineal         │
+└──────────┴────────────┴────────────────────────────┴─────────────────────────────────┘
 
 👔 JEFE DE DEPARTAMENTO (Acceso completo al sistema)
-┌──────────┬────────────┬────────────────────────────┐
-│ Usuario  │ Contraseña │ Nombre                      │
-├──────────┼────────────┼────────────────────────────┤
-│ 5001     │ jefe123    │ Dr. Alejandro Ramírez      │
-└──────────┴────────────┴────────────────────────────┘
+┌──────────┬────────────┬────────────────────────────┬─────────────────────────────────┐
+│ Usuario  │ Contraseña │ Nombre                      │ Programas Gestionados           │
+├──────────┼────────────┼────────────────────────────┼─────────────────────────────────┤
+│ 5001     │ jefe123    │ Dr. Alejandro Ramírez      │ Ing. Sistemas, Ing. Industrial, │
+│          │            │                             │ Ing. Electrónica                │
+└──────────┴────────────┴────────────────────────────┴─────────────────────────────────┘
 
 
 💡 EJEMPLO DE USO
@@ -140,7 +156,54 @@ Para un JEFE DE DEPARTAMENTO:
 
 ❌ "Este profesor no tiene materias asignadas"
    → Los profesores necesitan cursos asignados para funcionar
-   → Por ahora, usa los usuarios de prueba proporcionados
+   → Ejecuta los scripts: 3_datos_academicos.sql y 4_datos_academicos_sigma.sql
+
+
+📊 DATOS ACADÉMICOS CREADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏛️ FACULTADES:
+   • Facultad de Ingeniería
+   • Facultad de Ciencias
+   • Facultad de Humanidades
+
+🎓 PROGRAMAS:
+   • Ingeniería de Sistemas (Facultad de Ingeniería)
+   • Ingeniería Industrial (Facultad de Ingeniería)
+   • Ingeniería Electrónica (Facultad de Ingeniería)
+   • Matemáticas (Facultad de Ciencias)
+   • Física (Facultad de Ciencias)
+   • Psicología (Facultad de Humanidades)
+
+📚 CURSOS CREADOS (16 cursos):
+   
+   Ingeniería de Sistemas:
+   • Programación I → Prof. Roberto Castillo
+   • Estructuras de Datos → Prof. Roberto Castillo
+   • Bases de Datos → Prof. Patricia Méndez
+   • Desarrollo Web → Prof. Roberto Castillo
+   • Inteligencia Artificial → Prof. Patricia Méndez
+   
+   Ingeniería Industrial:
+   • Estadística → Prof. Fernando Ríos
+   • Investigación de Operaciones → Prof. Fernando Ríos
+   • Gestión de Proyectos
+   
+   Ingeniería Electrónica:
+   • Circuitos Eléctricos
+   • Sistemas Digitales
+   
+   Matemáticas:
+   • Cálculo Diferencial → Prof. Isabel Vargas
+   • Álgebra Lineal → Prof. Isabel Vargas
+   
+   Física:
+   • Física Mecánica
+   • Electromagnetismo
+   
+   Psicología:
+   • Psicología General
+   • Psicología Social
 
 
 ╔══════════════════════════════════════════════════════════════════╗

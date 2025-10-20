@@ -17,6 +17,16 @@ INSERT INTO department_head (id, name, password) VALUES
 ('5001', 'Dr. Alejandro Ramírez', 'jefe123')
 ON CONFLICT (id) DO NOTHING;
 
+-- Tabla: prospect (Estudiantes)
+-- Los estudiantes también deben existir en sigma_db para poder postularse
+INSERT INTO prospect (id, code, name, last_name, email, password, semester, grade_average, grade_course) VALUES
+('2220001', '2220001', 'Juan', 'Pérez García', 'juan.perez@ejemplo.com', '123456', 5, 4.2, 4.5),
+('2220002', '2220002', 'María', 'López Martínez', 'maria.lopez@ejemplo.com', '123456', 6, 4.5, 4.8),
+('2220003', '2220003', 'Carlos', 'Rodríguez Silva', 'carlos.rodriguez@ejemplo.com', '123456', 4, 4.0, 4.2),
+('2220004', '2220004', 'Ana', 'González Torres', 'ana.gonzalez@ejemplo.com', '123456', 7, 4.7, 4.9),
+('2220005', '2220005', 'Luis', 'Sánchez Morales', 'luis.sanchez@ejemplo.com', '123456', 5, 4.3, 4.4)
+ON CONFLICT (id) DO NOTHING;
+
 -- ================================================
 -- MENSAJE DE CONFIRMACIÓN
 -- ================================================
