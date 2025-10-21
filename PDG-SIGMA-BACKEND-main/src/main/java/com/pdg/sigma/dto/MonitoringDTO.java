@@ -33,6 +33,8 @@ public class MonitoringDTO  implements Serializable {
     private String semester;
     private String monitor;
     private String professorName;
+    private Integer estimatedHours; // horas planificadas
+    private Double hourlyRate; // valor hora
     
     public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId, String semester) {
         this.id = id;

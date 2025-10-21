@@ -30,9 +30,25 @@ function CreateMonitoria() {
     const [selectedSemester, setSelectedSemester] = useState(""); // Selected Semester
     const [selectedStartDate, setSelectedStartDate] = useState(""); // Selected StartDate
     const [selectedFinishDate, setSelectedFinishDate] = useState(""); // Selected FinishDate
-    const [isOpen, setIsOpen] = useState(false)
-    const [message, setMessage] = useState("")
-    const [change, setChange] = useState(false)
+    const [estimatedHours, setEstimatedHours] = useState("");
+    const [hourlyRate, setHourlyRate] = useState("");
+    const [remainingBudget, setRemainingBudget] = useState(null);
+    const computedCost = useMemo(() => {
+        const h = parseFloat(estimatedHours);
+        const r = parseFloat(hourlyRate);
+        if (isNaN(h) || isNaN(r)) return '';
+        return (h * r).toFixed(2);
+    }, [estimatedHours, hourlyRate]);
+    const projectedRemaining = useMemo(() => {
+        const rem = typeof remainingBudget === 'number' ? remainingBudget : null;
+        const h = parseInt(estimatedHours || '0', 10);
+        if (rem === null) return 'N/D';
+        const val = rem - (isNaN(h) ? 0 : h);
+        return val < 0 ? 0 : val;
+    }, [remainingBudget, estimatedHours]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const [change, setChange] = useState(false);
     const [file, setFile] = useState(null); //File
 
 
@@ -221,6 +237,19 @@ function CreateMonitoria() {
             .catch(error => console.error('Error fetching program data:', error));
     }, [selectedProgram]);
 
+    // Fetch remaining budget when program/semester changes
+    useEffect(() => {
+        const prog = selectedProgram;
+        const sem = selectedSemester;
+        if (!prog || !sem) { setRemainingBudget(null); return; }
+        fetch(`${BACKEND_URL}/budget/${encodeURIComponent(prog)}/${encodeURIComponent(sem)}`, {
+            headers: { 'Authorization': localStorage.getItem('token') }
+        })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => setRemainingBudget(data?.remainingHours ?? null))
+            .catch(() => setRemainingBudget(null));
+    }, [selectedProgram, selectedSemester, change]);
+
     // Handle change for Faculty dropdown
     const handleFacultyChange = (event) => {
         setSelectedFaculty(event.target.value);
@@ -316,6 +345,8 @@ function CreateMonitoria() {
             finish: selectedFinishDate,
                         professorId: (role || localStorage.getItem('role')) === 'jfedpto' ? selectedProfessorId : localStorage.getItem("userId"),
             semester: selectedSemester,
+                        estimatedHours: estimatedHours ? parseInt(estimatedHours, 10) : null,
+                        hourlyRate: hourlyRate ? parseFloat(hourlyRate) : null,
           };
         
           console.log("Data to send:", data);
@@ -336,6 +367,7 @@ function CreateMonitoria() {
             if (response.ok) {
                 setMessage("Estado: " + messageR)
                 setIsOpen(!isOpen)
+                setChange(!change)
                 
             } else {
                 setMessage(messageR)
@@ -437,6 +469,7 @@ function CreateMonitoria() {
             <button className="top-right-button" onClick={handleUpload}>Cargar datos</button>
             {/* Load file button ends */}
 
+
             {/* Ventana emergente */}
             <PopUp
                 show={isOpen}
@@ -518,6 +551,12 @@ function CreateMonitoria() {
                         <option key='2024-2' value='2024-2'>
                                 2024-2
                         </option>
+            <option key='2025-1' value='2025-1'>
+                2025-1
+            </option>
+            <option key='2025-2' value='2025-2'>
+                2025-2
+            </option>
                     </select>
 
 
@@ -528,6 +567,26 @@ function CreateMonitoria() {
                     {/* Fin de convocatoria */}
                     <label>Fin de convocatoria</label>
                     <input type="date" className="cm-input-date" value={selectedFinishDate} onChange={handleFinishDateChange} />
+
+                    {/* Horas estimadas */}
+                    <label>Horas estimadas</label>
+                    <input type="number" min="0" className="cm-input-text-box" value={estimatedHours} onChange={(e)=> setEstimatedHours(e.target.value)} />
+
+                    {/* Valor hora */}
+                    <label>Valor hora (opcional)</label>
+                    <input type="number" min="0" step="0.01" className="cm-input-text-box" value={hourlyRate} onChange={(e)=> setHourlyRate(e.target.value)} />
+
+                    {/* Presupuesto restante */}
+                    <label>Presupuesto restante (horas)</label>
+                    <input type="text" className="cm-input-text-box" value={remainingBudget ?? 'N/D'} disabled />
+
+                    {/* Costo estimado */}
+                    <label>Costo estimado</label>
+                    <input type="text" className="cm-input-text-box" value={computedCost ? `$ ${computedCost}` : 'N/D'} disabled />
+
+                    {/* Presupuesto si creas/actualizas */}
+                    <label>Restante si creas (horas)</label>
+                    <input type="text" className="cm-input-text-box" value={projectedRemaining} disabled />
 
 
                     {/* Requisitos */}
@@ -566,6 +625,9 @@ function CreateMonitoria() {
                                 <th className="table-head"> Periodo académico </th>
                                 <th className="table-head"> Inicio de convocatoria</th>
                                 <th className="table-head"> Fin de convocatoria</th>
+                                <th className="table-head"> Horas estimadas </th>
+                                <th className="table-head"> Valor hora </th>
+                                <th className="table-head"> Costo estimado </th>
                                 <th className="table-head"> </th>
                             </tr>
                         </thead>
@@ -580,9 +642,11 @@ function CreateMonitoria() {
                                             <td className="table-data">{record.semester}</td>
                                             <td className="table-data">{record.startFormatted}</td>
                                             <td className="table-data">{record.endFormatted}</td>
+                                            <td className="table-data">{record.estimatedHours ?? ''}</td>
+                                            <td className="table-data">{record.hourlyRate ? `$ ${record.hourlyRate}` : ''}</td>
+                                            <td className="table-data">{(record.estimatedHours && record.hourlyRate) ? `$ ${(record.estimatedHours * record.hourlyRate).toFixed(2)}` : ''}</td>
                                             <td className="table-data">
                                                 <div className="requirement-container">
-                                                    {/* <button className="edit-button">Editar</button> */}
                                                     <button className="cancel-button" onClick={() =>handleDelete(record.id)}>Eliminar</button>
                                                 </div>
                                             </td>

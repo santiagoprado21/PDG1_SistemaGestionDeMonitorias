@@ -321,4 +321,22 @@ public class MonitoringController {
 
     }
 
+    @PatchMapping("/updateBudget/{monitoringId}")
+    public ResponseEntity<?> updateMonitoringBudget(@PathVariable Long monitoringId,
+                                                    @RequestBody Map<String, Object> body) {
+        try {
+            Integer hours = body.get("estimatedHours") == null ? null : ((Number) body.get("estimatedHours")).intValue();
+            Double rate = body.get("hourlyRate") == null ? null : ((Number) body.get("hourlyRate")).doubleValue();
+            Monitoring updated = monitoringService.updateMonitoringBudget(monitoringId, hours, rate);
+            Map<String, Object> resp = Map.of(
+                    "id", updated.getId(),
+                    "estimatedHours", updated.getEstimatedHours(),
+                    "hourlyRate", updated.getHourlyRate()
+            );
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

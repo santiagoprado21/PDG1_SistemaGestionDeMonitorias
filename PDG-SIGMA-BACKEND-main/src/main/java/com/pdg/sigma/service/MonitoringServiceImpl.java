@@ -63,6 +63,9 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    @Autowired
+    private DepartmentBudgetRepository departmentBudgetRepository;
+
 
     @Override
     public List<Monitoring> findAll() {
@@ -127,19 +130,40 @@ public class MonitoringServiceImpl implements MonitoringService{
         if(program.getName().equals(entity.getProgramName()))
             if(school.getName().equals(entity.getSchoolName()))
                 if(course.getName().equals(entity.getCourseName()))
-                    if(monitoringRepository.findByCourse(course).isEmpty()){
+                    {
                         professor = professorRepository.findById(entity.getProfessorId());
                         if(professor.isPresent()){
+                            if (monitoringRepository.findByProfessorAndCourseAndSemester(professor.get(), course, entity.getSemester()).isPresent()) {
+                                throw new Exception("Ya existe una monitoria para este profesor y curso en el semestre seleccionado");
+                            }
+                            // Validar presupuesto (horas) por programa/semestre si estimatedHours viene informado
+                            Integer estimatedHours = entity.getEstimatedHours();
+                            if (estimatedHours != null && estimatedHours > 0) {
+                                DepartmentBudget budget = departmentBudgetRepository
+                                        .findByProgramAndSemester(program, entity.getSemester())
+                                        .orElse(null);
+                                if (budget != null) {
+                                    // Calcular horas ya planificadas en el mismo programa y semestre
+                                    int usedHours = monitoringRepository.findByProgram(program).stream()
+                                            .filter(m -> entity.getSemester().equals(m.getSemester()))
+                                            .map(m -> m.getEstimatedHours() == null ? 0 : m.getEstimatedHours())
+                                            .reduce(0, Integer::sum);
+                                    if (usedHours + estimatedHours > budget.getTotalHours()) {
+                                        throw new Exception("No se pueden asignar más horas de las disponibles en el presupuesto del semestre. Disponibles: "
+                                                + (budget.getTotalHours() - usedHours));
+                                    }
+                                }
+                            }
+
                             newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), 4.5, 4.5, entity.getSemester(), professor.get());
+                            newMonitoring.setEstimatedHours(entity.getEstimatedHours());
+                            newMonitoring.setHourlyRate(entity.getHourlyRate());
                             monitoringRepository.save(newMonitoring);
                         }
                         else
                             throw new Exception("El profesor no está registrado");
-
-                        return monitoringRepository.findByCourse(course).get();
+                        return monitoringRepository.findByProfessorAndCourseAndSemester(professor.get(), course, entity.getSemester()).get();
                     }
-                    else
-                        throw new Exception("Ya existe una monitoria para esta materia");
                 else
                     throw new Exception("No existe un curso con este nombre");
             else
@@ -592,6 +616,41 @@ public class MonitoringServiceImpl implements MonitoringService{
         }
     }
 
+    // --- Presupuesto: actualizar horas/valor por monitoría ---
+    public Monitoring updateMonitoringBudget(Long monitoringId, Integer newEstimatedHours, Double newHourlyRate) throws Exception {
+        Monitoring m = monitoringRepository.findById(monitoringId)
+                .orElseThrow(() -> new Exception("Monitoría no encontrada"));
+
+        if (newEstimatedHours != null && newEstimatedHours < 0) {
+            throw new Exception("Las horas estimadas no pueden ser negativas");
+        }
+        if (newHourlyRate != null && newHourlyRate < 0) {
+            throw new Exception("El valor por hora no puede ser negativo");
+        }
+
+        // Validar presupuesto por programa/semestre si hay horas
+        if (newEstimatedHours != null) {
+            DepartmentBudget budget = departmentBudgetRepository
+                    .findByProgramAndSemester(m.getProgram(), m.getSemester())
+                    .orElse(null);
+            if (budget != null) {
+                int used = monitoringRepository.findByProgram(m.getProgram()).stream()
+                        .filter(x -> m.getSemester().equals(x.getSemester()))
+                        .filter(x -> !x.getId().equals(m.getId())) // excluir la actual
+                        .map(x -> x.getEstimatedHours() == null ? 0 : x.getEstimatedHours())
+                        .reduce(0, Integer::sum);
+                if (used + newEstimatedHours > budget.getTotalHours()) {
+                    throw new Exception("No se pueden asignar más horas de las disponibles en el presupuesto del semestre. Disponibles: "
+                            + (budget.getTotalHours() - used));
+                }
+            }
+        }
+
+        if (newEstimatedHours != null) m.setEstimatedHours(newEstimatedHours);
+        if (newHourlyRate != null) m.setHourlyRate(newHourlyRate);
+        return monitoringRepository.save(m);
+    }
+
     private String processExcelFile(MultipartFile file, String professorId) throws Exception {
         List<MonitoringDTO> registList = new ArrayList<>();
 
@@ -804,6 +863,16 @@ public class MonitoringServiceImpl implements MonitoringService{
                         valid = false;
                     }
                     break;
+                case 8:
+                    if(!columns.get(8).equalsIgnoreCase("HORAS ESTIMADAS")) {
+                        valid = false;
+                    }
+                    break;
+                case 9:
+                    if(!columns.get(9).equalsIgnoreCase("VALOR HORA")) {
+                        valid = false;
+                    }
+                    break;
                 default:
                     System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
             }
@@ -897,6 +966,22 @@ public class MonitoringServiceImpl implements MonitoringService{
 
                 case 7:
                     monitoring.setCourseGrade(Double.parseDouble(value));
+                    return monitoring;
+                case 8:
+                    // HORAS ESTIMADAS
+                    try {
+                        monitoring.setEstimatedHours(Integer.parseInt(value));
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                    return monitoring;
+                case 9:
+                    // VALOR HORA
+                    try {
+                        monitoring.setHourlyRate(Double.parseDouble(value));
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
                     return monitoring;
                 default:
                     System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
