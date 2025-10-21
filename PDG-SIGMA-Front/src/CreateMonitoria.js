@@ -350,33 +350,41 @@ function CreateMonitoria() {
           }
     };
 
-    const handleDelete = async(id) => {
+    const handleDelete = async (id) => {
         try {
-            //Delete logic in here
             const responseDelete = await fetch(`${BACKEND_URL}/monitoring/deleteMonitoring/${id}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                    'Authorization':localStorage.getItem('token')
-              }
+                method: "DELETE",
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                }
             });
-            const answer = await responseDelete.json();
-            if (answer) {
-                // Estado ok
-                // setMessage("Estado: " + messageR)
-                setMessage("Se ha eliminado la monitoría")
-                
-                
+
+            // Some backends return empty body, plain text "true/false", or JSON. Handle all safely.
+            let bodyText = '';
+            try { bodyText = await responseDelete.text(); } catch (_) {}
+
+            const normalized = (bodyText || '').trim().toLowerCase();
+            const isSuccess = responseDelete.ok && (normalized === '' || normalized === 'true' || normalized === '"true"');
+
+            if (isSuccess) {
+                // Optimistically update the table immediately
+                setRecords(prev => prev.filter(r => r.id !== id));
+                setMessage("Se ha eliminado la monitoría");
+                setIsOpen(true);
+                // Also trigger a refresh to avoid any cache/stale data issues
+                setChange(prev => !prev);
             } else {
-                // console.error("Error: " + messageR)
-                // setMessage(error: messageR)
-                setMessage("La monitoria no pudo ser eliminada debido a que esta asociada a monitores o postulantes a monitoria. Asegurate de revisar el proceso postulación")
+                const fallbackMsg = normalized && normalized !== '"true"' ? bodyText : '';
+                setMessage(
+                    fallbackMsg ||
+                    "La monitoría no pudo ser eliminada. Verifica si tiene monitores seleccionados o postulantes asociados."
+                );
+                setIsOpen(true);
             }
-            setIsOpen(!isOpen)
         } catch (error) {
             console.error("Error deleting data:", error);
-            setMessage("Error en el servidor: No ha sido posible eliminar la monitoría")
-            setIsOpen(!isOpen)
+            setMessage("Error en el servidor: No ha sido posible eliminar la monitoría");
+            setIsOpen(true);
         }
     };
 
