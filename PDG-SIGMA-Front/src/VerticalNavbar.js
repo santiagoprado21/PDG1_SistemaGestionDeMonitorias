@@ -179,8 +179,8 @@ function VerticalNavbar() {
           </>
         )}
 
-        {/* Acceso exclusivo para Profesores */}
-        {role === "professor" && (
+        {/* Acceso exclusivo para Profesores y Jefe de Departamento */}
+        {(role === "professor" || role === "jfedpto") && (
           <>
             <NavLink
               to="/CreateMonitoria"

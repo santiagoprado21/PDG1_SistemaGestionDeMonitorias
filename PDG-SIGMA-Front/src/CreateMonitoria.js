@@ -20,6 +20,10 @@ function CreateMonitoria() {
     const [faculties, setFaculties] = useState([]); // State for Faculty options
     const [programs, setPrograms] = useState([]); // State for Program options
     const [subject, setSubject] = useState([]); // State for Subject options
+    const [role, setRole] = useState(localStorage.getItem('role') || '');
+    const userId = localStorage.getItem('userId');
+    const [professors, setProfessors] = useState([]); // Professors for department head
+    const [selectedProfessorId, setSelectedProfessorId] = useState(''); // Selected professor when role is jfedpto
     const [selectedFaculty, setSelectedFaculty] = useState(""); // Selected Faculty
     const [selectedProgram, setSelectedProgram] = useState(""); // Selected Program
     const [selectedSubject, setSelectedSubject] = useState(""); // Selected Subject
@@ -34,8 +38,8 @@ function CreateMonitoria() {
 
     // Fetch Faculty options
     useEffect(() => {
-        const idProfessor = localStorage.getItem('userId');
-        console.log(idProfessor);
+    const idProfessor = userId;
+    console.log(idProfessor);
         fetch(`${BACKEND_URL}/school/getSchools`)
             .then(res => {
                 if (!res.ok) {
@@ -52,36 +56,66 @@ function CreateMonitoria() {
             })
             .catch(error => console.error('Error fetching faculty data:', error));
 
-            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    setRecords(data); 
-                } else {
-                    console.error("Data format is incorrect or 'monitoria' is empty.");
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
+            // Load monitorings depending on role
+            if ((role || localStorage.getItem('role')) === 'professor') {
+                fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.length > 0) {
+                        setRecords(data); 
+                    } else {
+                        setRecords([]);
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }
+
+            // If department head, load professors for selection
+                        if ((role || localStorage.getItem('role')) === 'jfedpto') {
+                                fetch(`${BACKEND_URL}/department-head/${idProfessor}/professors`, {
+                                        method: 'GET',
+                                        headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': localStorage.getItem('token')
+                                        }
+                                })
+                                    .then(res => {
+                                        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                                        return res.json();
+                                    })
+                                    .then(list => {
+                                        setProfessors(Array.isArray(list) ? list : []);
+                                    })
+                                    .catch(err => {
+                                        console.error('Error fetching professors:', err);
+                                        setProfessors([]);
+                                    });
+                        }
 
             const message = (
                     <>
-                        <p><strong>Si vas a cargar múltiples monitorias en "Cargar Datos",asegúrate de que el archivo Excel cumpla con el siguiente formato:</strong></p>
+                        <p><strong>Si vas a cargar múltiples monitorias en "Cargar Datos", asegúrate de que el archivo CSV o Excel cumpla con el siguiente formato:</strong></p>
                         <ul>
-                            <li>El archivo debe estar en formato <strong>.xlsx</strong>.</li>
+                            <li>Archivos soportados: <strong>.csv</strong> y <strong>.xlsx</strong>.</li>
                             <li>Cada fila representa una monitoría diferente.</li>
                             <li>No dejes columnas vacías si son obligatorias.</li>
-                            <li>Revisa que las fechas estén en el formato correcto (por ejemplo, <em>dd/mm/aaaa</em>).</li>
+                            <li>Revisa que las fechas estén en el formato correcto (por ejemplo, <em>dd-MM-aaaa</em>).</li>
                         </ul>
                         <p><strong>Debes incluir los siguientes campos obligatorios por fila:</strong></p>
                         <ul>
-                            <li>Nombre de la monitoría</li>
-                            <li>Fecha de inicio de postulación</li>
-                            <li>Fecha de cierre de postulación</li>
+                            <li>FACULTAD</li>
+                            <li>PROGRAMA</li>
+                            <li>CURSO</li>
+                            <li>FECHA INICIO (dd-MM-aaaa)</li>
+                            <li>FECHA FINALIZACION (dd-MM-aaaa)</li>
+                            <li>PERIODO (yyyy-1 o yyyy-2)</li>
+                            <li>PROMEDIO ACUMULADO</li>
+                            <li>PROMEDIO MATERIA</li>
                         </ul>
                         <p>
                             Puedes descargar un ejemplo del formato correcto haciendo clic aquí:&nbsp;
@@ -101,24 +135,30 @@ function CreateMonitoria() {
     }, []);
 
     useEffect(() => {
-        const idProfessor = localStorage.getItem('userId');
+        const idProfessor = userId;
+        const currentRole = role || localStorage.getItem('role');
+        if (currentRole === 'professor') {
             fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    setRecords(data); 
-                } else {
-                    console.error("Data format is incorrect or 'monitoria' is empty.");
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
-        
-    }, [change]);
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => setRecords(Array.isArray(data) ? data : []))
+                .catch(error => console.error('Error fetching data:', error));
+        } else if (currentRole === 'jfedpto' && selectedProfessorId) {
+            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${selectedProfessorId}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => setRecords(Array.isArray(data) ? data : []))
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    }, [change, selectedProfessorId, role]);
 
 
     // Fetch Program options
@@ -212,10 +252,10 @@ function CreateMonitoria() {
     };
 
 
-    const handleUpload = async () => {
+        const handleUpload = async () => {
         const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".xlsx, .xls";
+    input.type = "file";
+    input.accept = ".xlsx, .xls, .csv";
     
         input.onchange = async (event) => {
           const file = event.target.files[0];
@@ -230,8 +270,13 @@ function CreateMonitoria() {
     
           const formData = new FormData();
           formData.append("file", file);
-
-          const idProfessor = localStorage.getItem('userId')
+                    const currentRole = role || localStorage.getItem('role');
+                    const idProfessor = currentRole === 'jfedpto' ? selectedProfessorId : (localStorage.getItem('userId'));
+                    if (currentRole === 'jfedpto' && !idProfessor) {
+                        setMessage('Selecciona un profesor antes de cargar el archivo.');
+                        setIsOpen(true);
+                        return;
+                    }
     
           try {
             const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
@@ -269,7 +314,7 @@ function CreateMonitoria() {
             schoolName: selectedFaculty,
             start: selectedStartDate,
             finish: selectedFinishDate,
-            professorId: localStorage.getItem("userId"),
+                        professorId: (role || localStorage.getItem('role')) === 'jfedpto' ? selectedProfessorId : localStorage.getItem("userId"),
             semester: selectedSemester,
           };
         
@@ -398,6 +443,17 @@ function CreateMonitoria() {
                 <div className="cm-title-container">
                     <h2 className="cm-title">Crear monitoria</h2>
                 </div>
+                { (role === 'jfedpto') && (
+                    <div style={{ marginBottom: '12px' }}>
+                        <label style={{ marginRight: '8px' }}>Profesor:</label>
+                        <select value={selectedProfessorId} onChange={(e) => setSelectedProfessorId(e.target.value)}>
+                            <option value="">-- Selecciona profesor --</option>
+                            {professors.map((p) => (
+                                <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
                 {/* Title ends */}
 
                 <form className="cm-grid-container">

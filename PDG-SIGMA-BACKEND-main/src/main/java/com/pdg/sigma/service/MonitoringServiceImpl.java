@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -576,110 +579,183 @@ public class MonitoringServiceImpl implements MonitoringService{
 
 
     public String processListMonitor(MultipartFile file, String professorId) throws Exception {
+        String filename = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+        String contentType = file.getContentType() != null ? file.getContentType().toLowerCase() : "";
 
+        boolean isCsv = filename.endsWith(".csv") || contentType.contains("text/csv") || contentType.contains("application/csv")
+                || contentType.equals("application/vnd.ms-excel"); // algunos navegadores marcan csv así
+
+        if (isCsv) {
+            return processCsvFile(file, professorId);
+        } else {
+            return processExcelFile(file, professorId);
+        }
+    }
+
+    private String processExcelFile(MultipartFile file, String professorId) throws Exception {
         List<MonitoringDTO> registList = new ArrayList<>();
 
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(is)) {
-            Sheet sheet = workbook.getSheetAt(0); // Tomar la primera hoja
+        try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0); // primera hoja
             Iterator<Row> rowIterator = sheet.iterator();
-
 
             if (!rowIterator.hasNext()) {
                 throw new Exception("Incompatibilidad con alguno de los campos del archivo");
             }
-            // Read headers, columns name
-            Row header = rowIterator.next();
 
+            // Cabecera
+            Row header = rowIterator.next();
             List<String> columnsName = new ArrayList<>();
             for (Cell cell : header) {
                 columnsName.add(cell.getStringCellValue().trim());
             }
-
-            if(!checkColumns(columnsName)){
+            if (!checkColumns(columnsName)) {
                 throw new Exception("Incompatibilidad con alguno de los campos del archivo");
             }
 
-
-            // Read regist line by line
+            // Filas
             while (rowIterator.hasNext()) {
-
                 Row row = rowIterator.next();
-
-                MonitoringDTO monitoring = new MonitoringDTO(0.0,0.0); //Initialized monitorings with grades en 0.0
+                MonitoringDTO monitoring = new MonitoringDTO(0.0, 0.0);
                 for (int i = 0; i < columnsName.size(); i++) {
                     Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     String value = getCellValue(cell);
-
-                    if(value.equals("")){
+                    if (value.equals("")) {
                         throw new Exception("Incompatibilidad con alguno de los campos del archivo");
                     }
-
                     Object check = checkValue(i, value, monitoring, columnsName);
-
-                    if(check == null){
+                    if (check == null) {
                         throw new Exception("Incompatibilidad con alguno de los campos del archivo");
                     }
-
                     monitoring = (MonitoringDTO) check;
-
                 }
-
-                if(!(monitoring.getStart().before(monitoring.getFinish()) || monitoring.getStart().equals(monitoring.getFinish())) &&
-                        !(monitoring.getStart().after(new Date()) || monitoring.getStart().equals(new Date()))){
-
-                    throw new Exception("Incompatibilidad con alguno de los campos del archivo");
-                }
-                String semesterDraft = monitoring.getSemester();
-
-                Date currentDate = monitoring.getStart();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(currentDate);
-
-                int currentYear = calendar.get(Calendar.YEAR);
-                int currentMonth = calendar.get(Calendar.MONTH) + 1; // Los meses en Calendar van de 0 a 11
-
-
-                String[] parts = semesterDraft.split("-");
-                int givenYear = Integer.parseInt(parts[0]);
-                int givenSemester = Integer.parseInt(parts[1]);
-
-                // Si el año no coincide, retorna false
-                if (givenYear != currentYear) {
-                    throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el año actual)");
-                }
-
-
-                if (givenSemester == 1) {
-                    if(currentMonth > Calendar.JUNE + 1){
-                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
-                    }
-                } else if (givenSemester == 2) {
-                    if(currentMonth < Calendar.JULY + 1 ){
-                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
-                    }
-                }
-
-
+                validateDatesAndSemester(monitoring);
                 registList.add(monitoring);
-
             }
 
-            for (MonitoringDTO monitoring: registList){
-                if(monitoringRepository.findByCourse(monitoring.getCourse()).isPresent()){
-                    throw new Exception("Al menos una monitoria está creada");
+            return persistMonitorings(registList, professorId);
+        }
+    }
+
+    private String processCsvFile(MultipartFile file, String professorId) throws Exception {
+        List<MonitoringDTO> registList = new ArrayList<>();
+
+        try (InputStream is = file.getInputStream();
+             java.io.InputStreamReader isr = new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8);
+             CSVReader reader = new CSVReaderBuilder(isr).withSkipLines(0).build()) {
+
+            String[] header = reader.readNext();
+            if (header == null) {
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+            }
+
+            List<String> columnsName = new ArrayList<>();
+            for (String h : header) {
+                columnsName.add(h == null ? "" : h.trim());
+            }
+            if (!checkColumns(columnsName)) {
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+            }
+
+            String[] row;
+            while ((row = reader.readNext()) != null) {
+                if (row.length == 0) continue; // saltar filas vacías
+
+                MonitoringDTO monitoring = new MonitoringDTO(0.0, 0.0);
+                for (int i = 0; i < columnsName.size(); i++) {
+                    String value = (i < row.length && row[i] != null) ? row[i].trim() : "";
+                    if (value.isEmpty()) {
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                    }
+                    Object check = checkValue(i, value, monitoring, columnsName);
+                    if (check == null) {
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                    }
+                    monitoring = (MonitoringDTO) check;
                 }
+                validateDatesAndSemester(monitoring);
+                registList.add(monitoring);
             }
 
-            Professor professor = professorRepository.findById(professorId).get();
+            return persistMonitorings(registList, professorId);
+        }
+    }
 
-            for (MonitoringDTO monitoring: registList){
-                monitoring.setProfessor(professor);
-                monitoringRepository.save(new Monitoring(monitoring));
-            }
-            return "Todas las monitorias han sido creadas";
+    private void validateDatesAndSemester(MonitoringDTO monitoring) throws Exception {
+        if (!((monitoring.getStart().before(monitoring.getFinish()) || monitoring.getStart().equals(monitoring.getFinish()))
+                && (monitoring.getStart().after(new Date()) || monitoring.getStart().equals(new Date()) || monitoring.getFinish().after(new Date())))) {
+            throw new Exception("Incompatibilidad con alguno de los campos del archivo");
         }
 
+        String semesterDraft = monitoring.getSemester();
+        Date currentDate = monitoring.getStart();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH) + 1;
+
+        String[] parts = semesterDraft.split("-");
+        int givenYear = Integer.parseInt(parts[0]);
+        int givenSemester = Integer.parseInt(parts[1]);
+
+        if (givenYear != currentYear) {
+            throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el año actual)");
+        }
+        if (givenSemester == 1) {
+            if (currentMonth > Calendar.JUNE + 1) {
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
+            }
+        } else if (givenSemester == 2) {
+            if (currentMonth < Calendar.JULY + 1) {
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
+            }
+        }
+    }
+
+    private String persistMonitorings(List<MonitoringDTO> registList, String professorId) throws Exception {
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new Exception("Profesor no encontrado"));
+
+        List<String> creadas = new ArrayList<>();
+        List<String> omitidas = new ArrayList<>();
+
+        for (MonitoringDTO monitoring : registList) {
+            try {
+                if (monitoring == null || monitoring.getCourse() == null) {
+                    omitidas.add("Fila inválida: curso no identificado");
+                    continue;
+                }
+
+                Optional<Monitoring> existente = monitoringRepository.findByCourse(monitoring.getCourse());
+                if (existente.isPresent()) {
+                    omitidas.add(monitoring.getCourse().getName() + ": ya existía");
+                    continue;
+                }
+
+                monitoring.setProfessor(professor);
+                monitoringRepository.save(new Monitoring(monitoring));
+                creadas.add(monitoring.getCourse().getName());
+            } catch (Exception ex) {
+                String courseName = (monitoring != null && monitoring.getCourse() != null)
+                        ? monitoring.getCourse().getName()
+                        : "(curso desconocido)";
+                omitidas.add(courseName + ": " + ex.getMessage());
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (!creadas.isEmpty()) {
+            sb.append("Creadas (" + creadas.size() + "): ").append(String.join(", ", creadas));
+        }
+        if (!omitidas.isEmpty()) {
+            if (sb.length() > 0) sb.append(" | ");
+            sb.append("Omitidas (" + omitidas.size() + "): ").append(String.join(", ", omitidas));
+        }
+        if (sb.length() == 0) {
+            sb.append("No se creó ninguna monitoría");
+        }
+        return sb.toString();
     }
 
     //Method to check values header
@@ -1110,8 +1186,14 @@ public class MonitoringServiceImpl implements MonitoringService{
         if (!monitoring.isPresent()) {
             return false;
         }
-        if(!monitoringMonitorRepository.findByMonitoring(monitoring.get()).isEmpty()) {
-            return false;
+        List<MonitoringMonitor> relaciones = monitoringMonitorRepository.findByMonitoring(monitoring.get());
+        boolean tieneSeleccionados = relaciones.stream().anyMatch(mm -> mm.getEstadoSeleccion().equalsIgnoreCase("seleccionado"));
+        if (tieneSeleccionados) {
+            return false; // No se puede eliminar si hay monitores seleccionados
+        }
+        // Elimina postulaciones no seleccionadas
+        for (MonitoringMonitor mm : relaciones) {
+            monitoringMonitorRepository.delete(mm);
         }
         monitoringRepository.delete(monitoring.get());
         return true;
