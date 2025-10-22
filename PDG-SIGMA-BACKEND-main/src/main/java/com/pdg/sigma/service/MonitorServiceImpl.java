@@ -41,6 +41,12 @@ public class MonitorServiceImpl implements MonitorService {
             List<MonitoringMonitor> postulationsForThisMonitor = monitoringMonitorRepository.findByMonitor(monitor);
 
             for (MonitoringMonitor postulation : postulationsForThisMonitor) {
+                // FILTRO: Excluir postulaciones ya procesadas por el jefe de departamento
+                String estado = postulation.getEstadoSeleccion();
+                if ("aprobado".equalsIgnoreCase(estado) || "rechazado".equalsIgnoreCase(estado)) {
+                    continue; // Skip postulaciones ya aprobadas o rechazadas por el jefe
+                }
+                
                 MonitorDTO postulationDTO = new MonitorDTO();
 
                 postulationDTO.setCode(monitor.getCode());

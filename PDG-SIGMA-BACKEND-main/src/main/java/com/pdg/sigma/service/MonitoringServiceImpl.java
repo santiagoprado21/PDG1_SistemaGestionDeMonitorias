@@ -60,12 +60,24 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    /**
+     * Método auxiliar para verificar si una monitoría ya tiene un monitor aprobado
+     * @param monitoring La monitoría a verificar
+     * @return true si tiene un monitor aprobado, false en caso contrario
+     */
+    private boolean hasApprovedMonitor(Monitoring monitoring) {
+        List<MonitoringMonitor> applications = monitoringMonitorRepository.findByMonitoring(monitoring);
+        return applications.stream()
+                .anyMatch(mm -> "aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()));
+    }
 
     @Override
     public List<Monitoring> findAll() {
         Date now = new Date();
 
         return monitoringRepository.findAll().stream()
+                // FILTRO: Excluir monitorías que ya tienen un monitor aprobado
+                .filter(monitoring -> !hasApprovedMonitor(monitoring))
                 .sorted(Comparator.comparing(m -> {
                     Date start = m.getStart();
                     Date end = m.getFinish();
@@ -153,27 +165,25 @@ public class MonitoringServiceImpl implements MonitoringService{
             if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
                 List<Monitoring> temp = new ArrayList<>();
                 for(Monitoring element: monitoring){
-                    if(element.getStart().before(currentDate) ||element.getStart().equals(currentDate) && element.getFinish().after(currentDate) || element.getFinish().equals(currentDate)){
+                    // Filtrar monitorías sin monitor aprobado Y activas
+                    if(!hasApprovedMonitor(element) && (element.getStart().before(currentDate) ||element.getStart().equals(currentDate)) && (element.getFinish().after(currentDate) || element.getFinish().equals(currentDate))){
                         temp.add(element);
                     }
                 }
                 return temp;
-
-
-
             }
             else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
                 List<Monitoring> temp = new ArrayList<>();
                 for(Monitoring element: monitoring){
-                    if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                    // Filtrar monitorías sin monitor aprobado Y inactivas (futuras)
+                    if(!hasApprovedMonitor(element) && element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
                         temp.add(element);
                     }
                 }
                 return temp;
             }
 
-
-
+            // Vencidas - mostrar todas (son históricas, no se puede postular)
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring){
                 if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
@@ -183,8 +193,23 @@ public class MonitoringServiceImpl implements MonitoringService{
             return temp;
 
         }else{
-            List<Monitoring> monitoring = this.findAll();
             Date currentDate = new Date();
+            
+            // Para monitorías vencidas, obtener TODAS (sin filtro de monitor aprobado)
+            // Para activas/inactivas, usar findAll() que filtra monitorías con monitor aprobado
+            if(monitoringDTO.getCourseName().equalsIgnoreCase("Vencido")){
+                List<Monitoring> allMonitoring = monitoringRepository.findAll();
+                List<Monitoring> temp = new ArrayList<>();
+                for(Monitoring element: allMonitoring){
+                    if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
+                        temp.add(element);
+                    }
+                }
+                return temp;
+            }
+            
+            // Para activas e inactivas, usar findAll() filtrado
+            List<Monitoring> monitoring = this.findAll();
             if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
                 List<Monitoring> temp = new ArrayList<>();
                 for(Monitoring element: monitoring){
@@ -193,9 +218,6 @@ public class MonitoringServiceImpl implements MonitoringService{
                     }
                 }
                 return temp;
-
-
-
             }
             else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
                 List<Monitoring> temp = new ArrayList<>();
@@ -207,15 +229,8 @@ public class MonitoringServiceImpl implements MonitoringService{
                 return temp;
             }
 
-
-
-            List<Monitoring> temp = new ArrayList<>();
-            for(Monitoring element: monitoring){
-                if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
-                    temp.add(element);
-                }
-            }
-            return temp;
+            // Default: retornar todas las activas
+            return monitoring;
         }
 
     }
@@ -228,7 +243,8 @@ public class MonitoringServiceImpl implements MonitoringService{
         if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring){
-                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                // Filtrar monitorías sin monitor aprobado Y activas
+                if(!hasApprovedMonitor(element) && element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
                     temp.add(element);
                 }
             }
@@ -237,13 +253,15 @@ public class MonitoringServiceImpl implements MonitoringService{
         else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring){
-                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                // Filtrar monitorías sin monitor aprobado Y inactivas (futuras)
+                if(!hasApprovedMonitor(element) && element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
                     temp.add(element);
                 }
             }
             return temp;
         }
 
+        // Vencidas - mostrar todas (son históricas, no se puede postular)
         List<Monitoring> temp = new ArrayList<>();
         for(Monitoring element: monitoring){
             if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
@@ -260,7 +278,8 @@ public class MonitoringServiceImpl implements MonitoringService{
         if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring.stream().toList()){
-                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                // Filtrar monitorías sin monitor aprobado Y activas
+                if(!hasApprovedMonitor(element) && element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
                     temp.add(element);
                 }
             }
@@ -269,13 +288,15 @@ public class MonitoringServiceImpl implements MonitoringService{
         else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring.stream().toList()){
-                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                // Filtrar monitorías sin monitor aprobado Y inactivas (futuras)
+                if(!hasApprovedMonitor(element) && element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
                     temp.add(element);
                 }
             }
             return temp;
         }
 
+        // Vencidas - mostrar todas (son históricas, no se puede postular)
         List<Monitoring> temp = new ArrayList<>();
         for(Monitoring element: monitoring.stream().toList()){
             if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){

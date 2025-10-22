@@ -37,11 +37,9 @@ public class MonitorController {
     public ResponseEntity<?> getAllMonitor(){
         try{
             List<MonitorDTO> listMonitor = monitorService.findAllNew();
-            if(!listMonitor.isEmpty()){
-                return ResponseEntity.status(200).body(listMonitor);
-            }
-
-            return ResponseEntity.status(404).body("No hay postulantes en la lista");
+            // Siempre devolver 200 con un array (vacío si no hay postulantes)
+            // Esto evita errores de parsing JSON en el frontend
+            return ResponseEntity.status(200).body(listMonitor);
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
