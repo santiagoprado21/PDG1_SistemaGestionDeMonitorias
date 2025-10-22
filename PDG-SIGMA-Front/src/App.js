@@ -14,6 +14,7 @@ import { MyProvider } from './MyContext';
 import CreateActivity from './CreateActivity';
 import Profile from './Profile';
 import Reports from './Reports';
+import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
 
 function App() {
@@ -79,6 +80,9 @@ function App() {
 
          {/* Route for Approve Applications (Department Head) */}
          <Route path="/ApproveApplications" element={<ApproveApplications />} />
+
+         {/* Route for Generate SIMON File */}
+         <Route path="/GenerateSimonFile" element={<GenerateSimonFile />} />
       </Routes>
     </div>
   );

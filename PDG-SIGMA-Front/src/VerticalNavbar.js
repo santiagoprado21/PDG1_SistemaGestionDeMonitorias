@@ -206,6 +206,12 @@ function VerticalNavbar() {
             >
               Aprobar Postulaciones
             </NavLink>
+            <NavLink
+              to="/GenerateSimonFile"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Generar Archivo SIMON
+            </NavLink>
           </>
         )}
 
