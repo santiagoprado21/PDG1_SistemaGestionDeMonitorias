@@ -1,62 +1,19 @@
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║              CÓMO CREAR USUARIOS PARA PROBAR LA APP              ║
+║         USUARIOS DE PRUEBA - SISTEMA SIGMA (NEON CLOUD)         ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 
-🎯 RESUMEN RÁPIDO
+🎯 USUARIOS YA CREADOS EN NEON
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Ya creé un script con usuarios de prueba listos para usar.
-Solo necesitas ejecutar el archivo: datos_prueba.sql
+✅ Los usuarios ya están creados en la base de datos Neon.
+✅ Solo necesitas iniciar sesión con las credenciales de abajo.
+✅ No es necesario ejecutar scripts SQL manualmente.
 
 
-📝 PASOS DETALLADOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ PASO 1: Crear las bases de datos
-   → Abre pgAdmin
-   → Crea las bases de datos: sigma_db y banner_db
-   → (O ejecuta el script: crear_bases_datos.sql)
-
-✅ PASO 2: Iniciar los backends POR PRIMERA VEZ
-   → Doble clic en: 1_EJECUTAR_BACKEND.bat
-   → Espera hasta ver: "Started SigmaApplication"
-   → Doble clic en: OPCIONAL_API_Banner.bat
-   → Espera hasta que termine de cargar
-   
-   ⚠️ IMPORTANTE: Esto crea las tablas automáticamente
-
-✅ PASO 3: Ejecutar el script de usuarios
-   → Abre pgAdmin
-   → Click derecho en la base de datos "banner_db" → Query Tool
-   → Abre el archivo: 1_datos_banner.sql
-   → Click en el botón ▶ (Ejecutar) o presiona F5
-   
-   → Luego, click derecho en la base de datos "sigma_db" → Query Tool
-   → Abre el archivo: 2_datos_sigma.sql
-   → Click en el botón ▶ (Ejecutar) o presiona F5
-   → Verás un mensaje de confirmación con las credenciales
-
-✅ PASO 4: Ejecutar datos académicos (Facultades, Programas, Cursos)
-   → En pgAdmin, click derecho en "banner_db" → Query Tool
-   → Abre el archivo: 3_datos_academicos.sql
-   → Click en ▶ Ejecutar (F5)
-   
-   → Luego, click derecho en "sigma_db" → Query Tool
-   → Abre el archivo: 4_datos_academicos_sigma.sql
-   → Click en ▶ Ejecutar (F5)
-   
-   ⚠️ IMPORTANTE: Sin estos datos NO podrás crear monitorías
-
-✅ PASO 5: ¡Listo para probar!
-   → Inicia el frontend: 2_EJECUTAR_FRONTEND.bat
-   → Ve a: http://localhost:3000
-   → Prueba con cualquiera de las credenciales de abajo
-
-
-🔐 CREDENCIALES CREADAS
+🔐 CREDENCIALES DISPONIBLES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📚 ESTUDIANTES (Pueden postularse como monitores)
@@ -109,57 +66,11 @@ Solo necesitas ejecutar el archivo: datos_prueba.sql
     → Selecciona monitores
 
 4️⃣  Inicia como JEFE DE DEPARTAMENTO (5001 / jefe123)
-    → Ve todas las monitorías del sistema
+    → Aprueba monitorías
     → Genera reportes
 
 
-🔧 CREAR MÁS USUARIOS MANUALMENTE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Si necesitas crear más usuarios, puedes ejecutar SQL directamente en pgAdmin:
-
-Para un ESTUDIANTE:
-  -- En banner_db:
-  INSERT INTO prospect (id, code, name, last_name, email, password, semester, grade_average, grade_course) 
-  VALUES ('2220099', '2220099', 'Nuevo', 'Estudiante', 'nuevo@ejemplo.com', '123456', 5, 4.0, 4.0);
-
-Para un PROFESOR:
-  -- En banner_db (solo id, name, password):
-  INSERT INTO professor (id, name, password) 
-  VALUES ('1099', 'Nuevo Profesor', 'pass123');
-  
-  -- También en sigma_db:
-  INSERT INTO professor (id, name, password) 
-  VALUES ('1099', 'Nuevo Profesor', 'pass123');
-
-Para un JEFE DE DEPARTAMENTO:
-  -- En banner_db (solo id, name, password):
-  INSERT INTO department_head (id, name, password) 
-  VALUES ('5099', 'Nuevo Jefe', 'pass123');
-  
-  -- También en sigma_db:
-  INSERT INTO department_head (id, name, password) 
-  VALUES ('5099', 'Nuevo Jefe', 'pass123');
-
-
-❓ PROBLEMAS COMUNES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-❌ "No se puede insertar en la tabla"
-   → Asegúrate de haber iniciado los backends primero
-   → Verifica que las tablas se crearon automáticamente
-
-❌ "Usuario o contraseña incorrecta"
-   → Verifica que el script se ejecutó correctamente
-   → Revisa que el API Banner esté corriendo (puerto 5434)
-   → Verifica los datos en pgAdmin (tabla prospect/professor)
-
-❌ "Este profesor no tiene materias asignadas"
-   → Los profesores necesitan cursos asignados para funcionar
-   → Ejecuta los scripts: 3_datos_academicos.sql y 4_datos_academicos_sigma.sql
-
-
-📊 DATOS ACADÉMICOS CREADOS
+📊 DATOS ACADÉMICOS DISPONIBLES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🏛️ FACULTADES:
@@ -168,14 +79,14 @@ Para un JEFE DE DEPARTAMENTO:
    • Facultad de Humanidades
 
 🎓 PROGRAMAS:
-   • Ingeniería de Sistemas (Facultad de Ingeniería)
-   • Ingeniería Industrial (Facultad de Ingeniería)
-   • Ingeniería Electrónica (Facultad de Ingeniería)
-   • Matemáticas (Facultad de Ciencias)
-   • Física (Facultad de Ciencias)
-   • Psicología (Facultad de Humanidades)
+   • Ingeniería de Sistemas
+   • Ingeniería Industrial
+   • Ingeniería Electrónica
+   • Matemáticas
+   • Física
+   • Psicología
 
-📚 CURSOS CREADOS (16 cursos):
+📚 CURSOS (16 cursos disponibles):
    
    Ingeniería de Sistemas:
    • Programación I → Prof. Roberto Castillo
@@ -206,9 +117,45 @@ Para un JEFE DE DEPARTAMENTO:
    • Psicología Social
 
 
+🔧 AGREGAR MÁS USUARIOS (Avanzado)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Si necesitas crear más usuarios, conéctate al SQL Editor de Neon:
+https://console.neon.tech
+
+Para un ESTUDIANTE:
+  -- En schema banner:
+  INSERT INTO banner.prospect (id, code, name, last_name, email, password, semester, grade_average, grade_course) 
+  VALUES ('2220099', '2220099', 'Nuevo', 'Estudiante', 'nuevo@ejemplo.com', '123456', 5, 4.0, 4.0);
+  
+  -- En schema sigma:
+  INSERT INTO sigma.prospect (id, code, name, last_name, email, password, semester, grade_average, grade_course) 
+  VALUES ('2220099', '2220099', 'Nuevo', 'Estudiante', 'nuevo@ejemplo.com', '123456', 5, 4.0, 4.0);
+
+Para un PROFESOR:
+  -- En schema banner:
+  INSERT INTO banner.professor (id, name, password) 
+  VALUES ('1099', 'Nuevo Profesor', 'pass123');
+  
+  -- En schema sigma:
+  INSERT INTO sigma.professor (id, name, password) 
+  VALUES ('1099', 'Nuevo Profesor', 'pass123');
+
+Para un JEFE DE DEPARTAMENTO:
+  -- En schema banner:
+  INSERT INTO banner.department_head (id, name, password) 
+  VALUES ('5099', 'Nuevo Jefe', 'pass123');
+  
+  -- En schema sigma:
+  INSERT INTO sigma.department_head (id, name, password) 
+  VALUES ('5099', 'Nuevo Jefe', 'pass123');
+
+
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║                ¡Todo listo para probar el sistema! 🎉           ║
+║     ¡Todo listo para probar el sistema en la nube! 🎉 ☁️        ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
+Para más información sobre la configuración de Neon:
+→ Ver: LEEME_MIGRACION_NEON.md
