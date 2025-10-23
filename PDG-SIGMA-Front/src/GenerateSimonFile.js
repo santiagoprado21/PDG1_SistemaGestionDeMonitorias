@@ -24,6 +24,7 @@ function GenerateSimonFile() {
     const loadPreview = async () => {
         setIsLoading(true);
         try {
+            console.log("🔄 Cargando vista previa de monitorías aprobadas...");
             const response = await fetch(`${BACKEND_URL}/simon/preview`, {
                 method: 'GET',
                 headers: {
@@ -37,9 +38,11 @@ function GenerateSimonFile() {
             }
 
             const data = await response.json();
+            console.log("✅ Datos recibidos:", data);
+            console.log("📊 Total monitorías:", data.totalMonitorings);
             setPreviewData(data);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('❌ Error:', error);
             setMessage("Error al cargar vista previa de datos");
             setIsOpen(true);
         } finally {
@@ -177,6 +180,17 @@ function GenerateSimonFile() {
                         disabled={!previewData || !previewData.canGenerate || isLoading}
                     >
                         {isLoading ? 'Generando...' : '📥 Generar y Descargar Archivo SIMON'}
+                    </button>
+                    <button 
+                        className="btn-toggle-history"
+                        onClick={() => {
+                            loadPreview();
+                            setMessage("Datos actualizados");
+                            setIsOpen(true);
+                        }}
+                        disabled={isLoading}
+                    >
+                        🔄 Refrescar Datos
                     </button>
                     <button 
                         className="btn-toggle-history"

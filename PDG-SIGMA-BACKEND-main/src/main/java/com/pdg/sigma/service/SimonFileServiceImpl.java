@@ -79,10 +79,22 @@ public class SimonFileServiceImpl implements SimonFileService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SimonMonitoringDTO> getApprovedMonitoringsForSimon() {
         // Obtener todas las postulaciones aprobadas por el jefe
         List<MonitoringMonitor> approvedMonitorings = 
             monitoringMonitorRepository.findByEstadoSeleccion("aprobado");
+
+        System.out.println("=== DEBUG SIMON FILE SERVICE ===");
+        System.out.println("Total monitorías aprobadas encontradas: " + approvedMonitorings.size());
+        
+        // Log detallado de cada monitoría encontrada
+        for (MonitoringMonitor mm : approvedMonitorings) {
+            System.out.println("  - Monitor: " + mm.getMonitor().getName() + " " + mm.getMonitor().getLastName() + 
+                             " (Código: " + mm.getMonitor().getCode() + 
+                             ") - Estado: " + mm.getEstadoSeleccion());
+        }
+        System.out.println("================================");
 
         List<SimonMonitoringDTO> simonDTOs = new ArrayList<>();
 

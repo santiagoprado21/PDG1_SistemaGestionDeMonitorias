@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/simon")
-@CrossOrigin(origins = "*")
+@RequestMapping("/simon")
 public class SimonFileController {
 
     @Autowired
