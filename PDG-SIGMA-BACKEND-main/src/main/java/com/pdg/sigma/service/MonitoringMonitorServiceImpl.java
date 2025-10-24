@@ -2,6 +2,7 @@ package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.MonitorDTO;
+import com.pdg.sigma.dto.ApproveApplicationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.pdg.sigma.repository.MonitoringMonitorRepository;
@@ -11,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.MonitoringMonitor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,6 +68,52 @@ public class MonitoringMonitorServiceImpl {
     mm.setEstadoSeleccion(newStatus);
     monitoringMonitorRepository.save(mm);
 }
+
+    public void approveApplication(ApproveApplicationRequest request) throws Exception {
+        MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(
+            request.getMonitoringId(), 
+            request.getMonitorCode()
+        ).orElseThrow(() -> new EntityNotFoundException(
+            "MonitoringMonitor relation not found for monitoringId " + 
+            request.getMonitoringId() + " and monitor code " + request.getMonitorCode()
+        ));
+
+        // Verificar que no esté ya aprobado/rechazado
+        if ("aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()) || 
+            "rechazado".equalsIgnoreCase(mm.getEstadoSeleccion())) {
+            throw new Exception("Esta postulación ya fue procesada anteriormente");
+        }
+
+        mm.setEstadoSeleccion("aprobado");
+        mm.setComentarioDecision(request.getComentario());
+        mm.setFechaDecision(LocalDateTime.now());
+        mm.setDecididoPor(request.getDepartmentHeadId());
+        
+        monitoringMonitorRepository.save(mm);
+    }
+
+    public void rejectApplication(ApproveApplicationRequest request) throws Exception {
+        MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(
+            request.getMonitoringId(), 
+            request.getMonitorCode()
+        ).orElseThrow(() -> new EntityNotFoundException(
+            "MonitoringMonitor relation not found for monitoringId " + 
+            request.getMonitoringId() + " and monitor code " + request.getMonitorCode()
+        ));
+
+        // Verificar que no esté ya aprobado/rechazado
+        if ("aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()) || 
+            "rechazado".equalsIgnoreCase(mm.getEstadoSeleccion())) {
+            throw new Exception("Esta postulación ya fue procesada anteriormente");
+        }
+
+        mm.setEstadoSeleccion("rechazado");
+        mm.setComentarioDecision(request.getComentario());
+        mm.setFechaDecision(LocalDateTime.now());
+        mm.setDecididoPor(request.getDepartmentHeadId());
+        
+        monitoringMonitorRepository.save(mm);
+    }
 
 
 }

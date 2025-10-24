@@ -77,3 +77,13 @@ yarn-error.log*
 *.p12
 *.pfx
 
+# ================================================
+# CREDENCIALES NEON Y ARCHIVOS LOCALES
+# ================================================
+# Archivo con credenciales de Neon (local)
+credenciales_neon_LOCAL.txt
+
+# Si creas archivos de configuración locales con credenciales
+*-LOCAL.properties
+*-local-credentials.*
+
