@@ -9,6 +9,7 @@ import ApplyMonitor from './ApplyMonitor';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import CreateMonitoria from './CreateMonitoria';
 import Applicants from './Applicants';
+import ApproveApplications from './ApproveApplications';
 import { MyProvider } from './MyContext';
 import CreateActivity from './CreateActivity';
 import Profile from './Profile';
@@ -75,6 +76,9 @@ function App() {
 
          {/* Route for Reports */}
          <Route path="/Reports" element={<Reports />} />
+
+         {/* Route for Approve Applications (Department Head) */}
+         <Route path="/ApproveApplications" element={<ApproveApplications />} />
       </Routes>
     </div>
   );
