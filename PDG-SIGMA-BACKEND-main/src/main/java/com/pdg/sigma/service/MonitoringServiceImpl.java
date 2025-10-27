@@ -801,7 +801,7 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     List<String> creadas = new ArrayList<>();
     List<String> omitidas = new ArrayList<>();
-    boolean alreadyCreatedForProfessor = false; // máximo una por importación/profesor
+    // Se elimina la restricción de "una por profesor"; se permite crear múltiples monitorías por profesor
 
         for (MonitoringDTO monitoring : registList) {
             try {
@@ -818,21 +818,16 @@ public class MonitoringServiceImpl implements MonitoringService{
                 }
                 // Sin regla 15+: no se valida número de estudiantes
 
-                Optional<Monitoring> existente = monitoringRepository.findByCourse(monitoring.getCourse());
+                // Duplicidad por curso y semestre para el mismo profesor
+                Optional<Monitoring> existente = monitoringRepository
+                        .findByProfessorAndCourseAndSemester(professor, monitoring.getCourse(), monitoring.getSemester());
                 if (existente.isPresent()) {
-                    omitidas.add(monitoring.getCourse().getName() + ": ya existía");
-                    continue;
-                }
-
-                // Evitar violar restricción única por profesor en BD: sólo una por importación
-                if (alreadyCreatedForProfessor || !monitoringRepository.findByProfessor(professor).isEmpty()) {
-                    omitidas.add(monitoring.getCourse().getName() + ": el profesor ya tiene una monitoría creada");
+                    omitidas.add(monitoring.getCourse().getName() + ": ya existía para el semestre " + monitoring.getSemester());
                     continue;
                 }
 
                 monitoring.setProfessor(professor);
                 monitoringRepository.save(new Monitoring(monitoring));
-                alreadyCreatedForProfessor = true;
                 creadas.add(monitoring.getCourse().getName());
             } catch (Exception ex) {
                 String courseName = (monitoring != null && monitoring.getCourse() != null)

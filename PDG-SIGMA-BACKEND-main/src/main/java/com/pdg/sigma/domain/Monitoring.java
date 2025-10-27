@@ -30,7 +30,7 @@ public class Monitoring implements Serializable {
     @JoinColumn(name = "program_id", nullable = false)
     private Program program;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
@@ -49,7 +49,7 @@ public class Monitoring implements Serializable {
     @Column(name = "semester", nullable = false)
     private String semester;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
 

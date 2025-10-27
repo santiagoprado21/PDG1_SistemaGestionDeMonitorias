@@ -96,7 +96,7 @@ public class BulkMonitoringImportTest {
     }
 
     @Test
-    void acceptsCsv_creates_one_and_omits_rest_by_professor() throws Exception {
+    void acceptsCsv_creates_all_rows() throws Exception {
         String header = "FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA\n";
         String r1 = String.format("%s,%s,%s,28-10-2025,30-11-2025,2025-2,4.5,4.6,8,10000\n",
                 school.getName(), program.getName(), courseLow.getName());
@@ -106,14 +106,12 @@ public class BulkMonitoringImportTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "monitorias.csv", "text/csv", bytes);
 
-        String result = monitoringService.processListMonitor(file, professor.getId());
+    String result = monitoringService.processListMonitor(file, professor.getId());
 
-        // Sin regla 15+: se crea una y el resto omitido por unicidad por profesor
-        assertTrue(result.contains("Creadas"), "Debe listar Creadas");
-        assertTrue(result.contains("Omitidas"), "Debe listar Omitidas por unicidad del profesor");
-        assertTrue(result.contains(courseHigh.getName()));
-        assertTrue(result.contains(courseLow.getName()));
-        assertEquals(1, monitoringRepository.count(), "Debe existir solo una monitoría creada");
+    // Se deben crear ambas filas del CSV para el mismo profesor
+    assertTrue(result.contains("Creadas (2)"), "Debe indicar que se crearon 2 monitorías");
+    assertFalse(result.contains("Omitidas"), "No debe haber omitidas en este caso");
+    assertEquals(2, monitoringRepository.count(), "Deben existir dos monitorías creadas");
     }
 
     @Test
@@ -131,7 +129,7 @@ public class BulkMonitoringImportTest {
     }
 
     @Test
-    void acceptsExcel_creates_one_and_omits_rest_by_professor() throws Exception {
+    void acceptsExcel_creates_all_rows() throws Exception {
         // Prepare Excel workbook in-memory
         XSSFWorkbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Sheet1");
@@ -177,14 +175,13 @@ public class BulkMonitoringImportTest {
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 xlsx);
 
-        String result = monitoringService.processListMonitor(file, professor.getId());
-        assertTrue(result.contains("Creadas"));
-        assertTrue(result.contains("Omitidas"));
-        assertTrue(result.contains(courseHigh.getName()) && result.contains(courseLow.getName()));
+    String result = monitoringService.processListMonitor(file, professor.getId());
+    assertTrue(result.contains("Creadas (2)"));
+    assertFalse(result.contains("Omitidas"));
     }
 
     @Test
-    void acceptsCsv_with_msexcel_contentType_creates_one_and_omits_rest() throws Exception {
+    void acceptsCsv_with_msexcel_contentType_creates_all() throws Exception {
     String header = "FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA\n";
     String r1 = String.format("%s,%s,%s,28-10-2025,30-11-2025,2025-2,4.5,4.6,8,10000\n",
         school.getName(), program.getName(), courseLow.getName());
@@ -195,9 +192,8 @@ public class BulkMonitoringImportTest {
         "file", "monitorias.csv", "application/vnd.ms-excel", bytes);
 
     String result = monitoringService.processListMonitor(file, professor.getId());
-    assertTrue(result.contains("Creadas"));
-    assertTrue(result.contains("Omitidas"));
-    assertTrue(result.contains(courseHigh.getName()) && result.contains(courseLow.getName()));
+    assertTrue(result.contains("Creadas (2)"));
+    assertFalse(result.contains("Omitidas"));
     }
 
     @Test
@@ -257,7 +253,7 @@ public class BulkMonitoringImportTest {
     }
 
     @Test
-    void csv_duplicate_course_is_omitted() throws Exception {
+    void csv_duplicate_course_is_omitted_for_same_prof_and_semester() throws Exception {
     String header = "FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA\n";
     String row = String.format("%s,%s,%s,28-10-2025,30-11-2025,2025-2,4.5,4.6,8,10000\n",
         school.getName(), program.getName(), courseHigh.getName());
@@ -270,7 +266,7 @@ public class BulkMonitoringImportTest {
     MockMultipartFile f2 = new MockMultipartFile("file", "monitorias.csv", "text/csv", bytes);
     String second = monitoringService.processListMonitor(f2, professor.getId());
     assertTrue(second.contains("Omitidas"));
-    assertTrue(second.toLowerCase().contains("existía"));
+    assertTrue(second.contains("ya existía para el semestre 2025-2"));
     }
 
     @Test

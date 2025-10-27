@@ -50,6 +50,7 @@ function CreateMonitoria() {
     const [message, setMessage] = useState("");
     const [change, setChange] = useState(false);
     const [file, setFile] = useState(null); //File
+    const [isLoading, setIsLoading] = useState(false); // Loading state for table refresh
 
 
     // Fetch Faculty options
@@ -154,7 +155,12 @@ function CreateMonitoria() {
         const idProfessor = userId;
         const currentRole = role || localStorage.getItem('role');
         if (currentRole === 'professor') {
-            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
+            setIsLoading(true);
+            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`, {
+                headers: {
+                    'Authorization': localStorage.getItem('token') || ''
+                }
+            })
                 .then(res => {
                     if (!res.ok) {
                         throw new Error(`HTTP error! Status: ${res.status}`);
@@ -162,9 +168,15 @@ function CreateMonitoria() {
                     return res.json();
                 })
                 .then(data => setRecords(Array.isArray(data) ? data : []))
-                .catch(error => console.error('Error fetching data:', error));
+                .catch(error => console.error('Error fetching data:', error))
+                .finally(() => setIsLoading(false));
         } else if (currentRole === 'jfedpto' && selectedProfessorId) {
-            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${selectedProfessorId}`)
+            setIsLoading(true);
+            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${selectedProfessorId}`, {
+                headers: {
+                    'Authorization': localStorage.getItem('token') || ''
+                }
+            })
                 .then(res => {
                     if (!res.ok) {
                         throw new Error(`HTTP error! Status: ${res.status}`);
@@ -172,7 +184,8 @@ function CreateMonitoria() {
                     return res.json();
                 })
                 .then(data => setRecords(Array.isArray(data) ? data : []))
-                .catch(error => console.error('Error fetching data:', error));
+                .catch(error => console.error('Error fetching data:', error))
+                .finally(() => setIsLoading(false));
         }
     }, [change, selectedProfessorId, role]);
 
@@ -286,7 +299,7 @@ function CreateMonitoria() {
     input.type = "file";
     input.accept = ".xlsx, .xls, .csv";
     
-        input.onchange = async (event) => {
+                input.onchange = async (event) => {
           const file = event.target.files[0];
     
           if (!file) {
@@ -307,7 +320,7 @@ function CreateMonitoria() {
                         return;
                     }
     
-          try {
+                    try {
             const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
               method: "POST",
                 headers: {
@@ -321,6 +334,8 @@ function CreateMonitoria() {
             // alert(message);
             setMessage(message)
             setIsOpen(!isOpen)
+                        // Trigger a refresh of the table to reflect newly created monitorías
+                        setChange(prev => !prev);
 
           } catch (error) {
             console.error("Error:", error);
@@ -487,7 +502,15 @@ function CreateMonitoria() {
                 { (role === 'jfedpto') && (
                     <div style={{ marginBottom: '12px' }}>
                         <label style={{ marginRight: '8px' }}>Profesor:</label>
-                        <select value={selectedProfessorId} onChange={(e) => setSelectedProfessorId(e.target.value)}>
+                        <select
+                            value={selectedProfessorId}
+                            onChange={(e) => {
+                                setSelectedProfessorId(e.target.value);
+                                setCurrentPage(1);
+                                // Show empty state immediately while fetching
+                                setRecords([]);
+                            }}
+                        >
                             <option value="">-- Selecciona profesor --</option>
                             {professors.map((p) => (
                                 <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
@@ -632,7 +655,17 @@ function CreateMonitoria() {
                             </tr>
                         </thead>
                         <tbody>
-                                {processedRecords.map((record, i) => {
+                                {isLoading && (
+                                    <tr>
+                                        <td className="table-data" colSpan="10">Cargando monitorías...</td>
+                                    </tr>
+                                )}
+                                {!isLoading && processedRecords.length === 0 && (
+                                    <tr>
+                                        <td className="table-data" colSpan="10">Este profesor no tiene monitorías cargadas.</td>
+                                    </tr>
+                                )}
+                                {!isLoading && processedRecords.map((record, i) => {
                                     
                                     return (
                                         <tr key={i}>
