@@ -66,8 +66,7 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private DepartmentBudgetRepository departmentBudgetRepository;
 
-    @Autowired
-    private StudentCourseRepository studentCourseRepository;
+    // Se elimina validación de estudiantes matriculados; no se requiere este repositorio
 
     /**
      * Método auxiliar para verificar si una monitoría ya tiene un monitor aprobado
@@ -800,8 +799,9 @@ public class MonitoringServiceImpl implements MonitoringService{
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new Exception("Profesor no encontrado"));
 
-        List<String> creadas = new ArrayList<>();
-        List<String> omitidas = new ArrayList<>();
+    List<String> creadas = new ArrayList<>();
+    List<String> omitidas = new ArrayList<>();
+    boolean alreadyCreatedForProfessor = false; // máximo una por importación/profesor
 
         for (MonitoringDTO monitoring : registList) {
             try {
@@ -810,24 +810,13 @@ public class MonitoringServiceImpl implements MonitoringService{
                     continue;
                 }
 
-                // Regla: solo crear monitorías para cursos con 15 o más estudiantes matriculados
                 Course course = monitoring.getCourse();
                 int courseIdInt = course.getId() == null ? -1 : Math.toIntExact(course.getId());
                 if (courseIdInt <= 0) {
                     omitidas.add(course.getName() + ": id de curso inválido");
                     continue;
                 }
-                int enrolledCount = 0;
-                try {
-                    enrolledCount = studentCourseRepository.findByCourseId(courseIdInt).size();
-                } catch (Exception e) {
-                    // Si algo falla al contar, tratar como 0 para ser conservadores
-                    enrolledCount = 0;
-                }
-                if (enrolledCount < 15) {
-                    omitidas.add(course.getName() + ": menos de 15 estudiantes matriculados (" + enrolledCount + ")");
-                    continue;
-                }
+                // Sin regla 15+: no se valida número de estudiantes
 
                 Optional<Monitoring> existente = monitoringRepository.findByCourse(monitoring.getCourse());
                 if (existente.isPresent()) {
@@ -835,8 +824,15 @@ public class MonitoringServiceImpl implements MonitoringService{
                     continue;
                 }
 
+                // Evitar violar restricción única por profesor en BD: sólo una por importación
+                if (alreadyCreatedForProfessor || !monitoringRepository.findByProfessor(professor).isEmpty()) {
+                    omitidas.add(monitoring.getCourse().getName() + ": el profesor ya tiene una monitoría creada");
+                    continue;
+                }
+
                 monitoring.setProfessor(professor);
                 monitoringRepository.save(new Monitoring(monitoring));
+                alreadyCreatedForProfessor = true;
                 creadas.add(monitoring.getCourse().getName());
             } catch (Exception ex) {
                 String courseName = (monitoring != null && monitoring.getCourse() != null)

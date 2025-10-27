@@ -96,7 +96,7 @@ public class BulkMonitoringImportTest {
     }
 
     @Test
-    void acceptsCsv_and_applies15PlusRule_and_validatesHeader() throws Exception {
+    void acceptsCsv_creates_one_and_omits_rest_by_professor() throws Exception {
         String header = "FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA\n";
         String r1 = String.format("%s,%s,%s,28-10-2025,30-11-2025,2025-2,4.5,4.6,8,10000\n",
                 school.getName(), program.getName(), courseLow.getName());
@@ -108,13 +108,11 @@ public class BulkMonitoringImportTest {
 
         String result = monitoringService.processListMonitor(file, professor.getId());
 
-        // Should create only the course with >=15 enrolled
+        // Sin regla 15+: se crea una y el resto omitido por unicidad por profesor
         assertTrue(result.contains("Creadas"), "Debe listar Creadas");
-        assertTrue(result.contains(courseHigh.getName()), "Debe crear la monitoría del curso con 15+");
-        assertTrue(result.contains("Omitidas"), "Debe listar Omitidas");
-        assertTrue(result.contains(courseLow.getName()), "Debe omitir el curso con <15");
-        assertTrue(result.toLowerCase().contains("15 estudiantes"), "Debe indicar la razón de omisión por menos de 15");
-
+        assertTrue(result.contains("Omitidas"), "Debe listar Omitidas por unicidad del profesor");
+        assertTrue(result.contains(courseHigh.getName()));
+        assertTrue(result.contains(courseLow.getName()));
         assertEquals(1, monitoringRepository.count(), "Debe existir solo una monitoría creada");
     }
 
@@ -133,7 +131,7 @@ public class BulkMonitoringImportTest {
     }
 
     @Test
-    void acceptsExcel_and_applies15PlusRule() throws Exception {
+    void acceptsExcel_creates_one_and_omits_rest_by_professor() throws Exception {
         // Prepare Excel workbook in-memory
         XSSFWorkbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("Sheet1");
@@ -180,13 +178,13 @@ public class BulkMonitoringImportTest {
                 xlsx);
 
         String result = monitoringService.processListMonitor(file, professor.getId());
-        assertTrue(result.contains(courseHigh.getName()), "Excel: debe crear la de 15+");
-        assertTrue(result.contains("Omitidas"), "Excel: debe listar omitidas");
-        assertTrue(result.contains(courseLow.getName()), "Excel: debe omitir la de <15");
+        assertTrue(result.contains("Creadas"));
+        assertTrue(result.contains("Omitidas"));
+        assertTrue(result.contains(courseHigh.getName()) && result.contains(courseLow.getName()));
     }
 
     @Test
-    void acceptsCsv_with_msexcel_contentType() throws Exception {
+    void acceptsCsv_with_msexcel_contentType_creates_one_and_omits_rest() throws Exception {
     String header = "FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA\n";
     String r1 = String.format("%s,%s,%s,28-10-2025,30-11-2025,2025-2,4.5,4.6,8,10000\n",
         school.getName(), program.getName(), courseLow.getName());
@@ -197,9 +195,9 @@ public class BulkMonitoringImportTest {
         "file", "monitorias.csv", "application/vnd.ms-excel", bytes);
 
     String result = monitoringService.processListMonitor(file, professor.getId());
-    assertTrue(result.contains(courseHigh.getName()), "Debe crear 15+");
-    assertTrue(result.contains("Omitidas"), "Debe listar omitidas");
-    assertTrue(result.contains(courseLow.getName()), "Debe omitir <15");
+    assertTrue(result.contains("Creadas"));
+    assertTrue(result.contains("Omitidas"));
+    assertTrue(result.contains(courseHigh.getName()) && result.contains(courseLow.getName()));
     }
 
     @Test
