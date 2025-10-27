@@ -63,6 +63,12 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    @Autowired
+    private DepartmentBudgetRepository departmentBudgetRepository;
+
+    @Autowired
+    private StudentCourseRepository studentCourseRepository;
+
     /**
      * Método auxiliar para verificar si una monitoría ya tiene un monitor aprobado
      * @param monitoring La monitoría a verificar
@@ -801,6 +807,25 @@ public class MonitoringServiceImpl implements MonitoringService{
             try {
                 if (monitoring == null || monitoring.getCourse() == null) {
                     omitidas.add("Fila inválida: curso no identificado");
+                    continue;
+                }
+
+                // Regla: solo crear monitorías para cursos con 15 o más estudiantes matriculados
+                Course course = monitoring.getCourse();
+                int courseIdInt = course.getId() == null ? -1 : Math.toIntExact(course.getId());
+                if (courseIdInt <= 0) {
+                    omitidas.add(course.getName() + ": id de curso inválido");
+                    continue;
+                }
+                int enrolledCount = 0;
+                try {
+                    enrolledCount = studentCourseRepository.findByCourseId(courseIdInt).size();
+                } catch (Exception e) {
+                    // Si algo falla al contar, tratar como 0 para ser conservadores
+                    enrolledCount = 0;
+                }
+                if (enrolledCount < 15) {
+                    omitidas.add(course.getName() + ": menos de 15 estudiantes matriculados (" + enrolledCount + ")");
                     continue;
                 }
 

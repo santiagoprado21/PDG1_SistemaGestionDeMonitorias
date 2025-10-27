@@ -10,6 +10,7 @@ import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
 import com.pdg.sigma.dto.PendingApplicationDTO;
 import com.pdg.sigma.repository.CourseRepository;
+import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.repository.HeadProgramRepository;
 import com.pdg.sigma.repository.MonitoringRepository;
 import com.pdg.sigma.repository.MonitoringMonitorRepository;
@@ -39,6 +40,9 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
 
     @Autowired
     private MonitoringMonitorRepository monitoringMonitorRepository;
+
+    @Autowired
+    private ProfessorRepository professorRepository;
 
     @Override
     public List<DepartmentHead> findAll() {
