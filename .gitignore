@@ -80,8 +80,9 @@ yarn-error.log*
 # ================================================
 # CREDENCIALES NEON Y ARCHIVOS LOCALES
 # ================================================
-# Archivo con credenciales de Neon (local)
+# Archivos con credenciales de Neon (local)
 credenciales_neon_LOCAL.txt
+credenciales_neon_CLOUD.txt
 
 # Si creas archivos de configuración locales con credenciales
 *-LOCAL.properties
