@@ -1,40 +1,31 @@
 package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.SimonFileGeneration;
+import com.pdg.sigma.dto.SimonMonitoringRowDTO;
 import com.pdg.sigma.dto.SimonMonitoringDTO;
-import org.apache.poi.ss.usermodel.Workbook;
 
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import org.apache.poi.ss.usermodel.Workbook;
 import java.util.List;
+import java.util.Optional;
 
 public interface SimonFileService {
-    
-    /**
-     * Genera el archivo Excel para SIMON con las monitorías aprobadas
-     * @param generatedBy Usuario que genera el archivo
-     * @param semester Semestre académico
-     * @return Workbook de Apache POI con el archivo generado
-     * @throws IOException Si hay error al generar el archivo
-     */
-    Workbook generateSimonFile(String generatedBy, String semester) throws IOException;
-    
-    /**
-     * Obtiene las monitorías aprobadas en formato DTO para SIMON
-     * @return Lista de DTOs con los datos formateados para SIMON
-     */
+
+    List<SimonMonitoringRowDTO> getApprovedMonitoringsForSimon(Optional<String> semester);
+
+    ByteArrayOutputStream buildSimonWorkbook(List<SimonMonitoringRowDTO> rows) throws Exception;
+
+    List<SimonFileGeneration> getGenerationHistory(Optional<String> semester);
+
+    SimonFileGeneration auditGeneration(String generatedBy, String semester, int total, String fileName);
+
+    // Legacy/tested API contracts (HU4 tests)
+    Workbook generateSimonFile(String generatedBy, String semester) throws java.io.IOException;
+
     List<SimonMonitoringDTO> getApprovedMonitoringsForSimon();
-    
-    /**
-     * Obtiene el historial de archivos generados
-     * @return Lista de registros de generación
-     */
+
     List<SimonFileGeneration> getGenerationHistory();
-    
-    /**
-     * Obtiene el historial por semestre
-     * @param semester Semestre académico
-     * @return Lista de registros de generación del semestre
-     */
+
     List<SimonFileGeneration> getGenerationHistoryBySemester(String semester);
 }
 

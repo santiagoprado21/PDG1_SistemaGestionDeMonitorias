@@ -179,8 +179,8 @@ function VerticalNavbar() {
           </>
         )}
 
-        {/* Acceso exclusivo para Profesores y Jefe de Departamento */}
-        {(role === "professor" || role === "jfedpto") && (
+        {/* Acceso exclusivo para Profesores */}
+        {role === "professor" && (
           <>
             <NavLink
               to="/CreateMonitoria"
@@ -200,6 +200,12 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Jefe de Departamento */}
         {role === "jfedpto" && (
           <>
+            <NavLink
+              to="/CreateMonitoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Cargar/Crear Monitorías
+            </NavLink>
             <NavLink
               to="/ApproveApplications"
               className={({ isActive }) => (isActive ? "active" : "")}
