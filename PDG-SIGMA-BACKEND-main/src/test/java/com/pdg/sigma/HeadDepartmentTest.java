@@ -4,8 +4,8 @@ import com.pdg.sigma.controller.DepartmentHeadController;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
 import com.pdg.sigma.repository.HeadProgramRepository; // Import the repository
 import com.pdg.sigma.service.DepartmentHeadService; // Use the interface
+import com.pdg.sigma.service.MonitoringMonitorService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +30,10 @@ public class HeadDepartmentTest {
 
     @MockBean
     private HeadProgramRepository headProgramRepository; // Mock the repository
+
+    // Mock del servicio usado por el controlador para aprobar/rechazar
+    @MockBean
+    private MonitoringMonitorService monitoringMonitorService;
 
     @Test
     @WithMockUser(roles = "jfedpto")

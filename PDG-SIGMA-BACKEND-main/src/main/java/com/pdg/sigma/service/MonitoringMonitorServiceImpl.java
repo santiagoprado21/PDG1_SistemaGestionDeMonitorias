@@ -9,16 +9,15 @@ import com.pdg.sigma.repository.MonitoringMonitorRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.MonitoringMonitor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
-public class MonitoringMonitorServiceImpl {
+public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
 
     @Autowired
     private MonitoringMonitorRepository monitoringMonitorRepository;
@@ -37,6 +36,7 @@ public class MonitoringMonitorServiceImpl {
     //     return monitors;
     // }
 
+    @Override
     public List<MonitorDTO> getMonitorsByMonitoringId(Long monitoringId) {
         List<MonitoringMonitor> monitoringMonitors = monitoringMonitorRepository.findByMonitoringId(monitoringId);
         List<MonitorDTO> monitors = new ArrayList<>();
@@ -49,7 +49,6 @@ public class MonitoringMonitorServiceImpl {
                         monitoringMonitor.getMonitor().getLastName() + " " +
                         monitoringMonitor.getMonitor().getCode();
             String id = monitoringMonitor.getMonitor().getIdMonitor();
-            String selectionStatus = monitoringMonitor.getEstadoSeleccion(); 
 
             monitors.add(new MonitorDTO(name, id, "M"));
         }
@@ -57,10 +56,12 @@ public class MonitoringMonitorServiceImpl {
         return monitors;
     }
 
+    @Override
     public void deleteRelation(Long idMonitoring, String monitorCode) throws Exception {
         monitoringMonitorRepository.deleteByMonitoringIdAndMonitor_Code(idMonitoring, monitorCode.trim());
     }
 
+    @Override
     public void updateApplicantSelectionStatus(Long monitoringId, String monitorCode, String newStatus) {
     MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(monitoringId, monitorCode)
         .orElseThrow(() -> new EntityNotFoundException("MonitoringMonitor relation not found for monitoringId " + monitoringId + " and monitor code " + monitorCode));
@@ -69,6 +70,7 @@ public class MonitoringMonitorServiceImpl {
     monitoringMonitorRepository.save(mm);
 }
 
+    @Override
     public void approveApplication(ApproveApplicationRequest request) throws Exception {
         MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(
             request.getMonitoringId(), 
@@ -92,6 +94,7 @@ public class MonitoringMonitorServiceImpl {
         monitoringMonitorRepository.save(mm);
     }
 
+    @Override
     public void rejectApplication(ApproveApplicationRequest request) throws Exception {
         MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(
             request.getMonitoringId(), 
@@ -115,5 +118,44 @@ public class MonitoringMonitorServiceImpl {
         monitoringMonitorRepository.save(mm);
     }
 
+    // --- GenericService implementation ---
+    @Override
+    public List<MonitoringMonitor> findAll() {
+        return monitoringMonitorRepository.findAll();
+    }
 
+    @Override
+    public Optional<MonitoringMonitor> findById(Long id) {
+        return monitoringMonitorRepository.findById(id);
+    }
+
+    @Override
+    public MonitoringMonitor save(MonitoringMonitor entity) throws Exception {
+        return monitoringMonitorRepository.save(entity);
+    }
+
+    @Override
+    public MonitoringMonitor update(MonitoringMonitor entity) throws Exception {
+        return monitoringMonitorRepository.save(entity);
+    }
+
+    @Override
+    public void delete(MonitoringMonitor entity) throws Exception {
+        monitoringMonitorRepository.delete(entity);
+    }
+
+    @Override
+    public void deleteById(Long id) throws Exception {
+        monitoringMonitorRepository.deleteById(id);
+    }
+
+    @Override
+    public void validate(MonitoringMonitor entity) throws Exception {
+        // No-op validation for this service
+    }
+
+    @Override
+    public Long count() {
+        return monitoringMonitorRepository.count();
+    }
 }

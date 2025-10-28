@@ -137,6 +137,7 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
         return headProgramRepository.findByDepartmentHeadId(departmentHeadId);
     }
 
+    @Override
     public List<PendingApplicationDTO> getPendingApplications(String departmentHeadId) throws Exception {
         // 1. Obtener los programas del jefe de departamento
         List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);

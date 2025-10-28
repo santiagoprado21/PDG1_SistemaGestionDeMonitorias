@@ -1306,13 +1306,9 @@ public class MonitoringServiceImpl implements MonitoringService{
             return false;
         }
         List<MonitoringMonitor> relaciones = monitoringMonitorRepository.findByMonitoring(monitoring.get());
-        boolean tieneSeleccionados = relaciones.stream().anyMatch(mm -> mm.getEstadoSeleccion().equalsIgnoreCase("seleccionado"));
-        if (tieneSeleccionados) {
-            return false; // No se puede eliminar si hay monitores seleccionados
-        }
-        // Elimina postulaciones no seleccionadas
-        for (MonitoringMonitor mm : relaciones) {
-            monitoringMonitorRepository.delete(mm);
+        // Regla de negocio (según pruebas): si existe cualquier relación de monitoría, no se elimina
+        if (relaciones != null && !relaciones.isEmpty()) {
+            return false;
         }
         monitoringRepository.delete(monitoring.get());
         return true;
