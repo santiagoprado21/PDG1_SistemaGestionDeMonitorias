@@ -1,0 +1,274 @@
+.generate-simon-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+}
+
+.generate-simon-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 40px;
+    max-width: 1400px;
+}
+
+.generate-simon-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 15px;
+}
+
+/* Cards */
+.simon-summary-card,
+.simon-preview-card,
+.simon-history-card,
+.simon-info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.simon-summary-card h2,
+.simon-preview-card h2,
+.simon-history-card h2 {
+    font-size: 22px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.simon-info-card h3 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Summary Content */
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.summary-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.summary-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3498db;
+}
+
+.semester-input {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 150px;
+    transition: border-color 0.3s;
+}
+
+.semester-input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.summary-status {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.status-ready {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-not-ready {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Actions */
+.simon-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.btn-generate-simon,
+.btn-toggle-history {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-generate-simon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    flex: 1;
+}
+
+.btn-generate-simon:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-generate-simon:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-toggle-history {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.btn-toggle-history:hover {
+    background-color: #bdc3c7;
+}
+
+/* Preview Table */
+.preview-table-container,
+.history-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.preview-table,
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.preview-table thead,
+.history-table thead {
+    background-color: #3498db;
+    color: white;
+}
+
+.preview-table th,
+.history-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.preview-table td,
+.history-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.preview-table tbody tr:hover,
+.history-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.more-records {
+    text-align: center;
+    padding: 15px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.no-history {
+    text-align: center;
+    padding: 30px;
+    color: #95a5a6;
+    font-style: italic;
+}
+
+.file-name {
+    font-family: 'Courier New', monospace;
+    color: #2980b9;
+    font-size: 13px;
+}
+
+/* Info Card */
+.simon-info-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.simon-info-card li {
+    padding: 10px 0;
+    padding-left: 25px;
+    position: relative;
+    color: #555;
+    line-height: 1.6;
+}
+
+.simon-info-card li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .generate-simon-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .generate-simon-title {
+        font-size: 24px;
+    }
+
+    .simon-actions {
+        flex-direction: column;
+    }
+
+    .preview-table,
+    .history-table {
+        font-size: 12px;
+    }
+
+    .preview-table th,
+    .history-table th,
+    .preview-table td,
+    .history-table td {
+        padding: 8px;
+    }
+}
+
+/* Loading State */
+.generate-simon-content .loading-spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+

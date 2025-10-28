@@ -5,6 +5,7 @@ import com.pdg.sigma.dto.MonitorDTO;
 import com.pdg.sigma.dto.ApproveApplicationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.pdg.sigma.repository.MonitoringMonitorRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
+@Transactional
+public class MonitoringMonitorServiceImpl {
 
     @Autowired
     private MonitoringMonitorRepository monitoringMonitorRepository;
@@ -72,6 +74,10 @@ public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
 
     @Override
     public void approveApplication(ApproveApplicationRequest request) throws Exception {
+        System.out.println("=== APROBANDO POSTULACIÓN ===");
+        System.out.println("MonitoringId: " + request.getMonitoringId());
+        System.out.println("MonitorCode: " + request.getMonitorCode());
+        
         MonitoringMonitor mm = monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(
             request.getMonitoringId(), 
             request.getMonitorCode()
@@ -80,6 +86,8 @@ public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
             request.getMonitoringId() + " and monitor code " + request.getMonitorCode()
         ));
 
+        System.out.println("Estado actual: " + mm.getEstadoSeleccion());
+        
         // Verificar que no esté ya aprobado/rechazado
         if ("aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()) || 
             "rechazado".equalsIgnoreCase(mm.getEstadoSeleccion())) {
@@ -91,7 +99,12 @@ public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
         mm.setFechaDecision(LocalDateTime.now());
         mm.setDecididoPor(request.getDepartmentHeadId());
         
-        monitoringMonitorRepository.save(mm);
+        MonitoringMonitor saved = monitoringMonitorRepository.save(mm);
+        monitoringMonitorRepository.flush(); // Forzar el guardado inmediato
+        
+        System.out.println("Estado después de guardar: " + saved.getEstadoSeleccion());
+        System.out.println("Postulación aprobada y guardada en BD");
+        System.out.println("=============================");
     }
 
     @Override

@@ -21,5 +21,8 @@ public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMon
 
     @Transactional
     void deleteByMonitoringIdAndMonitor_Code(Long monitoringId, String monitorCode);
+    
+    // Obtener monitorías aprobadas por el jefe de departamento
+    List<MonitoringMonitor> findByEstadoSeleccion(String estadoSeleccion);
 
 }
