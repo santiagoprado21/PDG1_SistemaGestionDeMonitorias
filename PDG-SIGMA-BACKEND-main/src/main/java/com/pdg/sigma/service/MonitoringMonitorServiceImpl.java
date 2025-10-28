@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class MonitoringMonitorServiceImpl {
+public class MonitoringMonitorServiceImpl implements MonitoringMonitorService {
 
     @Autowired
     private MonitoringMonitorRepository monitoringMonitorRepository;
