@@ -767,7 +767,8 @@ public class MonitoringServiceImpl implements MonitoringService{
             sb.append(": ").append(String.join(", ", createdCourses));
         }
         if (!omittedCourses.isEmpty()) {
-            sb.append(". Omitidas (").append(omittedCourses.size()).append(")");
+            sb.append(". Omitidas (").append(omittedCourses.size()).append("): ")
+              .append(String.join(", ", omittedCourses));
         }
         return sb.toString();
     }
