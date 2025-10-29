@@ -41,6 +41,29 @@ public class MonitoringController {
 
     }
 
+    @PostMapping("/updateBudget/{id}")
+    public ResponseEntity<?> updateMonitoringBudget(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            Integer hours = null;
+            Double rate = null;
+            if (body.containsKey("estimatedHours") && body.get("estimatedHours") != null) {
+                Object v = body.get("estimatedHours");
+                if (v instanceof Number) hours = ((Number) v).intValue();
+                else hours = Integer.parseInt(v.toString());
+            }
+            if (body.containsKey("hourlyRate") && body.get("hourlyRate") != null) {
+                Object v = body.get("hourlyRate");
+                if (v instanceof Number) rate = ((Number) v).doubleValue();
+                else rate = Double.parseDouble(v.toString());
+            }
+
+            monitoringService.updateMonitoringBudget(id, hours, rate);
+            return ResponseEntity.ok("Presupuesto actualizado");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @RequestMapping(value= "/getA", method = RequestMethod.GET)
     public ResponseEntity<?> getAllMonitoring(){
         try{

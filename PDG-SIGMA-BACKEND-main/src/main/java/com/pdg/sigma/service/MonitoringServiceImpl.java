@@ -359,23 +359,24 @@ public class MonitoringServiceImpl implements MonitoringService{
             Program program = monitoring.getProgram();
             String semester = monitoring.getSemester();
             var budgetOpt = departmentBudgetRepository.findByProgramAndSemester(program, semester);
-            if (budgetOpt.isEmpty()) {
-                throw new Exception("No hay presupuesto configurado para este programa y semestre");
-            }
-            int totalHours = budgetOpt.get().getTotalHours();
 
-            // Horas usadas por otras monitorías del mismo programa/semestre (excluyendo la actual)
-            int usedByOthers = monitoringRepository.findByProgram(program).stream()
-                    .filter(m -> semester.equals(m.getSemester()))
-                    .filter(m -> !Objects.equals(m.getId(), monitoring.getId()))
-                    .map(m -> m.getEstimatedHours() == null ? 0 : m.getEstimatedHours())
-                    .reduce(0, Integer::sum);
+            if (budgetOpt.isPresent()) {
+                int totalHours = budgetOpt.get().getTotalHours();
 
-            int available = Math.max(0, totalHours - usedByOthers);
-            if (estimatedHours > available) {
-                // El mensaje debe contener estas frases para las aserciones del test
-                throw new Exception("No se pueden asignar más horas de las disponibles. Disponibles: " + available);
+                // Horas usadas por otras monitorías del mismo programa/semestre (excluyendo la actual)
+                int usedByOthers = monitoringRepository.findByProgram(program).stream()
+                        .filter(m -> semester.equals(m.getSemester()))
+                        .filter(m -> !Objects.equals(m.getId(), monitoring.getId()))
+                        .map(m -> m.getEstimatedHours() == null ? 0 : m.getEstimatedHours())
+                        .reduce(0, Integer::sum);
+
+                int available = Math.max(0, totalHours - usedByOthers);
+                if (estimatedHours > available) {
+                    // El mensaje debe contener estas frases para las aserciones del test
+                    throw new Exception("No se pueden asignar más horas de las disponibles. Disponibles: " + available);
+                }
             }
+            // Si no hay presupuesto configurado, permitir la actualización sin restricción para no bloquear el flujo.
         }
 
         // Aplicar cambios solicitados

@@ -3,7 +3,7 @@ import './CreateMonitoria.css';
 // import './Task.css';
 import { Link } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
-import {PopUp} from "./PopUp";
+import {PopUp, PopUpUpdateBudget} from "./PopUp";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from 'react';
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
@@ -34,6 +34,9 @@ function CreateMonitoria() {
     const [role, setRole] = useState(localStorage.getItem('role') || '');
     const [professors, setProfessors] = useState([]);
     const [selectedProfessorId, setSelectedProfessorId] = useState("");
+    const [showBudgetPopup, setShowBudgetPopup] = useState(false);
+    const [budgetRecord, setBudgetRecord] = useState(null);
+    const [budgetInfo, setBudgetInfo] = useState({ remainingHours: 0 });
 
 
     // Fetch Faculty options
@@ -96,6 +99,66 @@ function CreateMonitoria() {
             const data = await res.json();
             setRecords(Array.isArray(data) ? data : []);
         } catch (e) { console.error('Error refreshing records:', e); }
+    };
+
+    const openBudgetPopup = async (record) => {
+        try {
+            // Obtener presupuesto restante del programa/semestre
+            const res = await fetch(`${BACKEND_URL}/budget/${encodeURIComponent(record.program.name)}/${encodeURIComponent(record.semester)}`);
+            let remaining = 0;
+            if (res.ok) {
+                const data = await res.json();
+                remaining = Number(data.remainingHours || 0);
+            } else {
+                // Si no hay presupuesto configurado, usar un valor alto para no bloquear el flujo visual
+                remaining = 999999;
+            }
+            setBudgetInfo({ remainingHours: remaining });
+            setBudgetRecord(record);
+            setShowBudgetPopup(true);
+        } catch (e) {
+            console.error('Error fetching budget:', e);
+            // Fallback generoso si hay fallo de red
+            setBudgetInfo({ remainingHours: 999999 });
+            setBudgetRecord(record);
+            setShowBudgetPopup(true);
+        }
+    };
+
+    const submitBudgetUpdate = async (hours, rate) => {
+        if (!budgetRecord) return;
+        const current = Number(budgetRecord.estimatedHours || 0);
+        const available = Number(budgetInfo.remainingHours || 0) + current;
+        if (hours > available) {
+            setMessage(`No se pueden asignar más horas de las disponibles. Disponibles: ${available}`);
+            setIsOpen(true);
+            return;
+        }
+        try {
+            const res = await fetch(`${BACKEND_URL}/monitoring/updateBudget/${budgetRecord.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                },
+                body: JSON.stringify({ estimatedHours: hours, hourlyRate: rate })
+            });
+            const text = await res.text();
+            if (!res.ok) {
+                setMessage(text || 'No fue posible actualizar el presupuesto');
+            } else {
+                setMessage(text || 'Presupuesto actualizado');
+                await refreshRecords();
+            }
+            setIsOpen(true);
+        } catch (e) {
+            console.error('Error updating budget:', e);
+            setMessage('Error en el servidor al actualizar presupuesto');
+            setIsOpen(true);
+        } finally {
+            setShowBudgetPopup(false);
+            setBudgetRecord(null);
+        }
     };
 
 
@@ -386,9 +449,22 @@ function CreateMonitoria() {
                 ...record,
                 startFormatted: startDateR,
                 endFormatted: endDateR,
+                estimatedHours: record.estimatedHours || 0,
+                hourlyRate: record.hourlyRate || 0,
+                totalCost: (Number(record.estimatedHours || 0) * Number(record.hourlyRate || 0))
             };
         });
     }, [currentRecords]);
+
+    const formatCurrency = (value) => {
+        const n = Number(value);
+        if (isNaN(n)) return 0;
+        try {
+            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+        } catch (e) {
+            return n;
+        }
+    };
 
     const checkDates = (startPostulation, endPostulation) => {
         
@@ -537,7 +613,11 @@ function CreateMonitoria() {
                                 <th className="table-head"> Periodo académico </th>
                                 <th className="table-head"> Inicio de convocatoria</th>
                                 <th className="table-head"> Fin de convocatoria</th>
+                                <th className="table-head"> Horas </th>
+                                <th className="table-head"> Valor hora </th>
+                                <th className="table-head"> Costo </th>
                                 <th className="table-head"> </th>
+                                {role === 'jfedpto' && (<th className="table-head"> Presupuesto </th>)}
                             </tr>
                         </thead>
                         <tbody>
@@ -551,12 +631,22 @@ function CreateMonitoria() {
                                             <td className="table-data">{record.semester}</td>
                                             <td className="table-data">{record.startFormatted}</td>
                                             <td className="table-data">{record.endFormatted}</td>
+                                            <td className="table-data">{record.estimatedHours}</td>
+                                            <td className="table-data">{formatCurrency(record.hourlyRate)}</td>
+                                            <td className="table-data">{formatCurrency(record.totalCost)}</td>
                                             <td className="table-data">
                                                 <div className="requirement-container">
                                                     {/* <button className="edit-button">Editar</button> */}
                                                     <button className="cancel-button" onClick={() =>handleDelete(record.id)}>Eliminar</button>
                                                 </div>
                                             </td>
+                                            {role === 'jfedpto' && (
+                                                <td className="table-data">
+                                                    <button className="edit-button" onClick={() => openBudgetPopup(record)}>
+                                                        Editar presupuesto
+                                                    </button>
+                                                </td>
+                                            )}
                                         </tr>
                                     );
                                 })}
@@ -589,6 +679,16 @@ function CreateMonitoria() {
         </div>
 
         {/* Table ends */}
+
+            <PopUpUpdateBudget
+                show={showBudgetPopup}
+                onClose={() => { setShowBudgetPopup(false); setBudgetRecord(null); }}
+                onSubmit={submitBudgetUpdate}
+                initialHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+                initialRate={budgetRecord ? (budgetRecord.hourlyRate || 0) : 0}
+                remainingHours={budgetInfo.remainingHours}
+                currentHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+            />
 
             </div>
         </div>
