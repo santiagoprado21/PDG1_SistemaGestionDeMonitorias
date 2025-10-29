@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS banner.program (
 INSERT INTO banner.program (id, name, school_id) VALUES
 (1, 'Ingeniería de Sistemas', 1),
 (2, 'Ingeniería Industrial', 1),
-(3, 'Ingeniería Electrónica', 1),
+(3, 'Ingeniería Bioquímica', 1),
 (4, 'Matemáticas', 2),
 (5, 'Física', 2),
 (6, 'Psicología', 3)
@@ -64,12 +64,12 @@ INSERT INTO banner.course (id, name, program_id) VALUES
 (7, 'Investigación de Operaciones', 2),
 (8, 'Gestión de Proyectos', 2),
 
--- Cursos de Ingeniería Electrónica
-(9, 'Circuitos Eléctricos', 3),
-(10, 'Sistemas Digitales', 3),
+-- Cursos de Ingeniería Bioquímica
+(9, 'Diseño experimental', 3),
+(10, 'Química', 3),
 
 -- Cursos de Matemáticas
-(11, 'Cálculo Diferencial', 4),
+(11, 'Cálculo de una variable', 4),
 (12, 'Álgebra Lineal', 4),
 
 -- Cursos de Física

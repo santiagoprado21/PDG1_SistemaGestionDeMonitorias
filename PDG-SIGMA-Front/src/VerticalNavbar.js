@@ -201,6 +201,12 @@ function VerticalNavbar() {
         {role === "jfedpto" && (
           <>
             <NavLink
+              to="/CreateMonitoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Cargar/Crear Monitorías
+            </NavLink>
+            <NavLink
               to="/ApproveApplications"
               className={({ isActive }) => (isActive ? "active" : "")}
             >

@@ -30,7 +30,7 @@ public class Monitoring implements Serializable {
     @JoinColumn(name = "program_id", nullable = false)
     private Program program;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
@@ -49,9 +49,16 @@ public class Monitoring implements Serializable {
     @Column(name = "semester", nullable = false)
     private String semester;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    // Presupuesto por monitoría
+    @Column(name = "estimated_hours")
+    private Integer estimatedHours; // Horas planificadas para la monitoría
+
+    @Column(name = "hourly_rate")
+    private Double hourlyRate; // Valor de la hora (puede venir de política institucional)
 
     @OneToMany(mappedBy = "monitoring", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference //padre
@@ -84,5 +91,7 @@ public class Monitoring implements Serializable {
         this.courseGrade = monitoringDTO.getCourseGrade();
         this.semester = monitoringDTO.getSemester();
         this.professor = monitoringDTO.getProfessor();
+        this.estimatedHours = monitoringDTO.getEstimatedHours();
+        this.hourlyRate = monitoringDTO.getHourlyRate();
     }
 }

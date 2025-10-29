@@ -14,9 +14,9 @@ CREATE SCHEMA IF NOT EXISTS banner;
 CREATE SCHEMA IF NOT EXISTS sigma;
 
 -- Verificar que se crearon correctamente
-SELECT schema_name 
-FROM information_schema.schemata 
-WHERE schema_name IN ('banner', 'sigma');
+    SELECT schema_name 
+    FROM information_schema.schemata 
+    WHERE schema_name IN ('banner', 'sigma');
 
 -- Establecer search_path para facilitar consultas futuras
 -- (Puedes quitar esto si prefieres especificar el schema en cada query)

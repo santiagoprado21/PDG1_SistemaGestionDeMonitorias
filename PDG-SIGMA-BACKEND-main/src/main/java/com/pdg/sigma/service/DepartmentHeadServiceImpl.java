@@ -10,6 +10,7 @@ import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
 import com.pdg.sigma.dto.PendingApplicationDTO;
 import com.pdg.sigma.repository.CourseRepository;
+import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.repository.HeadProgramRepository;
 import com.pdg.sigma.repository.MonitoringRepository;
 import com.pdg.sigma.repository.MonitoringMonitorRepository;
@@ -39,6 +40,9 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
 
     @Autowired
     private MonitoringMonitorRepository monitoringMonitorRepository;
+
+    @Autowired
+    private ProfessorRepository professorRepository;
 
     @Override
     public List<DepartmentHead> findAll() {
@@ -100,25 +104,32 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
     public List<Professor> getProfessorsByDepartmentHead(String departmentHeadId) {
         List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
 
-        if (headPrograms.isEmpty()) {
-            return Collections.emptyList();
+        // Profesores asociados a cursos dentro de los programas del jefe
+        List<Professor> scopedProfessors = Collections.emptyList();
+        if (!headPrograms.isEmpty()) {
+            List<Long> programIds = headPrograms.stream()
+                    .map(hp -> hp.getProgram().getId())
+                    .collect(Collectors.toList());
+
+            List<Course> courses = courseRepository.findByProgramIdIn(programIds);
+            if (!courses.isEmpty()) {
+                List<Long> courseIds = courses.stream().map(Course::getId).collect(Collectors.toList());
+                scopedProfessors = courseProfessorRepository.findProfessorsByCourseIds(courseIds);
+            }
         }
 
-        List<Long> programIds = headPrograms.stream()
-                .map(headProgram -> headProgram.getProgram().getId())
-                .collect(Collectors.toList());
-
-        List<Course> courses = courseRepository.findByProgramIdIn(programIds);
-
-        if (courses.isEmpty()) {
-            return Collections.emptyList();
+        // Unión con todos los profesores disponibles para asegurar que el jefe pueda seleccionar cualquiera (demo/semillas)
+        List<Professor> all = professorRepository.findAll();
+        // Evitar duplicados manteniendo el orden: primero los del ámbito, luego el resto
+        List<Professor> result = new java.util.ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (Professor p : scopedProfessors) {
+            if (seen.add(p.getId())) result.add(p);
         }
-
-        List<Long> courseIds = courses.stream()
-                .map(Course::getId)
-                .collect(Collectors.toList());
-
-        return courseProfessorRepository.findProfessorsByCourseIds(courseIds); //professors
+        for (Professor p : all) {
+            if (seen.add(p.getId())) result.add(p);
+        }
+        return result;
     }
 
     @Override
@@ -126,6 +137,7 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
         return headProgramRepository.findByDepartmentHeadId(departmentHeadId);
     }
 
+    @Override
     public List<PendingApplicationDTO> getPendingApplications(String departmentHeadId) throws Exception {
         // 1. Obtener los programas del jefe de departamento
         List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);

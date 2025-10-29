@@ -3,7 +3,7 @@ import './CreateMonitoria.css';
 // import './Task.css';
 import { Link } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
-import {PopUp} from "./PopUp";
+import {PopUp, PopUpUpdateBudget} from "./PopUp";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from 'react';
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
@@ -29,7 +29,14 @@ function CreateMonitoria() {
     const [isOpen, setIsOpen] = useState(false)
     const [message, setMessage] = useState("")
     const [change, setChange] = useState(false)
+    const [nextAction, setNextAction] = useState(null); // 'upload' | null
     const [file, setFile] = useState(null); //File
+    const [role, setRole] = useState(localStorage.getItem('role') || '');
+    const [professors, setProfessors] = useState([]);
+    const [selectedProfessorId, setSelectedProfessorId] = useState("");
+    const [showBudgetPopup, setShowBudgetPopup] = useState(false);
+    const [budgetRecord, setBudgetRecord] = useState(null);
+    const [budgetInfo, setBudgetInfo] = useState({ remainingHours: 0 });
 
 
     // Fetch Faculty options
@@ -52,73 +59,107 @@ function CreateMonitoria() {
             })
             .catch(error => console.error('Error fetching faculty data:', error));
 
-            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    setRecords(data); 
-                } else {
-                    console.error("Data format is incorrect or 'monitoria' is empty.");
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
+            // Cargar monitorías existentes: si es jefe, esperar selección de profesor; si es profesor, usar su propio id
+            const targetId = role === 'jfedpto' ? selectedProfessorId : idProfessor;
+            if (targetId || role === 'jfedpto') {
+                // Refresca la tabla; si no hay profesor seleccionado (jefe), dejar lista vacía
+                refreshRecords();
+            }
 
-            const message = (
-                    <>
-                        <p><strong>Si vas a cargar múltiples monitorias en "Cargar Datos",asegúrate de que el archivo Excel cumpla con el siguiente formato:</strong></p>
-                        <ul>
-                            <li>El archivo debe estar en formato <strong>.xlsx</strong>.</li>
-                            <li>Cada fila representa una monitoría diferente.</li>
-                            <li>No dejes columnas vacías si son obligatorias.</li>
-                            <li>Revisa que las fechas estén en el formato correcto (por ejemplo, <em>dd/mm/aaaa</em>).</li>
-                        </ul>
-                        <p><strong>Debes incluir los siguientes campos obligatorios por fila:</strong></p>
-                        <ul>
-                            <li>Nombre de la monitoría</li>
-                            <li>Fecha de inicio de postulación</li>
-                            <li>Fecha de cierre de postulación</li>
-                        </ul>
-                        <p>
-                            Puedes descargar un ejemplo del formato correcto haciendo clic aquí:&nbsp;
-                            <a
-                                href="https://github.com/danielaolartebo/PDG-SIGMA/tree/draft/doc/Formatos"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Ejemplo Formato
-                            </a>
-                        </p>
-                    </>
-                );
-                
-        setMessage(message)
-        setIsOpen(!isOpen)
-    }, []);
+            // Si es jefe, cargar lista de profesores asociados
+            if (role === 'jfedpto') {
+                fetch(`${BACKEND_URL}/department-head/${idProfessor}/professors`, {
+                    headers: {
+                        'Authorization': localStorage.getItem('token')
+                    }
+                })
+                .then(res => res.ok ? res.json() : [])
+                .then(data => setProfessors(Array.isArray(data) ? data : []))
+                .catch(err => {
+                    console.error('Error fetching professors:', err);
+                    setProfessors([]);
+                });
+            }
+    }, [role, selectedProfessorId]);
 
     useEffect(() => {
-        const idProfessor = localStorage.getItem('userId');
-            fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${idProfessor}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
-                    setRecords(data); 
-                } else {
-                    console.error("Data format is incorrect or 'monitoria' is empty.");
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
-        
+        const refresh = async () => {
+            await refreshRecords();
+        };
+        refresh();
     }, [change]);
+
+    const refreshRecords = async () => {
+        try {
+            const idLogged = localStorage.getItem('userId');
+            const targetId = role === 'jfedpto' ? selectedProfessorId : idLogged;
+            if (!targetId) { setRecords([]); return; }
+            const res = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${targetId}`);
+            if (!res.ok) return setRecords([]);
+            const data = await res.json();
+            setRecords(Array.isArray(data) ? data : []);
+        } catch (e) { console.error('Error refreshing records:', e); }
+    };
+
+    const openBudgetPopup = async (record) => {
+        try {
+            // Obtener presupuesto restante del programa/semestre
+            const res = await fetch(`${BACKEND_URL}/budget/${encodeURIComponent(record.program.name)}/${encodeURIComponent(record.semester)}`);
+            let remaining = 0;
+            if (res.ok) {
+                const data = await res.json();
+                remaining = Number(data.remainingHours || 0);
+            } else {
+                // Si no hay presupuesto configurado, usar un valor alto para no bloquear el flujo visual
+                remaining = 999999;
+            }
+            setBudgetInfo({ remainingHours: remaining });
+            setBudgetRecord(record);
+            setShowBudgetPopup(true);
+        } catch (e) {
+            console.error('Error fetching budget:', e);
+            // Fallback generoso si hay fallo de red
+            setBudgetInfo({ remainingHours: 999999 });
+            setBudgetRecord(record);
+            setShowBudgetPopup(true);
+        }
+    };
+
+    const submitBudgetUpdate = async (hours, rate) => {
+        if (!budgetRecord) return;
+        const current = Number(budgetRecord.estimatedHours || 0);
+        const available = Number(budgetInfo.remainingHours || 0) + current;
+        if (hours > available) {
+            setMessage(`No se pueden asignar más horas de las disponibles. Disponibles: ${available}`);
+            setIsOpen(true);
+            return;
+        }
+        try {
+            const res = await fetch(`${BACKEND_URL}/monitoring/updateBudget/${budgetRecord.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                },
+                body: JSON.stringify({ estimatedHours: hours, hourlyRate: rate })
+            });
+            const text = await res.text();
+            if (!res.ok) {
+                setMessage(text || 'No fue posible actualizar el presupuesto');
+            } else {
+                setMessage(text || 'Presupuesto actualizado');
+                await refreshRecords();
+            }
+            setIsOpen(true);
+        } catch (e) {
+            console.error('Error updating budget:', e);
+            setMessage('Error en el servidor al actualizar presupuesto');
+            setIsOpen(true);
+        } finally {
+            setShowBudgetPopup(false);
+            setBudgetRecord(null);
+        }
+    };
 
 
     // Fetch Program options
@@ -213,17 +254,51 @@ function CreateMonitoria() {
 
 
     const handleUpload = async () => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".xlsx, .xls";
-    
-        input.onchange = async (event) => {
+                // 1) Mostrar anuncio previo y luego abrir el selector de archivo
+                const infoMsg = (
+                        <>
+                                <p><strong>Si vas a cargar múltiples monitorias en "Cargar Datos", asegúrate de que el archivo cumpla con el formato:</strong></p>
+                                <ul>
+                                        <li>El archivo puede ser <strong>.xlsx</strong> o <strong>.csv</strong>.</li>
+                                        <li>Cada fila representa una monitoría diferente.</li>
+                                        <li>No dejes columnas vacías si son obligatorias.</li>
+                                        <li>Fechas con formato <em>dd/mm/aaaa</em> (en CSV usar dd-mm-aaaa).</li>
+                                </ul>
+                                <p><strong>Campos obligatorios:</strong></p>
+                                <ul>
+                                        <li>FACULTAD, PROGRAMA, CURSO</li>
+                                        <li>FECHA INICIO, FECHA FINALIZACION, PERIODO</li>
+                                        <li>PROMEDIO ACUMULADO, PROMEDIO MATERIA, HORAS ESTIMADAS, VALOR HORA</li>
+                                </ul>
+                <p>
+                    Puedes descargar un ejemplo del formato correcto haciendo clic aquí:&nbsp;
+                    <a
+                    href="https://github.com/danielaolartebo/PDG-SIGMA/tree/draft/doc/Formatos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >
+                    Ejemplo Formato
+                    </a>
+                </p>
+                        </>
+                );
+                setMessage(infoMsg);
+                setNextAction('upload');
+                setIsOpen(true);
+        };
+
+        const openFilePicker = () => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".xlsx, .xls, .csv";
+
+                input.onchange = async (event) => {
           const file = event.target.files[0];
     
           if (!file) {
             // alert("No se seleccionó ningún archivo.");
             setMessage("No se seleccionó ningún archivo.")
-            setIsOpen(!isOpen)
+                        setIsOpen(true)
             
             return;
           }
@@ -231,10 +306,18 @@ function CreateMonitoria() {
           const formData = new FormData();
           formData.append("file", file);
 
-          const idProfessor = localStorage.getItem('userId')
+                    let idProfessor = localStorage.getItem('userId')
+                    if (role === 'jfedpto') {
+                        if (!selectedProfessorId) {
+                            setMessage("Selecciona un profesor antes de cargar el archivo");
+                            setIsOpen(true);
+                            return;
+                        }
+                        idProfessor = selectedProfessorId;
+                    }
     
           try {
-            const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
+                        const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
               method: "POST",
                 headers: {
                     'Authorization':localStorage.getItem('token')
@@ -246,99 +329,99 @@ function CreateMonitoria() {
             const message = await response.text();
             // alert(message);
             setMessage(message)
-            setIsOpen(!isOpen)
+                        setIsOpen(true)
+                        // refrescar tabla tras cargue
+                        await refreshRecords();
 
           } catch (error) {
             console.error("Error:", error);
             // alert("Error al conectar con el servidor");
             setMessage("Error al conectar con el servidor")
-            setIsOpen(!isOpen)
+                        setIsOpen(true)
             
           }
         };
     
         input.click(); // Simula el clic para abrir el explorador de archivos
+        };
+
+
+    const handleDelete = async (id) => {
+        try {
+            const responseDelete = await fetch(`${BACKEND_URL}/monitoring/deleteMonitoring/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': localStorage.getItem('token')
+                }
+            });
+            const answer = await responseDelete.json();
+            if (answer) {
+                setMessage("Se ha eliminado la monitoría");
+                await refreshRecords();
+            } else {
+                setMessage("La monitoria no pudo ser eliminada debido a que está asociada a monitores o postulantes a monitoría. Asegúrate de revisar el proceso de postulación");
+            }
+            setIsOpen(true);
+        } catch (error) {
+            console.error("Error deleting data:", error);
+            setMessage("Error en el servidor: No ha sido posible eliminar la monitoría");
+            setIsOpen(true);
+        }
     };
 
+    const handleClose = () => {
+        setIsOpen(false);
+        if (nextAction === 'upload') {
+            setNextAction(null);
+            setTimeout(() => openFilePicker(), 0);
+        } else {
+            setChange(!change);
+        }
+    };
 
-    const handleCreate = async() => {
-       
+    const handleCreate = async () => {
         const data = {
             programName: selectedProgram,
             courseName: selectedSubject,
             schoolName: selectedFaculty,
             start: selectedStartDate,
             finish: selectedFinishDate,
-            professorId: localStorage.getItem("userId"),
+            professorId: role === 'jfedpto' ? selectedProfessorId : localStorage.getItem('userId'),
             semester: selectedSemester,
-          };
-        
-          console.log("Data to send:", data);
-        
-          try {
-            const response = await fetch(`${BACKEND_URL}/monitoring/create`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                    'Authorization':localStorage.getItem('token')
-              },
-              body: JSON.stringify(data),
-            });
-        
-            // Leer el mensaje del backend
-            const messageR = await response.text();
-        
-            if (response.ok) {
-                setMessage("Estado: " + messageR)
-                setIsOpen(!isOpen)
-                
-            } else {
-                setMessage(messageR)
-                console.error("Error: " + messageR)
-                setIsOpen(!isOpen)
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            // alert("Ocurrió un error inesperado. Por favor, inténtalo nuevamente.");
-            setMessage("Ocurrió un error inesperado. Por favor, inténtalo nuevamente.")
-            setIsOpen(!isOpen)
-          }
-    };
+        };
 
-    const handleDelete = async(id) => {
+        // Validaciones mínimas
+        if (!data.schoolName || !data.programName || !data.courseName || !data.semester || !data.start || !data.finish) {
+            setMessage("Por favor completa todos los campos requeridos antes de confirmar.");
+            setIsOpen(true);
+            return;
+        }
+        if (role === 'jfedpto' && !selectedProfessorId) {
+            setMessage("Selecciona un profesor responsable antes de confirmar.");
+            setIsOpen(true);
+            return;
+        }
+
         try {
-            //Delete logic in here
-            const responseDelete = await fetch(`${BACKEND_URL}/monitoring/deleteMonitoring/${id}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                    'Authorization':localStorage.getItem('token')
-              }
+            const response = await fetch(`${BACKEND_URL}/monitoring/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                },
+                body: JSON.stringify(data),
             });
-            const answer = await responseDelete.json();
-            if (answer) {
-                // Estado ok
-                // setMessage("Estado: " + messageR)
-                setMessage("Se ha eliminado la monitoría")
-                
-                
-            } else {
-                // console.error("Error: " + messageR)
-                // setMessage(error: messageR)
-                setMessage("La monitoria no pudo ser eliminada debido a que esta asociada a monitores o postulantes a monitoria. Asegurate de revisar el proceso postulación")
-            }
-            setIsOpen(!isOpen)
+            const text = await response.text();
+            setMessage(text);
+            setIsOpen(true);
+            await refreshRecords();
         } catch (error) {
-            console.error("Error deleting data:", error);
-            setMessage("Error en el servidor: No ha sido posible eliminar la monitoría")
-            setIsOpen(!isOpen)
+            console.error('Error creating monitoring:', error);
+            setMessage('Error al crear la monitoría.');
+            setIsOpen(true);
         }
     };
-
-    const handleClose = () =>{
-        setIsOpen(false)
-        setChange(!change)
-    }
 
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -366,9 +449,22 @@ function CreateMonitoria() {
                 ...record,
                 startFormatted: startDateR,
                 endFormatted: endDateR,
+                estimatedHours: record.estimatedHours || 0,
+                hourlyRate: record.hourlyRate || 0,
+                totalCost: (Number(record.estimatedHours || 0) * Number(record.hourlyRate || 0))
             };
         });
     }, [currentRecords]);
+
+    const formatCurrency = (value) => {
+        const n = Number(value);
+        if (isNaN(n)) return 0;
+        try {
+            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+        } catch (e) {
+            return n;
+        }
+    };
 
     const checkDates = (startPostulation, endPostulation) => {
         
@@ -396,11 +492,26 @@ function CreateMonitoria() {
             <div className="cm-content">
                 {/* Title begins */}
                 <div className="cm-title-container">
-                    <h2 className="cm-title">Crear monitoria</h2>
+                                        <h2 className="cm-title">Crear/Cargar monitorías</h2>
                 </div>
                 {/* Title ends */}
 
                 <form className="cm-grid-container">
+
+                                        {/* Selección de profesor visible solo para Jefe de Departamento */}
+                                        {role === 'jfedpto' && (
+                                            <>
+                                                <label>Profesor responsable</label>
+                                                <select className="cm-program"
+                                                                value={selectedProfessorId}
+                                                                onChange={(e)=>setSelectedProfessorId(e.target.value)}>
+                                                    <option value=""> Seleccionar </option>
+                                                    {professors.map(p => (
+                                                        <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                                                    ))}
+                                                </select>
+                                            </>
+                                        )}
 
                     {/* Facultad */}
                     <label>Nombre de facultad</label>
@@ -502,7 +613,11 @@ function CreateMonitoria() {
                                 <th className="table-head"> Periodo académico </th>
                                 <th className="table-head"> Inicio de convocatoria</th>
                                 <th className="table-head"> Fin de convocatoria</th>
+                                <th className="table-head"> Horas </th>
+                                <th className="table-head"> Valor hora </th>
+                                <th className="table-head"> Costo </th>
                                 <th className="table-head"> </th>
+                                {role === 'jfedpto' && (<th className="table-head"> Presupuesto </th>)}
                             </tr>
                         </thead>
                         <tbody>
@@ -516,12 +631,22 @@ function CreateMonitoria() {
                                             <td className="table-data">{record.semester}</td>
                                             <td className="table-data">{record.startFormatted}</td>
                                             <td className="table-data">{record.endFormatted}</td>
+                                            <td className="table-data">{record.estimatedHours}</td>
+                                            <td className="table-data">{formatCurrency(record.hourlyRate)}</td>
+                                            <td className="table-data">{formatCurrency(record.totalCost)}</td>
                                             <td className="table-data">
                                                 <div className="requirement-container">
                                                     {/* <button className="edit-button">Editar</button> */}
                                                     <button className="cancel-button" onClick={() =>handleDelete(record.id)}>Eliminar</button>
                                                 </div>
                                             </td>
+                                            {role === 'jfedpto' && (
+                                                <td className="table-data">
+                                                    <button className="edit-button" onClick={() => openBudgetPopup(record)}>
+                                                        Editar presupuesto
+                                                    </button>
+                                                </td>
+                                            )}
                                         </tr>
                                     );
                                 })}
@@ -554,6 +679,16 @@ function CreateMonitoria() {
         </div>
 
         {/* Table ends */}
+
+            <PopUpUpdateBudget
+                show={showBudgetPopup}
+                onClose={() => { setShowBudgetPopup(false); setBudgetRecord(null); }}
+                onSubmit={submitBudgetUpdate}
+                initialHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+                initialRate={budgetRecord ? (budgetRecord.hourlyRate || 0) : 0}
+                remainingHours={budgetInfo.remainingHours}
+                currentHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+            />
 
             </div>
         </div>

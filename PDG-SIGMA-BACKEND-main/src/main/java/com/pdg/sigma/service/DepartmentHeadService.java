@@ -6,11 +6,13 @@ import com.pdg.sigma.domain.DepartmentHead;
 import com.pdg.sigma.domain.HeadProgram;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
+import com.pdg.sigma.dto.PendingApplicationDTO;
 
 public interface DepartmentHeadService extends GenericService<DepartmentHead, Integer> {
 
     DepartmentHeadDTO getProfile(String departmentHeadId) throws Exception;
     List<Professor> getProfessorsByDepartmentHead(String departmentHeadId);
     List<HeadProgram> getProgramsByDepartmentHead(String departmentHeadId);
+    List<PendingApplicationDTO> getPendingApplications(String departmentHeadId) throws Exception;
 
 }

@@ -24,8 +24,7 @@ import com.pdg.sigma.dto.ApproveApplicationRequest;
 import com.pdg.sigma.dto.PendingApplicationDTO;
 import com.pdg.sigma.repository.HeadProgramRepository;
 import com.pdg.sigma.service.DepartmentHeadService;
-import com.pdg.sigma.service.DepartmentHeadServiceImpl;
-import com.pdg.sigma.service.MonitoringMonitorServiceImpl;
+import com.pdg.sigma.service.MonitoringMonitorService;
 
 @RestController
 @RequestMapping("/department-head")
@@ -38,10 +37,7 @@ public class DepartmentHeadController {
     private DepartmentHeadService departmentHeadService;
 
     @Autowired
-    private DepartmentHeadServiceImpl departmentHeadServiceImpl;
-
-    @Autowired
-    private MonitoringMonitorServiceImpl monitoringMonitorService;
+    private MonitoringMonitorService monitoringMonitorService;
 
     @Autowired
     private HeadProgramRepository headProgramRepository;
@@ -116,7 +112,7 @@ public class DepartmentHeadController {
                 return ResponseEntity.status(403).body("Acceso denegado. Solo jefes de departamento pueden ver las postulaciones.");
             }
             
-            List<PendingApplicationDTO> applications = departmentHeadServiceImpl.getPendingApplications(id);
+            List<PendingApplicationDTO> applications = departmentHeadService.getPendingApplications(id);
             return ResponseEntity.ok(applications);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
