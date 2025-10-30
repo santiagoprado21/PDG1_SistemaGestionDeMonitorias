@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pdg.sigma.dto.MonitoringDTO;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -64,6 +64,61 @@ public class Monitoring implements Serializable {
     @JsonManagedReference //padre
     private List<MonitoringMonitor> monitoringMonitors;
 
+    // ==================== NUEVO FLUJO HU-010: INTEGRACIÓN CON CONVOCATORIA ====================
+    
+    /**
+     * Relación con la convocatoria (MonitoringRequest) que originó esta monitoría.
+     * Null para monitorías creadas con el flujo antiguo (antes de HU-010).
+     */
+    @OneToOne
+    @JoinColumn(name = "monitoring_request_id")
+    private MonitoringRequest originatingRequest;
+
+    /**
+     * Monitor asignado desde la creación de la monitoría.
+     * En el nuevo flujo, la monitoría se crea YA con el monitor seleccionado.
+     */
+    @ManyToOne
+    @JoinColumn(name = "assigned_monitor_id")
+    private Monitor assignedMonitor;
+
+    /**
+     * Estado de aprobación de la monitoría por parte del jefe de departamento.
+     * En el nuevo flujo, el jefe aprueba el "paquete completo" (monitoría + monitor).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", length = 30)
+    private MonitoringApprovalStatus approvalStatus;
+
+    /**
+     * Justificación de la necesidad de esta monitoría (copiada de la MonitoringRequest).
+     * Útil para que el jefe de departamento la vea al aprobar.
+     */
+    @Column(name = "justification", columnDefinition = "TEXT")
+    private String justification;
+
+    // ==================== AUDITORÍA DE APROBACIÓN ====================
+    
+    /**
+     * ID del jefe de departamento que aprobó/rechazó la monitoría
+     */
+    @Column(name = "approved_by", length = 20)
+    private String approvedBy;
+
+    /**
+     * Comentario del jefe de departamento sobre su decisión
+     */
+    @Column(name = "approval_comment", columnDefinition = "TEXT")
+    private String approvalComment;
+
+    /**
+     * Fecha y hora de la aprobación/rechazo
+     */
+    @Column(name = "approval_date")
+    private LocalDateTime approvalDate;
+
+    // ==================== CONSTRUCTORES ====================
+
     public Monitoring(School school, Program program, Course course,
                       Date start, Date finish, double averageGrade, double courseGrade, String semester, Professor professor) {
         this.school = school;
@@ -93,5 +148,79 @@ public class Monitoring implements Serializable {
         this.professor = monitoringDTO.getProfessor();
         this.estimatedHours = monitoringDTO.getEstimatedHours();
         this.hourlyRate = monitoringDTO.getHourlyRate();
+    }
+
+    /**
+     * Constructor para crear una Monitoring desde una MonitoringRequest aprobada
+     * (Nuevo flujo HU-010)
+     */
+    public Monitoring(MonitoringRequest request, Monitor assignedMonitor) {
+        this.school = request.getSchool();
+        this.program = request.getProgram();
+        this.course = request.getCourse();
+        this.start = request.getStartDate();
+        this.finish = request.getFinishDate();
+        this.averageGrade = request.getRequiredAverageGrade() != null ? request.getRequiredAverageGrade() : 4.0;
+        this.courseGrade = request.getRequiredCourseGrade() != null ? request.getRequiredCourseGrade() : 4.0;
+        this.semester = request.getSemester();
+        this.professor = request.getProfessor();
+        this.estimatedHours = request.getRequestedHours();
+        this.hourlyRate = request.getHourlyRate();
+        
+        // Nuevos campos para HU-010
+        this.originatingRequest = request;
+        this.assignedMonitor = assignedMonitor;
+        this.approvalStatus = MonitoringApprovalStatus.PENDIENTE_APROBACION;
+        this.justification = request.getJustification();
+    }
+
+    // ==================== MÉTODOS DE UTILIDAD ====================
+
+    /**
+     * Verifica si esta monitoría requiere aprobación del jefe de departamento
+     */
+    public boolean requiresApproval() {
+        return this.approvalStatus == MonitoringApprovalStatus.PENDIENTE_APROBACION;
+    }
+
+    /**
+     * Verifica si la monitoría fue aprobada y puede funcionar
+     */
+    public boolean isApproved() {
+        return this.approvalStatus == MonitoringApprovalStatus.APROBADA;
+    }
+
+    /**
+     * Verifica si la monitoría fue rechazada
+     */
+    public boolean isRejected() {
+        return this.approvalStatus == MonitoringApprovalStatus.RECHAZADA;
+    }
+
+    /**
+     * Verifica si esta monitoría fue creada con el nuevo flujo (tiene request origen)
+     */
+    public boolean isFromNewFlow() {
+        return this.originatingRequest != null;
+    }
+
+    /**
+     * Aprueba la monitoría
+     */
+    public void approve(String approvedBy, String comment) {
+        this.approvalStatus = MonitoringApprovalStatus.APROBADA;
+        this.approvedBy = approvedBy;
+        this.approvalComment = comment;
+        this.approvalDate = LocalDateTime.now();
+    }
+
+    /**
+     * Rechaza la monitoría
+     */
+    public void reject(String rejectedBy, String comment) {
+        this.approvalStatus = MonitoringApprovalStatus.RECHAZADA;
+        this.approvedBy = rejectedBy;
+        this.approvalComment = comment;
+        this.approvalDate = LocalDateTime.now();
     }
 }
