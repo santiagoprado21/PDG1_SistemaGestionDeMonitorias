@@ -15,5 +15,23 @@ public interface MonitoringService extends GenericService<Monitoring, Long>{
      */
     public Monitoring updateMonitoringBudget(Long monitoringId, Integer estimatedHours, Double hourlyRate) throws Exception;
 
+    // ==================== MÉTODOS PARA HU-010 ====================
+
+    /**
+     * Aprueba una monitoría (nuevo flujo HU-010)
+     * Actualiza el estado de la monitoría y de la MonitoringRequest asociada
+     */
+    void approveMonitoring(Long monitoringId, String departmentHeadId, String comment) throws Exception;
+
+    /**
+     * Rechaza una monitoría (nuevo flujo HU-010)
+     * Actualiza el estado de la monitoría y de la MonitoringRequest asociada
+     */
+    void rejectMonitoring(Long monitoringId, String departmentHeadId, String comment) throws Exception;
+
+    /**
+     * Obtiene monitorías pendientes de aprobación
+     */
+    List<Monitoring> findPendingApproval();
 
 }

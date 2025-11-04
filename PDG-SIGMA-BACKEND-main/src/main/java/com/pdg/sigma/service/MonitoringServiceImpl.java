@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -65,6 +66,9 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Autowired
     private StudentCourseRepository studentCourseRepository;
+
+    @Autowired
+    private MonitoringRequestRepository monitoringRequestRepository;
 
     /**
      * Método auxiliar para verificar si una monitoría ya tiene un monitor aprobado
@@ -1616,5 +1620,81 @@ public class MonitoringServiceImpl implements MonitoringService{
     public List<Monitoring> findMonitoringsByAssignedMonitor(String monitorId) {
         System.out.println("MonitoringServiceImpl.findMonitoringsByAssignedMonitor (con filtro de estado) para el monitor: " + monitorId);
         return monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorId);
+    }
+
+    // ==================== NUEVOS MÉTODOS PARA HU-010 ====================
+
+    @Override
+    public void approveMonitoring(Long monitoringId, String departmentHeadId, String comment) throws Exception {
+        System.out.println("=== APROBANDO MONITORÍA (HU-010) ===");
+        
+        Monitoring monitoring = monitoringRepository.findById(monitoringId)
+                .orElseThrow(() -> new Exception("Monitoría no encontrada"));
+        
+        // Validar que es del nuevo flujo (tiene MonitoringRequest asociada)
+        if (!monitoring.isFromNewFlow()) {
+            throw new Exception("Esta monitoría no pertenece al nuevo flujo de aprobación");
+        }
+        
+        // Validar que está pendiente de aprobación
+        if (!monitoring.requiresApproval()) {
+            throw new Exception("Esta monitoría no está pendiente de aprobación. Estado: " + monitoring.getApprovalStatus());
+        }
+        
+        // Aprobar la monitoría
+        monitoring.approve(departmentHeadId, comment);
+        monitoringRepository.save(monitoring);
+        
+        // Actualizar el estado de la MonitoringRequest asociada
+        if (monitoring.getOriginatingRequest() != null) {
+            MonitoringRequest request = monitoring.getOriginatingRequest();
+            request.setStatus(RequestStatus.APROBADA);
+            request.setUpdatedAt(LocalDateTime.now());
+            monitoringRequestRepository.save(request);
+        }
+        
+        System.out.println("Monitoría " + monitoringId + " aprobada por " + departmentHeadId);
+        System.out.println("=====================================");
+    }
+
+    @Override
+    public void rejectMonitoring(Long monitoringId, String departmentHeadId, String comment) throws Exception {
+        System.out.println("=== RECHAZANDO MONITORÍA (HU-010) ===");
+        
+        Monitoring monitoring = monitoringRepository.findById(monitoringId)
+                .orElseThrow(() -> new Exception("Monitoría no encontrada"));
+        
+        // Validar que es del nuevo flujo
+        if (!monitoring.isFromNewFlow()) {
+            throw new Exception("Esta monitoría no pertenece al nuevo flujo de aprobación");
+        }
+        
+        // Validar que está pendiente de aprobación
+        if (!monitoring.requiresApproval()) {
+            throw new Exception("Esta monitoría no está pendiente de aprobación. Estado: " + monitoring.getApprovalStatus());
+        }
+        
+        // Rechazar la monitoría
+        monitoring.reject(departmentHeadId, comment);
+        monitoringRepository.save(monitoring);
+        
+        // Actualizar el estado de la MonitoringRequest asociada
+        if (monitoring.getOriginatingRequest() != null) {
+            MonitoringRequest request = monitoring.getOriginatingRequest();
+            request.setStatus(RequestStatus.RECHAZADA);
+            request.setUpdatedAt(LocalDateTime.now());
+            monitoringRequestRepository.save(request);
+        }
+        
+        System.out.println("Monitoría " + monitoringId + " rechazada por " + departmentHeadId);
+        System.out.println("Motivo: " + comment);
+        System.out.println("======================================");
+    }
+
+    @Override
+    public List<Monitoring> findPendingApproval() {
+        return monitoringRepository.findAll().stream()
+                .filter(Monitoring::requiresApproval)
+                .collect(Collectors.toList());
     }
 }
