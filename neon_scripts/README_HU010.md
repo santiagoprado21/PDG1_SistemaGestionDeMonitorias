@@ -72,14 +72,36 @@ Inserta datos de ejemplo para testear el nuevo flujo.
 
 ## Orden de Ejecución
 
+### 🌐 Opción 1: Desde Neon SQL Editor (MÁS FÁCIL) ⭐
+
+1. **Ir a:** https://console.neon.tech → SQL Editor
+2. **Migración inicial:**
+   - Abrir `6_hu010_create_new_tables.sql` en tu editor
+   - Copiar TODO (Ctrl+A, Ctrl+C)
+   - Pegar en Neon SQL Editor
+   - Click **"Run"**
+
+3. **Obtener IDs para pruebas:**
+   - Abrir `8_obtener_ids_para_pruebas.sql`
+   - Copiar TODO
+   - Pegar en Neon SQL Editor
+   - Click **"Run"**
+   - Copiar los IDs mostrados en las tablas
+
+4. **Datos de prueba (opcional):**
+   - Editar `7_hu010_test_data.sql` primero (reemplazar IDs)
+   - Copiar, pegar, Run
+
+### 💻 Opción 2: Desde Terminal (psql)
+
 1. **Migración inicial:**
-   ```sql
-   \i 6_hu010_create_new_tables.sql
+   ```bash
+   psql "postgresql://..." -f 6_hu010_create_new_tables.sql
    ```
 
 2. **Datos de prueba (opcional):**
-   ```sql
-   \i 7_hu010_test_data.sql
+   ```bash
+   psql "postgresql://..." -f 7_hu010_test_data.sql
    ```
 
 ## Estructura de Tablas
