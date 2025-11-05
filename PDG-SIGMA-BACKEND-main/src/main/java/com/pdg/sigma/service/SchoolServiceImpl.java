@@ -22,7 +22,7 @@ public class SchoolServiceImpl implements SchoolService{
         List<SchoolDTO> newList = new ArrayList<>();
 
         for(School school:list){
-            newList.add(new SchoolDTO(school.getName()));
+            newList.add(new SchoolDTO(school.getId(), school.getName()));
         }
 
         return newList;

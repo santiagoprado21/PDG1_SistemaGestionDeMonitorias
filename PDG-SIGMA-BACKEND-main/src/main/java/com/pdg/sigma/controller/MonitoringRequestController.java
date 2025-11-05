@@ -140,14 +140,20 @@ public class MonitoringRequestController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getConvocatoriaById(@PathVariable Long id) {
         try {
+            System.out.println("=== GET CONVOCATORIA BY ID: " + id + " ===");
             MonitoringRequest request = monitoringRequestService.findById(id)
                     .orElseThrow(() -> new Exception("Convocatoria no encontrada"));
             
+            System.out.println("Found request, creating DTO...");
             MonitoringRequestDTO dto = new MonitoringRequestDTO(request);
+            System.out.println("DTO created, getting application count...");
             dto.setApplicationCount(monitoringRequestService.getApplicationCount(id));
             
+            System.out.println("Returning DTO...");
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
+            System.err.println("ERROR in getConvocatoriaById: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         }

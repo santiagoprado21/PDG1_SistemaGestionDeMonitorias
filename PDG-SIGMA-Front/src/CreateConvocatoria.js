@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './CreateMonitoria.css'; 
+import './CreateConvocatoria.css'; 
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
@@ -52,6 +52,7 @@ function CreateConvocatoria() {
         try {
             const response = await fetch(`${BACKEND_URL}/school/getSchools`);
             const data = await response.json();
+            console.log('Faculties loaded:', data);
             setFaculties(data || []);
         } catch (error) {
             console.error('Error loading faculties:', error);
@@ -60,21 +61,46 @@ function CreateConvocatoria() {
 
     const loadPrograms = async (facultyId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/program/getProgramsSchool/${facultyId}`);
+            console.log('Loading programs for faculty:', facultyId);
+            const response = await fetch(`${BACKEND_URL}/program/getProgramsSchool`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    school: {
+                        id: parseInt(facultyId)
+                    }
+                })
+            });
+            console.log('Programs response status:', response.status);
+            if (!response.ok) {
+                console.error('Error response:', response.status);
+                setPrograms([]);
+                return;
+            }
             const data = await response.json();
-            setPrograms(data || []);
+            console.log('Programs loaded:', data);
+            setPrograms(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading programs:', error);
+            setPrograms([]);
         }
     };
 
     const loadCourses = async (programId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/course/getCoursesProgram/${programId}`);
+            const response = await fetch(`${BACKEND_URL}/course/program/${programId}`);
+            if (!response.ok) {
+                console.error('Error response:', response.status);
+                setCourses([]);
+                return;
+            }
             const data = await response.json();
-            setCourses(data || []);
+            setCourses(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading courses:', error);
+            setCourses([]);
         }
     };
 
@@ -225,9 +251,9 @@ function CreateConvocatoria() {
                                     onChange={(e) => setSelectedFaculty(e.target.value)}
                                     required
                                 >
-                                    <option value="">Seleccione una facultad</option>
+                                    <option key="empty-faculty" value="">Seleccione una facultad</option>
                                     {faculties.map(f => (
-                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                        <option key={`faculty-${f.id}`} value={f.id}>{f.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -240,9 +266,9 @@ function CreateConvocatoria() {
                                     required
                                     disabled={!selectedFaculty}
                                 >
-                                    <option value="">Seleccione un programa</option>
+                                    <option key="empty-program" value="">Seleccione un programa</option>
                                     {programs.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                        <option key={`program-${p.id}`} value={p.id}>{p.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -255,9 +281,9 @@ function CreateConvocatoria() {
                                     required
                                     disabled={!selectedProgram}
                                 >
-                                    <option value="">Seleccione un curso</option>
+                                    <option key="empty-course" value="">Seleccione un curso</option>
                                     {courses.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                        <option key={`course-${c.id}`} value={c.id}>{c.name}</option>
                                     ))}
                                 </select>
                             </div>

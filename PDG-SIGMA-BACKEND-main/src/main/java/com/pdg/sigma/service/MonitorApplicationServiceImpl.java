@@ -84,8 +84,26 @@ public class MonitorApplicationServiceImpl implements MonitorApplicationService 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MonitorApplication> getApplicationsByRequest(Long requestId) {
-        return monitorApplicationRepository.findByMonitoringRequestId(requestId);
+        List<MonitorApplication> applications = monitorApplicationRepository.findByMonitoringRequestId(requestId);
+        // Forzar carga de relaciones lazy dentro de la transacción
+        applications.forEach(app -> {
+            if (app.getMonitor() != null) {
+                app.getMonitor().getName(); // trigger lazy load
+            }
+            if (app.getMonitoringRequest() != null) {
+                app.getMonitoringRequest().getCourse(); // trigger lazy load
+                if (app.getMonitoringRequest().getCourse() != null) {
+                    app.getMonitoringRequest().getCourse().getName();
+                }
+                app.getMonitoringRequest().getProfessor(); // trigger lazy load
+                if (app.getMonitoringRequest().getProfessor() != null) {
+                    app.getMonitoringRequest().getProfessor().getName();
+                }
+            }
+        });
+        return applications;
     }
 
     @Override

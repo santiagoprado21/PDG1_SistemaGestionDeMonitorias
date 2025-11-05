@@ -52,14 +52,30 @@ public class MonitorApplicationController {
     @GetMapping("/request/{requestId}")
     public ResponseEntity<?> getApplicationsByRequest(@PathVariable Long requestId) {
         try {
+            System.out.println("=== GET APPLICATIONS BY REQUEST: " + requestId + " ===");
             List<MonitorApplication> applications = monitorApplicationService.getApplicationsByRequest(requestId);
+            System.out.println("Found " + applications.size() + " applications");
             
             List<MonitorApplicationDTO> dtos = applications.stream()
-                    .map(MonitorApplicationDTO::new)
+                    .map(app -> {
+                        try {
+                            System.out.println("Converting application ID: " + app.getId());
+                            MonitorApplicationDTO dto = new MonitorApplicationDTO(app);
+                            System.out.println("Converted successfully");
+                            return dto;
+                        } catch (Exception e) {
+                            System.err.println("ERROR converting application: " + e.getMessage());
+                            e.printStackTrace();
+                            throw new RuntimeException("Error converting application", e);
+                        }
+                    })
                     .collect(Collectors.toList());
             
+            System.out.println("Returning " + dtos.size() + " DTOs");
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
+            System.err.println("ERROR in getApplicationsByRequest: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }

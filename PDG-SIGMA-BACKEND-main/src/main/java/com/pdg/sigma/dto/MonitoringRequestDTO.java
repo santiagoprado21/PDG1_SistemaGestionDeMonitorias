@@ -1,5 +1,6 @@
 package com.pdg.sigma.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pdg.sigma.domain.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,10 +33,14 @@ public class MonitoringRequestDTO implements Serializable {
     private String schoolName;
     private String programName;
     
-    // Entidades completas (cuando se recupera de BD)
+    // Entidades completas (cuando se recupera de BD) - ignoradas en JSON
+    @JsonIgnore
     private Professor professor;
+    @JsonIgnore
     private Course course;
+    @JsonIgnore
     private School school;
+    @JsonIgnore
     private Program program;
     
     // Detalles de la solicitud (HU-010)

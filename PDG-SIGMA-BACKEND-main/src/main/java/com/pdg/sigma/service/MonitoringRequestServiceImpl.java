@@ -305,8 +305,25 @@ public class MonitoringRequestServiceImpl implements MonitoringRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<MonitoringRequest> findById(Long id) {
-        return monitoringRequestRepository.findById(id);
+        Optional<MonitoringRequest> requestOpt = monitoringRequestRepository.findById(id);
+        // Forzar carga de relaciones lazy dentro de la transacción
+        requestOpt.ifPresent(request -> {
+            if (request.getProfessor() != null) {
+                request.getProfessor().getName();
+            }
+            if (request.getCourse() != null) {
+                request.getCourse().getName();
+            }
+            if (request.getSchool() != null) {
+                request.getSchool().getName();
+            }
+            if (request.getProgram() != null) {
+                request.getProgram().getName();
+            }
+        });
+        return requestOpt;
     }
 
     @Override

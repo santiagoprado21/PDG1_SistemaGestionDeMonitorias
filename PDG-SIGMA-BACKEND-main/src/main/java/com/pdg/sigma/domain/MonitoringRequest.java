@@ -1,5 +1,6 @@
 package com.pdg.sigma.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -137,6 +138,7 @@ public class MonitoringRequest implements Serializable {
      * Lista de postulaciones de estudiantes a esta convocatoria
      */
     @OneToMany(mappedBy = "monitoringRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<MonitorApplication> studentApplications = new ArrayList<>();
 
     /**
@@ -144,6 +146,7 @@ public class MonitoringRequest implements Serializable {
      * (será null mientras está en estado CONVOCATORIA_ABIERTA)
      */
     @OneToOne(mappedBy = "originatingRequest", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Monitoring createdMonitoring;
 
     // ==================== CONSTRUCTORES Y MÉTODOS DE UTILIDAD ====================
@@ -212,6 +215,7 @@ public class MonitoringRequest implements Serializable {
     /**
      * Cuenta el número de postulaciones recibidas
      */
+    @JsonIgnore
     public int getApplicationCount() {
         return this.studentApplications != null ? this.studentApplications.size() : 0;
     }

@@ -1,5 +1,6 @@
 package com.pdg.sigma.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,6 +46,7 @@ public class MonitorApplication implements Serializable {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "monitoring_request_id", nullable = false)
+    @JsonIgnore
     private MonitoringRequest monitoringRequest;
 
     /**
@@ -52,6 +54,7 @@ public class MonitorApplication implements Serializable {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "monitor_id", nullable = false)
+    @JsonIgnore
     private Monitor monitor;
 
     // ==================== INFORMACIÓN DE LA POSTULACIÓN ====================

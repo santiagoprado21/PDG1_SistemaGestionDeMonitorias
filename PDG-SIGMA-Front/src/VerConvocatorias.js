@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ApplyMonitor.css';
+import './VerConvocatorias.css';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
