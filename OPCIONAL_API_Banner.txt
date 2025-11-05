@@ -1,8 +1,0 @@
-========================================
-       EJECUTAR API BANNER (OPCIONAL)
-========================================
-
-cd "C:\dev\SwMonitorias\API-Banner-main"ç
-
-.\mvnw.cmd spring-boot:run
-
