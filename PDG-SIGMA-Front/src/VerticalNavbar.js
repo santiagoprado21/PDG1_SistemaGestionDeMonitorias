@@ -166,6 +166,14 @@ function VerticalNavbar() {
         >
           Postulaciones
         </NavLink>
+        
+        {/* HU-010: Ver Convocatorias (para todos los estudiantes) */}
+        <NavLink
+          to="/ver-convocatorias"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          Convocatorias Abiertas
+        </NavLink>
 
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
@@ -188,6 +196,13 @@ function VerticalNavbar() {
             >
               Crear monitoria
             </NavLink>
+            {/* HU-010: Crear Convocatoria */}
+            <NavLink
+              to="/crear-convocatoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📢 Crear Convocatoria
+            </NavLink>
             <NavLink
               to="/Applicants"
               className={({ isActive }) => (isActive ? "active" : "")}
@@ -206,11 +221,12 @@ function VerticalNavbar() {
             >
               Cargar/Crear Monitorías
             </NavLink>
+            {/* HU-010: Aprobar Monitorías */}
             <NavLink
-              to="/ApproveApplications"
+              to="/aprobar-convocatorias"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Aprobar Postulaciones
+              Aprobar Monitorías
             </NavLink>
             <NavLink
               to="/GenerateSimonFile"

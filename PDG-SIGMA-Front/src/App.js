@@ -17,6 +17,12 @@ import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
 
+// HU-010: Nuevos componentes para el flujo de convocatorias
+import CreateConvocatoria from './CreateConvocatoria';
+import VerConvocatorias from './VerConvocatorias';
+import SeleccionarMonitor from './SeleccionarMonitor';
+import AprobarConvocatorias from './AprobarConvocatorias';
+
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
@@ -83,6 +89,20 @@ function App() {
 
          {/* Route for Generate SIMON File */}
          <Route path="/GenerateSimonFile" element={<GenerateSimonFile />} />
+
+         {/* ========== HU-010: Rutas para Convocatorias de Monitoría ========== */}
+         
+         {/* Profesor: Crear Convocatoria */}
+         <Route path="/crear-convocatoria" element={<CreateConvocatoria />} />
+         
+         {/* Estudiante: Ver y Postularse */}
+         <Route path="/ver-convocatorias" element={<VerConvocatorias />} />
+         
+         {/* Profesor: Seleccionar Monitor */}
+         <Route path="/seleccionar-monitor/:convocatoriaId" element={<SeleccionarMonitor />} />
+         
+         {/* Jefe Departamento: Aprobar/Rechazar */}
+         <Route path="/aprobar-convocatorias" element={<AprobarConvocatorias />} />
       </Routes>
     </div>
   );
