@@ -227,6 +227,13 @@ function VerticalNavbar() {
             >
               Aprobar Postulaciones
             </NavLink>
+            {/* HU-010: Aprobar Monitorías del Nuevo Flujo */}
+            <NavLink
+              to="/aprobar-monitorias-hu010"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              ✓ Aprobar Monitorías (HU-010)
+            </NavLink>
             <NavLink
               to="/GenerateSimonFile"
               className={({ isActive }) => (isActive ? "active" : "")}

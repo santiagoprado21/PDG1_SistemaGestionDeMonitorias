@@ -20,6 +20,8 @@ import { useEffect } from "react";
 // HU-010: Nuevos componentes para el flujo de convocatorias
 import CreateConvocatoria from './CreateConvocatoria';
 import VerConvocatorias from './VerConvocatorias';
+import SeleccionarMonitor from './SeleccionarMonitor';
+import AprobarMonitoriasHU010 from './AprobarMonitoriasHU010';
 
 function App() {
   // Hook para obtener la ruta actual
@@ -95,6 +97,12 @@ function App() {
          
          {/* Estudiante: Ver y Postularse */}
          <Route path="/ver-convocatorias" element={<VerConvocatorias />} />
+         
+         {/* Profesor: Seleccionar Monitor de una Convocatoria */}
+         <Route path="/seleccionar-monitor/:requestId" element={<SeleccionarMonitor />} />
+         
+         {/* Jefe de Departamento: Aprobar Monitorías HU-010 */}
+         <Route path="/aprobar-monitorias-hu010" element={<AprobarMonitoriasHU010 />} />
       </Routes>
     </div>
   );

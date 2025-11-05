@@ -4,8 +4,11 @@ import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
 import LoadingSpinner from './LoadingSpinner';
+import { useNavigate } from 'react-router-dom';
 
 function CreateConvocatoria() {
+    const navigate = useNavigate();
+    
     const [faculties, setFaculties] = useState([]);
     const [programs, setPrograms] = useState([]);
     const [courses, setCourses] = useState([]);
@@ -431,7 +434,7 @@ function CreateConvocatoria() {
                                             <td>
                                                 {conv.status === 'CONVOCATORIA_ABIERTA' && (
                                                     <button 
-                                                        onClick={() => window.location.href = `/seleccionar-monitor/${conv.id}`}
+                                                        onClick={() => navigate(`/seleccionar-monitor/${conv.id}`)}
                                                         style={{
                                                             padding: '6px 12px',
                                                             backgroundColor: '#2196F3',
