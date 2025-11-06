@@ -66,7 +66,7 @@ function Login() {
           else{
             localStorage.setItem('role',res.role)
             localStorage.setItem('token',`Bearer ${res.token}`)
-            navigate('/ApplyMonitor')// Redirige a la para aplicar a monitor con usuario iniciado sesion
+            navigate('/ver-convocatorias')// Redirige a ver convocatorias abiertas
           }
         }else{
           console.log("Can't find it")

@@ -344,4 +344,91 @@ public class MonitoringController {
 
     }
 
+    // ==================== NUEVOS ENDPOINTS PARA HU-010 ====================
+
+    /**
+     * POST /monitoring/approve/{monitoringId}
+     * Aprueba una monitoría (nuevo flujo HU-010)
+     * El jefe de departamento aprueba el "paquete completo" (monitoría + monitor asignado)
+     * Body: { "departmentHeadId": "...", "comment": "..." }
+     */
+    @PostMapping("/approve/{monitoringId}")
+    public ResponseEntity<?> approveMonitoring(
+            @PathVariable Long monitoringId,
+            @RequestBody Map<String, String> body) {
+        try {
+            String departmentHeadId = body.get("departmentHeadId");
+            String comment = body.get("comment");
+            
+            if (departmentHeadId == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "departmentHeadId es requerido"));
+            }
+            
+            monitoringService.approveMonitoring(monitoringId, departmentHeadId, comment);
+            
+            return ResponseEntity.ok(Map.of(
+                    "message", "Monitoría aprobada exitosamente",
+                    "monitoringId", monitoringId
+            ));
+        } catch (Exception e) {
+            System.err.println("Error al aprobar monitoría: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * POST /monitoring/reject/{monitoringId}
+     * Rechaza una monitoría (nuevo flujo HU-010)
+     * Body: { "departmentHeadId": "...", "comment": "..." }
+     */
+    @PostMapping("/reject/{monitoringId}")
+    public ResponseEntity<?> rejectMonitoring(
+            @PathVariable Long monitoringId,
+            @RequestBody Map<String, String> body) {
+        try {
+            String departmentHeadId = body.get("departmentHeadId");
+            String comment = body.get("comment");
+            
+            if (departmentHeadId == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "departmentHeadId es requerido"));
+            }
+            
+            if (comment == null || comment.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "El comentario de rechazo es obligatorio"));
+            }
+            
+            monitoringService.rejectMonitoring(monitoringId, departmentHeadId, comment);
+            
+            return ResponseEntity.ok(Map.of(
+                    "message", "Monitoría rechazada",
+                    "monitoringId", monitoringId
+            ));
+        } catch (Exception e) {
+            System.err.println("Error al rechazar monitoría: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /monitoring/pending-approval
+     * Obtiene monitorías pendientes de aprobación (nuevo flujo HU-010)
+     */
+    @GetMapping("/pending-approval")
+    public ResponseEntity<?> getPendingApproval() {
+        try {
+            List<Monitoring> pendingMonitorings = monitoringService.findPendingApproval();
+            return ResponseEntity.ok(pendingMonitorings);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }

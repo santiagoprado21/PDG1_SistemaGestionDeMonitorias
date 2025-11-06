@@ -1,5 +1,6 @@
 package com.pdg.sigma.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pdg.sigma.domain.Course;
 import com.pdg.sigma.domain.Program;
 import lombok.Data;
@@ -9,6 +10,8 @@ import java.io.Serializable;
 public class CourseDTO  implements Serializable {
     private Long id;
     private String name;
+    
+    @JsonIgnore
     private Program program;
 
     public CourseDTO(Long id, String name, Program program){

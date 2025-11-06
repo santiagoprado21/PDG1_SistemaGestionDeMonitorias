@@ -1,0 +1,429 @@
+:root {
+  --main-color: #5454e8;
+  --hover-color: rgb(66, 65, 65);
+  --main-font-family: jakarta_bold, Arial, cursive;
+  --success-color: #4CAF50;
+  --info-color: #2196F3;
+}
+
+.apply-monitor-container {
+  padding: 20px;
+  margin-left: 200px;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* ============================TITLE================================= */
+
+.title-container-apply-monitor {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2em;
+  padding: 2em 0;
+  background: linear-gradient(135deg, var(--info-color) 0%, #42a5f5 100%);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 0 9em 2em 9em;
+}
+
+.title-apply-monitor {
+  font-family: var(--main-font-family);
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+/* ============================FILTERS================================= */
+
+.filters-container {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  margin: 0 2em 2em 2em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filters-container label {
+  font-family: var(--main-font-family);
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filters-container select {
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  min-width: 200px;
+  transition: border-color 0.3s ease;
+  background-color: #fafafa;
+}
+
+.filters-container select:focus {
+  outline: none;
+  border-color: var(--info-color);
+  background-color: white;
+}
+
+.filters-container span {
+  color: #666;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+/* ============================CARDS GRID================================= */
+
+.convocatorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 25px;
+  padding: 0 2em 2em 2em;
+}
+
+.convocatoria-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.convocatoria-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border-color: var(--info-color);
+}
+
+.convocatoria-card h3 {
+  font-family: var(--main-font-family);
+  font-size: 22px;
+  color: #333;
+  margin: 0 0 15px 0;
+  line-height: 1.3;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.convocatoria-info {
+  flex-grow: 1;
+  margin-bottom: 20px;
+}
+
+.convocatoria-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.convocatoria-info strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.convocatoria-actions {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+}
+
+.btn-postularse {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--info-color) 0%, #42a5f5 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--main-font-family);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-postularse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+}
+
+.already-applied {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--success-color) 0%, #66BB6A 100%);
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  font-family: var(--main-font-family);
+  font-weight: bold;
+  font-size: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ============================EMPTY STATE================================= */
+
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: white;
+  border-radius: 12px;
+  margin: 0 2em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.empty-state h3 {
+  font-family: var(--main-font-family);
+  font-size: 24px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #aaa;
+  font-size: 16px;
+}
+
+/* ============================MODAL================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 35px;
+  max-width: 650px;
+  width: 90%;
+  max-height: 85vh;
+  overflow: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-content h2 {
+  font-family: var(--main-font-family);
+  font-size: 28px;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.modal-content h3 {
+  color: #666;
+  font-size: 20px;
+  margin: 10px 0 25px 0;
+  font-weight: normal;
+}
+
+.modal-content label {
+  display: block;
+  font-family: var(--main-font-family);
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.modal-content textarea:focus {
+  outline: none;
+  border-color: var(--info-color);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.modal-content small {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.btn-modal {
+  padding: 13px 30px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--main-font-family);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-cancel {
+  background-color: #9E9E9E;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #757575;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--success-color) 0%, #66BB6A 100%);
+  color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================PAGINATION================================= */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  gap: 15px;
+  padding: 0 2em;
+}
+
+.pagination button {
+  padding: 12px 24px;
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--main-font-family);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination span {
+  font-family: var(--main-font-family);
+  font-size: 16px;
+  color: #555;
+  font-weight: 600;
+}
+
+/* ============================RESPONSIVE================================= */
+
+@media (max-width: 1200px) {
+  .apply-monitor-container {
+    margin-left: 0;
+  }
+  
+  .title-container-apply-monitor {
+    margin-left: 2em;
+    margin-right: 2em;
+  }
+}
+
+@media (max-width: 768px) {
+  .title-apply-monitor {
+    font-size: 24px;
+  }
+
+  .convocatorias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-container select {
+    min-width: 100%;
+  }
+
+  .modal-content {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 430px) {
+  .title-apply-monitor {
+    font-size: 20px;
+  }
+
+  .convocatoria-card {
+    padding: 20px;
+  }
+
+  .convocatoria-card h3 {
+    font-size: 18px;
+  }
+}
+

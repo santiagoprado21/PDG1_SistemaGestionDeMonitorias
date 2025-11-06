@@ -1,21 +1,19 @@
 import './App.css';
 import React from 'react';
-import Navbar from './Navbar'; 
-import TableContent from './TableContent';
-import Dropdown from './Filters';
 import Login from './Login'; 
 import Task from './Task'; 
-import ApplyMonitor from './ApplyMonitor';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import CreateMonitoria from './CreateMonitoria';
-import Applicants from './Applicants';
-import ApproveApplications from './ApproveApplications';
-import { MyProvider } from './MyContext';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import CreateActivity from './CreateActivity';
 import Profile from './Profile';
 import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
+
+// HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
+import CreateConvocatoria from './CreateConvocatoria';
+import VerConvocatorias from './VerConvocatorias';
+import SeleccionarMonitor from './SeleccionarMonitor';
+import AprobarMonitoriasHU010 from './AprobarMonitoriasHU010';
 
 function App() {
   // Hook para obtener la ruta actual
@@ -28,31 +26,9 @@ function App() {
     }, []);
   return (
     <div className="App">
-     {/* Mostrar Navbar solo en la ruta principal */}
-     {location.pathname === '/' && <Navbar />}
-      
       <Routes>
-        {/* Ruta predeterminada */}
-        <Route path="/" element={
-          <>
-            {/* Title begins */}
-            <div className="title-container-app" id="title-container-app">
-              <div className="title-app" id="title-app">
-                  Postulación a Monitor
-              </div>
-            </div>
-            {/* Title ends */}
-            <MyProvider>
-              {/* Filter starts */}
-              <Dropdown />
-              {/* Filter ends */}
-
-              {/* TableContent begins */}
-              <TableContent />
-              {/* TableContent ends */}
-            </MyProvider>
-          </>
-        } />
+        {/* Ruta predeterminada - Redirige a Login */}
+        <Route path="/" element={<Navigate to="/Login" replace />} />
 
         {/* Ruta para Login */}
         <Route path="/Login" element={<Login />} />
@@ -60,17 +36,8 @@ function App() {
         {/* Route for Task */}
         <Route path="/Task" element={<Task />} />
 
-        {/* Route for Create Monitoria */}
-        <Route path="/CreateMonitoria" element={<CreateMonitoria />} />
-        
-        {/* Route for Applicants */}
-        <Route path="/Applicants" element={<Applicants />} />
-
          {/* Route for Create Activity */}
          <Route path="/CreateActivity" element={<CreateActivity />} />
-
-         {/* Route for ApplyMonitor */}
-         <Route path="/ApplyMonitor" element={<ApplyMonitor />} />
 
          {/* Route for Profile */}
          <Route path="/Profile" element={<Profile />} />
@@ -78,11 +45,22 @@ function App() {
          {/* Route for Reports */}
          <Route path="/Reports" element={<Reports />} />
 
-         {/* Route for Approve Applications (Department Head) */}
-         <Route path="/ApproveApplications" element={<ApproveApplications />} />
-
          {/* Route for Generate SIMON File */}
          <Route path="/GenerateSimonFile" element={<GenerateSimonFile />} />
+
+         {/* ========== HU-010: Rutas para Convocatorias de Monitoría ========== */}
+         
+         {/* Profesor: Crear Convocatoria */}
+         <Route path="/crear-convocatoria" element={<CreateConvocatoria />} />
+         
+         {/* Estudiante: Ver y Postularse */}
+         <Route path="/ver-convocatorias" element={<VerConvocatorias />} />
+         
+         {/* Profesor: Seleccionar Monitor de una Convocatoria */}
+         <Route path="/seleccionar-monitor/:requestId" element={<SeleccionarMonitor />} />
+         
+         {/* Jefe de Departamento: Aprobar Monitorías HU-010 */}
+         <Route path="/aprobar-monitorias-hu010" element={<AprobarMonitoriasHU010 />} />
       </Routes>
     </div>
   );

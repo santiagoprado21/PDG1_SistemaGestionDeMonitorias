@@ -159,13 +159,16 @@ function VerticalNavbar() {
             {initials}
           </NavLink>
         )}
-        {/* Acceso general */}
-        <NavLink
-          to="/ApplyMonitor"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          Postulaciones
-        </NavLink>
+        
+        {/* HU-010: Ver Convocatorias (solo para estudiantes que pueden postularse) */}
+        {(role === "student" || role === "monitor") && (
+          <NavLink
+            to="/ver-convocatorias"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            📢 Convocatorias
+          </NavLink>
+        )}
 
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
@@ -182,17 +185,12 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Profesores */}
         {role === "professor" && (
           <>
+            {/* HU-010: Crear Convocatoria */}
             <NavLink
-              to="/CreateMonitoria"
+              to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Crear monitoria
-            </NavLink>
-            <NavLink
-              to="/Applicants"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Mis postulantes
+              ➕ Crear Convocatoria
             </NavLink>
           </>
         )}
@@ -200,17 +198,12 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Jefe de Departamento */}
         {role === "jfedpto" && (
           <>
+            {/* HU-010: Aprobar Monitorías */}
             <NavLink
-              to="/CreateMonitoria"
+              to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Cargar/Crear Monitorías
-            </NavLink>
-            <NavLink
-              to="/ApproveApplications"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Aprobar Postulaciones
+              ✓ Aprobar Monitorías
             </NavLink>
             <NavLink
               to="/GenerateSimonFile"

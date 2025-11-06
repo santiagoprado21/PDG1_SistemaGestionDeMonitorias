@@ -30,7 +30,7 @@ public class CourseServiceImpl implements  CourseService{
         List<CourseDTO> newList = new ArrayList<>();
 
         for(Course course:list){
-            newList.add(new CourseDTO(course.getName()));
+            newList.add(new CourseDTO(course.getId(), course.getName(), course.getProgram()));
         }
 
         return newList;
@@ -80,9 +80,14 @@ public class CourseServiceImpl implements  CourseService{
         List<Course> list = courseRepository.findAll();
         List<CourseDTO> newList = new ArrayList<>();
         for(Course course: list){
-            if(course.getProgram().getName().equalsIgnoreCase(courseDto.getName()))
-                newList.add(new CourseDTO(course.getName()));
-
+            // Buscar por ID de program si está disponible, sino por nombre
+            if (courseDto.getProgram() != null && courseDto.getProgram().getId() != null) {
+                if (course.getProgram().getId().equals(courseDto.getProgram().getId())) {
+                    newList.add(new CourseDTO(course.getId(), course.getName(), course.getProgram()));
+                }
+            } else if (courseDto.getName() != null && course.getProgram().getName().equalsIgnoreCase(courseDto.getName())) {
+                newList.add(new CourseDTO(course.getId(), course.getName(), course.getProgram()));
+            }
         }
         return newList;
     }

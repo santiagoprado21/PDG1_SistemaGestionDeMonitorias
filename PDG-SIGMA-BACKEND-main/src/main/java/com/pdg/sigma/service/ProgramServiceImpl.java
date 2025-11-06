@@ -70,8 +70,13 @@ public class ProgramServiceImpl implements ProgramService {
         List<Program> list = programRepository.findAll();
         List<ProgramDTO> newList = new ArrayList<>();
         for(Program program: list){
-            if (program.getSchool().getName().equalsIgnoreCase(programDto.getName())){
-                newList.add(new ProgramDTO(program.getName()));
+            // Buscar por ID de school si está disponible, sino por nombre
+            if (programDto.getSchool() != null && programDto.getSchool().getId() != null) {
+                if (program.getSchool().getId().equals(programDto.getSchool().getId())){
+                    newList.add(new ProgramDTO(program.getId(), program.getName(), program.getSchool()));
+                }
+            } else if (programDto.getName() != null && program.getSchool().getName().equalsIgnoreCase(programDto.getName())){
+                newList.add(new ProgramDTO(program.getId(), program.getName(), program.getSchool()));
             }
         }
 
