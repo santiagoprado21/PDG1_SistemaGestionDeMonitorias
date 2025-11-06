@@ -211,10 +211,13 @@ function AprobarMonitoriasHU010() {
                                                 const courseName = monitoria.courseName || monitoria.course?.name || 'N/A';
                                                 const programName = monitoria.programName || monitoria.program?.name || 'N/A';
                                                 const professorName = monitoria.professorName || monitoria.professor?.name || 'N/A';
-                                                const monitorName = monitoria.assignedMonitorName || monitoria.monitor?.name || 'Sin asignar';
+                                                const monitorName = monitoria.assignedMonitorName || 
+                                                    (monitoria.assignedMonitor ? 
+                                                        `${monitoria.assignedMonitor.name || ''} ${monitoria.assignedMonitor.lastName || ''}`.trim() : 
+                                                        'Sin asignar');
                                                 const hours = monitoria.estimatedHours || monitoria.totalHours || 'N/A';
-                                                const startDate = monitoria.startDate || monitoria.initialDate;
-                                                const endDate = monitoria.endDate || monitoria.finalDate;
+                                                const startDate = monitoria.startDate || monitoria.start;
+                                                const endDate = monitoria.endDate || monitoria.finish;
                                                 
                                                 return (
                                                 <tr key={monitoria.id}>
@@ -315,7 +318,10 @@ function AprobarMonitoriasHU010() {
                                     <span className="detail-label">Monitor Asignado:</span>
                                     <span className="detail-value">
                                         <strong>
-                                            {selectedMonitoria.assignedMonitorName || selectedMonitoria.monitor?.name || 'Sin asignar'}
+                                            {selectedMonitoria.assignedMonitorName || 
+                                                (selectedMonitoria.assignedMonitor ? 
+                                                    `${selectedMonitoria.assignedMonitor.name || ''} ${selectedMonitoria.assignedMonitor.lastName || ''}`.trim() : 
+                                                    'Sin asignar')}
                                         </strong>
                                     </span>
                                 </div>

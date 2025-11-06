@@ -23,6 +23,7 @@ function VerConvocatorias() {
     const [motivationLetter, setMotivationLetter] = useState("");
 
     const monitorId = localStorage.getItem('userId');
+    const userRole = localStorage.getItem('role');
 
     useEffect(() => {
         loadConvocatorias();
@@ -88,6 +89,13 @@ function VerConvocatorias() {
     };
 
     const openModal = (convocatoria) => {
+        // Validar que solo estudiantes y monitores puedan postularse
+        if (userRole !== 'student' && userRole !== 'monitor') {
+            setMessage("Solo los estudiantes pueden postularse a las convocatorias.");
+            setIsOpen(true);
+            return;
+        }
+        
         setSelectedConvocatoria(convocatoria);
         setMotivationLetter("");
         setShowModal(true);
@@ -102,7 +110,7 @@ function VerConvocatorias() {
     const handlePostularse = async (e) => {
         e.preventDefault();
 
-        if (motivationLetter.length < 50) {
+        if (motivationLetter.length < 10) {
             setMessage("La carta de motivación debe tener al menos 50 caracteres");
             setIsOpen(true);
             return;

@@ -159,21 +159,16 @@ function VerticalNavbar() {
             {initials}
           </NavLink>
         )}
-        {/* Acceso general */}
-        <NavLink
-          to="/ApplyMonitor"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          Postulaciones
-        </NavLink>
         
-        {/* HU-010: Ver Convocatorias (para todos los estudiantes) */}
-        <NavLink
-          to="/ver-convocatorias"
-          className={({ isActive }) => (isActive ? "active" : "")}
-        >
-          Convocatorias Abiertas
-        </NavLink>
+        {/* HU-010: Ver Convocatorias (solo para estudiantes que pueden postularse) */}
+        {(role === "student" || role === "monitor") && (
+          <NavLink
+            to="/ver-convocatorias"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            📢 Convocatorias
+          </NavLink>
+        )}
 
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
@@ -190,24 +185,12 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Profesores */}
         {role === "professor" && (
           <>
-            <NavLink
-              to="/CreateMonitoria"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Crear monitoria
-            </NavLink>
             {/* HU-010: Crear Convocatoria */}
             <NavLink
               to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📢 Crear Convocatoria
-            </NavLink>
-            <NavLink
-              to="/Applicants"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Mis postulantes
+              ➕ Crear Convocatoria
             </NavLink>
           </>
         )}
@@ -215,24 +198,12 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Jefe de Departamento */}
         {role === "jfedpto" && (
           <>
-            <NavLink
-              to="/CreateMonitoria"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Cargar/Crear Monitorías
-            </NavLink>
-            <NavLink
-              to="/ApproveApplications"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Aprobar Postulaciones
-            </NavLink>
-            {/* HU-010: Aprobar Monitorías del Nuevo Flujo */}
+            {/* HU-010: Aprobar Monitorías */}
             <NavLink
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              ✓ Aprobar Monitorías (HU-010)
+              ✓ Aprobar Monitorías
             </NavLink>
             <NavLink
               to="/GenerateSimonFile"
