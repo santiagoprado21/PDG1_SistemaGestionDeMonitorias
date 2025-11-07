@@ -28,7 +28,6 @@ import jakarta.validation.Valid;
  * Controller para gestión de horarios y planes de actividades
  * HU-011: Creación de plan de actividades para monitores
  */
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/activity-schedule")
 public class ActivityScheduleController {

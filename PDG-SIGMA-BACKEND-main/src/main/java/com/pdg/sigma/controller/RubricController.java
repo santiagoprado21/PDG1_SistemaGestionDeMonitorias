@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
  * Controller para Rubric
  * HU-011: Creación de plan de actividades para monitores
  */
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rubric")
 public class RubricController {

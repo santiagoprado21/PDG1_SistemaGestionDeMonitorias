@@ -39,10 +39,10 @@ public class Activity {
     @Column(name = "finish_date", nullable = false)
     private Date finish;
 
-    @Column(name = "role_creator", nullable = false, columnDefinition = "char(1)")
+    @Column(name = "role_creator", nullable = false, length = 1)
     private String roleCreator;
 
-    @Column(name = "role_responsable", nullable = false, columnDefinition = "char(1)")
+    @Column(name = "role_responsable", nullable = false, length = 1)
     private String roleResponsable;
 
     @Column(name = "category", nullable = true, columnDefinition = "varchar(30)")

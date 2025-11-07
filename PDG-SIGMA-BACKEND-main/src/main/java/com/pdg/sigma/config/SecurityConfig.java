@@ -49,7 +49,10 @@ public class SecurityConfig {
                                 "/course/getCoursesProgram",
                                 "/course/program/**",
                                 "/monitoring/getAllByProfessor/**",
-                                "/simon/**"
+                                "/simon/**",
+                                // HU-011: Rutas para gestión de actividades y rúbricas
+                                "/api/rubric/**",
+                                "/api/activity-schedule/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
