@@ -15,6 +15,9 @@ import VerConvocatorias from './VerConvocatorias';
 import SeleccionarMonitor from './SeleccionarMonitor';
 import AprobarMonitoriasHU010 from './AprobarMonitoriasHU010';
 
+// HU-011: Gestión de plan de actividades para monitores
+import PlanActividades from './PlanActividades';
+
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
@@ -61,6 +64,11 @@ function App() {
          
          {/* Jefe de Departamento: Aprobar Monitorías HU-010 */}
          <Route path="/aprobar-monitorias-hu010" element={<AprobarMonitoriasHU010 />} />
+
+         {/* ========== HU-011: Gestión de Plan de Actividades ========== */}
+         
+         {/* Profesor: Crear y gestionar plan de actividades de una monitoría */}
+         <Route path="/plan-actividades/:monitoringId" element={<PlanActividades />} />
       </Routes>
     </div>
   );

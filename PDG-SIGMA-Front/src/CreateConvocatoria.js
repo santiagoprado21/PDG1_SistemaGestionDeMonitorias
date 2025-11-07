@@ -441,10 +441,27 @@ function CreateConvocatoria() {
                                                             color: 'white',
                                                             border: 'none',
                                                             borderRadius: '4px',
-                                                            cursor: 'pointer'
+                                                            cursor: 'pointer',
+                                                            marginRight: '8px'
                                                         }}
                                                     >
                                                         Ver Postulantes
+                                                    </button>
+                                                )}
+                                                {conv.monitoringId && (
+                                                    <button 
+                                                        onClick={() => navigate(`/plan-actividades/${conv.monitoringId}`)}
+                                                        style={{
+                                                            padding: '6px 12px',
+                                                            backgroundColor: '#4CAF50',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '4px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        title="Gestionar Plan de Actividades (HU-011)"
+                                                    >
+                                                        📋 Plan de Actividades
                                                     </button>
                                                 )}
                                             </td>
