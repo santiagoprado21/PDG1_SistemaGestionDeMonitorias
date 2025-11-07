@@ -207,7 +207,7 @@ BEGIN
             rubric_id = v_rubric_calificacion
         WHERE id IN (
             SELECT id FROM activity
-            WHERE category = 'Calificación de trabajos/talleres'
+            WHERE category = 'Calificación de trabajos'
             AND start_time IS NULL
             LIMIT 2
         );
@@ -286,7 +286,7 @@ BEGIN
             CURRENT_DATE + INTERVAL '7 days', -- Próximo lunes
             '08:00:00', '10:00:00', 2.0,
             'WEEKLY', 'ALTA',
-            'profesor', 'monitor',
+            'P', 'M',
             v_monitoring_id, v_professor_id, v_monitor_code,
             'PENDIENTE', '2025-1',
             v_rubric_asistencia
@@ -295,7 +295,7 @@ BEGIN
         -- Actividad 2: Tutoría - Martes
         INSERT INTO activity (
             name, description, category,
-            creation, finish_date,
+            creation_date, finish_date,
             start_time, end_time, duration_hours,
             recurrence, priority,
             role_creator, role_responsable,
@@ -310,7 +310,7 @@ BEGIN
             CURRENT_DATE + INTERVAL '8 days', -- Próximo martes
             '15:00:00', '17:00:00', 2.0,
             'WEEKLY', 'ALTA',
-            'profesor', 'monitor',
+            'P', 'M',
             v_monitoring_id, v_professor_id, v_monitor_code,
             'PENDIENTE', '2025-1',
             v_rubric_tutoria
@@ -319,7 +319,7 @@ BEGIN
         -- Actividad 3: Preparación de Material - Miércoles
         INSERT INTO activity (
             name, description, category,
-            creation, finish_date,
+            creation_date, finish_date,
             start_time, end_time, duration_hours,
             recurrence, priority,
             role_creator, role_responsable,
@@ -329,12 +329,12 @@ BEGIN
         ) VALUES (
             'Preparación de Taller de Grafos',
             'Diseñar y preparar ejercicios prácticos sobre algoritmos de grafos (BFS y DFS)',
-            'Preparación de material didáctico',
+            'Preparación de material',
             CURRENT_DATE,
             CURRENT_DATE + INTERVAL '9 days', -- Próximo miércoles
             '10:00:00', '13:00:00', 3.0,
             'NONE', 'MEDIA',
-            'profesor', 'monitor',
+            'P', 'M',
             v_monitoring_id, v_professor_id, v_monitor_code,
             'PENDIENTE', '2025-1',
             v_rubric_material
@@ -343,7 +343,7 @@ BEGIN
         -- Actividad 4: Asistencia a clase - Jueves (CONFLICTO INTENCIONAL para pruebas)
         INSERT INTO activity (
             name, description, category,
-            creation, finish_date,
+            creation_date, finish_date,
             start_time, end_time, duration_hours,
             recurrence, priority,
             role_creator, role_responsable,
@@ -357,10 +357,9 @@ BEGIN
             CURRENT_DATE + INTERVAL '8 days', -- Mismo día que tutoría (conflicto!)
             '16:00:00', '18:00:00', 2.0,
             'WEEKLY', 'ALTA',
-            'profesor', 'monitor',
+            'P', 'M',
             v_monitoring_id, v_professor_id, v_monitor_code,
-            'PENDIENTE', '2025-1',
-            NULL
+            'PENDIENTE', '2025-1'
         );
         
         RAISE NOTICE '✓ 4 actividades de ejemplo insertadas con horarios';

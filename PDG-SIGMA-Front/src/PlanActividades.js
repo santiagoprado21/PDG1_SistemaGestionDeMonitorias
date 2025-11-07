@@ -49,8 +49,8 @@ function PlanActividades() {
     const categorias = [
         'Asistencia a clases',
         'Tutoría',
-        'Calificación de trabajos/talleres',
-        'Preparación de material didáctico',
+        'Calificación de trabajos',
+        'Preparación de material',
         'Revisión de exámenes',
         'Apoyo en laboratorio',
         'Investigación',
@@ -254,8 +254,8 @@ function PlanActividades() {
             professorId: user,
             monitorId: activityPlan?.monitorName ? activityPlan.monitorName.split(' ')[0] : null,
             state: 'Pendiente',
-            roleCreator: 'profesor',
-            roleResponsable: 'monitor',
+            roleCreator: 'P',
+            roleResponsable: 'M',
             semester: activityPlan?.semester || '2025-1',
             creation: new Date().toISOString()
         };
