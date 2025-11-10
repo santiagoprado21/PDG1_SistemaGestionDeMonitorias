@@ -8,6 +8,7 @@ import Profile from './Profile';
 import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
+import NotificationSettings from './NotificationSettings';
 
 // HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
 import CreateConvocatoria from './CreateConvocatoria';
@@ -47,6 +48,9 @@ function App() {
 
          {/* Route for Generate SIMON File */}
          <Route path="/GenerateSimonFile" element={<GenerateSimonFile />} />
+
+         {/* Notificaciones - Preferencias */}
+         <Route path="/notification-settings" element={<NotificationSettings />} />
 
          {/* ========== HU-010: Rutas para Convocatorias de Monitoría ========== */}
          
