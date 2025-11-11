@@ -1,0 +1,385 @@
+/* COMPONENTE: EvaluarMonitoresHU015 */
+
+/* === Layout === */
+.evaluar-monitores-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-secondary-bg);
+}
+
+.evaluar-monitores-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  margin-left: 14em;
+  width: calc(100% - 14em);
+}
+
+.assignments-panel,
+.form-panel {
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--tr-fast);
+}
+
+.assignments-panel:hover,
+.form-panel:hover {
+  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.12);
+}
+
+/* === Elementos principales === */
+.panel-header {
+  margin-bottom: var(--space-6);
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.panel-description {
+  margin: var(--space-2) 0 var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-body);
+  background-color: var(--color-bg-alt);
+  transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  background-color: var(--color-bg-body);
+}
+
+.assignments-group {
+  margin-bottom: var(--space-6);
+}
+
+.assignments-group h3 {
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.cards-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.assignment-card {
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  text-align: left;
+  background: linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-bg-body) 100%);
+  cursor: pointer;
+  transition: transform var(--tr-fast), box-shadow var(--tr-fast), border-color var(--tr-fast);
+  position: relative;
+  color: var(--color-text-primary);
+}
+
+.assignment-card:hover,
+.assignment-card.selected {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(85, 85, 234, 0.35);
+}
+
+.assignment-card.selected {
+  background: linear-gradient(135deg, rgba(68, 68, 216, 0.95) 0%, rgba(85, 85, 234, 0.9) 100%);
+  color: #fff;
+}
+
+.assignment-card.selected .assignment-subtitle,
+.assignment-card.selected .assignment-meta,
+.assignment-card.selected .assignment-score span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.assignment-card.selected .assignment-score strong {
+  color: #fff;
+}
+
+.assignment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.assignment-header h4 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.assignment-card.selected .assignment-header h4 {
+  color: #fff;
+}
+
+.assignment-subtitle,
+.assignment-meta {
+  margin: var(--space-2) 0;
+  color: var(--color-text-secondary);
+}
+
+.assignment-score {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-primary);
+}
+
+.assignment-score strong {
+  font-size: calc(var(--fs-body) + 4px);
+}
+
+.badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.badge-excelente {
+  background-color: var(--color-success);
+}
+
+.badge-destacado {
+  background-color: var(--color-primary);
+}
+
+.badge-adecuado {
+  background-color: var(--color-primary-hover);
+}
+
+.badge-riesgo {
+  background-color: var(--color-danger);
+}
+
+.placeholder-panel {
+  margin: auto;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.evaluation-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+  background: linear-gradient(135deg, rgba(68, 68, 216, 0.95) 0%, rgba(85, 85, 234, 0.9) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  color: #fff;
+}
+
+.form-header h3 {
+  margin: 0;
+  color: inherit;
+}
+
+.form-header p {
+  margin: var(--space-1) 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.form-meta {
+  display: inline-block;
+  margin-top: var(--space-1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+}
+
+.impact-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  color: #fff;
+  min-width: 120px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.impact-badge span {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-1);
+}
+
+.impact-badge strong {
+  font-size: calc(var(--fs-body) + 6px);
+}
+
+.scores-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.scores-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.scores-grid select {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-bg-alt);
+  font-size: var(--fs-body);
+  transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+}
+
+.scores-grid select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  background-color: var(--color-bg-body);
+}
+
+.comments-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.comments-field textarea {
+  min-height: 120px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: var(--space-3);
+  resize: vertical;
+  font-size: var(--fs-body);
+  background-color: var(--color-bg-alt);
+  transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+}
+
+.comments-field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  background-color: var(--color-bg-body);
+}
+
+.visibility-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+}
+
+.penalty-alert {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.submit-button {
+  align-self: flex-end;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--tr-fast), box-shadow var(--tr-fast), background-color var(--tr-fast);
+}
+
+.submit-button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.6);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loading-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state {
+  color: var(--color-text-secondary);
+  margin: var(--space-3) 0;
+}
+
+/* === Responsividad === */
+@media (max-width: 1200px) {
+  .evaluar-monitores-content {
+    grid-template-columns: 1fr;
+  }
+
+  .form-panel {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .evaluar-monitores-content {
+    margin-left: 14em;
+    width: calc(100% - 14em);
+    padding: var(--space-6);
+  }
+}
+
+@media (max-width: 430px) {
+  .evaluar-monitores-content {
+    margin-left: 9em;
+    width: calc(100% - 9em);
+    padding: var(--space-5);
+  }
+}
