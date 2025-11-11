@@ -10,12 +10,14 @@ import { BACKEND_URL } from './config/ApiBackend';
  * Componente para gestionar el plan completo de actividades de una monitoría
  */
 function PlanActividades() {
-    const { monitoringId } = useParams();
+    const { monitoringId: urlMonitoringId } = useParams();
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
     const user = localStorage.getItem('userId');
 
     // Estado del plan de actividades
+    const [monitorings, setMonitorings] = useState([]);
+    const [selectedMonitoringId, setSelectedMonitoringId] = useState(urlMonitoringId || '');
     const [activityPlan, setActivityPlan] = useState(null);
     const [activities, setActivities] = useState([]);
     const [rubrics, setRubrics] = useState([]);
@@ -36,7 +38,8 @@ function PlanActividades() {
         durationHours: '',
         priority: 'MEDIA',
         recurrence: 'NONE',
-        rubricId: null
+        rubricId: null,
+        monitoringId: ''
     });
 
     // Estado de conflictos
@@ -69,16 +72,48 @@ function PlanActividades() {
     ];
 
     useEffect(() => {
-        if (monitoringId) {
+        loadMonitorings();
+        loadRubrics();
+    }, []);
+
+    useEffect(() => {
+        if (selectedMonitoringId) {
             loadActivityPlan();
-            loadRubrics();
         }
-    }, [monitoringId]);
+    }, [selectedMonitoringId]);
+
+    const loadMonitorings = async () => {
+        try {
+            const response = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${user}`, {
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                }
+            });
+            if (!response.ok) throw new Error('Error al cargar monitorías');
+            
+            const data = await response.json();
+            const monitoringsWithMonitor = (data || []).filter(m => m.monitor && m.monitor !== 'No hay monitores');
+            setMonitorings(monitoringsWithMonitor);
+            
+            // Si viene de URL, usar ese ID, sino usar el primero disponible
+            if (urlMonitoringId) {
+                setSelectedMonitoringId(urlMonitoringId);
+            } else if (monitoringsWithMonitor.length > 0) {
+                setSelectedMonitoringId(monitoringsWithMonitor[0].id.toString());
+            }
+        } catch (error) {
+            console.error('Error al cargar monitorías:', error);
+            setMessage('Error al cargar monitorías: ' + error.message);
+            setIsOpen(true);
+        }
+    };
 
     const loadActivityPlan = async () => {
+        if (!selectedMonitoringId) return;
+        
         setIsLoading(true);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/activity-schedule/plan/${monitoringId}`, {
+            const response = await fetch(`${BACKEND_URL}/api/activity-schedule/plan/${selectedMonitoringId}`, {
                 headers: {
                     'Authorization': localStorage.getItem('token')
                 }
@@ -128,10 +163,11 @@ function PlanActividades() {
                 durationHours: activity.durationHours || '',
                 priority: activity.priority || 'MEDIA',
                 recurrence: activity.recurrence || 'NONE',
-                rubricId: activity.rubricId || null
+                rubricId: activity.rubricId || null,
+                monitoringId: activity.monitoringId || selectedMonitoringId
             });
         } else {
-            // Nueva actividad
+            // Nueva actividad - preseleccionar la monitoría actual
             setEditingActivity(null);
             setFormData({
                 name: '',
@@ -143,7 +179,8 @@ function PlanActividades() {
                 durationHours: '',
                 priority: 'MEDIA',
                 recurrence: 'NONE',
-                rubricId: null
+                rubricId: null,
+                monitoringId: selectedMonitoringId
             });
         }
         setConflicts([]);
@@ -188,18 +225,20 @@ function PlanActividades() {
     };
 
     const validateConflicts = async () => {
-        if (!formData.startTime || !formData.endTime || !formData.finish) {
+        if (!formData.startTime || !formData.endTime || !formData.finish || !formData.monitoringId) {
             return; // No validar si faltan campos
         }
 
+        const selectedMonitoring = monitorings.find(m => m.id.toString() === formData.monitoringId.toString());
+        
         const activityDTO = {
             id: editingActivity?.id,
             name: formData.name,
             finish: formData.finish,
             startTime: formData.startTime,
             endTime: formData.endTime,
-            monitoringId: parseInt(monitoringId),
-            monitorId: activityPlan?.monitorName ? activityPlan.monitorName.split(' ')[0] : null,
+            monitoringId: parseInt(formData.monitoringId),
+            monitorId: selectedMonitoring?.monitor ? selectedMonitoring.monitor.split(' ')[0] : null,
             state: 'Pendiente',
             roleCreator: 'profesor',
             roleResponsable: 'monitor',
@@ -227,7 +266,7 @@ function PlanActividades() {
 
     useEffect(() => {
         validateConflicts();
-    }, [formData.startTime, formData.endTime, formData.finish]);
+    }, [formData.startTime, formData.endTime, formData.finish, formData.monitoringId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -237,6 +276,14 @@ function PlanActividades() {
             setIsOpen(true);
             return;
         }
+
+        if (!formData.monitoringId) {
+            setMessage('Debe seleccionar una monitoría');
+            setIsOpen(true);
+            return;
+        }
+
+        const selectedMonitoring = monitorings.find(m => m.id.toString() === formData.monitoringId.toString());
 
         const activityDTO = {
             id: editingActivity?.id,
@@ -250,13 +297,13 @@ function PlanActividades() {
             priority: formData.priority,
             recurrence: formData.recurrence,
             rubricId: formData.rubricId ? parseInt(formData.rubricId) : null,
-            monitoringId: parseInt(monitoringId),
+            monitoringId: parseInt(formData.monitoringId),
             professorId: user,
-            monitorId: activityPlan?.monitorName ? activityPlan.monitorName.split(' ')[0] : null,
+            monitorId: selectedMonitoring?.monitor ? selectedMonitoring.monitor.split(' ')[0] : null,
             state: 'Pendiente',
             roleCreator: 'P',
             roleResponsable: 'M',
-            semester: activityPlan?.semester || '2025-1',
+            semester: selectedMonitoring?.semester || '2025-1',
             creation: new Date().toISOString()
         };
 
@@ -281,7 +328,11 @@ function PlanActividades() {
             setMessage(editingActivity ? 'Actividad actualizada exitosamente' : 'Actividad creada exitosamente');
             setIsOpen(true);
             handleCloseModal();
-            loadActivityPlan(); // Recargar el plan
+            
+            // Recargar el plan de la monitoría correspondiente
+            if (formData.monitoringId === selectedMonitoringId) {
+                loadActivityPlan();
+            }
         } catch (error) {
             console.error('Error:', error);
             setMessage('Error al guardar la actividad: ' + error.message);
@@ -331,6 +382,27 @@ function PlanActividades() {
             <div className="main-content plan-actividades-content">
                 <h1>📋 Plan de Actividades</h1>
 
+                {/* Selector de Monitoría */}
+                <div className="monitoring-selector">
+                    <label htmlFor="monitoring-select">Seleccionar Monitoría:</label>
+                    <select 
+                        id="monitoring-select"
+                        value={selectedMonitoringId}
+                        onChange={(e) => setSelectedMonitoringId(e.target.value)}
+                        disabled={monitorings.length === 0}
+                    >
+                        {monitorings.length === 0 ? (
+                            <option value="">No hay monitorías con monitor asignado</option>
+                        ) : (
+                            monitorings.map(monitoring => (
+                                <option key={monitoring.id} value={monitoring.id}>
+                                    {monitoring.courseName} - {monitoring.semester} ({monitoring.monitor})
+                                </option>
+                            ))
+                        )}
+                    </select>
+                </div>
+
                 {activityPlan && (
                     <div className="plan-header">
                         <div className="plan-info">
@@ -361,16 +433,24 @@ function PlanActividades() {
                 )}
 
                 <div className="plan-actions">
-                    <button className="btn-primary" onClick={() => handleOpenModal()}>
+                    <button 
+                        className="btn-primary" 
+                        onClick={() => handleOpenModal()}
+                        disabled={!selectedMonitoringId || monitorings.length === 0}
+                    >
                         ➕ Crear Nueva Actividad
                     </button>
-                    <button className="btn-secondary" onClick={() => navigate('/crear-convocatoria')}>
+                    <button className="btn-secondary" onClick={() => navigate(-1)}>
                         ⬅️ Volver
                     </button>
                 </div>
 
                 <div className="activities-list">
-                    {activities.length === 0 ? (
+                    {!selectedMonitoringId ? (
+                        <div className="no-activities">
+                            <p>Selecciona una monitoría para ver su plan de actividades.</p>
+                        </div>
+                    ) : activities.length === 0 ? (
                         <div className="no-activities">
                             <p>No hay actividades en el plan.</p>
                             <p>Haz clic en "Crear Nueva Actividad" para comenzar.</p>
@@ -457,6 +537,22 @@ function PlanActividades() {
                             )}
 
                             <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label>Asignar a Monitoría *</label>
+                                    <select
+                                        name="monitoringId"
+                                        value={formData.monitoringId}
+                                        onChange={handleInputChange}
+                                        required>
+                                        <option value="">Seleccione una monitoría...</option>
+                                        {monitorings.map(monitoring => (
+                                            <option key={monitoring.id} value={monitoring.id}>
+                                                {monitoring.courseName} - {monitoring.semester} ({monitoring.monitor})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Nombre *</label>
@@ -589,7 +685,9 @@ function PlanActividades() {
                     </div>
                 )}
 
-                <PopUp isOpen={isOpen} onClose={() => setIsOpen(false)} message={message} />
+                <PopUp show={isOpen} onClose={() => setIsOpen(false)}>
+                    {message}
+                </PopUp>
             </div>
         </div>
     );

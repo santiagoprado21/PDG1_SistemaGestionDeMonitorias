@@ -15,7 +15,10 @@ import VerConvocatorias from './VerConvocatorias';
 import SeleccionarMonitor from './SeleccionarMonitor';
 import AprobarMonitoriasHU010 from './AprobarMonitoriasHU010';
 
-// HU-011: Gestión de plan de actividades para monitores
+// Componente para carga CSV de monitorías (flujo antiguo restaurado)
+import CreateMonitoria from './CreateMonitoria';
+
+// HU-011: Plan de Actividades
 import PlanActividades from './PlanActividades';
 
 function App() {
@@ -65,10 +68,13 @@ function App() {
          {/* Jefe de Departamento: Aprobar Monitorías HU-010 */}
          <Route path="/aprobar-monitorias-hu010" element={<AprobarMonitoriasHU010 />} />
 
-         {/* ========== HU-011: Gestión de Plan de Actividades ========== */}
-         
-         {/* Profesor: Crear y gestionar plan de actividades de una monitoría */}
-         <Route path="/plan-actividades/:monitoringId" element={<PlanActividades />} />
+         {/* ========== Carga CSV de Monitorías ========== */}
+         {/* EXCEPCIÓN: Solo para Jefe de Departamento - Crear monitorías directamente sin convocatoria */}
+         <Route path="/crear-monitoria" element={<CreateMonitoria />} />
+
+         {/* ========== HU-011: Plan de Actividades ========== */}
+         {/* Profesor: Gestionar plan de actividades - puede navegar con contexto o sin él */}
+         <Route path="/plan-actividades/:monitoringId?" element={<PlanActividades />} />
       </Routes>
     </div>
   );
