@@ -92,7 +92,31 @@ function PlanActividades() {
             if (!response.ok) throw new Error('Error al cargar monitorías');
             
             const data = await response.json();
-            const monitoringsWithMonitor = (data || []).filter(m => m.monitor && m.monitor !== 'No hay monitores');
+            console.log('Monitorías recibidas del backend:', data);
+            
+            // Procesar monitorías para extraer información del monitor
+            const processedMonitorings = (data || []).map(m => {
+                // Buscar monitor seleccionado en la relación monitoringMonitors
+                const selectedMonitor = m.monitoringMonitors?.find(
+                    mm => mm.estadoSeleccion === 'seleccionado' || mm.estadoSeleccion === 'aprobado'
+                );
+                
+                return {
+                    id: m.id,
+                    courseName: m.course?.name || 'Sin nombre',
+                    programName: m.program?.name || '',
+                    semester: m.semester,
+                    monitor: selectedMonitor 
+                        ? `${selectedMonitor.monitor?.name || ''} ${selectedMonitor.monitor?.lastName || ''}`.trim()
+                        : null,
+                    monitorCode: selectedMonitor?.monitor?.code || selectedMonitor?.monitor?.idMonitor || null
+                };
+            });
+            
+            // Filtrar solo las que tienen monitor asignado
+            const monitoringsWithMonitor = processedMonitorings.filter(m => m.monitor);
+            console.log('Monitorías con monitor:', monitoringsWithMonitor);
+            
             setMonitorings(monitoringsWithMonitor);
             
             // Si viene de URL, usar ese ID, sino usar el primero disponible
@@ -109,8 +133,12 @@ function PlanActividades() {
     };
 
     const loadActivityPlan = async () => {
-        if (!selectedMonitoringId) return;
+        if (!selectedMonitoringId) {
+            console.log('No hay monitoringId seleccionado, no se puede cargar el plan');
+            return;
+        }
         
+        console.log('Cargando plan para monitoringId:', selectedMonitoringId);
         setIsLoading(true);
         try {
             const response = await fetch(`${BACKEND_URL}/api/activity-schedule/plan/${selectedMonitoringId}`, {
@@ -122,6 +150,7 @@ function PlanActividades() {
             
             const data = await response.json();
             console.log('Plan de actividades cargado:', data);
+            console.log('Número de actividades:', data.activities?.length || 0);
             setActivityPlan(data);
             setActivities(data.activities || []);
         } catch (error) {
@@ -238,8 +267,8 @@ function PlanActividades() {
             startTime: formData.startTime,
             endTime: formData.endTime,
             monitoringId: parseInt(formData.monitoringId),
-            monitorId: selectedMonitoring?.monitor ? selectedMonitoring.monitor.split(' ')[0] : null,
-            state: 'Pendiente',
+            monitorId: selectedMonitoring?.monitorCode || null,
+            state: 'PENDIENTE',
             roleCreator: 'profesor',
             roleResponsable: 'monitor',
             description: formData.description || 'Sin descripción'
@@ -284,6 +313,8 @@ function PlanActividades() {
         }
 
         const selectedMonitoring = monitorings.find(m => m.id.toString() === formData.monitoringId.toString());
+        
+        console.log('Monitoría seleccionada:', selectedMonitoring);
 
         const activityDTO = {
             id: editingActivity?.id,
@@ -299,13 +330,15 @@ function PlanActividades() {
             rubricId: formData.rubricId ? parseInt(formData.rubricId) : null,
             monitoringId: parseInt(formData.monitoringId),
             professorId: user,
-            monitorId: selectedMonitoring?.monitor ? selectedMonitoring.monitor.split(' ')[0] : null,
-            state: 'Pendiente',
+            monitorId: selectedMonitoring?.monitorCode || null,
+            state: 'PENDIENTE',
             roleCreator: 'P',
             roleResponsable: 'M',
             semester: selectedMonitoring?.semester || '2025-1',
             creation: new Date().toISOString()
         };
+        
+        console.log('ActivityDTO a enviar:', activityDTO);
 
         try {
             const response = await fetch(`${BACKEND_URL}/api/activity-schedule/create`, {
@@ -329,10 +362,9 @@ function PlanActividades() {
             setIsOpen(true);
             handleCloseModal();
             
-            // Recargar el plan de la monitoría correspondiente
-            if (formData.monitoringId === selectedMonitoringId) {
-                loadActivityPlan();
-            }
+            // Recargar el plan - siempre recargar para ver los cambios
+            console.log('Recargando plan de actividades...');
+            await loadActivityPlan();
         } catch (error) {
             console.error('Error:', error);
             setMessage('Error al guardar la actividad: ' + error.message);
@@ -403,6 +435,23 @@ function PlanActividades() {
                     </select>
                 </div>
 
+                {/* Mensaje informativo cuando no hay monitorías */}
+                {monitorings.length === 0 && (
+                    <div className="warning-banner">
+                        <span className="warning-icon">⚠️</span>
+                        <div className="warning-text">
+                            <strong>No tienes monitorías con monitor asignado</strong>
+                            <p>Para crear un plan de actividades necesitas:</p>
+                            <ol>
+                                <li>Crear una convocatoria de monitoría desde "➕ Crear Convocatoria"</li>
+                                <li>Esperar a que estudiantes se postulen</li>
+                                <li>Seleccionar un monitor para la convocatoria</li>
+                            </ol>
+                            <p>O si eres jefe de departamento, puedes crear monitorías directamente desde "📂 Crear Monitorías CSV"</p>
+                        </div>
+                    </div>
+                )}
+
                 {activityPlan && (
                     <div className="plan-header">
                         <div className="plan-info">
@@ -439,6 +488,12 @@ function PlanActividades() {
                         disabled={!selectedMonitoringId || monitorings.length === 0}
                     >
                         ➕ Crear Nueva Actividad
+                    </button>
+                    <button 
+                        className="btn-secondary" 
+                        onClick={() => navigate('/gestion-rubricas')}
+                    >
+                        📊 Gestionar Rúbricas
                     </button>
                     <button className="btn-secondary" onClick={() => navigate(-1)}>
                         ⬅️ Volver
@@ -490,7 +545,10 @@ function PlanActividades() {
                                         <td>{activity.rubricName || '-'}</td>
                                         <td>
                                             <span className={`state-badge state-${activity.state?.toLowerCase()}`}>
-                                                {activity.state}
+                                                {activity.state === 'PENDIENTE' ? 'Pendiente' : 
+                                                 activity.state === 'COMPLETADO' ? 'Completado' :
+                                                 activity.state === 'COMPLETADOT' ? 'Completado (Tardío)' :
+                                                 activity.state}
                                             </span>
                                         </td>
                                         <td>

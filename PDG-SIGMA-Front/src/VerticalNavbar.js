@@ -200,6 +200,14 @@ function VerticalNavbar() {
             >
               📋 Plan de Actividades
             </NavLink>
+            
+            {/* HU-011: Gestión de Rúbricas */}
+            <NavLink
+              to="/gestion-rubricas"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📊 Gestión de Rúbricas
+            </NavLink>
           </>
         )}
 

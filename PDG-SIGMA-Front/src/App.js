@@ -20,6 +20,7 @@ import CreateMonitoria from './CreateMonitoria';
 
 // HU-011: Plan de Actividades
 import PlanActividades from './PlanActividades';
+import GestionRubricas from './GestionRubricas';
 
 function App() {
   // Hook para obtener la ruta actual
@@ -75,6 +76,9 @@ function App() {
          {/* ========== HU-011: Plan de Actividades ========== */}
          {/* Profesor: Gestionar plan de actividades - puede navegar con contexto o sin él */}
          <Route path="/plan-actividades/:monitoringId?" element={<PlanActividades />} />
+         
+         {/* Profesor: Gestionar rúbricas de evaluación */}
+         <Route path="/gestion-rubricas" element={<GestionRubricas />} />
       </Routes>
     </div>
   );

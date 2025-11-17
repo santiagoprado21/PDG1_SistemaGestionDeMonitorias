@@ -399,19 +399,30 @@ public class MonitoringServiceImpl implements MonitoringService{
             if(!monitorings.isEmpty()){
                 for(Monitoring monitoring:monitorings){
                     List<MonitoringMonitor> list = monitoringMonitorRepository.findByMonitoring(monitoring);
-                    List<Monitor> monitors = new ArrayList<>();
-                    String name ="";
+                    String name = "";
 
                     if(!list.isEmpty()){
+                        // Filtrar solo monitores con estado "seleccionado" o "aprobado"
+                        List<String> monitorNames = new ArrayList<>();
                         for(MonitoringMonitor monitoringMonitor:list){
-                            if(monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("seleccionado")){
-                                name = name+monitoringMonitor.getMonitor().getName()+" "+monitoringMonitor.getMonitor().getLastName()+", ";
-                            }
-                            else{
-                                name = "N/A";
+                            if("seleccionado".equalsIgnoreCase(monitoringMonitor.getEstadoSeleccion()) || 
+                               "aprobado".equalsIgnoreCase(monitoringMonitor.getEstadoSeleccion())){
+                                String fullName = monitoringMonitor.getMonitor().getName() + " " + 
+                                                 monitoringMonitor.getMonitor().getLastName();
+                                // Evitar duplicados
+                                if(!monitorNames.contains(fullName)){
+                                    monitorNames.add(fullName);
+                                }
                             }
                         }
-                        name = name.replaceAll(", $", "");
+                        
+                        // Construir string con los nombres
+                        if(!monitorNames.isEmpty()){
+                            name = String.join(", ", monitorNames);
+                        } else {
+                            name = "N/A";
+                        }
+                        
                         monitoringDTOs.add(new MonitoringDTO(monitoring.getId(), monitoring.getCourse().getName(), monitoring.getStart(), monitoring.getFinish(), monitoring.getSemester(), name));
                     }
                     else{

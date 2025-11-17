@@ -25,6 +25,51 @@
     gap: 1rem;
 }
 
+/* Banner de advertencia */
+.warning-banner {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-left: 4px solid #ff9800;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.1);
+}
+
+.warning-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.warning-text {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.warning-text strong {
+    display: block;
+    color: #e65100;
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+}
+
+.warning-text p {
+    margin: 0.75rem 0;
+}
+
+.warning-text ol {
+    margin: 0.5rem 0 0.75rem 1.5rem;
+    padding: 0;
+}
+
+.warning-text li {
+    margin: 0.5rem 0;
+    color: #5d4037;
+}
+
 .monitoring-selector label {
     font-weight: 600;
     color: #2c3e50;
@@ -250,6 +295,12 @@
 .state-badge.state-pendiente {
     background: #fff3e0;
     color: #e65100;
+}
+
+.state-badge.state-completado,
+.state-badge.state-completadot {
+    background: #e8f5e9;
+    color: #2e7d32;
 }
 
 .state-badge.state-completada {

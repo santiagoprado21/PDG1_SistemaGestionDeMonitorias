@@ -213,8 +213,38 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
         plan.setCourseName(monitoring.getCourse() != null ? monitoring.getCourse().getName() : "N/A");
         plan.setProgramName(monitoring.getProgram() != null ? monitoring.getProgram().getName() : "N/A");
         plan.setProfessorName(monitoring.getProfessor() != null ? monitoring.getProfessor().getName() : "N/A");
-        plan.setMonitorName(monitoring.getAssignedMonitor() != null ? 
-            monitoring.getAssignedMonitor().getName() + " " + monitoring.getAssignedMonitor().getLastName() : "Sin asignar");
+        
+        // Obtener nombre del monitor - Compatible con ambos flujos (nuevo y antiguo)
+        String monitorName = "Sin asignar";
+        
+        // Flujo NUEVO (HU-010): Monitor asignado directamente
+        if (monitoring.getAssignedMonitor() != null) {
+            monitorName = monitoring.getAssignedMonitor().getName() + " " + 
+                         monitoring.getAssignedMonitor().getLastName();
+        } 
+        // Flujo ANTIGUO: Monitor en la tabla de relación monitoring_monitor
+        else if (monitoring.getMonitoringMonitors() != null && !monitoring.getMonitoringMonitors().isEmpty()) {
+            // Priorizar "seleccionado" sobre "aprobado"
+            var selectedMonitor = monitoring.getMonitoringMonitors().stream()
+                .filter(mm -> "seleccionado".equalsIgnoreCase(mm.getEstadoSeleccion()))
+                .findFirst();
+            
+            // Si no hay "seleccionado", buscar "aprobado"
+            if (selectedMonitor.isEmpty()) {
+                selectedMonitor = monitoring.getMonitoringMonitors().stream()
+                    .filter(mm -> "aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()))
+                    .findFirst();
+            }
+            
+            // Asignar el nombre del monitor encontrado
+            if (selectedMonitor.isPresent() && selectedMonitor.get().getMonitor() != null) {
+                monitorName = selectedMonitor.get().getMonitor().getName() + " " + 
+                             selectedMonitor.get().getMonitor().getLastName();
+            }
+        }
+        
+        plan.setMonitorName(monitorName.trim());
+        
         plan.setSemester(monitoring.getSemester());
         plan.setTotalActivities(total);
         plan.setCompletedActivities((int) completed);
