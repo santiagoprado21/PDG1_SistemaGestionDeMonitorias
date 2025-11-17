@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import logo from "../src/img/logo2.png";
 import {PopUp} from "./PopUp";
 import "./VerticalNavbar.css";
-import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { BACKEND_URL } from './config/ApiBackend';
+import NotificationIcon from './NotificationIcon';
 
 function VerticalNavbar() {
   const [role, setRole] = useState("");
@@ -149,6 +150,10 @@ function VerticalNavbar() {
   
       {/* Menú */}
       <div className="menu-items">
+        {/* Campana de notificaciones visible en todas las páginas */}
+        <div className="menu-notifications">
+          <NotificationIcon />
+        </div>
         {/* Avatar del usuario */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <NavLink
@@ -179,6 +184,15 @@ function VerticalNavbar() {
             >
               Actividades
             </NavLink>
+            {role === "monitor" && (
+              <NavLink
+                to="/mis-evaluaciones"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                ⭐ Mis evaluaciones
+              </NavLink>
+            )}
+            {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}
           </>
         )}
 
@@ -207,6 +221,14 @@ function VerticalNavbar() {
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               📊 Gestión de Rúbricas
+            </NavLink>
+
+            {/* HU-015: Evaluar Monitores */}
+            <NavLink
+              to="/evaluar-monitores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📈 Evaluar Monitores
             </NavLink>
           </>
         )}

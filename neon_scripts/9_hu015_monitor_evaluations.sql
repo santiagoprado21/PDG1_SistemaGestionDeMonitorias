@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS sigma.monitor_evaluation (
+    id SERIAL PRIMARY KEY,
+    monitoring_id BIGINT NOT NULL REFERENCES sigma.monitoring(id),
+    monitor_code VARCHAR(20) NOT NULL REFERENCES sigma.monitor(code),
+    professor_id VARCHAR(255) NOT NULL REFERENCES sigma.professor(id),
+    monitoring_monitor_id BIGINT REFERENCES sigma.monitoring_monitor(id),
+    task_compliance INTEGER NOT NULL CHECK (task_compliance BETWEEN 1 AND 5),
+    timely_communication INTEGER NOT NULL CHECK (timely_communication BETWEEN 1 AND 5),
+    plan_fulfillment INTEGER NOT NULL CHECK (plan_fulfillment BETWEEN 1 AND 5),
+    attitude INTEGER NOT NULL CHECK (attitude BETWEEN 1 AND 5),
+    total_score NUMERIC(4,2) NOT NULL,
+    performance_level VARCHAR(30) NOT NULL,
+    penalty_flag BOOLEAN NOT NULL DEFAULT FALSE,
+    penalty_weight NUMERIC(4,2) NOT NULL DEFAULT 0,
+    qualitative_feedback TEXT,
+    visible_to_monitor BOOLEAN NOT NULL DEFAULT TRUE,
+    acknowledged_by_monitor BOOLEAN NOT NULL DEFAULT FALSE,
+    acknowledged_at TIMESTAMP,
+    semester VARCHAR(20),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_monitor_evaluation UNIQUE (monitoring_id, monitor_code)
+);

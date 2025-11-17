@@ -1,0 +1,243 @@
+/* COMPONENTE: MisEvaluacionesHU015 */
+
+/* === Layout === */
+.mis-evaluaciones-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-secondary-bg);
+}
+
+.mis-evaluaciones-content {
+  flex: 1;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-left: 14em;
+  width: calc(100% - 14em);
+}
+
+.mis-evaluaciones-header h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.mis-evaluaciones-header p {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.loading-wrapper,
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-text-secondary);
+  gap: var(--space-3);
+}
+
+.evaluations-grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.evaluation-card {
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: box-shadow var(--tr-fast), transform var(--tr-fast);
+}
+
+.evaluation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(17, 24, 39, 0.12);
+}
+
+.evaluation-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.evaluation-card__header h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.evaluation-card__header p {
+  margin: var(--space-2) 0;
+  color: var(--color-text-secondary);
+}
+
+.evaluation-card__meta {
+  display: inline-block;
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.evaluation-card__scores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.evaluation-card__scores .label {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.evaluation-card__scores strong {
+  color: var(--color-text-primary);
+  font-size: calc(var(--fs-body) + 4px);
+}
+
+.evaluation-card__comments h4 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-primary);
+  font-size: var(--fs-h4);
+}
+
+.evaluation-card__comments p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.evaluation-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ack-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.badge {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.badge-ack {
+  background-color: var(--color-success);
+}
+
+.badge-pending {
+  background-color: var(--color-warning);
+}
+
+.ack-button {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--tr-fast), transform var(--tr-fast), box-shadow var(--tr-fast);
+}
+
+.ack-button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ack-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.6);
+}
+
+.ack-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.penalty-flag {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.impact-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  color: #fff;
+  min-width: 120px;
+  text-align: center;
+  background-color: var(--color-primary);
+}
+
+.impact-badge span {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-1);
+}
+
+.impact-badge strong {
+  font-size: calc(var(--fs-body) + 6px);
+}
+
+.badge-excelente {
+  background-color: var(--color-success);
+}
+
+.badge-destacado {
+  background-color: var(--color-primary);
+}
+
+.badge-adecuado {
+  background-color: var(--color-primary-hover);
+}
+
+.badge-riesgo {
+  background-color: var(--color-danger);
+}
+
+/* === Responsividad === */
+@media (max-width: 768px) {
+  .mis-evaluaciones-content {
+    margin-left: 14em;
+    width: calc(100% - 14em);
+    padding: var(--space-6);
+  }
+
+  .evaluation-card__header {
+    flex-direction: column;
+  }
+
+  .ack-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 430px) {
+  .mis-evaluaciones-content {
+    margin-left: 9em;
+    width: calc(100% - 9em);
+    padding: var(--space-5);
+  }
+}
