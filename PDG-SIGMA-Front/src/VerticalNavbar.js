@@ -184,6 +184,14 @@ function VerticalNavbar() {
             >
               Actividades
             </NavLink>
+            {role === "monitor" && (
+              <NavLink
+                to="/mis-evaluaciones"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                ⭐ Mis evaluaciones
+              </NavLink>
+            )}
             {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}
           </>
         )}
@@ -197,6 +205,12 @@ function VerticalNavbar() {
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               ➕ Crear Convocatoria
+            </NavLink>
+            <NavLink
+              to="/evaluar-monitores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📈 Evaluar Monitores
             </NavLink>
           </>
         )}
