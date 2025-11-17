@@ -199,13 +199,31 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Profesores */}
         {role === "professor" && (
           <>
-            {/* HU-010: Crear Convocatoria */}
+            {/* HU-010: Crear Convocatoria (FLUJO PRINCIPAL) */}
             <NavLink
               to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               ➕ Crear Convocatoria
             </NavLink>
+            
+            {/* HU-011: Plan de Actividades */}
+            <NavLink
+              to="/plan-actividades"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📋 Plan de Actividades
+            </NavLink>
+            
+            {/* HU-011: Gestión de Rúbricas */}
+            <NavLink
+              to="/gestion-rubricas"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📊 Gestión de Rúbricas
+            </NavLink>
+
+            {/* HU-015: Evaluar Monitores */}
             <NavLink
               to="/evaluar-monitores"
               className={({ isActive }) => (isActive ? "active" : "")}
@@ -218,7 +236,15 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Jefe de Departamento */}
         {role === "jfedpto" && (
           <>
-            {/* HU-010: Aprobar Monitorías */}
+            {/* EXCEPCIÓN: Jefe puede crear monitorías directamente con CSV (sin convocatoria) */}
+            <NavLink
+              to="/crear-monitoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📂 Crear Monitorías CSV
+            </NavLink>
+            
+            {/* HU-010: Aprobar Monitorías del flujo de convocatorias */}
             <NavLink
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}

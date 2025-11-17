@@ -1,10 +1,5 @@
 /* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
-/* Colores institucionales ya definidos en index.css:
-   --color-primary: #5555EA (Azul institucional)
-   --color-danger: #D32F2F (Rojo de alerta)
-   --color-success: #10B981 (Verde de confirmación)
-   --font-primary: 'Plus Jakarta Sans', sans-serif
-*/
+/* Colores institucionales ya definidos en index.css */
 
 .create-monitoria-container {
   padding: 20px;
@@ -175,6 +170,30 @@
   box-shadow: none;
 }
 
+.btn-upload-csv {
+  background: linear-gradient(135deg, var(--info-color) 0%, #42A5F5 100%);
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--main-font-family);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-upload-csv:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+}
+
+.btn-upload-csv:active {
+  transform: translateY(0);
+}
+
 /* ============================TABLE SECTION================================= */
 
 .table-section {
@@ -340,9 +359,9 @@
     padding: 1.5em;
   }
 
-  .btn-create-monitoria {
+  .btn-create-monitoria,
+  .btn-upload-csv {
     font-size: 16px;
     padding: 12px 30px;
   }
 }
-
