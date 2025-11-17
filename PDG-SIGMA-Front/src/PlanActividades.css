@@ -1,5 +1,15 @@
 /* HU-011: Plan de Actividades - Estilos */
 
+:root {
+    --main-color: #5454e8;
+    --hover-color: rgb(66, 65, 65);
+    --main-font-family: jakarta_bold, Arial, cursive;
+    --success-color: #70d67b;
+    --danger-color: #f0848b;
+    --warning-color: #FF9800;
+    --info-color: #8a8ae2;
+}
+
 .plan-actividades-content {
     padding: 2rem;
     max-width: 1400px;
@@ -7,10 +17,11 @@
 }
 
 .plan-actividades-content h1 {
-    color: #2c3e50;
+    color: var(--hover-color);
     font-size: 2rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
+    font-family: var(--main-font-family);
 }
 
 /* Selector de Monitoría */
@@ -90,7 +101,7 @@
 
 .monitoring-selector select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--main-color);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -102,7 +113,7 @@
 
 /* Header del Plan */
 .plan-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
     color: white;
     padding: 2rem;
     border-radius: 12px;
@@ -189,7 +200,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
@@ -239,7 +250,7 @@
 }
 
 .activities-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
     color: white;
 }
 
@@ -359,7 +370,7 @@
     align-items: center;
     padding: 1.5rem;
     border-bottom: 2px solid #ecf0f1;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
     color: white;
     border-radius: 12px 12px 0 0;
 }
@@ -453,7 +464,7 @@ form {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--main-color);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 

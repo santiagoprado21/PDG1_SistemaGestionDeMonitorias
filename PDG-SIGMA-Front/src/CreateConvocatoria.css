@@ -2,10 +2,10 @@
   --main-color: #5454e8;
   --hover-color: rgb(66, 65, 65);
   --main-font-family: jakarta_bold, Arial, cursive;
-  --success-color: #4CAF50;
-  --danger-color: #F44336;
+  --success-color: #70d67b;
+  --danger-color: #f0848b;
   --warning-color: #FF9800;
-  --info-color: #2196F3;
+  --info-color: #8a8ae2;
 }
 
 .create-monitoria-container {
