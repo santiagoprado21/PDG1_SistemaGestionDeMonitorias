@@ -1,12 +1,10 @@
-:root {
-  --main-color: #5454e8;
-  --hover-color: rgb(66, 65, 65);
-  --main-font-family: jakarta_bold, Arial, cursive;
-  --success-color: #70d67b;
-  --danger-color: #f0848b;
-  --warning-color: #FF9800;
-  --info-color: #8a8ae2;
-}
+/* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
+/* Colores institucionales ya definidos en index.css:
+   --color-primary: #5555EA (Azul institucional)
+   --color-danger: #D32F2F (Rojo de alerta)
+   --color-success: #10B981 (Verde de confirmación)
+   --font-primary: 'Plus Jakarta Sans', sans-serif
+*/
 
 .create-monitoria-container {
   padding: 20px;
@@ -24,7 +22,7 @@
   align-items: center;
   margin-bottom: 2em;
   padding: 2em 0;
-  background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   margin: 0 9em 2em 9em;
@@ -71,7 +69,7 @@
   color: #333;
   margin: 0 0 1.5em 0;
   padding-bottom: 0.5em;
-  border-bottom: 3px solid var(--main-color);
+  border-bottom: 3px solid var(--color-primary);
 }
 
 .form-row {
@@ -114,7 +112,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--main-color);
+  border-color: var(--color-primary);
   background-color: white;
   box-shadow: 0 0 0 3px rgba(84, 84, 232, 0.1);
 }
@@ -141,7 +139,7 @@
 /* ============================BUTTON================================= */
 
 .btn-create-monitoria {
-  background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
   color: white;
   padding: 15px 40px;
   border: none;
@@ -206,7 +204,7 @@
 }
 
 .monitorias-table thead {
-  background: linear-gradient(135deg, var(--main-color) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
 }
 
 .monitorias-table thead th {
@@ -271,7 +269,7 @@
 
 .pagination button {
   padding: 10px 20px;
-  background-color: var(--main-color);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
