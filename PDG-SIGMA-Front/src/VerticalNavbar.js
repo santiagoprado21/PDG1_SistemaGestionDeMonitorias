@@ -207,6 +207,14 @@ function VerticalNavbar() {
               ➕ Crear Convocatoria
             </NavLink>
             
+            {/* Chat con monitores (solo UI) */}
+            <NavLink
+              to="/chat"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              💬 Chat
+            </NavLink>
+            
             {/* HU-011: Plan de Actividades */}
             <NavLink
               to="/plan-actividades"
