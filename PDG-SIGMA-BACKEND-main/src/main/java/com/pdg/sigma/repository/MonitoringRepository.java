@@ -18,10 +18,10 @@ public interface MonitoringRepository extends JpaRepository<Monitoring,Long> {
     public Optional<Monitoring> findByProfessorAndCourseAndSemester(Professor professor, Course course, String semester);
 
     @Query("SELECT DISTINCT m FROM Monitoring m JOIN m.monitoringMonitors mm " +
-            "WHERE m.professor.id = :professorId AND mm.estadoSeleccion = 'seleccionado'")
+            "WHERE m.professor.id = :professorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
     List<Monitoring> findMonitoringsByProfessorAndHavingSelectedMonitors(@Param("professorId") String professorId);
 
     @Query("SELECT DISTINCT m FROM Monitoring m JOIN m.monitoringMonitors mm " +
-           "WHERE mm.monitor.idMonitor = :monitorId AND mm.estadoSeleccion = 'seleccionado'")
+           "WHERE mm.monitor.idMonitor = :monitorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
     List<Monitoring> findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(@Param("monitorId") String monitorId);
 }
