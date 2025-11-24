@@ -152,7 +152,7 @@ function VistaMonitorActividades() {
                 a.state === 'PENDIENTE'
             ).length;
             const totalHours = plan.activities.reduce((sum, a) => 
-                sum + (a.durationHours || 0), 0
+                sum + (parseFloat(a.durationHours) || 0), 0
             );
 
             return {
