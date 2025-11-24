@@ -151,16 +151,12 @@ function VistaMonitorActividades() {
             const pendingActivities = plan.activities.filter(a => 
                 a.state === 'PENDIENTE'
             ).length;
-            const totalHours = plan.activities.reduce((sum, a) => 
-                sum + (parseFloat(a.durationHours) || 0), 0
-            );
 
             return {
                 ...plan,
                 totalActivities,
                 completedActivities,
-                pendingActivities,
-                totalHours: totalHours
+                pendingActivities
             };
         });
 
@@ -664,10 +660,6 @@ function VistaMonitorActividades() {
                         <div className="stat-card completed">
                             <h3>{activityPlans.reduce((sum, p) => sum + (p.completedActivities || 0), 0)}</h3>
                             <p>Completadas</p>
-                        </div>
-                        <div className="stat-card hours">
-                            <h3>{activityPlans.reduce((sum, p) => sum + (p.totalHours || 0), 0).toFixed(1)} h</h3>
-                            <p>Total Horas</p>
                         </div>
                     </div>
                 )}
