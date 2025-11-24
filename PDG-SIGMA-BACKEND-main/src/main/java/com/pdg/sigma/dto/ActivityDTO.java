@@ -36,6 +36,11 @@ public class ActivityDTO {
     private Date edited;
     private Date delivey;
     private String semester;
+    
+    // HU-017: Información de rúbrica
+    private Long rubricId;
+    private String rubricName;
+    private Integer rubricTotalPoints;
 
     public ActivityDTO(String userId){
         this.userId = userId;
@@ -56,6 +61,13 @@ public class ActivityDTO {
         this.edited = activity.getEdited();
         this.delivey = activity.getDelivey();
         this.semester = activity.getSemester();
+        
+        // HU-017: Incluir información de rúbrica
+        if (activity.getRubric() != null) {
+            this.rubricId = activity.getRubric().getId();
+            this.rubricName = activity.getRubric().getName();
+            this.rubricTotalPoints = activity.getRubric().getTotalPoints();
+        }
     }
     public ActivityDTO(String name, Date creation, Date finish, String category, String description, String course, String creatorName, String responsableName, String state, String type){
 
