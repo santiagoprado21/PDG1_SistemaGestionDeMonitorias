@@ -2,7 +2,9 @@ package com.pdg.sigma.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,25 +332,73 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
     @Override
     @Transactional(readOnly = true)
     public List<ActivityPlanDTO> getMonitorActivityPlans(String monitorId) throws Exception {
-        // Obtener todas las monitorías donde el monitor está asignado
-        List<Monitoring> monitorings = monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorId);
+        System.out.println(">>> getMonitorActivityPlans called for monitorId: " + monitorId);
         
-        if (monitorings == null || monitorings.isEmpty()) {
+        // Buscar el monitor
+        Monitor monitor = monitorRepository.findById(monitorId)
+                .orElseThrow(() -> new Exception("Monitor no encontrado"));
+        
+        // Obtener monitorías donde el monitor está oficialmente asignado
+        List<Monitoring> assignedMonitorings = monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorId);
+        
+        // Obtener monitorías que tienen actividades asignadas a este monitor
+        List<Activity> monitorActivities = activityRepository.findByMonitor(monitor);
+        
+        // Combinar las monitorías de ambas fuentes (sin duplicados)
+        Set<Long> monitoringIds = new HashSet<>();
+        List<Monitoring> allMonitorings = new ArrayList<>();
+        
+        // Agregar monitorías oficialmente asignadas
+        if (assignedMonitorings != null) {
+            for (Monitoring m : assignedMonitorings) {
+                if (monitoringIds.add(m.getId())) {
+                    allMonitorings.add(m);
+                }
+            }
+        }
+        
+        // Agregar monitorías con actividades del monitor
+        for (Activity activity : monitorActivities) {
+            if (activity.getMonitoring() != null) {
+                Long monitoringId = activity.getMonitoring().getId();
+                if (monitoringIds.add(monitoringId)) {
+                    allMonitorings.add(activity.getMonitoring());
+                }
+            }
+        }
+        
+        System.out.println(">>> Found " + allMonitorings.size() + " monitorings total (assigned + with activities)");
+        
+        if (allMonitorings.isEmpty()) {
+            System.out.println(">>> Returning empty list - no monitorings found");
             return new ArrayList<>();
         }
         
         // Para cada monitoría, obtener su plan de actividades
         List<ActivityPlanDTO> plans = new ArrayList<>();
-        for (Monitoring monitoring : monitorings) {
+        for (Monitoring monitoring : allMonitorings) {
             try {
+                System.out.println(">>> Processing monitoring ID: " + monitoring.getId());
                 ActivityPlanDTO plan = getActivityPlan(monitoring.getId().intValue());
-                plans.add(plan);
+                
+                // Solo incluir planes que tengan actividades del monitor
+                boolean hasMonitorActivities = plan.getActivities().stream()
+                    .anyMatch(a -> monitorId.equals(a.getMonitorId()));
+                
+                if (hasMonitorActivities) {
+                    plans.add(plan);
+                    System.out.println(">>> Successfully added plan for monitoring: " + monitoring.getId());
+                } else {
+                    System.out.println(">>> Skipped monitoring " + monitoring.getId() + " (no activities for this monitor)");
+                }
             } catch (Exception e) {
                 // Si una monitoría no tiene plan, simplemente no la agregamos
-                System.err.println("Error al obtener plan para monitoría " + monitoring.getId() + ": " + e.getMessage());
+                System.err.println(">>> ERROR al obtener plan para monitoría " + monitoring.getId() + ": " + e.getMessage());
+                e.printStackTrace();
             }
         }
         
+        System.out.println(">>> Returning " + plans.size() + " plans");
         return plans;
     }
 }
