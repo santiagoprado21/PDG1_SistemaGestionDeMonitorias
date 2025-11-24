@@ -223,7 +223,7 @@ function VistaMonitorActividades() {
 
         try {
             const response = await fetch(
-                `${BACKEND_URL}/rubric/${rubricId}`,
+                `${BACKEND_URL}/api/rubric/${rubricId}`,
                 {
                     headers: {
                         'Authorization': localStorage.getItem('token')
