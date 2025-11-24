@@ -158,7 +158,7 @@ function VistaMonitorActividades() {
                 totalActivities,
                 completedActivities,
                 pendingActivities,
-                totalHours: totalHours.toFixed(1)
+                totalHours: totalHours
             };
         });
 
@@ -403,7 +403,7 @@ function VistaMonitorActividades() {
                 <div className="monitoring-info">
                     <p><strong>Programa:</strong> {plan.programName}</p>
                     <p><strong>Profesor:</strong> {plan.professorName}</p>
-                    <p><strong>Total de horas:</strong> {plan.totalHours || 0} h</p>
+                    <p><strong>Total de horas:</strong> {(plan.totalHours || 0).toFixed(1)} h</p>
                 </div>
                 <div className="activities-summary">
                     <span className="badge badge-total">Total: {plan.totalActivities || 0}</span>
