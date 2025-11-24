@@ -299,6 +299,81 @@ function VistaMonitorActividades() {
     };
 
     /**
+     * Marca una actividad como completada
+     */
+    const markAsCompleted = async (activityId, deadlineDate) => {
+        try {
+            // Determinar si se completó tarde
+            const now = new Date();
+            const deadline = new Date(deadlineDate);
+            const isLate = now > deadline;
+
+            // Actualizar en el backend
+            const response = await fetch(`${BACKEND_URL}/activity/updateState`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                },
+                body: JSON.stringify(activityId),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar el estado');
+            }
+
+            // Actualizar en el frontend
+            const updatedPlans = activityPlans.map(plan => ({
+                ...plan,
+                activities: plan.activities.map(activity => {
+                    if (activity.id === activityId) {
+                        return {
+                            ...activity,
+                            state: isLate ? 'COMPLETADOT' : 'COMPLETADO',
+                            delivey: now.toISOString()
+                        };
+                    }
+                    return activity;
+                })
+            }));
+
+            // Recalcular estadísticas
+            const recalculatedPlans = updatedPlans.map(plan => {
+                const completedActivities = plan.activities.filter(a => 
+                    a.state === 'COMPLETADO' || a.state === 'COMPLETADOT'
+                ).length;
+                const pendingActivities = plan.activities.filter(a => 
+                    a.state === 'PENDIENTE'
+                ).length;
+
+                return {
+                    ...plan,
+                    completedActivities,
+                    pendingActivities
+                };
+            });
+
+            setActivityPlans(recalculatedPlans);
+            applyFilters();
+
+            setMessage(isLate ? 
+                '✅ Actividad marcada como completada (tardía)' : 
+                '✅ Actividad marcada como completada'
+            );
+            setIsOpen(true);
+            setShowActivityDetail(false);
+
+            // Recargar para asegurar sincronización
+            setTimeout(() => loadActivityPlans(), 1000);
+
+        } catch (error) {
+            console.error('Error al marcar actividad:', error);
+            setMessage('❌ Error al marcar la actividad como completada');
+            setIsOpen(true);
+        }
+    };
+
+    /**
      * Obtiene el color según el estado de la actividad
      */
     const getStatusColor = (state) => {
@@ -447,18 +522,34 @@ function VistaMonitorActividades() {
                                             </div>
                                         )}
                                     </div>
-                                    {activity.rubricId && (
-                                        <button 
-                                            className="download-rubric-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                downloadRubric(activity.rubricId, activity.name);
-                                            }}
-                                            title="Descargar rúbrica"
-                                        >
-                                            📥 Rúbrica
-                                        </button>
-                                    )}
+                                    <div className="activity-actions">
+                                        {activity.rubricId && (
+                                            <button 
+                                                className="download-rubric-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    downloadRubric(activity.rubricId, activity.name);
+                                                }}
+                                                title="Descargar rúbrica"
+                                            >
+                                                📥 Rúbrica
+                                            </button>
+                                        )}
+                                        {activity.state === 'PENDIENTE' && (
+                                            <button 
+                                                className="complete-activity-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (window.confirm('¿Marcar esta actividad como completada?')) {
+                                                        markAsCompleted(activity.id, activity.finish);
+                                                    }
+                                                }}
+                                                title="Marcar como completada"
+                                            >
+                                                ✓ Completar
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })
@@ -637,6 +728,26 @@ function VistaMonitorActividades() {
                                             onClick={() => downloadRubric(selectedActivity.rubricId, selectedActivity.name)}
                                         >
                                             📥 Descargar Rúbrica
+                                        </button>
+                                    </div>
+                                )}
+
+                                {selectedActivity.state === 'PENDIENTE' && (
+                                    <div className="detail-section">
+                                        <h3>Marcar como Completada</h3>
+                                        <p>Al marcar esta actividad como completada, se registrará la fecha y hora actual.</p>
+                                        {getDaysRemaining(selectedActivity.finish) < 0 && (
+                                            <p className="warning-text">⚠️ Esta actividad está vencida. Se marcará como completada tardíamente.</p>
+                                        )}
+                                        <button 
+                                            className="complete-btn-modal"
+                                            onClick={() => {
+                                                if (window.confirm('¿Estás seguro de marcar esta actividad como completada?')) {
+                                                    markAsCompleted(selectedActivity.id, selectedActivity.finish);
+                                                }
+                                            }}
+                                        >
+                                            ✓ Marcar como Completada
                                         </button>
                                     </div>
                                 )}
