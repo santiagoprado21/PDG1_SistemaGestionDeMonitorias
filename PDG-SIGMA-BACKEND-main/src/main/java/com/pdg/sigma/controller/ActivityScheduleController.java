@@ -1,6 +1,5 @@
 package com.pdg.sigma.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -106,6 +104,20 @@ public class ActivityScheduleController {
         try {
             List<ActivityScheduleDTO> schedule = activityScheduleService.getProfessorSchedule(professorId, startDate, endDate);
             return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * GET /api/activity-schedule/monitor/{monitorId}/all-plans
+     * HU-017: Obtiene todos los planes de actividades de las monitorías asignadas al monitor
+     */
+    @GetMapping("/monitor/{monitorId}/all-plans")
+    public ResponseEntity<?> getMonitorActivityPlans(@PathVariable String monitorId) {
+        try {
+            List<ActivityPlanDTO> plans = activityScheduleService.getMonitorActivityPlans(monitorId);
+            return ResponseEntity.ok(plans);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

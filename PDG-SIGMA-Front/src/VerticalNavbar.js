@@ -185,12 +185,20 @@ function VerticalNavbar() {
               Actividades
             </NavLink>
             {role === "monitor" && (
-              <NavLink
-                to="/mis-evaluaciones"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                ⭐ Mis evaluaciones
-              </NavLink>
+              <>
+                <NavLink
+                  to="/mis-actividades"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📋 Mis Actividades
+                </NavLink>
+                <NavLink
+                  to="/mis-evaluaciones"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  ⭐ Mis evaluaciones
+                </NavLink>
+              </>
             )}
             {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}
           </>

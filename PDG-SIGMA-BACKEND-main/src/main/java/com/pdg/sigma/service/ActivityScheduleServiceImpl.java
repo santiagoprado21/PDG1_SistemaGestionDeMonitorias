@@ -323,5 +323,33 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
 
         return dto;
     }
+
+    /**
+     * HU-017: Obtiene todos los planes de actividades de las monitorías de un monitor
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActivityPlanDTO> getMonitorActivityPlans(String monitorId) throws Exception {
+        // Obtener todas las monitorías donde el monitor está asignado
+        List<Monitoring> monitorings = monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorId);
+        
+        if (monitorings == null || monitorings.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // Para cada monitoría, obtener su plan de actividades
+        List<ActivityPlanDTO> plans = new ArrayList<>();
+        for (Monitoring monitoring : monitorings) {
+            try {
+                ActivityPlanDTO plan = getActivityPlan(monitoring.getId().intValue());
+                plans.add(plan);
+            } catch (Exception e) {
+                // Si una monitoría no tiene plan, simplemente no la agregamos
+                System.err.println("Error al obtener plan para monitoría " + monitoring.getId() + ": " + e.getMessage());
+            }
+        }
+        
+        return plans;
+    }
 }
 
