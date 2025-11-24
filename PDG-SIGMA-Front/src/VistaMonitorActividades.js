@@ -48,30 +48,38 @@ function VistaMonitorActividades() {
     }, [searchTerm, filterCourse, filterProfessor, filterStatus, activityPlans]);
 
     /**
-     * Carga todos los planes de actividades del monitor
+     * Carga todas las actividades del monitor y las organiza por monitoría
      */
     const loadActivityPlans = async () => {
         setIsLoading(true);
         try {
+            // Usar el mismo endpoint que Task.js (funciona correctamente)
             const response = await fetch(
-                `${BACKEND_URL}/activity-schedule/monitor/${userId}/all-plans`,
+                `${BACKEND_URL}/activity/findAll/${userId}/${role}`,
                 {
+                    method: 'GET',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': localStorage.getItem('token')
                     }
                 }
             );
 
             if (!response.ok) {
-                throw new Error('Error al cargar planes de actividades');
+                throw new Error('Error al cargar actividades');
             }
 
-            const data = await response.json();
-            console.log('Planes de actividades recibidos:', data);
-            setActivityPlans(data || []);
-            setFilteredPlans(data || []);
+            const activities = await response.json();
+            console.log('Actividades recibidas:', activities);
+
+            // Organizar actividades por monitoría
+            const plans = organizePlansByMonitoring(activities);
+            console.log('Planes organizados:', plans);
+            
+            setActivityPlans(plans);
+            setFilteredPlans(plans);
         } catch (error) {
-            console.error('Error al cargar planes:', error);
+            console.error('Error al cargar actividades:', error);
             setMessage('Error al cargar tus actividades: ' + error.message);
             setIsOpen(true);
             setActivityPlans([]);
@@ -79,6 +87,82 @@ function VistaMonitorActividades() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    /**
+     * Organiza las actividades en planes agrupados por monitoría
+     */
+    const organizePlansByMonitoring = (activities) => {
+        if (!activities || activities.length === 0) {
+            return [];
+        }
+
+        // Agrupar actividades por monitoring.id
+        const monitoringMap = new Map();
+
+        activities.forEach(activity => {
+            const monitoring = activity.monitoring;
+            if (!monitoring) return;
+
+            const monitoringId = monitoring.id;
+
+            if (!monitoringMap.has(monitoringId)) {
+                // Crear nuevo plan para esta monitoría
+                monitoringMap.set(monitoringId, {
+                    monitoringId: monitoringId,
+                    courseName: monitoring.course?.name || 'N/A',
+                    programName: monitoring.program?.name || 'N/A',
+                    professorName: monitoring.professor?.name || 'N/A',
+                    monitorName: activity.monitor?.name + ' ' + (activity.monitor?.lastName || '') || 'N/A',
+                    semester: monitoring.semester || activity.semester || 'N/A',
+                    activities: []
+                });
+            }
+
+            // Agregar actividad al plan
+            const plan = monitoringMap.get(monitoringId);
+            plan.activities.push({
+                id: activity.id,
+                name: activity.name,
+                description: activity.description,
+                category: activity.category,
+                finish: activity.finish,
+                state: activity.state,
+                priority: activity.priority || 'MEDIA',
+                startTime: activity.startTime,
+                endTime: activity.endTime,
+                durationHours: activity.durationHours,
+                recurrence: activity.recurrence,
+                rubricId: activity.rubricId,
+                rubricName: activity.rubricName,
+                rubricTotalPoints: activity.rubricTotalPoints,
+                monitorId: activity.monitor?.code
+            });
+        });
+
+        // Convertir Map a Array y calcular estadísticas
+        const plans = Array.from(monitoringMap.values()).map(plan => {
+            const totalActivities = plan.activities.length;
+            const completedActivities = plan.activities.filter(a => 
+                a.state === 'COMPLETADO' || a.state === 'COMPLETADOT'
+            ).length;
+            const pendingActivities = plan.activities.filter(a => 
+                a.state === 'PENDIENTE'
+            ).length;
+            const totalHours = plan.activities.reduce((sum, a) => 
+                sum + (a.durationHours || 0), 0
+            );
+
+            return {
+                ...plan,
+                totalActivities,
+                completedActivities,
+                pendingActivities,
+                totalHours: totalHours.toFixed(1)
+            };
+        });
+
+        return plans;
     };
 
     /**
