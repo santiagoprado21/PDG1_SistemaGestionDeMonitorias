@@ -16,6 +16,7 @@ import java.util.List;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Integer> {
+    public List<Activity> findByMonitor(Monitor monitor);
     public List<Activity> findByMonitorAndRoleCreator(Monitor monitor, String role);
     public List<Activity> findByMonitorAndRoleResponsable(Monitor monitor, String role);
 

@@ -45,5 +45,12 @@ public interface ActivityScheduleService {
      * Convierte una Activity entity a ActivityScheduleDTO
      */
     ActivityScheduleDTO toScheduleDTO(com.pdg.sigma.domain.Activity activity);
+
+    /**
+     * HU-017: Obtiene todos los planes de actividades de un monitor
+     * @param monitorId Código del monitor
+     * @return Lista de planes de actividades de todas las monitorías asignadas
+     */
+    List<ActivityPlanDTO> getMonitorActivityPlans(String monitorId) throws Exception;
 }
 

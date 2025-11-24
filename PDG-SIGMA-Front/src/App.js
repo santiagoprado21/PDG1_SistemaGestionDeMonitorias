@@ -25,6 +25,9 @@ import CreateMonitoria from './CreateMonitoria';
 import PlanActividades from './PlanActividades';
 import GestionRubricas from './GestionRubricas';
 
+// HU-017: Vista Monitor - Plan de Actividades
+import VistaMonitorActividades from './VistaMonitorActividades';
+
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
@@ -89,6 +92,10 @@ function App() {
          
          {/* Profesor: Gestionar rúbricas de evaluación */}
          <Route path="/gestion-rubricas" element={<GestionRubricas />} />
+
+         {/* ========== HU-017: Vista Monitor - Plan de Actividades ========== */}
+         {/* Monitor: Ver actividades asignadas por profesores */}
+         <Route path="/mis-actividades" element={<VistaMonitorActividades />} />
       </Routes>
     </div>
   );
