@@ -22,6 +22,6 @@ public interface MonitoringRepository extends JpaRepository<Monitoring,Long> {
     List<Monitoring> findMonitoringsByProfessorAndHavingSelectedMonitors(@Param("professorId") String professorId);
 
     @Query("SELECT DISTINCT m FROM Monitoring m JOIN m.monitoringMonitors mm " +
-           "WHERE mm.monitor.idMonitor = :monitorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
+           "WHERE mm.monitor.code = :monitorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
     List<Monitoring> findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(@Param("monitorId") String monitorId);
 }
