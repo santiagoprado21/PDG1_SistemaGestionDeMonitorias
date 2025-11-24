@@ -30,6 +30,8 @@ function VistaMonitorActividades() {
     const [selectedMonitoring, setSelectedMonitoring] = useState(null);
     const [showActivityDetail, setShowActivityDetail] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
+    const [showConfirmComplete, setShowConfirmComplete] = useState(false);
+    const [activityToComplete, setActivityToComplete] = useState(null);
 
     // PopUp
     const [isOpen, setIsOpen] = useState(false);
@@ -299,10 +301,25 @@ function VistaMonitorActividades() {
     };
 
     /**
+     * Abre el modal de confirmación para completar actividad
+     */
+    const requestCompleteActivity = (activity) => {
+        setActivityToComplete(activity);
+        setShowConfirmComplete(true);
+    };
+
+    /**
      * Marca una actividad como completada
      */
-    const markAsCompleted = async (activityId, deadlineDate) => {
+    const confirmCompleteActivity = async () => {
+        if (!activityToComplete) return;
+
+        setShowConfirmComplete(false);
+        
         try {
+            const activityId = activityToComplete.id;
+            const deadlineDate = activityToComplete.finish;
+
             // Determinar si se completó tarde
             const now = new Date();
             const deadline = new Date(deadlineDate);
@@ -362,6 +379,7 @@ function VistaMonitorActividades() {
             );
             setIsOpen(true);
             setShowActivityDetail(false);
+            setActivityToComplete(null);
 
             // Recargar para asegurar sincronización
             setTimeout(() => loadActivityPlans(), 1000);
@@ -370,6 +388,7 @@ function VistaMonitorActividades() {
             console.error('Error al marcar actividad:', error);
             setMessage('❌ Error al marcar la actividad como completada');
             setIsOpen(true);
+            setActivityToComplete(null);
         }
     };
 
@@ -540,9 +559,7 @@ function VistaMonitorActividades() {
                                                 className="complete-activity-btn"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    if (window.confirm('¿Marcar esta actividad como completada?')) {
-                                                        markAsCompleted(activity.id, activity.finish);
-                                                    }
+                                                    requestCompleteActivity(activity);
                                                 }}
                                                 title="Marcar como completada"
                                             >
@@ -741,11 +758,7 @@ function VistaMonitorActividades() {
                                         )}
                                         <button 
                                             className="complete-btn-modal"
-                                            onClick={() => {
-                                                if (window.confirm('¿Estás seguro de marcar esta actividad como completada?')) {
-                                                    markAsCompleted(selectedActivity.id, selectedActivity.finish);
-                                                }
-                                            }}
+                                            onClick={() => requestCompleteActivity(selectedActivity)}
                                         >
                                             ✓ Marcar como Completada
                                         </button>
@@ -758,6 +771,72 @@ function VistaMonitorActividades() {
             </div>
 
             {isOpen && <PopUp message={message} onClose={() => setIsOpen(false)} />}
+
+            {/* Modal de confirmación para completar actividad */}
+            {showConfirmComplete && activityToComplete && (
+                <div className="modal-overlay" onClick={() => setShowConfirmComplete(false)}>
+                    <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="confirm-modal-header">
+                            <h2>✓ Confirmar Completitud</h2>
+                            <button 
+                                className="close-btn"
+                                onClick={() => setShowConfirmComplete(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <div className="confirm-modal-body">
+                            <div className="activity-info-confirm">
+                                <h3>{activityToComplete.name}</h3>
+                                <p className="activity-course-confirm">
+                                    📚 {activityToComplete.monitoring?.courseName || 'N/A'}
+                                </p>
+                            </div>
+
+                            <div className="confirm-message">
+                                <p>¿Estás seguro de marcar esta actividad como completada?</p>
+                                <p className="confirm-detail">Se registrará la fecha y hora actual como fecha de entrega.</p>
+                            </div>
+
+                            {getDaysRemaining(activityToComplete.finish) < 0 && (
+                                <div className="warning-box">
+                                    <span className="warning-icon">⚠️</span>
+                                    <div className="warning-content">
+                                        <strong>Actividad vencida</strong>
+                                        <p>Esta actividad se marcará como <strong>completada tardíamente</strong>.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {getDaysRemaining(activityToComplete.finish) >= 0 && (
+                                <div className="success-box">
+                                    <span className="success-icon">✓</span>
+                                    <div className="success-content">
+                                        <strong>¡Bien hecho!</strong>
+                                        <p>Estás completando esta actividad a tiempo.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="confirm-modal-footer">
+                            <button 
+                                className="btn-cancel"
+                                onClick={() => setShowConfirmComplete(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                className="btn-confirm"
+                                onClick={confirmCompleteActivity}
+                            >
+                                ✓ Marcar como Completada
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
