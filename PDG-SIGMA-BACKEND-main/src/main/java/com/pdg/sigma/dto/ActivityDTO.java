@@ -36,6 +36,15 @@ public class ActivityDTO {
     private Date edited;
     private Date delivey;
     private String semester;
+
+    private Integer progressPercentage;
+    private String progressComment;
+    private Date progressUpdatedAt;
+    private String progressUpdatedBy;
+    private String progressUpdatedByRole;
+    private String progressUpdatedByName;
+    private String progressEvidencePath;
+    private String progressEvidenceName;
     
     // HU-017: Información de rúbrica
     private Long rubricId;
@@ -61,6 +70,14 @@ public class ActivityDTO {
         this.edited = activity.getEdited();
         this.delivey = activity.getDelivey();
         this.semester = activity.getSemester();
+        this.progressPercentage = activity.getProgressPercentage();
+        this.progressComment = activity.getProgressComment();
+        this.progressUpdatedAt = activity.getProgressUpdatedAt();
+        this.progressUpdatedBy = activity.getProgressUpdatedBy();
+        this.progressUpdatedByRole = activity.getProgressUpdatedByRole();
+        this.progressUpdatedByName = activity.getProgressUpdatedByName();
+        this.progressEvidencePath = activity.getProgressEvidencePath();
+        this.progressEvidenceName = activity.getProgressEvidenceName();
         
         // HU-017: Incluir información de rúbrica
         if (activity.getRubric() != null) {
