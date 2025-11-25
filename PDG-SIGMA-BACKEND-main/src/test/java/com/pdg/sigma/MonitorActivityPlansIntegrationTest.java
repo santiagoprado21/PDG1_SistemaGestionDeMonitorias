@@ -1,5 +1,6 @@
 package com.pdg.sigma;
 
+import com.pdg.sigma.config.TestConfig;
 import com.pdg.sigma.domain.*;
 import com.pdg.sigma.repository.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestConfig.class)
 @Transactional
 class MonitorActivityPlansIntegrationTest {
 
@@ -53,6 +56,9 @@ class MonitorActivityPlansIntegrationTest {
     @Autowired
     private ProgramRepository programRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     private Monitor testMonitor;
     private Professor testProfessor;
     private Monitoring testMonitoring1;
@@ -63,6 +69,11 @@ class MonitorActivityPlansIntegrationTest {
         // Limpiar datos anteriores
         activityRepository.deleteAll();
         monitoringRepository.deleteAll();
+        courseRepository.deleteAll();
+        programRepository.deleteAll();
+        schoolRepository.deleteAll();
+        monitorRepository.deleteAll();
+        professorRepository.deleteAll();
 
         // Crear profesor de prueba
         testProfessor = new Professor("TEST_PROF_001");
@@ -70,48 +81,58 @@ class MonitorActivityPlansIntegrationTest {
         testProfessor.setPassword("password123");
         professorRepository.save(testProfessor);
 
+        School school = new School();
+        school.setName("Facultad de Ingeniería");
+        school = schoolRepository.save(school);
+
         // Crear monitor de prueba
         testMonitor = new Monitor();
         testMonitor.setCode("TEST_MON_001");
         testMonitor.setName("Ana");
         testMonitor.setLastName("Test");
+        testMonitor.setSemester(5);
+        testMonitor.setEmail("ana.test@uni.edu");
+        testMonitor.setIdMonitor("TEST_MON_ID_001");
+        testMonitor.setGradeAverage(4.2);
+        testMonitor.setGradeCourse(4.5);
         monitorRepository.save(testMonitor);
 
-        // Crear curso y programa
-        Course course1 = courseRepository.findByName("Programación I")
-                .orElseGet(() -> {
-                    Course c = new Course();
-                    c.setName("Programación I");
-                    return courseRepository.save(c);
-                });
+        Program program = new Program();
+        program.setName("Ingeniería de Sistemas");
+        program.setSchool(school);
+        program = programRepository.save(program);
 
-        Course course2 = courseRepository.findByName("Estructuras de Datos")
-                .orElseGet(() -> {
-                    Course c = new Course();
-                    c.setName("Estructuras de Datos");
-                    return courseRepository.save(c);
-                });
+        Course course1 = new Course();
+        course1.setName("Programación I");
+        course1.setProgram(program);
+        course1 = courseRepository.save(course1);
 
-        Program program = programRepository.findByName("Ingeniería de Sistemas")
-                .orElseGet(() -> {
-                    Program p = new Program();
-                    p.setName("Ingeniería de Sistemas");
-                    return programRepository.save(p);
-                });
+        Course course2 = new Course();
+        course2.setName("Estructuras de Datos");
+        course2.setProgram(program);
+        course2 = courseRepository.save(course2);
 
         // Crear monitorías de prueba
         testMonitoring1 = new Monitoring();
+        testMonitoring1.setSchool(school);
         testMonitoring1.setCourse(course1);
         testMonitoring1.setProgram(program);
         testMonitoring1.setProfessor(testProfessor);
         testMonitoring1.setSemester("2024-2");
+        testMonitoring1.setStart(Date.valueOf(LocalDate.now().minusMonths(1)));
+        testMonitoring1.setFinish(Date.valueOf(LocalDate.now().plusMonths(1)));
+        testMonitoring1.setMonitoringMonitors(new java.util.ArrayList<>());
         testMonitoring1 = monitoringRepository.save(testMonitoring1);
 
         testMonitoring2 = new Monitoring();
+        testMonitoring2.setSchool(school);
         testMonitoring2.setCourse(course2);
         testMonitoring2.setProgram(program);
         testMonitoring2.setProfessor(testProfessor);
         testMonitoring2.setSemester("2025-2");
+        testMonitoring2.setStart(Date.valueOf(LocalDate.now().minusMonths(2)));
+        testMonitoring2.setFinish(Date.valueOf(LocalDate.now().plusMonths(2)));
+        testMonitoring2.setMonitoringMonitors(new java.util.ArrayList<>());
         testMonitoring2 = monitoringRepository.save(testMonitoring2);
 
         // Crear MonitoringMonitor para asignar el monitor a las monitorías
@@ -230,6 +251,12 @@ class MonitorActivityPlansIntegrationTest {
         Monitor directMonitor = new Monitor();
         directMonitor.setCode("DIRECT_MON");
         directMonitor.setName("Direct");
+        directMonitor.setLastName("Monitor");
+        directMonitor.setSemester(6);
+        directMonitor.setEmail("direct.monitor@uni.edu");
+        directMonitor.setIdMonitor("DIRECT_MON_ID");
+        directMonitor.setGradeAverage(4.0);
+        directMonitor.setGradeCourse(4.0);
         monitorRepository.save(directMonitor);
 
         Monitoring directMonitoring = new Monitoring();
@@ -237,6 +264,10 @@ class MonitorActivityPlansIntegrationTest {
         directMonitoring.setProgram(testMonitoring1.getProgram());
         directMonitoring.setProfessor(testProfessor);
         directMonitoring.setSemester("2025-1");
+        directMonitoring.setSchool(testMonitoring1.getSchool());
+        directMonitoring.setStart(Date.valueOf(LocalDate.now().minusWeeks(2)));
+        directMonitoring.setFinish(Date.valueOf(LocalDate.now().plusWeeks(4)));
+        directMonitoring.setMonitoringMonitors(new java.util.ArrayList<>());
         directMonitoring = monitoringRepository.save(directMonitoring);
 
         Activity directActivity = new Activity();
@@ -245,6 +276,12 @@ class MonitorActivityPlansIntegrationTest {
         directActivity.setMonitoring(directMonitoring);
         directActivity.setMonitor(directMonitor); // Asignada directamente
         directActivity.setFinish(Date.valueOf(LocalDate.now().plusDays(7)));
+        directActivity.setCreation(new java.util.Date());
+        directActivity.setRoleCreator("P");
+        directActivity.setRoleResponsable("M");
+        directActivity.setDescription("Actividad directa para el monitor");
+        directActivity.setProfessor(testProfessor);
+        directActivity.setSemester("2025-1");
         activityRepository.save(directActivity);
 
         // When & Then
@@ -286,6 +323,11 @@ class MonitorActivityPlansIntegrationTest {
         activity.setState(state);
         activity.setMonitoring(monitoring);
         activity.setMonitor(testMonitor);
+        activity.setProfessor(monitoring.getProfessor());
+        activity.setCreation(new java.util.Date());
+        activity.setRoleCreator("P");
+        activity.setRoleResponsable("M");
+        activity.setSemester(monitoring.getSemester());
         activity.setFinish(Date.valueOf(LocalDate.now().plusDays(7)));
         activity.setDurationHours(BigDecimal.valueOf(hours));
         activity.setPriority("MEDIA");

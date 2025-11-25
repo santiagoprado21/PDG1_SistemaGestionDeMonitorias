@@ -382,8 +382,10 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
                 ActivityPlanDTO plan = getActivityPlan(monitoring.getId().intValue());
                 
                 // Solo incluir planes que tengan actividades del monitor
+                String externalMonitorId = monitor.getIdMonitor();
                 boolean hasMonitorActivities = plan.getActivities().stream()
-                    .anyMatch(a -> monitorId.equals(a.getMonitorId()));
+                    .anyMatch(a -> monitorId.equals(a.getMonitorId())
+                            || (externalMonitorId != null && externalMonitorId.equals(a.getMonitorId())));
                 
                 if (hasMonitorActivities) {
                     plans.add(plan);
