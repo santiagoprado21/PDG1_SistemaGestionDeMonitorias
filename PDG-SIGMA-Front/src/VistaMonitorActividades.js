@@ -33,6 +33,12 @@ function VistaMonitorActividades() {
     const [showConfirmComplete, setShowConfirmComplete] = useState(false);
     const [activityToComplete, setActivityToComplete] = useState(null);
 
+    // Progreso de actividades (HU-018)
+    const [progressByActivity, setProgressByActivity] = useState({});
+    const [progressForm, setProgressForm] = useState({});
+    const [progressLoading, setProgressLoading] = useState({});
+    const [progressSubmitting, setProgressSubmitting] = useState({});
+
     // PopUp
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
@@ -138,7 +144,15 @@ function VistaMonitorActividades() {
                 rubricId: activity.rubricId,
                 rubricName: activity.rubricName,
                 rubricTotalPoints: activity.rubricTotalPoints,
-                monitorId: activity.monitor?.code
+                monitorId: activity.monitor?.code,
+                progressPercentage: activity.progressPercentage,
+                progressComment: activity.progressComment,
+                progressUpdatedAt: activity.progressUpdatedAt,
+                progressUpdatedBy: activity.progressUpdatedBy,
+                progressUpdatedByRole: activity.progressUpdatedByRole,
+                progressUpdatedByName: activity.progressUpdatedByName,
+                progressEvidenceName: activity.progressEvidenceName,
+                progressEvidencePath: activity.progressEvidencePath
             });
         });
 
@@ -151,12 +165,16 @@ function VistaMonitorActividades() {
             const pendingActivities = plan.activities.filter(a => 
                 a.state === 'PENDIENTE'
             ).length;
+            const inProgressActivities = plan.activities.filter(a => 
+                a.state === 'EN_PROGRESO'
+            ).length;
 
             return {
                 ...plan,
                 totalActivities,
                 completedActivities,
-                pendingActivities
+                pendingActivities,
+                inProgressActivities
             };
         });
 
@@ -292,7 +310,11 @@ function VistaMonitorActividades() {
      * Muestra el detalle de una actividad
      */
     const showActivityDetails = (activity, plan) => {
-        setSelectedActivity({ ...activity, monitoring: plan });
+        const enrichedActivity = { ...activity, monitoring: plan };
+        setSelectedActivity(enrichedActivity);
+        setSelectedMonitoring(plan);
+        initializeProgressForm(activity);
+        fetchActivityProgress(activity.id);
         setShowActivityDetail(true);
     };
 
@@ -343,7 +365,12 @@ function VistaMonitorActividades() {
                         return {
                             ...activity,
                             state: isLate ? 'COMPLETADOT' : 'COMPLETADO',
-                            delivey: now.toISOString()
+                            delivey: now.toISOString(),
+                            progressPercentage: 100,
+                            progressUpdatedAt: now.toISOString(),
+                            progressUpdatedBy: userId,
+                            progressUpdatedByRole: role,
+                            progressUpdatedByName: plan.monitorName || activity.monitorName || '',
                         };
                     }
                     return activity;
@@ -355,6 +382,7 @@ function VistaMonitorActividades() {
                 const completedActivities = plan.activities.filter(a => 
                     a.state === 'COMPLETADO' || a.state === 'COMPLETADOT'
                 ).length;
+                const inProgressActivities = plan.activities.filter(a => a.state === 'EN_PROGRESO').length;
                 const pendingActivities = plan.activities.filter(a => 
                     a.state === 'PENDIENTE'
                 ).length;
@@ -362,12 +390,12 @@ function VistaMonitorActividades() {
                 return {
                     ...plan,
                     completedActivities,
-                    pendingActivities
+                    pendingActivities,
+                    inProgressActivities
                 };
             });
 
             setActivityPlans(recalculatedPlans);
-            applyFilters();
 
             setMessage(isLate ? 
                 '✅ Actividad marcada como completada (tardía)' : 
@@ -395,6 +423,8 @@ function VistaMonitorActividades() {
         switch (state) {
             case 'PENDIENTE':
                 return 'status-pending';
+            case 'EN_PROGRESO':
+                return 'status-in-progress';
             case 'COMPLETADO':
             case 'COMPLETADOT':
                 return 'status-completed';
@@ -410,6 +440,8 @@ function VistaMonitorActividades() {
         switch (state) {
             case 'PENDIENTE':
                 return 'Pendiente';
+            case 'EN_PROGRESO':
+                return 'En progreso';
             case 'COMPLETADO':
                 return 'Completado';
             case 'COMPLETADOT':
@@ -472,6 +504,284 @@ function VistaMonitorActividades() {
     };
 
     /**
+     * Inicializa el formulario de progreso para una actividad
+     */
+    const initializeProgressForm = (activity) => {
+        if (!activity) {
+            return;
+        }
+        setProgressForm((prev) => ({
+            ...prev,
+            [activity.id]: {
+                progressPercentage: activity.progressPercentage ?? '',
+                progressComment: '',
+                evidenceFile: null,
+            },
+        }));
+    };
+
+    /**
+     * Obtiene el historial de progreso de una actividad
+     */
+    const fetchActivityProgress = async (activityId) => {
+        if (!activityId) {
+            return;
+        }
+
+        setProgressLoading((prev) => ({ ...prev, [activityId]: true }));
+        try {
+            const response = await fetch(`${BACKEND_URL}/activity/${activityId}/progress`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const data = await response.json();
+            const sorted = Array.isArray(data)
+                ? [...data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                : [];
+
+            setProgressByActivity((prev) => ({ ...prev, [activityId]: sorted }));
+        } catch (error) {
+            console.error('Error al obtener el progreso de la actividad:', error);
+            setProgressByActivity((prev) => ({ ...prev, [activityId]: [] }));
+            setMessage('Error al obtener el historial de progreso.');
+            setIsOpen(true);
+        } finally {
+            setProgressLoading((prev) => ({ ...prev, [activityId]: false }));
+        }
+    };
+
+    const handleProgressFieldChange = (activityId, field, value) => {
+        setProgressForm((prev) => ({
+            ...prev,
+            [activityId]: {
+                ...prev[activityId],
+                [field]: value,
+            },
+        }));
+    };
+
+    const handleProgressFileChange = (activityId, file) => {
+        setProgressForm((prev) => ({
+            ...prev,
+            [activityId]: {
+                ...prev[activityId],
+                evidenceFile: file,
+            },
+        }));
+    };
+
+    const downloadEvidence = async (progressId, evidenceName) => {
+        if (!progressId) {
+            return;
+        }
+        try {
+            const response = await fetch(`${BACKEND_URL}/activity/progress/${progressId}/evidence`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = evidenceName || `evidencia-${progressId}`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar la evidencia:', error);
+            setMessage('No fue posible descargar la evidencia.');
+            setIsOpen(true);
+        }
+    };
+
+    const canSubmitProgress = (activity) => {
+        if (!activity) {
+            return false;
+        }
+        if (role !== 'monitor') {
+            return false;
+        }
+        if (activity.state === 'COMPLETADO' || activity.state === 'COMPLETADOT') {
+            return false;
+        }
+        return true;
+    };
+
+    const handleSubmitProgress = async (event, activity) => {
+        event.preventDefault();
+        if (!activity) {
+            return;
+        }
+
+        const formState = progressForm[activity.id];
+        if (!formState) {
+            setMessage('Completa los datos del formulario antes de registrar el progreso.');
+            setIsOpen(true);
+            return;
+        }
+
+        const numericProgress = formState.progressPercentage === '' ? null : Number(formState.progressPercentage);
+        if (numericProgress === null || Number.isNaN(numericProgress)) {
+            setMessage('Ingresa un porcentaje de progreso válido.');
+            setIsOpen(true);
+            return;
+        }
+
+        if (numericProgress < 0 || numericProgress > 100) {
+            setMessage('El porcentaje de progreso debe estar entre 0 y 100.');
+            setIsOpen(true);
+            return;
+        }
+
+        const payload = {
+            progressPercentage: Math.round(numericProgress),
+            progressComment: formState.progressComment || '',
+            userId,
+            userRole: role ? role.toLowerCase() : '',
+        };
+
+        const formData = new FormData();
+        // Enviar datos mixtos (JSON + archivo) como multipart/form-data
+        formData.append('payload', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        if (formState.evidenceFile) {
+            formData.append('file', formState.evidenceFile);
+        }
+
+        setProgressSubmitting((prev) => ({ ...prev, [activity.id]: true }));
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/activity/${activity.id}/progress`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const createdProgress = await response.json();
+
+            setProgressByActivity((prev) => {
+                const existing = prev[activity.id] || [];
+                const updated = [createdProgress, ...existing].sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                return { ...prev, [activity.id]: updated };
+            });
+
+            setProgressForm((prev) => ({
+                ...prev,
+                [activity.id]: {
+                    progressPercentage: createdProgress.progressPercentage ?? '',
+                    progressComment: '',
+                    evidenceFile: null,
+                },
+            }));
+
+            setSelectedActivity((prev) => {
+                if (!prev || prev.id !== activity.id) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    progressPercentage: createdProgress.progressPercentage,
+                    progressComment: createdProgress.progressComment,
+                    progressUpdatedAt: createdProgress.createdAt,
+                    progressUpdatedBy: createdProgress.createdBy,
+                    progressUpdatedByRole: createdProgress.createdByRole,
+                    progressUpdatedByName: createdProgress.createdByName,
+                    progressEvidenceName: createdProgress.evidenceName,
+                };
+            });
+
+            setActivityPlans((prevPlans) => prevPlans.map((plan) => {
+                if (!plan.activities) {
+                    return plan;
+                }
+
+                const updatedActivities = plan.activities.map((item) => {
+                    if (item.id !== activity.id) {
+                        return item;
+                    }
+
+                    let nextState = item.state;
+                    if (createdProgress.progressPercentage >= 100) {
+                        const deliveryDate = createdProgress.createdAt ? new Date(createdProgress.createdAt) : new Date();
+                        if (activity.finish) {
+                            const finishDate = new Date(activity.finish);
+                            const extension = new Date(finishDate.getTime() + (2 * 24 * 60 * 60 * 1000));
+                            if (deliveryDate <= finishDate || deliveryDate <= extension) {
+                                nextState = 'COMPLETADO';
+                            } else {
+                                nextState = 'COMPLETADOT';
+                            }
+                        } else {
+                            nextState = 'COMPLETADO';
+                        }
+                    } else if (createdProgress.progressPercentage > 0) {
+                        nextState = 'EN_PROGRESO';
+                    } else {
+                        nextState = 'PENDIENTE';
+                    }
+
+                    return {
+                        ...item,
+                        state: nextState,
+                        progressPercentage: createdProgress.progressPercentage,
+                        progressComment: createdProgress.progressComment,
+                        progressUpdatedAt: createdProgress.createdAt,
+                        progressUpdatedBy: createdProgress.createdBy,
+                        progressUpdatedByRole: createdProgress.createdByRole,
+                        progressUpdatedByName: createdProgress.createdByName,
+                        progressEvidenceName: createdProgress.evidenceName,
+                    };
+                });
+
+                const totalActivities = updatedActivities.length;
+                const completedActivities = updatedActivities.filter((item) => item.state === 'COMPLETADO' || item.state === 'COMPLETADOT').length;
+                const inProgressActivities = updatedActivities.filter((item) => item.state === 'EN_PROGRESO').length;
+                const pendingActivities = updatedActivities.filter((item) => item.state === 'PENDIENTE').length;
+
+                return {
+                    ...plan,
+                    activities: updatedActivities,
+                    totalActivities,
+                    completedActivities,
+                    inProgressActivities,
+                    pendingActivities,
+                };
+            }));
+
+            setMessage('Progreso registrado correctamente.');
+            setIsOpen(true);
+        } catch (error) {
+            console.error('Error al registrar el progreso:', error);
+            setMessage(typeof error.message === 'string' ? error.message : 'No fue posible registrar el progreso.');
+            setIsOpen(true);
+        } finally {
+            setProgressSubmitting((prev) => ({ ...prev, [activity.id]: false }));
+        }
+    };
+
+    /**
      * Renderiza las actividades en vista de tarjetas
      */
     const renderCardView = () => {
@@ -498,6 +808,9 @@ function VistaMonitorActividades() {
                 <div className="activities-summary">
                     <span className="badge badge-total">Total: {plan.totalActivities || 0}</span>
                     <span className="badge badge-pending">Pendientes: {plan.pendingActivities || 0}</span>
+                    {plan.inProgressActivities > 0 && (
+                        <span className="badge badge-progress">En progreso: {plan.inProgressActivities}</span>
+                    )}
                     <span className="badge badge-completed">Completadas: {plan.completedActivities || 0}</span>
                 </div>
 
@@ -506,6 +819,10 @@ function VistaMonitorActividades() {
                         plan.activities.map((activity) => {
                             const daysRemaining = getDaysRemaining(activity.finish);
                             const isUrgent = daysRemaining !== null && daysRemaining <= 3 && activity.state === 'PENDIENTE';
+                            const rawProgress = Number(activity.progressPercentage);
+                            const normalizedProgress = Number.isFinite(rawProgress)
+                                ? Math.max(0, Math.min(100, Math.round(rawProgress)))
+                                : 0;
 
                             return (
                                 <div 
@@ -530,6 +847,16 @@ function VistaMonitorActividades() {
                                                     {activity.priority}
                                                 </span>
                                             )}
+                                        </div>
+                                        <div className="activity-progress-indicator">
+                                            <span className="progress-label">Progreso:</span>
+                                            <span className="progress-value">{normalizedProgress}%</span>
+                                            <div className="progress-bar">
+                                                <div
+                                                    className="progress-bar-fill"
+                                                    style={{ width: `${normalizedProgress}%` }}
+                                                />
+                                            </div>
                                         </div>
                                         {isUrgent && (
                                             <div className="urgent-banner">
@@ -573,6 +900,20 @@ function VistaMonitorActividades() {
             </div>
         ));
     };
+
+    const selectedActivityId = selectedActivity?.id;
+    const selectedProgressEntries = selectedActivityId ? (progressByActivity[selectedActivityId] || []) : [];
+    const selectedProgressLoading = selectedActivityId ? !!progressLoading[selectedActivityId] : false;
+    const selectedProgressSubmitting = selectedActivityId ? !!progressSubmitting[selectedActivityId] : false;
+    const selectedFormState = selectedActivityId ? progressForm[selectedActivityId] : null;
+    const derivedFormState = selectedFormState || (selectedActivity ? {
+        progressPercentage: selectedActivity.progressPercentage ?? '',
+        progressComment: '',
+        evidenceFile: null,
+    } : null);
+    const summaryUpdatedAt = selectedActivity?.progressUpdatedAt ? new Date(selectedActivity.progressUpdatedAt) : null;
+    const isSelectedActivityCompleted = selectedActivity ? (selectedActivity.state === 'COMPLETADO' || selectedActivity.state === 'COMPLETADOT') : false;
+    const canSubmitSelectedProgress = canSubmitProgress(selectedActivity);
 
     return (
         <div className="vista-monitor-container">
@@ -657,6 +998,10 @@ function VistaMonitorActividades() {
                             <h3>{activityPlans.reduce((sum, p) => sum + (p.pendingActivities || 0), 0)}</h3>
                             <p>Pendientes</p>
                         </div>
+                        <div className="stat-card in-progress">
+                            <h3>{activityPlans.reduce((sum, p) => sum + (p.inProgressActivities || 0), 0)}</h3>
+                            <p>En progreso</p>
+                        </div>
                         <div className="stat-card completed">
                             <h3>{activityPlans.reduce((sum, p) => sum + (p.completedActivities || 0), 0)}</h3>
                             <p>Completadas</p>
@@ -725,6 +1070,170 @@ function VistaMonitorActividades() {
                                             {selectedActivity.priority}
                                         </span></p>
                                     )}
+                                </div>
+
+                                <div className="detail-section activity-progress-section">
+                                    <h3>Seguimiento de progreso</h3>
+
+                                    <div className="progress-summary">
+                                        <div>
+                                            <span className="summary-label">Progreso actual:</span>
+                                            <span className="summary-value">
+                                                {selectedActivity.progressPercentage !== null && selectedActivity.progressPercentage !== undefined
+                                                    ? `${selectedActivity.progressPercentage}%`
+                                                    : 'Sin registro'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="summary-label">Última actualización:</span>
+                                            <span className="summary-value">
+                                                {summaryUpdatedAt
+                                                    ? summaryUpdatedAt.toLocaleString('es-ES', {
+                                                        day: '2-digit',
+                                                        month: '2-digit',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                    })
+                                                    : 'Sin registro'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="summary-label">Registrado por:</span>
+                                            <span className="summary-value">
+                                                {selectedActivity.progressUpdatedByName || 'Sin registro'}
+                                            </span>
+                                        </div>
+                                        {selectedActivity.progressComment && (
+                                            <div className="summary-comment">
+                                                <span className="summary-label">Comentario:</span>
+                                                <span className="summary-value">{selectedActivity.progressComment}</span>
+                                            </div>
+                                        )}
+                                        {selectedActivity.progressEvidenceName && (
+                                            <div className="summary-comment">
+                                                <span className="summary-label">Última evidencia:</span>
+                                                <span className="summary-value">{selectedActivity.progressEvidenceName}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {canSubmitSelectedProgress && derivedFormState && (
+                                        <form
+                                            className="progress-form"
+                                            onSubmit={(event) => handleSubmitProgress(event, selectedActivity)}
+                                        >
+                                            <div className="progress-form-row">
+                                                <label>
+                                                    Porcentaje de avance
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="100"
+                                                        value={derivedFormState.progressPercentage ?? ''}
+                                                        onChange={(e) => handleProgressFieldChange(selectedActivity.id, 'progressPercentage', e.target.value)}
+                                                        disabled={selectedProgressSubmitting}
+                                                    />
+                                                </label>
+                                                <label>
+                                                    Evidencia (opcional)
+                                                    <input
+                                                        type="file"
+                                                        onChange={(e) => handleProgressFileChange(
+                                                            selectedActivity.id,
+                                                            e.target.files && e.target.files[0] ? e.target.files[0] : null
+                                                        )}
+                                                        disabled={selectedProgressSubmitting}
+                                                    />
+                                                </label>
+                                            </div>
+                                            <label className="progress-form-comment">
+                                                Comentario (opcional)
+                                                <textarea
+                                                    rows="3"
+                                                    value={derivedFormState.progressComment || ''}
+                                                    onChange={(e) => handleProgressFieldChange(selectedActivity.id, 'progressComment', e.target.value)}
+                                                    disabled={selectedProgressSubmitting}
+                                                />
+                                            </label>
+                                            {derivedFormState.evidenceFile && (
+                                                <div className="selected-evidence">
+                                                    <span>Archivo seleccionado: {derivedFormState.evidenceFile.name}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleProgressFileChange(selectedActivity.id, null)}
+                                                        disabled={selectedProgressSubmitting}
+                                                    >
+                                                        Quitar
+                                                    </button>
+                                                </div>
+                                            )}
+                                            <div className="progress-form-actions">
+                                                <button type="submit" disabled={selectedProgressSubmitting}>
+                                                    {selectedProgressSubmitting ? 'Registrando...' : 'Registrar progreso'}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    )}
+
+                                    {isSelectedActivityCompleted && (
+                                        <p className="progress-completed-message">
+                                            Esta actividad está completada; no es posible registrar nuevos avances.
+                                        </p>
+                                    )}
+
+                                    <div className="progress-history">
+                                        <h4>Historial de actualizaciones</h4>
+                                        {selectedProgressLoading ? (
+                                            <p>Cargando historial...</p>
+                                        ) : selectedProgressEntries.length === 0 ? (
+                                            <p>No hay registros de progreso.</p>
+                                        ) : (
+                                            <div className="progress-history-list">
+                                                {selectedProgressEntries.map((entry) => {
+                                                    const entryDate = entry.createdAt ? new Date(entry.createdAt) : null;
+                                                    return (
+                                                        <div key={entry.id} className="progress-history-card">
+                                                            <div className="progress-history-header">
+                                                                <span className="progress-history-percentage">
+                                                                    {entry.progressPercentage !== null && entry.progressPercentage !== undefined
+                                                                        ? `${entry.progressPercentage}%`
+                                                                        : 'Sin porcentaje'}
+                                                                </span>
+                                                                <span className="progress-history-date">
+                                                                    {entryDate
+                                                                        ? entryDate.toLocaleString('es-ES', {
+                                                                            day: '2-digit',
+                                                                            month: '2-digit',
+                                                                            year: 'numeric',
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit',
+                                                                        })
+                                                                        : 'Fecha no disponible'}
+                                                                </span>
+                                                            </div>
+                                                            {entry.progressComment && (
+                                                                <p className="progress-history-comment">{entry.progressComment}</p>
+                                                            )}
+                                                            <div className="progress-history-meta">
+                                                                <span>Registrado por: {entry.createdByName || entry.createdBy}</span>
+                                                                <span>Rol: {entry.createdByRole ? entry.createdByRole.toUpperCase() : 'N/D'}</span>
+                                                            </div>
+                                                            {entry.evidenceName && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="progress-history-evidence"
+                                                                    onClick={() => downloadEvidence(entry.id, entry.evidenceName)}
+                                                                >
+                                                                    Descargar evidencia ({entry.evidenceName})
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {selectedActivity.rubricId && (

@@ -196,6 +196,15 @@ public class ActivityServiceImpl implements ActivityService{
             new Date()
         );
 
+        activity.setProgressPercentage(0);
+        activity.setProgressComment(null);
+        activity.setProgressUpdatedAt(null);
+        activity.setProgressUpdatedBy(null);
+        activity.setProgressUpdatedByRole(null);
+        activity.setProgressUpdatedByName(null);
+        activity.setProgressEvidencePath(null);
+        activity.setProgressEvidenceName(null);
+
         Activity savedActivity = save(activity);
         return new ActivityDTO(savedActivity);
     }

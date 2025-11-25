@@ -76,6 +76,30 @@ public class Activity {
     @Column(name = "edited_date")
     private Date edited;
 
+    @Column(name = "progress_percentage")
+    private Integer progressPercentage;
+
+    @Column(name = "progress_comment", length = 500)
+    private String progressComment;
+
+    @Column(name = "progress_updated_at")
+    private Date progressUpdatedAt;
+
+    @Column(name = "progress_updated_by", length = 100)
+    private String progressUpdatedBy;
+
+    @Column(name = "progress_updated_by_role", length = 20)
+    private String progressUpdatedByRole;
+
+    @Column(name = "progress_updated_by_name", length = 150)
+    private String progressUpdatedByName;
+
+    @Column(name = "progress_evidence_path", length = 512)
+    private String progressEvidencePath;
+
+    @Column(name = "progress_evidence_name", length = 255)
+    private String progressEvidenceName;
+
     // ============================================================================
     // HU-011: Campos adicionales para horarios, duración y rúbricas
     // ============================================================================
@@ -122,6 +146,7 @@ public class Activity {
         this.delivey = delivey;
         this.semester = semester;
         this.edited = edited;
+        this.progressPercentage = 0;
     }
 
     /**
@@ -149,6 +174,7 @@ public class Activity {
         this.recurrence = recurrence;
         this.priority = priority;
         this.rubric = rubric;
+        this.progressPercentage = 0;
     }
 
 
