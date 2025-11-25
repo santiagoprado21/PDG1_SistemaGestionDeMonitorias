@@ -348,6 +348,39 @@
     color: var(--color-text-secondary);
 }
 
+.activity-progress-indicator {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.activity-progress-indicator .progress-label {
+    font-size: var(--fs-body);
+    color: var(--color-text-secondary);
+}
+
+.activity-progress-indicator .progress-value {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: calc(var(--fs-body) + 2px);
+}
+
+.activity-progress-indicator .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.activity-progress-indicator .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366F1, #3B82F6);
+    border-radius: var(--radius-md);
+    transition: width 0.3s ease;
+}
+
 .activity-status {
     padding: var(--space-1) var(--space-3);
     font-size: var(--fs-h4);

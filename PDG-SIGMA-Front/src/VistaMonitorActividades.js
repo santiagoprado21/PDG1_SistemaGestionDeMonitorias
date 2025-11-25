@@ -819,6 +819,10 @@ function VistaMonitorActividades() {
                         plan.activities.map((activity) => {
                             const daysRemaining = getDaysRemaining(activity.finish);
                             const isUrgent = daysRemaining !== null && daysRemaining <= 3 && activity.state === 'PENDIENTE';
+                            const rawProgress = Number(activity.progressPercentage);
+                            const normalizedProgress = Number.isFinite(rawProgress)
+                                ? Math.max(0, Math.min(100, Math.round(rawProgress)))
+                                : 0;
 
                             return (
                                 <div 
@@ -843,6 +847,16 @@ function VistaMonitorActividades() {
                                                     {activity.priority}
                                                 </span>
                                             )}
+                                        </div>
+                                        <div className="activity-progress-indicator">
+                                            <span className="progress-label">Progreso:</span>
+                                            <span className="progress-value">{normalizedProgress}%</span>
+                                            <div className="progress-bar">
+                                                <div
+                                                    className="progress-bar-fill"
+                                                    style={{ width: `${normalizedProgress}%` }}
+                                                />
+                                            </div>
                                         </div>
                                         {isUrgent && (
                                             <div className="urgent-banner">
