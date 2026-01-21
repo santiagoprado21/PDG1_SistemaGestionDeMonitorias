@@ -201,14 +201,17 @@ function CreateConvocatoria() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
+            'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#FF9800' },
             'CONVOCATORIA_ABIERTA': { text: 'Abierta', color: '#4CAF50' },
             'MONITOR_SELECCIONADO': { text: 'Monitor Seleccionado', color: '#2196F3' },
-            'PENDIENTE_APROBACION': { text: 'Pendiente Aprobación', color: '#FF9800' },
-            'APROBADA': { text: 'Aprobada', color: '#00BCD4' },
+            'APROBADA': { text: 'Completada', color: '#4CAF50' },
             'RECHAZADA': { text: 'Rechazada', color: '#F44336' },
-            'CANCELADA': { text: 'Cancelada', color: '#9E9E9E' }
+            'CANCELADA': { text: 'Cancelada', color: '#FF9800' }
         };
-        const statusInfo = statusMap[status] || { text: status, color: '#757575' };
+        const statusInfo = statusMap[status] || { 
+            text: status ? status.replace(/_/g, ' ') : 'Sin estado', 
+            color: '#757575' 
+        };
         return (
             <span style={{
                 padding: '4px 12px',
@@ -238,7 +241,7 @@ function CreateConvocatoria() {
 
             <div className="title-container-create-monitoria">
                 <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
-                <div className="subtitle-create-monitoria">HU-010: Nueva convocatoria con justificación</div>
+                <div className="subtitle-create-monitoria">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
             </div>
 
             <div className="create-monitoria-content">

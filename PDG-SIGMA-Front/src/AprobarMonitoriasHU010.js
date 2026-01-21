@@ -221,9 +221,9 @@ function AprobarMonitoriasHU010() {
             
             <div className="main-content-aprobar-hu010">
                 <div className="title-container-aprobar-hu010">
-                    <div className="title-aprobar-hu010">Aprobar Convocatorias de Monitoría</div>
+                    <div className="title-aprobar-hu010">Gestión de Convocatorias</div>
                     <div className="subtitle-aprobar-hu010">
-                        Revisar, modificar y aprobar convocatorias creadas por profesores (Nuevo Flujo)
+                        Revisar, modificar y aprobar las convocatorias creadas por profesores
                     </div>
                 </div>
 
