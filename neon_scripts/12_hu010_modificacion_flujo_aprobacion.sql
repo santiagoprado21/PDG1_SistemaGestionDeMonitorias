@@ -17,7 +17,25 @@ ADD COLUMN IF NOT EXISTS head_approval_date TIMESTAMP;
 ALTER TABLE sigma.monitoring_request 
 ALTER COLUMN status TYPE VARCHAR(35);
 
--- 3. Comentarios explicativos
+-- 3. ACTUALIZAR CHECK CONSTRAINT para incluir el nuevo estado
+-- Primero eliminar el constraint existente
+ALTER TABLE sigma.monitoring_request 
+DROP CONSTRAINT IF EXISTS monitoring_request_status_check;
+
+-- Crear el constraint actualizado con el nuevo estado
+ALTER TABLE sigma.monitoring_request 
+ADD CONSTRAINT monitoring_request_status_check 
+CHECK (status IN (
+    'PENDIENTE_APROBACION_JEFE',  -- NUEVO ESTADO
+    'CONVOCATORIA_ABIERTA',
+    'MONITOR_SELECCIONADO',
+    'PENDIENTE_APROBACION',
+    'APROBADA',
+    'RECHAZADA',
+    'CANCELADA'
+));
+
+-- 4. Comentarios explicativos
 COMMENT ON COLUMN sigma.monitoring_request.approved_by_head IS 
 'ID del jefe de departamento que aprobo o rechazo la convocatoria';
 
@@ -27,13 +45,13 @@ COMMENT ON COLUMN sigma.monitoring_request.head_comment IS
 COMMENT ON COLUMN sigma.monitoring_request.head_approval_date IS 
 'Fecha y hora en que el jefe aprobo o rechazo la convocatoria';
 
--- 4. Actualizar convocatorias existentes que estan CONVOCATORIA_ABIERTA 
+-- 5. Actualizar convocatorias existentes que estan CONVOCATORIA_ABIERTA 
 -- para que mantengan su estado (ya fueron aprobadas implicitamente)
 -- Las que estan en otros estados no se tocan
 
 -- No necesitamos cambiar el estado de las existentes, el codigo manejara ambos flujos
 
--- 5. Verificar que los cambios se aplicaron correctamente
+-- 6. Verificar que los cambios se aplicaron correctamente
 SELECT column_name, data_type, character_maximum_length 
 FROM information_schema.columns 
 WHERE table_schema = 'sigma' 
@@ -41,7 +59,13 @@ WHERE table_schema = 'sigma'
   AND column_name IN ('status', 'approved_by_head', 'head_comment', 'head_approval_date')
 ORDER BY column_name;
 
--- 6. Mensaje de confirmacion
+-- 7. Verificar que el constraint se actualizo
+SELECT constraint_name, check_clause
+FROM information_schema.check_constraints
+WHERE constraint_schema = 'sigma'
+  AND constraint_name = 'monitoring_request_status_check';
+
+-- 8. Mensaje de confirmacion
 SELECT 'Migracion completada exitosamente!' as resultado;
 SELECT 'Ahora el flujo es: Profesor crea -> Jefe aprueba -> Estudiantes postulan -> Profesor selecciona' as nuevo_flujo;
 
