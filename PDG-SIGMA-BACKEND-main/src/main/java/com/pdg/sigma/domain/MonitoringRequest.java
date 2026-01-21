@@ -117,8 +117,8 @@ public class MonitoringRequest implements Serializable {
      * Estado actual de la convocatoria/postulación
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
-    private RequestStatus status = RequestStatus.CONVOCATORIA_ABIERTA;
+    @Column(name = "status", nullable = false, length = 35)
+    private RequestStatus status = RequestStatus.PENDIENTE_APROBACION_JEFE;
 
     /**
      * Fecha y hora de creación de la convocatoria
@@ -143,11 +143,31 @@ public class MonitoringRequest implements Serializable {
 
     /**
      * Monitoría oficial creada cuando se selecciona un monitor
-     * (será null mientras está en estado CONVOCATORIA_ABIERTA)
+     * (será null mientras no se haya seleccionado monitor)
      */
     @OneToOne(mappedBy = "originatingRequest", fetch = FetchType.LAZY)
     @JsonIgnore
     private Monitoring createdMonitoring;
+    
+    // ==================== CAMPOS DE APROBACIÓN DEL JEFE ====================
+    
+    /**
+     * Jefe de departamento que aprobó/rechazó la convocatoria
+     */
+    @Column(name = "approved_by_head")
+    private String approvedByHead;
+    
+    /**
+     * Comentario del jefe al aprobar/rechazar/modificar
+     */
+    @Column(name = "head_comment", columnDefinition = "TEXT")
+    private String headComment;
+    
+    /**
+     * Fecha de aprobación/rechazo por parte del jefe
+     */
+    @Column(name = "head_approval_date")
+    private LocalDateTime headApprovalDate;
 
     // ==================== CONSTRUCTORES Y MÉTODOS DE UTILIDAD ====================
 
@@ -170,7 +190,7 @@ public class MonitoringRequest implements Serializable {
         this.requiredAverageGrade = requiredAverageGrade;
         this.requiredCourseGrade = requiredCourseGrade;
         this.hourlyRate = hourlyRate;
-        this.status = RequestStatus.CONVOCATORIA_ABIERTA;
+        this.status = RequestStatus.PENDIENTE_APROBACION_JEFE;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

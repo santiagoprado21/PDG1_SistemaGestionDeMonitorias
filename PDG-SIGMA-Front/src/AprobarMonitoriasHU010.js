@@ -18,9 +18,20 @@ function AprobarMonitoriasHU010() {
 
     // Modal
     const [showModal, setShowModal] = useState(false);
-    const [modalAction, setModalAction] = useState(null); // 'approve' o 'reject'
+    const [modalAction, setModalAction] = useState(null); // 'approve', 'reject' o 'modify'
     const [selectedMonitoria, setSelectedMonitoria] = useState(null);
     const [comentario, setComentario] = useState("");
+    
+    // Estado para modificación de convocatoria
+    const [modifiedData, setModifiedData] = useState({
+        requestedHours: '',
+        justification: '',
+        startDate: '',
+        finishDate: '',
+        requiredAverageGrade: '',
+        requiredCourseGrade: '',
+        hourlyRate: ''
+    });
 
     const departmentHeadId = localStorage.getItem('userId');
 
@@ -35,7 +46,8 @@ function AprobarMonitoriasHU010() {
     const loadMonitorias = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${BACKEND_URL}/monitoring/pending-approval`, {
+            // NUEVO FLUJO: Cargar convocatorias pendientes de aprobación INICIAL del jefe
+            const response = await fetch(`${BACKEND_URL}/monitoring-request/pending-head-approval/${departmentHeadId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,17 +56,17 @@ function AprobarMonitoriasHU010() {
             });
 
             if (!response.ok) {
-                throw new Error('Error al cargar monitorías pendientes');
+                throw new Error('Error al cargar convocatorias pendientes');
             }
 
             const data = await response.json();
-            console.log('Monitorías cargadas:', data);
-            console.log('Primera monitoría:', data[0]);
+            console.log('Convocatorias pendientes de aprobación cargadas:', data);
+            console.log('Primera convocatoria:', data[0]);
             console.log('Campos disponibles:', data[0] ? Object.keys(data[0]) : 'Sin datos');
             setMonitorias(data || []);
         } catch (error) {
-            console.error("Error loading monitorias:", error);
-            setMessage("Error cargando monitorías: " + error.message);
+            console.error("Error loading convocatorias:", error);
+            setMessage("Error cargando convocatorias: " + error.message);
             setIsOpen(true);
         } finally {
             setIsLoading(false);
@@ -81,6 +93,20 @@ function AprobarMonitoriasHU010() {
         setModalAction(action);
         setSelectedMonitoria(monitoria);
         setComentario("");
+        
+        // Si es modificar, pre-llenar con datos actuales
+        if (action === 'modify') {
+            setModifiedData({
+                requestedHours: monitoria.requestedHours || '',
+                justification: monitoria.justification || '',
+                startDate: monitoria.startDate ? new Date(monitoria.startDate).toISOString().split('T')[0] : '',
+                finishDate: monitoria.finishDate ? new Date(monitoria.finishDate).toISOString().split('T')[0] : '',
+                requiredAverageGrade: monitoria.requiredAverageGrade || '',
+                requiredCourseGrade: monitoria.requiredCourseGrade || '',
+                hourlyRate: monitoria.hourlyRate || ''
+            });
+        }
+        
         setShowModal(true);
     };
 
@@ -89,6 +115,15 @@ function AprobarMonitoriasHU010() {
         setModalAction(null);
         setSelectedMonitoria(null);
         setComentario("");
+        setModifiedData({
+            requestedHours: '',
+            justification: '',
+            startDate: '',
+            finishDate: '',
+            requiredAverageGrade: '',
+            requiredCourseGrade: '',
+            hourlyRate: ''
+        });
     };
 
     const handleSubmitDecision = async () => {
@@ -99,21 +134,50 @@ function AprobarMonitoriasHU010() {
         }
 
         setIsLoading(true);
-        const endpoint = modalAction === 'approve' 
-            ? `${BACKEND_URL}/monitoring/approve/${selectedMonitoria.id}`
-            : `${BACKEND_URL}/monitoring/reject/${selectedMonitoria.id}`;
+        
+        let endpoint = '';
+        let method = 'POST';
+        let body = {};
+
+        if (modalAction === 'approve') {
+            // Aprobar sin modificar
+            endpoint = `${BACKEND_URL}/monitoring-request/${selectedMonitoria.id}/approve-by-head`;
+            body = {
+                departmentHeadId: departmentHeadId,
+                comment: comentario
+            };
+        } else if (modalAction === 'reject') {
+            // Rechazar
+            endpoint = `${BACKEND_URL}/monitoring-request/${selectedMonitoria.id}/reject-by-head`;
+            body = {
+                departmentHeadId: departmentHeadId,
+                comment: comentario
+            };
+        } else if (modalAction === 'modify') {
+            // Modificar y aprobar
+            endpoint = `${BACKEND_URL}/monitoring-request/${selectedMonitoria.id}/modify-by-head`;
+            method = 'PUT';
+            body = {
+                departmentHeadId: departmentHeadId,
+                comment: comentario,
+                requestedHours: parseInt(modifiedData.requestedHours),
+                justification: modifiedData.justification,
+                startDate: modifiedData.startDate,
+                finishDate: modifiedData.finishDate,
+                requiredAverageGrade: parseFloat(modifiedData.requiredAverageGrade),
+                requiredCourseGrade: parseFloat(modifiedData.requiredCourseGrade),
+                hourlyRate: parseFloat(modifiedData.hourlyRate)
+            };
+        }
 
         try {
             const response = await fetch(endpoint, {
-                method: 'POST',
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': localStorage.getItem('token')
                 },
-                body: JSON.stringify({
-                    departmentHeadId: departmentHeadId,
-                    comment: comentario
-                })
+                body: JSON.stringify(body)
             });
 
             if (!response.ok) {
@@ -122,7 +186,7 @@ function AprobarMonitoriasHU010() {
             }
 
             const result = await response.json();
-            setMessage(result.message || `Monitoría ${modalAction === 'approve' ? 'aprobada' : 'rechazada'} exitosamente`);
+            setMessage(result.message || `Convocatoria procesada exitosamente`);
             setIsOpen(true);
             closeModal();
             loadMonitorias(); // Recargar datos
@@ -157,9 +221,9 @@ function AprobarMonitoriasHU010() {
             
             <div className="main-content-aprobar-hu010">
                 <div className="title-container-aprobar-hu010">
-                    <div className="title-aprobar-hu010">Aprobar Monitorías HU-010</div>
+                    <div className="title-aprobar-hu010">Aprobar Convocatorias de Monitoría</div>
                     <div className="subtitle-aprobar-hu010">
-                        Gestión de monitorías pendientes de aprobación (Nuevo Flujo)
+                        Revisar, modificar y aprobar convocatorias creadas por profesores (Nuevo Flujo)
                     </div>
                 </div>
 
@@ -185,8 +249,8 @@ function AprobarMonitoriasHU010() {
                     <>
                         {currentRecords.length === 0 ? (
                             <div className="no-data-hu010">
-                                <h3>✓ No hay monitorías pendientes de aprobación</h3>
-                                <p>Todas las monitorías del nuevo flujo han sido procesadas.</p>
+                                <h3>✓ No hay convocatorias pendientes de aprobación</h3>
+                                <p>Todas las convocatorias creadas por profesores han sido procesadas.</p>
                             </div>
                         ) : (
                             <>
@@ -198,8 +262,7 @@ function AprobarMonitoriasHU010() {
                                                 <th>Curso</th>
                                                 <th>Programa</th>
                                                 <th>Profesor</th>
-                                                <th>Monitor Asignado</th>
-                                                <th>Horas</th>
+                                                <th>Horas Solicitadas</th>
                                                 <th>Período</th>
                                                 <th>Justificación</th>
                                                 <th>Acciones</th>
@@ -207,17 +270,13 @@ function AprobarMonitoriasHU010() {
                                         </thead>
                                         <tbody>
                                             {currentRecords.map((monitoria) => {
-                                                // Extraer datos con diferentes posibles estructuras
-                                                const courseName = monitoria.courseName || monitoria.course?.name || 'N/A';
-                                                const programName = monitoria.programName || monitoria.program?.name || 'N/A';
-                                                const professorName = monitoria.professorName || monitoria.professor?.name || 'N/A';
-                                                const monitorName = monitoria.assignedMonitorName || 
-                                                    (monitoria.assignedMonitor ? 
-                                                        `${monitoria.assignedMonitor.name || ''} ${monitoria.assignedMonitor.lastName || ''}`.trim() : 
-                                                        'Sin asignar');
-                                                const hours = monitoria.estimatedHours || monitoria.totalHours || 'N/A';
-                                                const startDate = monitoria.startDate || monitoria.start;
-                                                const endDate = monitoria.endDate || monitoria.finish;
+                                                // Extraer datos
+                                                const courseName = monitoria.courseName || 'N/A';
+                                                const programName = monitoria.programName || 'N/A';
+                                                const professorName = monitoria.professorName || 'N/A';
+                                                const hours = monitoria.requestedHours || 'N/A';
+                                                const startDate = monitoria.startDate;
+                                                const endDate = monitoria.finishDate;
                                                 
                                                 return (
                                                 <tr key={monitoria.id}>
@@ -225,10 +284,7 @@ function AprobarMonitoriasHU010() {
                                                     <td>{courseName}</td>
                                                     <td>{programName}</td>
                                                     <td>{professorName}</td>
-                                                    <td>
-                                                        <strong>{monitorName}</strong>
-                                                    </td>
-                                                    <td>{hours} hrs</td>
+                                                    <td><strong>{hours} hrs</strong></td>
                                                     <td>
                                                         {startDate && endDate ? (
                                                             <>
@@ -238,8 +294,8 @@ function AprobarMonitoriasHU010() {
                                                     </td>
                                                     <td>
                                                         <div className="justification-preview">
-                                                            {monitoria.justification?.substring(0, 80)}
-                                                            {monitoria.justification?.length > 80 && '...'}
+                                                            {monitoria.justification?.substring(0, 60)}
+                                                            {monitoria.justification?.length > 60 && '...'}
                                                         </div>
                                                     </td>
                                                     <td>
@@ -247,12 +303,21 @@ function AprobarMonitoriasHU010() {
                                                             <button 
                                                                 className="btn-approve-hu010"
                                                                 onClick={() => openModal('approve', monitoria)}
+                                                                title="Aprobar sin cambios"
                                                             >
                                                                 ✓ Aprobar
                                                             </button>
                                                             <button 
+                                                                className="btn-modify-hu010"
+                                                                onClick={() => openModal('modify', monitoria)}
+                                                                title="Modificar y aprobar"
+                                                            >
+                                                                ✏️ Modificar
+                                                            </button>
+                                                            <button 
                                                                 className="btn-reject-hu010"
                                                                 onClick={() => openModal('reject', monitoria)}
+                                                                title="Rechazar convocatoria"
                                                             >
                                                                 ✗ Rechazar
                                                             </button>
@@ -289,64 +354,142 @@ function AprobarMonitoriasHU010() {
                 )}
             </div>
 
-            {/* Modal para aprobar/rechazar */}
+            {/* Modal para aprobar/rechazar/modificar */}
             {showModal && selectedMonitoria && (
                 <div className="modal-overlay-hu010" onClick={closeModal}>
                     <div className="modal-content-aprobar-hu010" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header-hu010">
                             <h2>
-                                {modalAction === 'approve' ? '✓ Aprobar Monitoría' : '✗ Rechazar Monitoría'}
+                                {modalAction === 'approve' && '✓ Aprobar Convocatoria'}
+                                {modalAction === 'reject' && '✗ Rechazar Convocatoria'}
+                                {modalAction === 'modify' && '✏️ Modificar y Aprobar Convocatoria'}
                             </h2>
                             <button className="modal-close-hu010" onClick={closeModal}>×</button>
                         </div>
                         <div className="modal-body-hu010">
                             <div className="monitoria-details-hu010">
-                                <h3>Detalles de la Monitoría</h3>
+                                <h3>Detalles de la Convocatoria</h3>
                                 <div className="detail-row">
                                     <span className="detail-label">Curso:</span>
                                     <span className="detail-value">
-                                        {selectedMonitoria.courseName || selectedMonitoria.course?.name || 'N/A'}
+                                        {selectedMonitoria.courseName || 'N/A'}
                                     </span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Profesor:</span>
                                     <span className="detail-value">
-                                        {selectedMonitoria.professorName || selectedMonitoria.professor?.name || 'N/A'}
+                                        {selectedMonitoria.professorName || 'N/A'}
                                     </span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Monitor Asignado:</span>
+                                    <span className="detail-label">Programa:</span>
                                     <span className="detail-value">
-                                        <strong>
-                                            {selectedMonitoria.assignedMonitorName || 
-                                                (selectedMonitoria.assignedMonitor ? 
-                                                    `${selectedMonitoria.assignedMonitor.name || ''} ${selectedMonitoria.assignedMonitor.lastName || ''}`.trim() : 
-                                                    'Sin asignar')}
-                                        </strong>
+                                        {selectedMonitoria.programName || 'N/A'}
                                     </span>
                                 </div>
-                                <div className="detail-row">
-                                    <span className="detail-label">Horas Estimadas:</span>
-                                    <span className="detail-value">
-                                        {selectedMonitoria.estimatedHours || selectedMonitoria.totalHours || 'N/A'} horas
-                                    </span>
-                                </div>
-                                <div className="detail-row">
-                                    <span className="detail-label">Período:</span>
-                                    <span className="detail-value">
-                                        {(selectedMonitoria.startDate || selectedMonitoria.initialDate) && 
-                                         (selectedMonitoria.endDate || selectedMonitoria.finalDate)
-                                            ? `${formatDate(selectedMonitoria.startDate || selectedMonitoria.initialDate)} - ${formatDate(selectedMonitoria.endDate || selectedMonitoria.finalDate)}`
-                                            : 'N/A'}
-                                    </span>
-                                </div>
+                                
+                                {/* Campos editables o estáticos según la acción */}
+                                {modalAction === 'modify' ? (
+                                    <>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Horas Solicitadas:*</span>
+                                            <input 
+                                                type="number" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.requestedHours}
+                                                onChange={(e) => setModifiedData({...modifiedData, requestedHours: e.target.value})}
+                                                min="1"
+                                            />
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Fecha Inicio:*</span>
+                                            <input 
+                                                type="date" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.startDate}
+                                                onChange={(e) => setModifiedData({...modifiedData, startDate: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Fecha Fin:*</span>
+                                            <input 
+                                                type="date" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.finishDate}
+                                                onChange={(e) => setModifiedData({...modifiedData, finishDate: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Promedio Mínimo:</span>
+                                            <input 
+                                                type="number" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.requiredAverageGrade}
+                                                onChange={(e) => setModifiedData({...modifiedData, requiredAverageGrade: e.target.value})}
+                                                step="0.1"
+                                                min="0"
+                                                max="5"
+                                            />
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Nota Curso Mínima:</span>
+                                            <input 
+                                                type="number" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.requiredCourseGrade}
+                                                onChange={(e) => setModifiedData({...modifiedData, requiredCourseGrade: e.target.value})}
+                                                step="0.1"
+                                                min="0"
+                                                max="5"
+                                            />
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Tarifa por Hora:</span>
+                                            <input 
+                                                type="number" 
+                                                className="input-modify-hu010"
+                                                value={modifiedData.hourlyRate}
+                                                onChange={(e) => setModifiedData({...modifiedData, hourlyRate: e.target.value})}
+                                                step="1000"
+                                                min="0"
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Horas Solicitadas:</span>
+                                            <span className="detail-value">
+                                                <strong>{selectedMonitoria.requestedHours || 'N/A'} horas</strong>
+                                            </span>
+                                        </div>
+                                        <div className="detail-row">
+                                            <span className="detail-label">Período:</span>
+                                            <span className="detail-value">
+                                                {selectedMonitoria.startDate && selectedMonitoria.finishDate
+                                                    ? `${formatDate(selectedMonitoria.startDate)} - ${formatDate(selectedMonitoria.finishDate)}`
+                                                    : 'N/A'}
+                                            </span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                             
                             <div className="justification-section-hu010">
                                 <label><strong>Justificación del Profesor:</strong></label>
-                                <div className="justification-full-hu010">
-                                    {selectedMonitoria.justification || 'Sin justificación'}
-                                </div>
+                                {modalAction === 'modify' ? (
+                                    <textarea 
+                                        className="textarea-modify-hu010"
+                                        value={modifiedData.justification}
+                                        onChange={(e) => setModifiedData({...modifiedData, justification: e.target.value})}
+                                        rows="4"
+                                        placeholder="Modificar justificación..."
+                                    />
+                                ) : (
+                                    <div className="justification-full-hu010">
+                                        {selectedMonitoria.justification || 'Sin justificación'}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-group-hu010">
@@ -354,9 +497,12 @@ function AprobarMonitoriasHU010() {
                                 <textarea 
                                     value={comentario}
                                     onChange={(e) => setComentario(e.target.value)}
-                                    placeholder={modalAction === 'approve' 
-                                        ? "Ingrese el motivo de aprobación o comentarios adicionales..."
-                                        : "Ingrese el motivo del rechazo..."
+                                    placeholder={
+                                        modalAction === 'approve' 
+                                            ? "Ingrese el motivo de aprobación o comentarios adicionales..."
+                                            : modalAction === 'reject'
+                                            ? "Ingrese el motivo del rechazo..."
+                                            : "Ingrese comentario explicando las modificaciones realizadas..."
                                     }
                                     rows="4"
                                     className="textarea-comentario-hu010"
@@ -369,11 +515,36 @@ function AprobarMonitoriasHU010() {
                             {modalAction === 'reject' && (
                                 <div className="warning-box-hu010">
                                     <strong>⚠️ Advertencia:</strong>
-                                    <p>Al rechazar esta monitoría:</p>
+                                    <p>Al rechazar esta convocatoria:</p>
                                     <ul>
                                         <li>La convocatoria será marcada como RECHAZADA</li>
-                                        <li>El monitor asignado será notificado</li>
+                                        <li>El profesor será notificado</li>
+                                        <li>No se permitirán postulaciones</li>
                                         <li>El profesor deberá crear una nueva convocatoria si lo desea</li>
+                                    </ul>
+                                </div>
+                            )}
+                            
+                            {modalAction === 'approve' && (
+                                <div className="info-box-hu010">
+                                    <strong>ℹ️ Información:</strong>
+                                    <p>Al aprobar esta convocatoria:</p>
+                                    <ul>
+                                        <li>La convocatoria estará ABIERTA para postulaciones</li>
+                                        <li>Los estudiantes podrán ver y postularse</li>
+                                        <li>El profesor podrá seleccionar un monitor de los postulantes</li>
+                                    </ul>
+                                </div>
+                            )}
+                            
+                            {modalAction === 'modify' && (
+                                <div className="info-box-hu010">
+                                    <strong>✏️ Modificación:</strong>
+                                    <p>Al modificar y aprobar esta convocatoria:</p>
+                                    <ul>
+                                        <li>Se aplicarán los cambios realizados</li>
+                                        <li>La convocatoria estará ABIERTA para postulaciones</li>
+                                        <li>El profesor verá las modificaciones que realizó</li>
                                     </ul>
                                 </div>
                             )}
@@ -381,11 +552,17 @@ function AprobarMonitoriasHU010() {
                         <div className="modal-footer-hu010">
                             <button className="btn-cancel-hu010" onClick={closeModal}>Cancelar</button>
                             <button 
-                                className={modalAction === 'approve' ? 'btn-confirm-approve-hu010' : 'btn-confirm-reject-hu010'}
+                                className={
+                                    modalAction === 'approve' ? 'btn-confirm-approve-hu010' : 
+                                    modalAction === 'reject' ? 'btn-confirm-reject-hu010' :
+                                    'btn-confirm-modify-hu010'
+                                }
                                 onClick={handleSubmitDecision}
                                 disabled={!comentario.trim()}
                             >
-                                {modalAction === 'approve' ? 'Confirmar Aprobación' : 'Confirmar Rechazo'}
+                                {modalAction === 'approve' && 'Confirmar Aprobación'}
+                                {modalAction === 'reject' && 'Confirmar Rechazo'}
+                                {modalAction === 'modify' && 'Modificar y Aprobar'}
                             </button>
                         </div>
                     </div>
