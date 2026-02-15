@@ -1,11 +1,9 @@
 import './Task.css';
 import VerticalNavbar from './VerticalNavbar';
 import './Login.css';
-import AlertIcon from './NotificationIcon';
 import {PopUp, PopupDelete} from "./PopUp";
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NotificationIcon from './NotificationIcon';
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
 
 function Task() {
@@ -83,6 +81,24 @@ function Task() {
       .catch(error => console.error('Error al obtener los all students:', error));
     
   }, [change]);
+
+  // Enfocar actividad desde notificación
+  useEffect(() => {
+    const focusId = localStorage.getItem('focusActivityId');
+    if (focusId && activities && activities.length > 0) {
+      const idNum = parseInt(focusId, 10);
+      const exists = activities.find(a => a.id === idNum);
+      if (exists) {
+        setExpandedRow(idNum);
+        // Scroll suave hasta la fila
+        setTimeout(() => {
+          const row = document.getElementById(`activity-row-${idNum}`) || document.querySelector('.table');
+          if (row && row.scrollIntoView) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 200);
+      }
+      localStorage.removeItem('focusActivityId');
+    }
+  }, [activities]);
 
   const [editedActivities, setEditedActivities] = useState({});
   
@@ -470,7 +486,6 @@ const toggleAsistencia = (studentId) => {
             <div className="title" id="title">
               Historial de Actividades
             </div>
-            <NotificationIcon />
           </div>
         </div>
         {/* Title ends*/}
@@ -583,7 +598,7 @@ const toggleAsistencia = (studentId) => {
                 }
                 return (
                   <React.Fragment key={activity.id}>
-                  <tr>
+                  <tr id={`activity-row-${activity.id}`}>
                     <td>{activity.name}</td>
                     <td>{activity.course}</td>
                     <td>{activity.category}</td>

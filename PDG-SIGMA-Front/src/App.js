@@ -8,6 +8,9 @@ import Profile from './Profile';
 import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
+import NotificationSettings from './NotificationSettings';
+import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
+import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
 
 // HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
 import CreateConvocatoria from './CreateConvocatoria';
@@ -15,6 +18,16 @@ import MisConvocatorias from './MisConvocatorias';
 import VerConvocatorias from './VerConvocatorias';
 import SeleccionarMonitor from './SeleccionarMonitor';
 import AprobarMonitoriasHU010 from './AprobarMonitoriasHU010';
+
+// Componente para carga CSV de monitorías (flujo antiguo restaurado)
+import CreateMonitoria from './CreateMonitoria';
+
+// HU-011: Plan de Actividades
+import PlanActividades from './PlanActividades';
+import GestionRubricas from './GestionRubricas';
+
+// HU-017: Vista Monitor - Plan de Actividades
+import VistaMonitorActividades from './VistaMonitorActividades';
 
 function App() {
   // Hook para obtener la ruta actual
@@ -49,7 +62,14 @@ function App() {
          {/* Route for Generate SIMON File */}
          <Route path="/GenerateSimonFile" element={<GenerateSimonFile />} />
 
-         {/* ========== Rutas para Gestión de Convocatorias ========== */}
+         {/* HU-015: Evaluación de monitores */}
+         <Route path="/evaluar-monitores" element={<EvaluarMonitoresHU015 />} />
+         <Route path="/mis-evaluaciones" element={<MisEvaluacionesHU015 />} />
+
+         {/* Notificaciones - Preferencias */}
+         <Route path="/notification-settings" element={<NotificationSettings />} />
+
+         {/* ========== HU-010: Rutas para Convocatorias de Monitoría ========== */}
          
          {/* Profesor: Crear Convocatoria */}
          <Route path="/crear-convocatoria" element={<CreateConvocatoria />} />
@@ -65,6 +85,21 @@ function App() {
          
          {/* Jefe de Departamento: Aprobar Convocatorias */}
          <Route path="/aprobar-monitorias-hu010" element={<AprobarMonitoriasHU010 />} />
+
+         {/* ========== Carga CSV de Monitorías ========== */}
+         {/* EXCEPCIÓN: Solo para Jefe de Departamento - Crear monitorías directamente sin convocatoria */}
+         <Route path="/crear-monitoria" element={<CreateMonitoria />} />
+
+         {/* ========== HU-011: Plan de Actividades ========== */}
+         {/* Profesor: Gestionar plan de actividades - puede navegar con contexto o sin él */}
+         <Route path="/plan-actividades/:monitoringId?" element={<PlanActividades />} />
+         
+         {/* Profesor: Gestionar rúbricas de evaluación */}
+         <Route path="/gestion-rubricas" element={<GestionRubricas />} />
+
+         {/* ========== HU-017: Vista Monitor - Plan de Actividades ========== */}
+         {/* Monitor: Ver actividades asignadas por profesores */}
+         <Route path="/mis-actividades" element={<VistaMonitorActividades />} />
       </Routes>
     </div>
   );

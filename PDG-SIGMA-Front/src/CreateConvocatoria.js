@@ -454,7 +454,8 @@ function CreateConvocatoria() {
                                                             color: 'white',
                                                             border: 'none',
                                                             borderRadius: '4px',
-                                                            cursor: 'pointer'
+                                                            cursor: 'pointer',
+                                                            marginRight: '8px'
                                                         }}
                                                     >
                                                         Ver Postulantes

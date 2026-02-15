@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import logo from "../src/img/logo2.png";
 import {PopUp} from "./PopUp";
 import "./VerticalNavbar.css";
-import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { BACKEND_URL } from './config/ApiBackend';
+import NotificationIcon from './NotificationIcon';
 
 function VerticalNavbar() {
   const [role, setRole] = useState("");
@@ -149,6 +150,10 @@ function VerticalNavbar() {
   
       {/* Menú */}
       <div className="menu-items">
+        {/* Campana de notificaciones visible en todas las páginas */}
+        <div className="menu-notifications">
+          <NotificationIcon />
+        </div>
         {/* Avatar del usuario */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <NavLink
@@ -179,23 +184,66 @@ function VerticalNavbar() {
             >
               Actividades
             </NavLink>
+            {role === "monitor" && (
+              <>
+                <NavLink
+                  to="/mis-actividades"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📋 Mis Actividades
+                </NavLink>
+                <NavLink
+                  to="/mis-evaluaciones"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  ⭐ Mis evaluaciones
+                </NavLink>
+              </>
+            )}
+            {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}
           </>
         )}
 
         {/* Acceso exclusivo para Profesores */}
         {role === "professor" && (
           <>
+            {/* HU-010: Crear Convocatoria (FLUJO PRINCIPAL) */}
             <NavLink
               to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               ➕ Crear Convocatoria
             </NavLink>
+            
             <NavLink
               to="/mis-convocatorias"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               📋 Mis Convocatorias
+            </NavLink>
+            
+            {/* HU-011: Plan de Actividades */}
+            <NavLink
+              to="/plan-actividades"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📋 Plan de Actividades
+            </NavLink>
+            
+            {/* HU-011: Gestión de Rúbricas */}
+            <NavLink
+              to="/gestion-rubricas"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📊 Gestión de Rúbricas
+            </NavLink>
+
+            {/* HU-015: Evaluar Monitores */}
+            <NavLink
+              to="/evaluar-monitores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📈 Evaluar Monitores
             </NavLink>
           </>
         )}
@@ -203,6 +251,15 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Jefe de Departamento */}
         {role === "jfedpto" && (
           <>
+            {/* EXCEPCIÓN: Jefe puede crear monitorías directamente con CSV (sin convocatoria) */}
+            <NavLink
+              to="/crear-monitoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📂 Crear Monitorías CSV
+            </NavLink>
+            
+            {/* HU-010: Aprobar Monitorías del flujo de convocatorias */}
             <NavLink
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}

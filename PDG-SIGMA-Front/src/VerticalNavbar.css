@@ -59,4 +59,11 @@
     background-color: var(--hover-color);
   }
 
+  /* Campana dentro del menú lateral */
+  .menu-notifications {
+    display: flex;
+    justify-content: center;
+    margin: 6px 0 10px 0;
+  }
+
   

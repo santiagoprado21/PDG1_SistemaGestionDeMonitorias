@@ -1,5 +1,6 @@
 import "./Profile.css";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import VerticalNavbar from "./VerticalNavbar";
 import profilePic from "./img/profile-pic.png";
 import UpdateButton from "./UpdateButton"; 
@@ -7,6 +8,7 @@ import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
 
 function Profile() {
   console.log("Profile se está renderizando");
+  const navigate = useNavigate();
   const [user, setUser] = useState(null); 
   const [cursosAsignados, setCursosAsignados] = useState([]);
 
@@ -185,6 +187,7 @@ useEffect(() => {
                     <th>Monitor Asignado</th>
                   </>
                 )}
+                {role === "professor" && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -200,6 +203,21 @@ useEffect(() => {
                       <td>{curso.professorName? curso.professorName:"N/A"}</td>
                       <td>{curso.monitor? curso.monitor: "No hay monitores"}</td>
                     </>
+                  )}
+                  {role === "professor" && (
+                    <td>
+                      {curso.id && curso.monitor !== "No hay monitores" ? (
+                        <button 
+                          className="btn-plan-actividades"
+                          onClick={() => navigate(`/plan-actividades/${curso.id}`)}
+                          title="Ver plan de actividades"
+                        >
+                          📋 Plan
+                        </button>
+                      ) : (
+                        <span style={{color: '#95a5a6', fontSize: '0.9em'}}>-</span>
+                      )}
+                    </td>
                   )}
                 </tr>
               ))}

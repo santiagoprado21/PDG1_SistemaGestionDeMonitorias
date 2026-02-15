@@ -37,6 +37,9 @@ public class ActivityServiceImpl implements ActivityService{
     @Autowired
     private ProfessorRepository professorRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
 
 
     @Override
@@ -101,6 +104,16 @@ public class ActivityServiceImpl implements ActivityService{
         }
 
         Activity updatedEntity = activityRepository.save(activity);
+
+        // Notificación de progreso: cambios relevantes (nombre, descripción, fecha fin, responsable)
+        try {
+            if(activity.getProfessor() != null) {
+                notificationService.notifyProgressUpdate(activity);
+            }
+        } catch (Exception ex) {
+            // Silenciar para no romper flujo principal
+            System.err.println("Notification error (progress update): " + ex.getMessage());
+        }
 
         return new ActivityDTO(updatedEntity);
     }
@@ -182,6 +195,15 @@ public class ActivityServiceImpl implements ActivityService{
             dto.getSemester(),
             new Date()
         );
+
+        activity.setProgressPercentage(0);
+        activity.setProgressComment(null);
+        activity.setProgressUpdatedAt(null);
+        activity.setProgressUpdatedBy(null);
+        activity.setProgressUpdatedByRole(null);
+        activity.setProgressUpdatedByName(null);
+        activity.setProgressEvidencePath(null);
+        activity.setProgressEvidenceName(null);
 
         Activity savedActivity = save(activity);
         return new ActivityDTO(savedActivity);
@@ -334,6 +356,15 @@ public class ActivityServiceImpl implements ActivityService{
 
             activity.get().setDelivey(delivery);
             activityRepository.save(activity.get());
+
+            // Notificación de completado
+            try {
+                if(activity.get().getProfessor() != null) {
+                    notificationService.notifyCompleted(activity.get());
+                }
+            } catch (Exception ex) {
+                System.err.println("Notification error (completed): " + ex.getMessage());
+            }
             return true;
         }
         else

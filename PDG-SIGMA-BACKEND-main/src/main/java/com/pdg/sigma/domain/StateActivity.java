@@ -1,6 +1,9 @@
 package com.pdg.sigma.domain;
 
 public enum StateActivity {
-    PENDIENTE,COMPLETADO,COMPLETADOT;
+    PENDIENTE,
+    EN_PROGRESO,
+    COMPLETADO,
+    COMPLETADOT;
 
 }
