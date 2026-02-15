@@ -64,6 +64,11 @@ public class MonitoringRequestDTO implements Serializable {
     private Integer applicationCount; // Número de postulantes
     private String selectedMonitorName; // Nombre del monitor seleccionado (si existe)
     
+    // Información de aprobación del jefe (nuevo flujo)
+    private String approvedByHead; // ID del jefe que aprobó/rechazó
+    private String headComment; // Comentario del jefe
+    private LocalDateTime headApprovalDate; // Fecha de aprobación/rechazo
+    
     /**
      * Constructor para crear DTO desde entidad
      */
@@ -100,6 +105,11 @@ public class MonitoringRequestDTO implements Serializable {
         this.updatedAt = request.getUpdatedAt();
         
         this.applicationCount = request.getApplicationCount();
+        
+        // Información de aprobación del jefe
+        this.approvedByHead = request.getApprovedByHead();
+        this.headComment = request.getHeadComment();
+        this.headApprovalDate = request.getHeadApprovalDate();
     }
     
     /**

@@ -156,12 +156,22 @@ public class MonitorApplicationServiceImpl implements MonitorApplicationService 
         Monitoring monitoring = new Monitoring(monitoringRequest, selectedApplication.getMonitor());
         Monitoring savedMonitoring = monitoringRepository.save(monitoring);
         
-        // 8. Actualizar MonitoringRequest a PENDIENTE_APROBACION
-        monitoringRequestService.markPendingApproval(monitoringRequest.getId());
+        // 8. NUEVO FLUJO: Marcar convocatoria como APROBADA (proceso completo)
+        // El jefe YA aprobó al inicio, no necesita aprobar de nuevo
+        monitoringRequestService.markApproved(monitoringRequest.getId());
+        
+        // 9. Marcar la Monitoring como APROBADA automáticamente
+        // (Ya fue aprobada por el jefe al inicio del proceso)
+        savedMonitoring.approve(
+            monitoringRequest.getApprovedByHead(), 
+            "Aprobada automáticamente - Jefe aprobó convocatoria al inicio"
+        );
+        monitoringRepository.save(savedMonitoring);
         
         System.out.println("Monitor seleccionado: " + selectedApplication.getMonitor().getName());
         System.out.println("Monitoría creada con ID: " + savedMonitoring.getId());
-        System.out.println("Estado: " + savedMonitoring.getApprovalStatus());
+        System.out.println("Estado Convocatoria: APROBADA (proceso completado)");
+        System.out.println("Estado Monitoring: " + savedMonitoring.getApprovalStatus());
         System.out.println("=============================");
     }
 

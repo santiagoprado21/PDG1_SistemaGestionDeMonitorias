@@ -379,5 +379,177 @@ public class MonitoringRequestServiceImpl implements MonitoringRequestService {
     public Long count() {
         return monitoringRequestRepository.count();
     }
+    
+    // ==================== NUEVOS MÉTODOS: APROBACIÓN DEL JEFE AL INICIO ====================
+    
+    @Override
+    public List<MonitoringRequest> findPendingHeadApproval(String departmentHeadId) throws Exception {
+        System.out.println("=== BUSCANDO CONVOCATORIAS PENDIENTES APROBACIÓN JEFE ===");
+        
+        // Buscar el jefe de departamento
+        Optional<DepartmentHead> departmentHead = departmentHeadRepository.findById(departmentHeadId);
+        if (departmentHead.isEmpty()) {
+            throw new Exception("Jefe de departamento no encontrado");
+        }
+        
+        // Buscar los programas asociados al jefe
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+        if (headPrograms.isEmpty()) {
+            System.out.println("El jefe no tiene programas asignados");
+            return List.of();
+        }
+        
+        // Obtener todas las convocatorias en estado PENDIENTE_APROBACION_JEFE de sus programas
+        List<MonitoringRequest> pendingRequests = monitoringRequestRepository.findAll().stream()
+                .filter(mr -> mr.getStatus() == RequestStatus.PENDIENTE_APROBACION_JEFE)
+                .filter(mr -> headPrograms.stream()
+                        .anyMatch(hp -> hp.getProgram().getId().equals(mr.getProgram().getId().longValue())))
+                .collect(java.util.stream.Collectors.toList());
+        
+        System.out.println("Encontradas " + pendingRequests.size() + " convocatorias pendientes");
+        return pendingRequests;
+    }
+    
+    @Override
+    public void approveByHead(Long requestId, String departmentHeadId, String comment) throws Exception {
+        System.out.println("=== JEFE APROBANDO CONVOCATORIA ===");
+        
+        MonitoringRequest request = monitoringRequestRepository.findById(requestId)
+                .orElseThrow(() -> new Exception("Convocatoria no encontrada"));
+        
+        // Validar que esté en el estado correcto
+        if (request.getStatus() != RequestStatus.PENDIENTE_APROBACION_JEFE) {
+            throw new Exception("La convocatoria no está pendiente de aprobación del jefe");
+        }
+        
+        // Validar que el jefe tenga permiso (es del programa correcto)
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+        boolean hasPermission = headPrograms.stream()
+                .anyMatch(hp -> hp.getProgram().getId().equals(request.getProgram().getId().longValue()));
+        
+        if (!hasPermission) {
+            throw new Exception("El jefe no tiene permiso para aprobar convocatorias de este programa");
+        }
+        
+        // Aprobar: cambiar estado a CONVOCATORIA_ABIERTA
+        request.setStatus(RequestStatus.CONVOCATORIA_ABIERTA);
+        request.setApprovedByHead(departmentHeadId);
+        request.setHeadComment(comment);
+        request.setHeadApprovalDate(LocalDateTime.now());
+        request.setUpdatedAt(LocalDateTime.now());
+        
+        monitoringRequestRepository.save(request);
+        
+        System.out.println("Convocatoria " + requestId + " aprobada por jefe " + departmentHeadId);
+        System.out.println("Nueva estado: CONVOCATORIA_ABIERTA - Ahora pueden postularse estudiantes");
+    }
+    
+    @Override
+    public void rejectByHead(Long requestId, String departmentHeadId, String comment) throws Exception {
+        System.out.println("=== JEFE RECHAZANDO CONVOCATORIA ===");
+        
+        MonitoringRequest request = monitoringRequestRepository.findById(requestId)
+                .orElseThrow(() -> new Exception("Convocatoria no encontrada"));
+        
+        // Validar que esté en el estado correcto
+        if (request.getStatus() != RequestStatus.PENDIENTE_APROBACION_JEFE) {
+            throw new Exception("La convocatoria no está pendiente de aprobación del jefe");
+        }
+        
+        // Validar que el jefe tenga permiso
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+        boolean hasPermission = headPrograms.stream()
+                .anyMatch(hp -> hp.getProgram().getId().equals(request.getProgram().getId().longValue()));
+        
+        if (!hasPermission) {
+            throw new Exception("El jefe no tiene permiso para rechazar convocatorias de este programa");
+        }
+        
+        // Rechazar
+        request.setStatus(RequestStatus.RECHAZADA);
+        request.setApprovedByHead(departmentHeadId);
+        request.setHeadComment(comment);
+        request.setHeadApprovalDate(LocalDateTime.now());
+        request.setUpdatedAt(LocalDateTime.now());
+        
+        monitoringRequestRepository.save(request);
+        
+        System.out.println("Convocatoria " + requestId + " rechazada por jefe " + departmentHeadId);
+    }
+    
+    @Override
+    public MonitoringRequest modifyAndApproveByHead(Long requestId, MonitoringRequestDTO modifications, 
+                                                   String departmentHeadId, String comment) throws Exception {
+        System.out.println("=== JEFE MODIFICANDO Y APROBANDO CONVOCATORIA ===");
+        
+        MonitoringRequest request = monitoringRequestRepository.findById(requestId)
+                .orElseThrow(() -> new Exception("Convocatoria no encontrada"));
+        
+        // Validar que esté en el estado correcto
+        if (request.getStatus() != RequestStatus.PENDIENTE_APROBACION_JEFE) {
+            throw new Exception("La convocatoria no está pendiente de aprobación del jefe");
+        }
+        
+        // Validar que el jefe tenga permiso
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
+        boolean hasPermission = headPrograms.stream()
+                .anyMatch(hp -> hp.getProgram().getId().equals(request.getProgram().getId().longValue()));
+        
+        if (!hasPermission) {
+            throw new Exception("El jefe no tiene permiso para modificar convocatorias de este programa");
+        }
+        
+        // Aplicar modificaciones si se proporcionan
+        if (modifications.getRequestedHours() != null && modifications.getRequestedHours() > 0) {
+            System.out.println("Modificando horas: " + request.getRequestedHours() + " -> " + modifications.getRequestedHours());
+            request.setRequestedHours(modifications.getRequestedHours());
+        }
+        
+        if (modifications.getJustification() != null && !modifications.getJustification().trim().isEmpty()) {
+            System.out.println("Modificando justificación");
+            request.setJustification(modifications.getJustification());
+        }
+        
+        if (modifications.getStartDate() != null) {
+            System.out.println("Modificando fecha inicio");
+            request.setStartDate(modifications.getStartDate());
+        }
+        
+        if (modifications.getFinishDate() != null) {
+            System.out.println("Modificando fecha fin");
+            request.setFinishDate(modifications.getFinishDate());
+        }
+        
+        if (modifications.getRequiredAverageGrade() != null) {
+            request.setRequiredAverageGrade(modifications.getRequiredAverageGrade());
+        }
+        
+        if (modifications.getRequiredCourseGrade() != null) {
+            request.setRequiredCourseGrade(modifications.getRequiredCourseGrade());
+        }
+        
+        if (modifications.getHourlyRate() != null) {
+            request.setHourlyRate(modifications.getHourlyRate());
+        }
+        
+        // Validar presupuesto con las nuevas horas
+        if (!validateBudgetAvailability(request.getProgram().getId().longValue(), 
+                                       request.getSemester(), 
+                                       request.getRequestedHours())) {
+            throw new Exception("Las horas modificadas exceden el presupuesto disponible");
+        }
+        
+        // Aprobar: cambiar estado a CONVOCATORIA_ABIERTA
+        request.setStatus(RequestStatus.CONVOCATORIA_ABIERTA);
+        request.setApprovedByHead(departmentHeadId);
+        request.setHeadComment(comment);
+        request.setHeadApprovalDate(LocalDateTime.now());
+        request.setUpdatedAt(LocalDateTime.now());
+        
+        MonitoringRequest saved = monitoringRequestRepository.save(request);
+        
+        System.out.println("Convocatoria " + requestId + " modificada y aprobada por jefe " + departmentHeadId);
+        return saved;
+    }
 }
 

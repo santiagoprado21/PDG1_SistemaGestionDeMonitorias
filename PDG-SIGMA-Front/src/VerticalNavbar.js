@@ -165,13 +165,13 @@ function VerticalNavbar() {
           </NavLink>
         )}
         
-        {/* HU-010: Ver Convocatorias (solo para estudiantes que pueden postularse) */}
+        {/* Ver Convocatorias (solo para estudiantes que pueden postularse) */}
         {(role === "student" || role === "monitor") && (
           <NavLink
             to="/ver-convocatorias"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-            📢 Convocatorias
+            📢 Convocatorias Abiertas
           </NavLink>
         )}
 
@@ -213,6 +213,13 @@ function VerticalNavbar() {
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               ➕ Crear Convocatoria
+            </NavLink>
+            
+            <NavLink
+              to="/mis-convocatorias"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📋 Mis Convocatorias
             </NavLink>
             
             {/* HU-011: Plan de Actividades */}
@@ -257,7 +264,7 @@ function VerticalNavbar() {
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              ✓ Aprobar Monitorías
+              ✓ Aprobar Convocatorias
             </NavLink>
             <NavLink
               to="/GenerateSimonFile"
