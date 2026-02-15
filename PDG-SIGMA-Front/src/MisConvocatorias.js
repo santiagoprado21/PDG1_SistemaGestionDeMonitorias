@@ -94,7 +94,7 @@ function MisConvocatorias() {
             'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#ff9800', icon: '⏳' },
             'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4CAF50', icon: '📢' },
             'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#2196F3', icon: '👤' },
-            'APROBADA': { label: 'Completada', color: '#4CAF50', icon: '✓' },
+            'APROBADA': { label: 'Cerrada', color: '#9E9E9E' },
             'RECHAZADA': { label: 'Rechazada', color: '#f44336', icon: '✗' },
             'CANCELADA': { label: 'Cancelada', color: '#ff9800', icon: '⏳' }
         };
@@ -296,21 +296,17 @@ function MisConvocatorias() {
                                                         </span>
                                                     )}
                                                     {conv.status === 'APROBADA' && (
-                                                        <button 
-                                                            onClick={() => navigate('/Task')}
-                                                            style={{
-                                                                padding: '8px 16px',
-                                                                backgroundColor: '#4CAF50',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '6px',
-                                                                cursor: 'pointer',
-                                                                fontWeight: '600',
-                                                                fontSize: '0.9rem'
-                                                            }}
-                                                        >
-                                                            📋 Ver Actividades
-                                                        </button>
+                                                        <span style={{ 
+                                                            color: '#9E9E9E', 
+                                                            fontSize: '0.85rem', 
+                                                            fontStyle: 'italic',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            gap: '5px'
+                                                        }}>
+                                                            Cerrada
+                                                        </span>
                                                     )}
                                                     {conv.status === 'RECHAZADA' && (
                                                         <span style={{ color: '#f44336', fontSize: '0.85rem', fontStyle: 'italic' }}>

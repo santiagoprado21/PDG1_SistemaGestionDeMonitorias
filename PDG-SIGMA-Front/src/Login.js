@@ -56,7 +56,7 @@ function Login() {
           else if(res.role === 'monitor') {
             localStorage.setItem('role',res.role)
             localStorage.setItem('token',`Bearer ${res.token}`)
-            navigate('/Task')// Redirige a la pagina de monitor
+            navigate('/ver-convocatorias')// Redirige a convocatorias abiertas
           }
           else if(res.role === 'jfedpto') {
             localStorage.setItem('role',res.role)

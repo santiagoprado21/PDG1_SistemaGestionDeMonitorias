@@ -135,7 +135,7 @@ function VerConvocatorias() {
             });
 
             if (response.ok) {
-                setMessage("¡Postulación enviada exitosamente!");
+                setMessage("✅ ¡Has enviado tu postulación correctamente a la monitoría!\n\n📋 El profesor revisará tu carta de motivación y decidirá quién será el monitor seleccionado.\n\n⏳ Te notificaremos el resultado de tu postulación.");
                 setIsOpen(true);
                 closeModal();
                 loadMyApplications();
@@ -168,7 +168,17 @@ function VerConvocatorias() {
             <VerticalNavbar />
             
             {isLoading && <LoadingSpinner />}
-            {isOpen && <PopUp message={message} onClose={() => setIsOpen(false)} />}
+            <PopUp show={isOpen} onClose={() => setIsOpen(false)}>
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '20px',
+                    whiteSpace: 'pre-line',
+                    fontSize: '16px',
+                    lineHeight: '1.6'
+                }}>
+                    {message}
+                </div>
+            </PopUp>
 
             <div className="title-container-apply-monitor">
                 <div className="title-apply-monitor">Convocatorias de Monitoría Abiertas</div>

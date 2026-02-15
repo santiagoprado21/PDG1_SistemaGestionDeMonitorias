@@ -204,7 +204,7 @@ function CreateConvocatoria() {
             'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#FF9800' },
             'CONVOCATORIA_ABIERTA': { text: 'Abierta', color: '#4CAF50' },
             'MONITOR_SELECCIONADO': { text: 'Monitor Seleccionado', color: '#2196F3' },
-            'APROBADA': { text: 'Completada', color: '#4CAF50' },
+            'APROBADA': { text: 'Cerrada', color: '#9E9E9E' },
             'RECHAZADA': { text: 'Rechazada', color: '#F44336' },
             'CANCELADA': { text: 'Cancelada', color: '#FF9800' }
         };
@@ -237,7 +237,17 @@ function CreateConvocatoria() {
             <VerticalNavbar />
             
             {isLoading && <LoadingSpinner />}
-            {isOpen && <PopUp message={message} onClose={() => setIsOpen(false)} />}
+            <PopUp show={isOpen} onClose={() => setIsOpen(false)}>
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '20px',
+                    whiteSpace: 'pre-line',
+                    fontSize: '16px',
+                    lineHeight: '1.6'
+                }}>
+                    {message}
+                </div>
+            </PopUp>
 
             <div className="title-container-create-monitoria">
                 <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
