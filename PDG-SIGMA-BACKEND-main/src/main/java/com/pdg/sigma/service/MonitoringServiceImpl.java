@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -103,12 +104,19 @@ public class MonitoringServiceImpl implements MonitoringService{
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<Monitoring> findAllByProfessor(String id) {
         Date now = new Date();
         Optional<Professor> professor = professorRepository.findById(id);
         if (professor.isPresent()) {
             System.out.println("inside findAllByProfessor");
             return monitoringRepository.findByProfessor(professor.get()).stream()
+                    .peek(m -> {
+                        // Forzar carga de assignedMonitor para el nuevo flujo HU-010
+                        if (m.getAssignedMonitor() != null) {
+                            m.getAssignedMonitor().getName(); // trigger lazy load
+                        }
+                    })
                     .sorted(Comparator.comparing(m -> {
                         Date start = m.getStart();
                         Date end = m.getFinish();

@@ -24,6 +24,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     public List<Activity> findByProfessorAndRoleResponsable(Professor monitor, String role);
 
     List<Activity> findByMonitoring(Monitoring monitoring);
+    
+    // HU-007: Query para obtener actividades por ID de monitoría
+    @Query("SELECT a FROM Activity a WHERE a.monitoring.id = :monitoringId")
+    List<Activity> findByMonitoringId(@Param("monitoringId") Long monitoringId);
 
     // ============================================================================
     // HU-011: Queries para horarios y plan de actividades

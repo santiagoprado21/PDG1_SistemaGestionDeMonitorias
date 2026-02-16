@@ -16,6 +16,13 @@ public enum MonitoringApprovalStatus {
     APROBADA,
     
     /**
+     * HU-007: Monitoría cerrada al final del semestre
+     * Se consolida el estado final y se genera reporte de cumplimiento
+     * Las monitorías cerradas no pueden ser modificadas
+     */
+    CERRADA,
+    
+    /**
      * Jefe de departamento rechazó la monitoría
      */
     RECHAZADA
