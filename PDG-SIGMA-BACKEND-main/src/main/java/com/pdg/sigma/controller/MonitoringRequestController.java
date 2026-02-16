@@ -215,5 +215,160 @@ public class MonitoringRequestController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+    
+    // ==================== NUEVOS ENDPOINTS: APROBACIÓN DEL JEFE AL INICIO ====================
+    
+    /**
+     * GET /monitoring-request/pending-head-approval/{departmentHeadId}
+     * Obtiene convocatorias pendientes de aprobación inicial del jefe
+     * (estado PENDIENTE_APROBACION_JEFE)
+     */
+    @GetMapping("/pending-head-approval/{departmentHeadId}")
+    public ResponseEntity<?> getPendingHeadApproval(@PathVariable String departmentHeadId) {
+        try {
+            List<MonitoringRequest> requests = monitoringRequestService.findPendingHeadApproval(departmentHeadId);
+            List<MonitoringRequestDTO> dtos = requests.stream()
+                    .map(MonitoringRequestDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * POST /monitoring-request/{id}/approve-by-head
+     * El jefe aprueba una convocatoria (cambia a CONVOCATORIA_ABIERTA)
+     * Body: { "departmentHeadId": "...", "comment": "..." }
+     */
+    @PostMapping("/{id}/approve-by-head")
+    public ResponseEntity<?> approveByHead(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String departmentHeadId = body.get("departmentHeadId");
+            String comment = body.get("comment");
+            
+            if (departmentHeadId == null || departmentHeadId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "departmentHeadId es requerido"));
+            }
+            
+            if (comment == null || comment.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "El comentario es obligatorio"));
+            }
+            
+            monitoringRequestService.approveByHead(id, departmentHeadId, comment);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Convocatoria aprobada exitosamente. Ahora está abierta para postulaciones.",
+                    "newStatus", "CONVOCATORIA_ABIERTA"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * POST /monitoring-request/{id}/reject-by-head
+     * El jefe rechaza una convocatoria
+     * Body: { "departmentHeadId": "...", "comment": "..." }
+     */
+    @PostMapping("/{id}/reject-by-head")
+    public ResponseEntity<?> rejectByHead(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String departmentHeadId = body.get("departmentHeadId");
+            String comment = body.get("comment");
+            
+            if (departmentHeadId == null || departmentHeadId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "departmentHeadId es requerido"));
+            }
+            
+            if (comment == null || comment.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "El comentario es obligatorio"));
+            }
+            
+            monitoringRequestService.rejectByHead(id, departmentHeadId, comment);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Convocatoria rechazada exitosamente",
+                    "newStatus", "RECHAZADA"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    /**
+     * PUT /monitoring-request/{id}/modify-by-head
+     * El jefe modifica y aprueba una convocatoria
+     * Body: MonitoringRequestDTO con campos a modificar + departmentHeadId + comment
+     */
+    @PutMapping("/{id}/modify-by-head")
+    public ResponseEntity<?> modifyAndApproveByHead(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body) {
+        try {
+            String departmentHeadId = (String) body.get("departmentHeadId");
+            String comment = (String) body.get("comment");
+            
+            if (departmentHeadId == null || departmentHeadId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "departmentHeadId es requerido"));
+            }
+            
+            if (comment == null || comment.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "El comentario es obligatorio"));
+            }
+            
+            // Crear DTO con las modificaciones
+            MonitoringRequestDTO modifications = new MonitoringRequestDTO();
+            
+            if (body.containsKey("requestedHours")) {
+                modifications.setRequestedHours(((Number) body.get("requestedHours")).intValue());
+            }
+            if (body.containsKey("justification")) {
+                modifications.setJustification((String) body.get("justification"));
+            }
+            if (body.containsKey("startDate")) {
+                // Parsear fecha desde string si es necesario
+                modifications.setStartDate(new java.text.SimpleDateFormat("yyyy-MM-dd")
+                        .parse((String) body.get("startDate")));
+            }
+            if (body.containsKey("finishDate")) {
+                modifications.setFinishDate(new java.text.SimpleDateFormat("yyyy-MM-dd")
+                        .parse((String) body.get("finishDate")));
+            }
+            if (body.containsKey("requiredAverageGrade")) {
+                modifications.setRequiredAverageGrade(((Number) body.get("requiredAverageGrade")).doubleValue());
+            }
+            if (body.containsKey("requiredCourseGrade")) {
+                modifications.setRequiredCourseGrade(((Number) body.get("requiredCourseGrade")).doubleValue());
+            }
+            if (body.containsKey("hourlyRate")) {
+                modifications.setHourlyRate(((Number) body.get("hourlyRate")).doubleValue());
+            }
+            
+            MonitoringRequest updated = monitoringRequestService.modifyAndApproveByHead(
+                    id, modifications, departmentHeadId, comment);
+            
+            return ResponseEntity.ok(Map.of(
+                    "message", "Convocatoria modificada y aprobada exitosamente",
+                    "newStatus", "CONVOCATORIA_ABIERTA",
+                    "data", new MonitoringRequestDTO(updated)
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 }
 

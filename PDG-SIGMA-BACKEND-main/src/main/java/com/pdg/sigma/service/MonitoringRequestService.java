@@ -84,5 +84,31 @@ public interface MonitoringRequestService extends GenericService<MonitoringReque
      * Obtiene el número de postulantes de una convocatoria
      */
     Integer getApplicationCount(Long requestId);
+    
+    // ==================== NUEVOS MÉTODOS: APROBACIÓN DEL JEFE AL INICIO ====================
+    
+    /**
+     * Obtiene convocatorias pendientes de aprobación inicial del jefe
+     * (estado PENDIENTE_APROBACION_JEFE)
+     */
+    List<MonitoringRequest> findPendingHeadApproval(String departmentHeadId) throws Exception;
+    
+    /**
+     * El jefe aprueba una convocatoria (cambia a CONVOCATORIA_ABIERTA)
+     * Permite que los estudiantes se postulen
+     */
+    void approveByHead(Long requestId, String departmentHeadId, String comment) throws Exception;
+    
+    /**
+     * El jefe rechaza una convocatoria
+     */
+    void rejectByHead(Long requestId, String departmentHeadId, String comment) throws Exception;
+    
+    /**
+     * El jefe modifica y aprueba una convocatoria en un solo paso
+     * Puede cambiar horas, fechas, justificación, etc.
+     */
+    MonitoringRequest modifyAndApproveByHead(Long requestId, MonitoringRequestDTO modifications, 
+                                            String departmentHeadId, String comment) throws Exception;
 }
 

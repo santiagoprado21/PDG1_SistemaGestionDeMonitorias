@@ -134,7 +134,7 @@ function SeleccionarMonitor() {
                 
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
-                    navigate('/crear-convocatoria');
+                    navigate('/mis-convocatorias');
                 }, 2000);
             } else {
                 const error = await response.text();
@@ -201,7 +201,7 @@ function SeleccionarMonitor() {
                 <div className="header-seleccionar">
                     <button 
                         className="btn-back"
-                        onClick={() => navigate('/crear-convocatoria')}
+                        onClick={() => navigate('/mis-convocatorias')}
                     >
                         ← Volver a Mis Convocatorias
                     </button>
