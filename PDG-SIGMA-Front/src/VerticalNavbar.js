@@ -143,7 +143,7 @@ function VerticalNavbar() {
       </PopUp>
       {/* Logo */}
       <div className="logo-container">
-        <NavLink to="/Task">
+        <NavLink to="/Profile">
           <img src={logo} alt="Logo" className="logo" />
         </NavLink>
       </div>
@@ -178,12 +178,6 @@ function VerticalNavbar() {
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <>
-            <NavLink
-              to="/Task"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Actividades
-            </NavLink>
             {role === "monitor" && (
               <>
                 <NavLink
@@ -272,6 +266,15 @@ function VerticalNavbar() {
             >
               ✓ Aprobar Convocatorias
             </NavLink>
+            
+            {/* HU-007: Cerrar Monitorías */}
+            <NavLink
+              to="/cerrar-monitorias"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              🔒 Cerrar Monitorías
+            </NavLink>
+            
             <NavLink
               to="/GenerateSimonFile"
               className={({ isActive }) => (isActive ? "active" : "")}
