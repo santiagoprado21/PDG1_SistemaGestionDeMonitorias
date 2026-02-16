@@ -95,27 +95,46 @@ function PlanActividades() {
             console.log('Monitorías recibidas del backend:', data);
             
             // Procesar monitorías para extraer información del monitor
+            // Soporta AMBOS flujos: antiguo (monitoringMonitors) y nuevo HU-010 (assignedMonitor)
             const processedMonitorings = (data || []).map(m => {
-                // Buscar monitor seleccionado en la relación monitoringMonitors
-                const selectedMonitor = m.monitoringMonitors?.find(
-                    mm => mm.estadoSeleccion === 'seleccionado' || mm.estadoSeleccion === 'aprobado'
-                );
+                let monitor = null;
+                let monitorCode = null;
+                
+                // NUEVO FLUJO (HU-010): Monitor asignado directamente
+                if (m.assignedMonitor) {
+                    monitor = `${m.assignedMonitor.name || ''} ${m.assignedMonitor.lastName || ''}`.trim();
+                    monitorCode = m.assignedMonitor.code || m.assignedMonitor.idMonitor;
+                    console.log(`Monitoría ${m.id} - Nuevo flujo: ${monitor}`);
+                }
+                // FLUJO ANTIGUO: Buscar en relación monitoringMonitors
+                else if (m.monitoringMonitors && m.monitoringMonitors.length > 0) {
+                    const selectedMonitor = m.monitoringMonitors.find(
+                        mm => mm.estadoSeleccion === 'seleccionado' || mm.estadoSeleccion === 'aprobado'
+                    );
+                    if (selectedMonitor) {
+                        monitor = `${selectedMonitor.monitor?.name || ''} ${selectedMonitor.monitor?.lastName || ''}`.trim();
+                        monitorCode = selectedMonitor.monitor?.code || selectedMonitor.monitor?.idMonitor;
+                        console.log(`Monitoría ${m.id} - Flujo antiguo: ${monitor}`);
+                    }
+                }
                 
                 return {
                     id: m.id,
                     courseName: m.course?.name || 'Sin nombre',
                     programName: m.program?.name || '',
                     semester: m.semester,
-                    monitor: selectedMonitor 
-                        ? `${selectedMonitor.monitor?.name || ''} ${selectedMonitor.monitor?.lastName || ''}`.trim()
-                        : null,
-                    monitorCode: selectedMonitor?.monitor?.code || selectedMonitor?.monitor?.idMonitor || null
+                    monitor: monitor,
+                    monitorCode: monitorCode,
+                    approvalStatus: m.approvalStatus || null,
+                    isNewFlow: m.assignedMonitor !== null
                 };
             });
             
             // Filtrar solo las que tienen monitor asignado
             const monitoringsWithMonitor = processedMonitorings.filter(m => m.monitor);
             console.log('Monitorías con monitor:', monitoringsWithMonitor);
+            console.log('Total nuevo flujo:', monitoringsWithMonitor.filter(m => m.isNewFlow).length);
+            console.log('Total flujo antiguo:', monitoringsWithMonitor.filter(m => !m.isNewFlow).length);
             
             setMonitorings(monitoringsWithMonitor);
             
@@ -193,7 +212,8 @@ function PlanActividades() {
                 priority: activity.priority || 'MEDIA',
                 recurrence: activity.recurrence || 'NONE',
                 rubricId: activity.rubricId || null,
-                monitoringId: activity.monitoringId || selectedMonitoringId
+                monitoringId: activity.monitoringId || selectedMonitoringId,
+                state: activity.state || 'PENDIENTE'
             });
         } else {
             // Nueva actividad - preseleccionar la monitoría actual
@@ -209,7 +229,8 @@ function PlanActividades() {
                 priority: 'MEDIA',
                 recurrence: 'NONE',
                 rubricId: null,
-                monitoringId: selectedMonitoringId
+                monitoringId: selectedMonitoringId,
+                state: 'PENDIENTE'
             });
         }
         setConflicts([]);
@@ -331,7 +352,7 @@ function PlanActividades() {
             monitoringId: parseInt(formData.monitoringId),
             professorId: user,
             monitorId: selectedMonitoring?.monitorCode || null,
-            state: 'PENDIENTE',
+            state: formData.state || 'PENDIENTE',
             roleCreator: 'P',
             roleResponsable: 'M',
             semester: selectedMonitoring?.semester || '2025-1',
@@ -647,6 +668,35 @@ function PlanActividades() {
                                         required
                                     />
                                 </div>
+
+                                {/* Estado (solo visible al editar) */}
+                                {editingActivity && (
+                                    <div className="form-group">
+                                        <label>Estado</label>
+                                        <select
+                                            name="state"
+                                            value={formData.state}
+                                            onChange={handleInputChange}
+                                            style={{
+                                                fontWeight: 'bold',
+                                                padding: '10px',
+                                                fontSize: '15px',
+                                                borderRadius: '4px',
+                                                border: '2px solid #ddd',
+                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4CAF50' : '#FF9800'
+                                            }}
+                                        >
+                                            <option value="PENDIENTE">⏳ PENDIENTE</option>
+                                            <option value="COMPLETADO">✅ COMPLETADO</option>
+                                            <option value="COMPLETADOT">⚠️ COMPLETADO TARDE</option>
+                                        </select>
+                                        <small style={{ display: 'block', marginTop: '8px', color: '#666', fontSize: '13px' }}>
+                                            {formData.state === 'PENDIENTE' && '➡️ La actividad está pendiente de completar'}
+                                            {formData.state === 'COMPLETADO' && '✅ La actividad fue completada a tiempo'}
+                                            {formData.state === 'COMPLETADOT' && '⚠️ La actividad fue completada con retraso'}
+                                        </small>
+                                    </div>
+                                )}
 
                                 <div className="form-row">
                                     <div className="form-group">

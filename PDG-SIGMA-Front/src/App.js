@@ -1,7 +1,6 @@
 import './App.css';
 import React from 'react';
 import Login from './Login'; 
-import Task from './Task'; 
 import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import CreateActivity from './CreateActivity';
 import Profile from './Profile';
@@ -30,6 +29,9 @@ import GestionRubricas from './GestionRubricas';
 // HU-017: Vista Monitor - Plan de Actividades
 import VistaMonitorActividades from './VistaMonitorActividades';
 
+// HU-007: Cierre de Monitorías
+import CerrarMonitorias from './CerrarMonitorias';
+
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
@@ -47,9 +49,6 @@ function App() {
 
         {/* Ruta para Login */}
         <Route path="/Login" element={<Login />} />
-
-        {/* Route for Task */}
-        <Route path="/Task" element={<Task />} />
 
          {/* Route for Create Activity */}
          <Route path="/CreateActivity" element={<CreateActivity />} />
@@ -103,6 +102,10 @@ function App() {
          {/* ========== HU-017: Vista Monitor - Plan de Actividades ========== */}
          {/* Monitor: Ver actividades asignadas por profesores */}
          <Route path="/mis-actividades" element={<VistaMonitorActividades />} />
+
+         {/* ========== HU-007: Cierre de Monitorías ========== */}
+         {/* Jefe de Departamento: Cerrar monitorías al final del semestre */}
+         <Route path="/cerrar-monitorias" element={<CerrarMonitorias />} />
       </Routes>
     </div>
   );

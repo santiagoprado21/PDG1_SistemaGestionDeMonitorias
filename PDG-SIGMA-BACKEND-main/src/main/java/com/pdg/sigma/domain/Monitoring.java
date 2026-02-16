@@ -117,6 +117,51 @@ public class Monitoring implements Serializable {
     @Column(name = "approval_date")
     private LocalDateTime approvalDate;
 
+    // ==================== HU-007: AUDITORÍA DE CIERRE ====================
+    
+    /**
+     * ID del director de carrera que cerró la monitoría al final del semestre
+     */
+    @Column(name = "closed_by", length = 20)
+    private String closedBy;
+
+    /**
+     * Comentario del director sobre el cierre (opcional)
+     */
+    @Column(name = "closure_comment", columnDefinition = "TEXT")
+    private String closureComment;
+
+    /**
+     * Fecha y hora del cierre
+     */
+    @Column(name = "closure_date")
+    private LocalDateTime closureDate;
+
+    /**
+     * Porcentaje de cumplimiento general de la monitoría (0-100)
+     * Calculado automáticamente al cerrar
+     */
+    @Column(name = "compliance_percentage")
+    private Integer compliancePercentage;
+
+    /**
+     * Total de actividades completadas
+     */
+    @Column(name = "completed_activities")
+    private Integer completedActivities;
+
+    /**
+     * Total de actividades planificadas
+     */
+    @Column(name = "total_activities")
+    private Integer totalActivities;
+
+    /**
+     * Horas trabajadas reales
+     */
+    @Column(name = "actual_hours")
+    private Integer actualHours;
+
     // ==================== CONSTRUCTORES ====================
 
     public Monitoring(School school, Program program, Course course,
@@ -222,5 +267,56 @@ public class Monitoring implements Serializable {
         this.approvedBy = rejectedBy;
         this.approvalComment = comment;
         this.approvalDate = LocalDateTime.now();
+    }
+
+    // ==================== HU-007: MÉTODOS DE CIERRE ====================
+
+    /**
+     * Verifica si la monitoría está cerrada
+     */
+    public boolean isClosed() {
+        return this.approvalStatus == MonitoringApprovalStatus.CERRADA;
+    }
+
+    /**
+     * Verifica si la monitoría puede ser cerrada
+     * Solo se pueden cerrar monitorías aprobadas
+     */
+    public boolean canBeClosed() {
+        return this.approvalStatus == MonitoringApprovalStatus.APROBADA;
+    }
+
+    /**
+     * Cierra la monitoría al final del semestre
+     * Consolida métricas de cumplimiento
+     */
+    public void close(String closedBy, String comment, Integer completedActivities, 
+                     Integer totalActivities, Integer actualHours) {
+        if (!canBeClosed()) {
+            throw new IllegalStateException("Solo se pueden cerrar monitorías en estado APROBADA");
+        }
+        
+        this.approvalStatus = MonitoringApprovalStatus.CERRADA;
+        this.closedBy = closedBy;
+        this.closureComment = comment;
+        this.closureDate = LocalDateTime.now();
+        this.completedActivities = completedActivities;
+        this.totalActivities = totalActivities;
+        this.actualHours = actualHours;
+        
+        // Calcular porcentaje de cumplimiento
+        if (totalActivities != null && totalActivities > 0) {
+            this.compliancePercentage = (completedActivities * 100) / totalActivities;
+        } else {
+            this.compliancePercentage = 0;
+        }
+    }
+
+    /**
+     * Verifica si la monitoría puede ser modificada
+     * Las monitorías cerradas no pueden modificarse
+     */
+    public boolean canBeModified() {
+        return !isClosed();
     }
 }
