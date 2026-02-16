@@ -198,6 +198,12 @@ function VerticalNavbar() {
                 >
                   ⭐ Mis evaluaciones
                 </NavLink>
+                <NavLink
+                  to="/evaluar-supervisor"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📝 Evaluar supervisor
+                </NavLink>
               </>
             )}
             {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}

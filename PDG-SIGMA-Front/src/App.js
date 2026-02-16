@@ -10,6 +10,7 @@ import GenerateSimonFile from './GenerateSimonFile';
 import { useEffect } from "react";
 import NotificationSettings from './NotificationSettings';
 import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
+import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
 import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
 
 // HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
@@ -65,6 +66,8 @@ function App() {
          {/* HU-015: Evaluación de monitores */}
          <Route path="/evaluar-monitores" element={<EvaluarMonitoresHU015 />} />
          <Route path="/mis-evaluaciones" element={<MisEvaluacionesHU015 />} />
+         {/* HU-021: Evaluación de supervisor */}
+         <Route path="/evaluar-supervisor" element={<EvaluarSupervisorHU021 />} />
 
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
