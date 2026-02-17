@@ -23,10 +23,9 @@ function VerticalNavbar() {
   useEffect(() => {
     let id = localStorage.getItem('userId')
     let roleS = localStorage.getItem('role')
-    while(id === null || roleS === null){
-      id = localStorage.getItem('userId');
-      roleS = localStorage.getItem('role');
-      
+    if (!id || !roleS) {
+      setRole(roleS || "");
+      return;
     }
     setRole(roleS);
     console.log(roleS);
@@ -175,6 +174,15 @@ function VerticalNavbar() {
           </NavLink>
         )}
 
+        {(role === "student" || role === "monitor") && (
+          <NavLink
+            to="/evaluacion-monitoria"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            ⭐ Evaluacion de monitoria
+          </NavLink>
+        )}
+
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <>
@@ -245,6 +253,7 @@ function VerticalNavbar() {
             >
               📈 Evaluar Monitores
             </NavLink>
+
           </>
         )}
 
@@ -257,6 +266,13 @@ function VerticalNavbar() {
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               📂 Crear Monitorías CSV
+            </NavLink>
+
+            <NavLink
+              to="/evaluacion-monitoria"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              📊 Resultados monitoria
             </NavLink>
             
             {/* HU-010: Aprobar Monitorías del flujo de convocatorias */}
