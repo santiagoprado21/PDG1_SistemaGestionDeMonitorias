@@ -181,6 +181,12 @@ function VerticalNavbar() {
             {role === "monitor" && (
               <>
                 <NavLink
+                  to="/chat"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  💬 Chat
+                </NavLink>
+                <NavLink
                   to="/mis-actividades"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
@@ -207,6 +213,13 @@ function VerticalNavbar() {
         {/* Acceso exclusivo para Profesores */}
         {role === "professor" && (
           <>
+            <NavLink
+              to="/chat"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              💬 Chat
+            </NavLink>
+
             {/* HU-010: Crear Convocatoria (FLUJO PRINCIPAL) */}
             <NavLink
               to="/crear-convocatoria"
