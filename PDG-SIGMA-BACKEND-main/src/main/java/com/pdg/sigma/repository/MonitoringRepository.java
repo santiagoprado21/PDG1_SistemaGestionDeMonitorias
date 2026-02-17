@@ -15,13 +15,19 @@ public interface MonitoringRepository extends JpaRepository<Monitoring,Long> {
     public List<Monitoring> findBySchool(School school);
     public List<Monitoring> findByProgram(Program program);
     public List<Monitoring> findByProfessor(Professor professor);
+    public List<Monitoring> findByAssignedMonitor(Monitor assignedMonitor);
     public Optional<Monitoring> findByProfessorAndCourseAndSemester(Professor professor, Course course, String semester);
 
     @Query("SELECT DISTINCT m FROM Monitoring m JOIN m.monitoringMonitors mm " +
-            "WHERE m.professor.id = :professorId AND mm.estadoSeleccion = 'seleccionado'")
+            "WHERE m.professor.id = :professorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
     List<Monitoring> findMonitoringsByProfessorAndHavingSelectedMonitors(@Param("professorId") String professorId);
 
     @Query("SELECT DISTINCT m FROM Monitoring m JOIN m.monitoringMonitors mm " +
-           "WHERE mm.monitor.idMonitor = :monitorId AND mm.estadoSeleccion = 'seleccionado'")
+           "WHERE mm.monitor.code = :monitorId AND mm.estadoSeleccion IN ('seleccionado', 'aprobado')")
     List<Monitoring> findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(@Param("monitorId") String monitorId);
+
+    // HU-007: Consultas para cierre de monitorías
+    List<Monitoring> findBySemesterAndApprovalStatus(String semester, MonitoringApprovalStatus approvalStatus);
+    
+    List<Monitoring> findBySemesterAndProgramIdAndApprovalStatus(String semester, Integer programId, MonitoringApprovalStatus approvalStatus);
 }

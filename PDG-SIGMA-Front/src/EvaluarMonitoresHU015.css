@@ -243,12 +243,17 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.scores-grid--single {
+  grid-template-columns: 1fr;
+}
+
 .scores-grid label {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   color: var(--color-text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .scores-grid select {
@@ -273,6 +278,7 @@
   gap: var(--space-2);
   color: var(--color-text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .comments-field textarea {
@@ -291,6 +297,16 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
   background-color: var(--color-bg-body);
+}
+
+.required-asterisk {
+  color: var(--color-danger);
+  margin-left: var(--space-1);
+  font-size: 0.9em;
+}
+
+.question-text {
+  display: inline;
 }
 
 .visibility-row {

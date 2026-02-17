@@ -51,17 +51,17 @@ function Login() {
           if(res.role === 'professor'){
             localStorage.setItem('role',res.role)
             localStorage.setItem('token',`Bearer ${res.token}`)
-            navigate('/Task');// Redirige a la pagina del profesor
+            navigate('/mis-convocatorias');// Redirige a ver sus convocatorias
           }
           else if(res.role === 'monitor') {
             localStorage.setItem('role',res.role)
             localStorage.setItem('token',`Bearer ${res.token}`)
-            navigate('/Task')// Redirige a la pagina de monitor
+            navigate('/ver-convocatorias')// Redirige a convocatorias abiertas
           }
           else if(res.role === 'jfedpto') {
             localStorage.setItem('role',res.role)
             localStorage.setItem('token',`Bearer ${res.token}`)
-            navigate('/Task')// Redirige a la pagina de monitor
+            navigate('/aprobar-monitorias-hu010')// Redirige a aprobar monitorías
           }
           else{
             localStorage.setItem('role',res.role)

@@ -143,7 +143,7 @@ function VerticalNavbar() {
       </PopUp>
       {/* Logo */}
       <div className="logo-container">
-        <NavLink to="/Task">
+        <NavLink to="/Profile">
           <img src={logo} alt="Logo" className="logo" />
         </NavLink>
       </div>
@@ -165,32 +165,40 @@ function VerticalNavbar() {
           </NavLink>
         )}
         
-        {/* HU-010: Ver Convocatorias (solo para estudiantes que pueden postularse) */}
+        {/* Ver Convocatorias (solo para estudiantes que pueden postularse) */}
         {(role === "student" || role === "monitor") && (
           <NavLink
             to="/ver-convocatorias"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-            📢 Convocatorias
+            📢 Convocatorias Abiertas
           </NavLink>
         )}
 
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <>
-            <NavLink
-              to="/Task"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Actividades
-            </NavLink>
             {role === "monitor" && (
-              <NavLink
-                to="/mis-evaluaciones"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                ⭐ Mis evaluaciones
-              </NavLink>
+              <>
+                <NavLink
+                  to="/mis-actividades"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📋 Mis Actividades
+                </NavLink>
+                <NavLink
+                  to="/mis-evaluaciones"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  ⭐ Mis evaluaciones
+                </NavLink>
+                <NavLink
+                  to="/evaluar-supervisor"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📝 Evaluar supervisor
+                </NavLink>
+              </>
             )}
             {/* Preferencias ahora desde la campanita; ruta se mantiene pero ocultamos el link */}
           </>
@@ -205,14 +213,6 @@ function VerticalNavbar() {
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               ➕ Crear Convocatoria
-            </NavLink>
-            
-            {/* Chat con monitores (solo UI) */}
-            <NavLink
-              to="/chat"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              💬 Chat
             </NavLink>
             
             {/* HU-011: Plan de Actividades */}
@@ -257,8 +257,17 @@ function VerticalNavbar() {
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              ✓ Aprobar Monitorías
+              ✓ Aprobar Convocatorias
             </NavLink>
+            
+            {/* HU-007: Cerrar Monitorías */}
+            <NavLink
+              to="/cerrar-monitorias"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              🔒 Cerrar Monitorías
+            </NavLink>
+            
             <NavLink
               to="/GenerateSimonFile"
               className={({ isActive }) => (isActive ? "active" : "")}

@@ -5,7 +5,14 @@ package com.pdg.sigma.domain;
  */
 public enum RequestStatus {
     /**
-     * Convocatoria recién creada por el profesor, abierta para que estudiantes se postulen
+     * Convocatoria recién creada por el profesor, esperando aprobación del jefe de departamento
+     * NUEVO FLUJO: El jefe debe aprobar ANTES de que se abran las postulaciones
+     */
+    PENDIENTE_APROBACION_JEFE,
+    
+    /**
+     * El jefe de departamento aprobó la convocatoria
+     * Ahora está abierta para que estudiantes se postulen
      */
     CONVOCATORIA_ABIERTA,
     
@@ -16,7 +23,8 @@ public enum RequestStatus {
     MONITOR_SELECCIONADO,
     
     /**
-     * La monitoría fue creada con monitor asignado y está esperando aprobación del jefe de departamento
+     * La monitoría fue creada con monitor asignado
+     * (Ya no requiere aprobación del jefe porque ya fue aprobada al inicio)
      */
     PENDIENTE_APROBACION,
     
@@ -26,7 +34,7 @@ public enum RequestStatus {
     APROBADA,
     
     /**
-     * El jefe de departamento rechazó la monitoría
+     * El jefe de departamento rechazó la convocatoria o monitoría
      */
     RECHAZADA,
     

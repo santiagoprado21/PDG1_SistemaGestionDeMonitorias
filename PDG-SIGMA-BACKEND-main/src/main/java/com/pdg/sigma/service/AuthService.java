@@ -57,7 +57,9 @@ public class AuthService {
                     if(!list.isEmpty()){
                         boolean selected = false;
                         for(MonitoringMonitor monitoringMonitor : list){
-                            if(monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("seleccionado")){
+                            // HU-017: Considerar tanto "seleccionado" como "aprobado" para asignar rol monitor
+                            if(monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("seleccionado") ||
+                               monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("aprobado")){
                                 selected = true;
                             }
                         }
