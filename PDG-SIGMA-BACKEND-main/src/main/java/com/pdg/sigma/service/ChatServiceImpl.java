@@ -10,7 +10,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +51,14 @@ public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private ChatStorageService chatStorageService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @PostConstruct
+    public void initChatSchema() {
+        ensureChatTables();
+    }
 
     @Override
     public List<ChatConversationDTO> getConversations(String userId, String role) {
@@ -108,6 +118,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatMessageDTO sendMessage(ChatMessageCreateDTO payload, List<MultipartFile> files) throws Exception {
+        ensureChatTables();
         validatePayload(payload, files);
 
         String senderRole = normalizeRole(payload.getSenderRole());
@@ -272,5 +283,37 @@ public class ChatServiceImpl implements ChatService {
         return fromRepo.map(p -> p.getName() != null ? p.getName().trim() : "")
                 .filter(s -> !s.isBlank())
                 .orElse("Profesor " + professor.getId());
+    }
+
+    private void ensureChatTables() {
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS sigma");
+
+        jdbcTemplate.execute("""
+            CREATE TABLE IF NOT EXISTS sigma.chat_message (
+                id BIGSERIAL PRIMARY KEY,
+                conversation_id VARCHAR(120) NOT NULL,
+                sender_id VARCHAR(40) NOT NULL,
+                sender_role VARCHAR(20) NOT NULL,
+                receiver_id VARCHAR(40) NOT NULL,
+                activity_id INTEGER,
+                message TEXT,
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            )
+        """);
+
+        jdbcTemplate.execute("""
+            CREATE TABLE IF NOT EXISTS sigma.chat_attachment (
+                id BIGSERIAL PRIMARY KEY,
+                message_id BIGINT NOT NULL,
+                original_name VARCHAR(255) NOT NULL,
+                content_type VARCHAR(120),
+                size_bytes BIGINT,
+                storage_path VARCHAR(500) NOT NULL,
+                CONSTRAINT fk_chat_attachment_message
+                    FOREIGN KEY (message_id)
+                    REFERENCES sigma.chat_message(id)
+                    ON DELETE CASCADE
+            )
+        """);
     }
 }
