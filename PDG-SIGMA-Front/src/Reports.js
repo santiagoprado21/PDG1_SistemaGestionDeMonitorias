@@ -1,31 +1,28 @@
 import './Reports.css';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import VerticalNavbar from './VerticalNavbar';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell,
-  LineChart, Line, LabelList
+  LineChart, Line
 } from 'recharts';
 import {PopUp} from "./PopUp";
-import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { BACKEND_URL } from './config/ApiBackend';
 
 function Reports() {
 
   const [monitorPerformanceDataOriginal, setMonitorPerformanceDataOriginal] = useState([]);
-  const [professorData, setProfessorData] = useState([]);
   const [professorDataOriginal, setProfessorDataOriginal] = useState([]);
 
   // console.log("Reports se está renderizando");
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [asistenciaDataOriginal, setAsistenciaDataOriginal] = useState([]);
 
   // const [categoryUsageDataOriginal, setCategoryUsageDataOriginal] = useState([]);
   const [categoryReportData, setCategoryReportData] = useState([]);
-  const [courseSelectedM, setCourseSelectedM] = useState("");
-  const [courseSelectedP, setCourseSelectedP] = useState("");
-  const [filteredMonitorPerformanceData, setFilteredMonitorPerformanceData] = useState([]);
-  const [filteredProfessorData, setFilteredProfessorData] = useState([]);
-  const [role, setRole] = useState('')
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
   //Pop up
   const [isOpen, setIsOpen] = useState(false)
@@ -50,99 +47,76 @@ function Reports() {
   const[latePercentProfessor, setLatePercentProfessor] = useState("")
   const[porcentagesProfessor, setPorcentagesProfessor] = useState([{ completed: "0%", late: "0%", pending: "0%" }]);
 
-  useEffect(() => {
-    console.log("obtener---")
-    setMessage("Para obtener la información de los reportes, debes al menos seleccionar información para los primeros 3 filtros.")
-    setIsOpen(!isOpen)
-    setChange(!change)
+  const fetchReportsData = useCallback(async () => {
     const user = localStorage.getItem('userId');
-    const role = localStorage.getItem('role');
-    setRole(role);
-    const fetchActivities = async () => {
-      try {
-        const monitorResponse = await fetch(`${BACKEND_URL}/monitoring/getMonitorsReport/${user}/${role}`, {
+    const currentRole = localStorage.getItem('role');
+
+    if (!user || !currentRole) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      const monitorResponse = await fetch(`${BACKEND_URL}/monitoring/getMonitorsReport/${user}/${currentRole}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': localStorage.getItem('token')
           },
+      });
+      const monitorJson = await monitorResponse.json();
+      setMonitorPerformanceDataOriginal(Array.isArray(monitorJson) ? monitorJson : []);
+
+      let professorList = [];
+      const professorIds = [...new Set((Array.isArray(monitorJson) ? monitorJson : []).map(report => report.idProfessor).filter(Boolean))];
+      for (const value of professorIds) {
+        const professorResponse = await fetch(`${BACKEND_URL}/monitoring/getProfessorReport/${value}`,{
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' ,
+                'Authorization':localStorage.getItem('token')
+            },
         });
-        const monitorJson = await monitorResponse.json();
-        setMonitorPerformanceDataOriginal(monitorJson);
-        
-        let professorList = [];
-        for (const [index, report] of monitorJson.entries()) {
-            let value = report.idProfessor;
-            console.log('Times');
-            if(!professorList.find(e => e.idProfessor === value)){
-                const professorResponse = await fetch(`${BACKEND_URL}/monitoring/getProfessorReport/${value}`,{
-                  method: 'GET',
-                  headers: { 'Content-Type': 'application/json' ,
-                      'Authorization':localStorage.getItem('token')
-                  },
-                  });
-              const professorJson = await professorResponse.json();
-              
-              console.log('Value '+professorJson)
-              professorList = professorList.concat(professorJson);
-              
-            }
-        }
-
-        setProfessorDataOriginal(professorList)
-        
-      } catch (error) {
-        console.error("Error fetching monitor data:", error);
+        const professorJson = await professorResponse.json();
+        professorList = professorList.concat(Array.isArray(professorJson) ? professorJson : []);
       }
-    };
+      setProfessorDataOriginal(professorList);
 
-    fetchActivities();
+      const attendanceResponse = await fetch(`${BACKEND_URL}/monitoring/getAttendanceReport/${currentRole}/${user}`,{
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' ,
+              'Authorization':localStorage.getItem('token')
+          },
+          });
+      const attendanceJson = await attendanceResponse.json();
+      setAsistenciaDataOriginal(Array.isArray(attendanceJson) ? attendanceJson : []);
 
-    const fetchAttendance = async () => {
-      try {
-        const attendanceResponse = await fetch(`${BACKEND_URL}/monitoring/getAttendanceReport/${role}/${user}`,{
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,
-                'Authorization':localStorage.getItem('token')
-            },
-            });
-        const attendanceJson = await attendanceResponse.json();
-        setAsistenciaDataOriginal(attendanceJson);
-
-      } catch (error) {
-        console.error('Error fetching attendance data:', error);
+      const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${currentRole}/${user}`;
+      const categoriesResponse = await fetch(url,{
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' ,
+              'Authorization':localStorage.getItem('token')
+          },
+          });
+      if (!categoriesResponse.ok) {
+          const errorData = await categoriesResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || `Error ${categoriesResponse.status}`);
       }
-    };
-    fetchAttendance();
-
-    const fetchCategories = async () => {
-
-      // const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${user}`;
-      const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${role}/${user}`;
-
-      try {
-        const categoriesResponse = await fetch(url,{
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,
-                'Authorization':localStorage.getItem('token')
-            },
-            });
-        if (!categoriesResponse.ok) {
-             const errorData = await categoriesResponse.json().catch(() => ({}));
-             throw new Error(errorData.error || `Error ${categoriesResponse.status}`);
-        }
-        const categoriesJson = await categoriesResponse.json();
-        console.log("Respuesta API Categorías:", categoriesJson); 
-
-        setCategoryReportData(categoriesJson);
-
-      } catch (error) {
-        console.error('Error fetching categories data:', error);
-        setCategoryReportData(null); 
-      }
-    };
-    fetchCategories();
+      const categoriesJson = await categoriesResponse.json();
+      setCategoryReportData(categoriesJson || null);
+      setLastUpdatedAt(new Date());
+    } catch (error) {
+      console.error("Error actualizando reportes en tiempo real:", error);
+      setCategoryReportData(null);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    setMessage("Usa los filtros de período, departamento, profesor o monitor para consultar el dashboard de reportes.")
+    setIsOpen(true)
+    setChange(true)
+  }, [fetchReportsData]);
 
   const getValues = (data) =>{
     
@@ -157,9 +131,12 @@ function Reports() {
             if(!list.includes(a.course) && a.program === program){
                 list.push(a.course);
             }
-        }else if(data === "professors" && course !== ''){
-
-            if(!list.includes(a.professor) && a.course === course){
+        }else if(data === "professors"){
+          if(!list.includes(a.professor)
+            && (!semester || a.semester === semester)
+            && (!program || a.program === program)
+            && (!course || a.course === course)
+          ){
                 list.push(a.professor);
 
             }
@@ -168,7 +145,12 @@ function Reports() {
                 list.push(a.program);
             }
         }else {
-            if(!list.includes(a.name) && a.course === course){
+          if(!list.includes(a.name)
+            && (!semester || a.semester === semester)
+            && (!program || a.program === program)
+            && (!course || a.course === course)
+            && (!professor || a.professor === professor)
+          ){
                 list.push(a.name);
             }
         }
@@ -218,28 +200,73 @@ function Reports() {
     });
   };
 
-  const filteredAttendanceData = applyAttendanceFilters(asistenciaDataOriginal);
+  const filteredAttendanceData = useMemo(
+    () => applyAttendanceFilters(asistenciaDataOriginal),
+    [asistenciaDataOriginal, semester, course]
+  );
+
+  const dashboardMonitorData = useMemo(
+    () => applyFilters(monitorPerformanceDataOriginal),
+    [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]
+  );
+
+  const dashboardProfessorData = useMemo(
+    () => professorDataOriginal.filter(d =>
+      (!semester || d.semester === semester) &&
+      (!program || d.program === program) &&
+      (!course || d.course === course) &&
+      (!professor || d.name === professor)
+    ),
+    [professorDataOriginal, semester, program, course, professor]
+  );
+
+  const dashboardMetrics = useMemo(() => {
+    const totalMonitors = new Set(dashboardMonitorData.map(d => d.name)).size;
+    const totalProfessors = new Set(dashboardMonitorData.map(d => d.professor)).size;
+
+    const monitorTotals = dashboardMonitorData.reduce((acc, item) => {
+      acc.completed += item.completed || 0;
+      acc.pending += item.pending || 0;
+      acc.late += item.late || 0;
+      return acc;
+    }, { completed: 0, pending: 0, late: 0 });
+
+    const professorTotals = dashboardProfessorData.reduce((acc, item) => {
+      acc.completed += item.completed || 0;
+      acc.pending += item.pending || 0;
+      acc.late += item.late || 0;
+      return acc;
+    }, { completed: 0, pending: 0, late: 0 });
+
+    const monitorBase = monitorTotals.completed + monitorTotals.pending + monitorTotals.late;
+    const professorBase = professorTotals.completed + professorTotals.pending + professorTotals.late;
+
+    return {
+      totalMonitors,
+      totalProfessors,
+      monitorCompliance: monitorBase > 0 ? Math.round((monitorTotals.completed / monitorBase) * 100) : 0,
+      professorCompliance: professorBase > 0 ? Math.round((professorTotals.completed / professorBase) * 100) : 0
+    };
+  }, [dashboardMonitorData, dashboardProfessorData]);
 
   const chartReadyAttendanceData = filteredAttendanceData.map(d => {
-    if(course !== '' && program !=='' && semester !== ''){
-      let displayValue;
-      let attendance;
-      if (course) {
-        const courseEntry = d.asistencia_por_curso?.find(item => item.curso === course);
-        displayValue = courseEntry ? courseEntry.cantidad : 0;
-        attendance = courseEntry? courseEntry.estudiantes : [];
-      } else {
-        displayValue = d.total_mes;
-      }
-
-      return {
-        mes: d.mes,
-        semestre: d.semestre, 
-        asistencia: displayValue,
-        asistentes:attendance
-      };
+    let displayValue;
+    let attendance;
+    if (course) {
+      const courseEntry = d.asistencia_por_curso?.find(item => item.curso === course);
+      displayValue = courseEntry ? courseEntry.cantidad : 0;
+      attendance = courseEntry? courseEntry.estudiantes : [];
+    } else {
+      displayValue = d.total_mes;
+      attendance = [];
     }
-    return undefined;
+
+    return {
+      mes: d.mes,
+      semestre: d.semestre, 
+      asistencia: displayValue,
+      asistentes:attendance
+    };
   });
 
   const lineName = course ? `Asistentes - ${course}` : "Total Asistentes";
@@ -248,7 +275,7 @@ function Reports() {
     if (!categoryReportData) {
       return [];
     }
-    if(course === '' || program ==='' || semester === '') {
+    if(program ==='' || semester === '') {
       return [];
     }
 
@@ -277,7 +304,7 @@ function Reports() {
       }
     }
     
-  }, [categoryReportData, course]); 
+  }, [categoryReportData, course, program, semester]); 
 
     const categoryChartTitle = course ? `Uso de Categorías - ${course}` : "Top 5 de actividades por categoría";
 
@@ -324,19 +351,52 @@ function Reports() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const exportToPDF = (data, filename, filters) => {
+    if (!data || data.length === 0) return;
+
+    const normalizeValue = (value) => {
+      if (value === null || value === undefined) return '';
+      if (Array.isArray(value)) return value.join(' | ');
+      if (typeof value === 'object') return JSON.stringify(value);
+      return String(value);
+    };
+
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const headers = Object.keys(data[0]);
+    const rows = data.map((row) => headers.map((header) => normalizeValue(row[header])));
+
+    pdf.setFontSize(14);
+    pdf.text(`Reporte: ${filename.replaceAll('_', ' ')}`, 40, 40);
+    pdf.setFontSize(10);
+    pdf.text(
+      `Generado: ${new Date().toLocaleString('es-CO')} | Periodo: ${filters.semester || 'Todos'} | Departamento: ${filters.program || 'Todos'} | Profesor: ${filters.professor || 'Todos'} | Monitor: ${filters.monitor || 'Todos'}`,
+      40,
+      58
+    );
+
+    autoTable(pdf, {
+      startY: 72,
+      head: [headers],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 4 },
+      headStyles: { fillColor: [84, 84, 232] }
+    });
+
+    pdf.save(`${filename}.pdf`);
+  };
   //const categoryUsageData = applyFilters(categoryUsageDataOriginal);
   const asistenciaData = chartReadyAttendanceData;
 
   
   const semestersToShow = getValues("semester");
-  const coursesToShow = getValues("courses");
   const professorsToShow = getValues("professors");
   const programsToShow = getValues("programs");
   const monitorsToShow = getValues("monitors");
 
 
-  const [monitorPerformanceData, setMonitorPerformanceData] = useState([]);
-  console.log("BEFORE",monitorPerformanceData);
+  const monitorPerformanceData = dashboardMonitorData;
+  const professorData = dashboardProfessorData;
 
   //Porcentaje actividades monitores
 
@@ -370,50 +430,6 @@ function Reports() {
     }
   }, [monitorPerformanceData]);
   
-  //Filter monitors information
-  useEffect(() => {
-    setMonitor('');
-    setProfessor('');
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [course]); 
-
-  useEffect(() => {
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course) &&
-      (!professor || d.professor === professor) &&
-      (!monitor || d.name === monitor)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [monitor]); 
-
-  //Filter professor report 
-  useEffect(() => {
-    const data = professorDataOriginal;
-    const report = data.filter(d => (d.name === professor) && (d.course === course));
-    setProfessorData(report);
-    
-  }, [professor]); 
-
-
   //Porcentaje actividades profesores
 
 useEffect(() => {
@@ -463,11 +479,22 @@ useEffect(() => {
       >{message}
       </PopUp>
       <div className="reports-top-bar">
-        <h2 className="reports-title">Reportes</h2>
+        <h2 className="reports-title">Dashboard de Reportes de Cumplimiento</h2>
+        <div className="realtime-status">
+          <span>{isRefreshing ? 'Actualizando datos...' : `Última actualización: ${lastUpdatedAt ? lastUpdatedAt.toLocaleTimeString('es-CO') : 'pendiente'}`}</span>
+          <button
+            type="button"
+            className="chart-download-button"
+            onClick={fetchReportsData}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? 'Actualizando...' : 'Actualizar ahora'}
+          </button>
+        </div>
         <div className="filters-container">
           <div className="filter-group">
-            <select onChange={(e) => setSemester(e.target.value)}>
-                  <option value="">Semestre*</option>
+            <select value={semester} onChange={(e) => setSemester(e.target.value)}>
+                  <option value="">Período</option>
                   {semestersToShow.map((semester, index) => (
                       <option key={index} value={semester}>
                       {semester}
@@ -476,8 +503,8 @@ useEffect(() => {
             </select>
           </div>
           <div className="filter-group">
-            <select onChange={(e) => setProgram(e.target.value)}>
-              <option value="">Programa*</option>
+            <select value={program} onChange={(e) => setProgram(e.target.value)}>
+              <option value="">Departamento</option>
                 {programsToShow.map((program, index) => (
                     <option key={index} value={program}>
                     {program}
@@ -486,17 +513,7 @@ useEffect(() => {
             </select>
           </div>
           <div className="filter-group">
-            <select onChange={(e) => setCourse(e.target.value)}>
-            <option value="">Curso*</option>
-                {coursesToShow.map((course, index) => (
-                    <option key={index} value={course}>
-                    {course}
-                    </option>
-                ))}
-            </select>
-          </div>
-          <div className="filter-group">
-            <select onChange={(e) => setProfessor(e.target.value)}>
+            <select value={professor} onChange={(e) => setProfessor(e.target.value)}>
             <option value="">Profesor</option>
                 {professorsToShow.map((professor, index) => (
                     <option key={index} value={professor}>
@@ -506,7 +523,7 @@ useEffect(() => {
             </select>
           </div>
           <div className="filter-group">
-            <select onChange={(e) => setMonitor(e.target.value)}>
+            <select value={monitor} onChange={(e) => setMonitor(e.target.value)}>
               <option value="">Monitor</option>
               {monitorsToShow.map((monitor, index) => (
                     <option key={index} value={monitor}>
@@ -515,11 +532,47 @@ useEffect(() => {
                 ))}
             </select>
           </div>
+          <div className="filter-group">
+            <button
+              type="button"
+              className="chart-download-button"
+              onClick={() => {
+                setSemester('');
+                setProgram('');
+                setCourse('');
+                setProfessor('');
+                setMonitor('');
+              }}
+            >
+              Limpiar filtros
+            </button>
+          </div>
         </div>
       </div>
       <div className="reports-container">
         <VerticalNavbar />
         <div className="reports-content">
+          <div className="dashboard-summary-card">
+            <h3>Resumen general</h3>
+            <div className="dashboard-summary-grid">
+              <div className="dashboard-metric-card">
+                <span>Profesores en reporte</span>
+                <strong>{dashboardMetrics.totalProfessors}</strong>
+              </div>
+              <div className="dashboard-metric-card">
+                <span>Monitores en reporte</span>
+                <strong>{dashboardMetrics.totalMonitors}</strong>
+              </div>
+              <div className="dashboard-metric-card">
+                <span>Cumplimiento de profesores</span>
+                <strong>{dashboardMetrics.professorCompliance}%</strong>
+              </div>
+              <div className="dashboard-metric-card">
+                <span>Cumplimiento de monitores</span>
+                <strong>{dashboardMetrics.monitorCompliance}%</strong>
+              </div>
+            </div>
+          </div>
           
     {/* Gráfico de barras - MONITOR */}
     <div className="chart-card">
@@ -593,7 +646,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(monitorPerformanceData, 'Rendimiento_Monitores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
           </div>
         </div>
 
@@ -623,7 +684,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentages, 'Resumen_Tareas_Monitor', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
             </div>
           </div>
 
@@ -660,7 +729,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
             </div>
           </div>
 
@@ -689,7 +766,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(asistenciaData, `Asistencia_${lineName.replace(' ', '_')}`, {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
               {/* datos filtrados originales*/}
               {/* <button className="chart-download-button" onClick={() => exportToCSV(filteredAttendanceData, 'Asistencia_Detallada_Filtrada')}>Descargar Detalle Filtrado</button> */}
             </div>
@@ -770,7 +855,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(professorData, 'Rendimiento_Profesores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
           </div>
         </div>
 
@@ -800,7 +893,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>Descargar CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentagesProfessor, 'Resumen_Tareas_Profesor', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>Descargar PDF</button>
             </div>
           </div>
 
