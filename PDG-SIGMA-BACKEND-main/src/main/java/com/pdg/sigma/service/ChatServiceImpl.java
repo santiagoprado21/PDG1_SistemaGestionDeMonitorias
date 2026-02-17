@@ -56,25 +56,25 @@ public class ChatServiceImpl implements ChatService {
         Map<String, ChatConversationDTO> uniqueConversations = new LinkedHashMap<>();
 
         if ("professor".equals(normalizedRole)) {
-            List<MonitoringMonitor> relations = monitoringMonitorRepository.findSelectedByProfessorId(userId);
-            for (MonitoringMonitor relation : relations) {
-                if (relation.getMonitor() == null || relation.getMonitor().getIdMonitor() == null) {
+            List<Monitor> monitors = monitorRepository.findAll();
+            for (Monitor monitor : monitors) {
+                if (monitor.getIdMonitor() == null || monitor.getIdMonitor().isBlank()) {
                     continue;
                 }
-                String monitorId = relation.getMonitor().getIdMonitor();
+                String monitorId = monitor.getIdMonitor();
                 String conversationId = buildConversationId(userId, monitorId);
-                String monitorName = buildMonitorName(relation.getMonitor());
+                String monitorName = buildMonitorName(monitor);
                 uniqueConversations.putIfAbsent(conversationId,
                         new ChatConversationDTO(conversationId, "Monitor: " + monitorName, "Chat directo", monitorId));
             }
         } else if ("monitor".equals(normalizedRole)) {
-            List<MonitoringMonitor> relations = monitoringMonitorRepository.findSelectedByMonitorId(userId);
-            for (MonitoringMonitor relation : relations) {
-                if (relation.getMonitoring() == null || relation.getMonitoring().getProfessor() == null) {
+            List<Professor> professors = professorRepository.findAll();
+            for (Professor professor : professors) {
+                if (professor.getId() == null || professor.getId().isBlank()) {
                     continue;
                 }
-                String professorId = relation.getMonitoring().getProfessor().getId();
-                String professorName = relation.getMonitoring().getProfessor().getName();
+                String professorId = professor.getId();
+                String professorName = buildProfessorName(professor);
                 String conversationId = buildConversationId(professorId, userId);
                 uniqueConversations.putIfAbsent(conversationId,
                         new ChatConversationDTO(conversationId, "Profesor: " + professorName, "Chat directo", professorId));
@@ -84,17 +84,26 @@ public class ChatServiceImpl implements ChatService {
         }
 
         List<ChatConversationDTO> ordered = new ArrayList<>(uniqueConversations.values());
-        ordered.sort(Comparator.comparing((ChatConversationDTO c) ->
-                chatMessageRepository.findTopByConversationIdOrderByCreatedAtDesc(c.getId())
-                        .map(ChatMessage::getCreatedAt)
-                        .orElse(new java.util.Date(0L))).reversed());
+        try {
+            ordered.sort(Comparator.comparing((ChatConversationDTO c) ->
+                    chatMessageRepository.findTopByConversationIdOrderByCreatedAtDesc(c.getId())
+                            .map(ChatMessage::getCreatedAt)
+                            .orElse(new java.util.Date(0L))).reversed());
+        } catch (Exception ignored) {
+            // Si la tabla chat_message no existe aún, mantenemos el orden actual para no bloquear el listado.
+        }
         return ordered;
     }
 
     @Override
     public List<ChatMessageDTO> getMessages(String conversationId) {
-        List<ChatMessage> messages = chatMessageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
-        return messages.stream().map(this::toDTO).toList();
+        try {
+            List<ChatMessage> messages = chatMessageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
+            return messages.stream().map(this::toDTO).toList();
+        } catch (Exception ignored) {
+            // Si la tabla chat_message no existe aún, devolvemos historial vacío para mantener la UI operativa.
+            return List.of();
+        }
     }
 
     @Override
@@ -248,5 +257,20 @@ public class ChatServiceImpl implements ChatService {
                 (m.getLastName() != null ? m.getLastName() : "")).trim())
                 .filter(s -> !s.isBlank())
                 .orElse("Monitor " + monitor.getCode());
+    }
+
+    private String buildProfessorName(Professor professor) {
+        if (professor == null) {
+            return "Profesor";
+        }
+        String full = professor.getName() != null ? professor.getName().trim() : "";
+        if (!full.isBlank()) {
+            return full;
+        }
+
+        Optional<Professor> fromRepo = professorRepository.findById(professor.getId());
+        return fromRepo.map(p -> p.getName() != null ? p.getName().trim() : "")
+                .filter(s -> !s.isBlank())
+                .orElse("Profesor " + professor.getId());
     }
 }
