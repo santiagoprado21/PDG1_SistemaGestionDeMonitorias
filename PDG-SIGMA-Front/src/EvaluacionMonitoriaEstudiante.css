@@ -1,0 +1,254 @@
+/* COMPONENTE: EvaluacionMonitoriaEstudiante */
+
+.monitoria-eval-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-secondary-bg);
+}
+
+.monitoria-eval-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.6fr) minmax(260px, 1fr);
+  gap: var(--space-6);
+  padding: var(--space-8);
+  margin-left: 14em;
+  width: calc(100% - 14em);
+}
+
+.monitoria-form-panel,
+.monitoria-share-panel,
+.monitoria-dashboard-panel {
+  background-color: var(--color-bg-body);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.monitoria-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: #fff;
+  text-align: left;
+}
+
+.monitoria-header h2 {
+  margin: 0 0 var(--space-2);
+}
+
+.monitoria-header p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.monitoria-instructions {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.monitoria-average {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.monitoria-average strong {
+  font-size: 1.5rem;
+}
+
+.monitoria-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.monitoria-meta-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.monitoria-meta-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.monitoria-meta-grid input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background-color: var(--color-bg-alt);
+  font-size: var(--fs-body);
+}
+
+.monitoria-section h3 {
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+}
+
+.monitoria-question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.monitoria-question label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.monitoria-scale {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.monitoria-scale-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-alt);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.monitoria-scale-option input {
+  accent-color: var(--color-primary);
+}
+
+.monitoria-text-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.monitoria-text-label textarea {
+  min-height: 96px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  resize: vertical;
+  background-color: var(--color-bg-alt);
+  font-family: inherit;
+  font-size: var(--fs-body);
+}
+
+.monitoria-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.monitoria-primary,
+.monitoria-secondary {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.monitoria-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.monitoria-secondary {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.monitoria-share-panel h2,
+.monitoria-dashboard-panel h2 {
+  margin: 0;
+}
+
+.monitoria-share-box {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.monitoria-share-box input {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background-color: var(--color-bg-alt);
+}
+
+.monitoria-share-box button {
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-4);
+  cursor: pointer;
+}
+
+.monitoria-share-note {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.monitoria-dashboard {
+  width: 100%;
+  min-height: 520px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.monitoria-placeholder {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-alt);
+  color: var(--color-text-secondary);
+}
+
+.monitoria-loading {
+  margin: auto;
+}
+
+@media (max-width: 1200px) {
+  .monitoria-eval-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .monitoria-eval-content {
+    margin-left: 0;
+    width: 100%;
+    padding: var(--space-5);
+  }
+
+  .monitoria-share-box {
+    flex-direction: column;
+  }
+}

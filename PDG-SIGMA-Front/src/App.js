@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import NotificationSettings from './NotificationSettings';
 import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
 import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
+import EvaluacionMonitoriaEstudiante from './EvaluacionMonitoriaEstudiante';
 
 // HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
 import CreateConvocatoria from './CreateConvocatoria';
@@ -65,6 +66,9 @@ function App() {
          {/* HU-015: Evaluación de monitores */}
          <Route path="/evaluar-monitores" element={<EvaluarMonitoresHU015 />} />
          <Route path="/mis-evaluaciones" element={<MisEvaluacionesHU015 />} />
+
+         {/* HU-022: Evaluacion experiencia con monitores */}
+         <Route path="/evaluacion-monitoria" element={<EvaluacionMonitoriaEstudiante />} />
 
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
