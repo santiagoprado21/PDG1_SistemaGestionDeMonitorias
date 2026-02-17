@@ -69,6 +69,9 @@ function App() {
          {/* HU-021: Evaluación de supervisor */}
          <Route path="/evaluar-supervisor" element={<EvaluarSupervisorHU021 />} />
 
+         {/* HU-022: Evaluacion experiencia con monitores */}
+         <Route path="/evaluacion-monitoria" element={<EvaluacionMonitoriaEstudiante />} />
+
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
 
