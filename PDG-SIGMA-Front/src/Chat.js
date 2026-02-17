@@ -1,51 +1,119 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import VerticalNavbar from './VerticalNavbar';
 import './Chat.css';
+import { BACKEND_URL } from './config/ApiBackend';
 
 function Chat() {
-  const role = localStorage.getItem('role');
-  const userName = localStorage.getItem('userName') || 'Profesor/a';
+  const role = (localStorage.getItem('role') || '').toLowerCase();
+  const userId = localStorage.getItem('userId') || '';
+  const userName = localStorage.getItem('userName') || 'Usuario';
 
-  // Mock de conversaciones: actividades y monitores
-  const conversations = useMemo(() => ([
-    {
-      id: 'conv-1',
-      title: 'Algoritmos - Monitor: Ana López',
-      subtitle: 'Act. 3: Taller de recursión',
-      unread: 2,
-      messages: [
-        { id: 'm1', from: 'Ana López', at: '09:20', text: 'Profe, ¿revisó el material?' },
-        { id: 'm2', from: userName, at: '09:45', text: 'Sí, está muy bien. Añade 2 ejemplos.' },
-        { id: 'm3', from: 'Ana López', at: '10:05', text: 'Perfecto, los preparo para hoy.' },
-      ],
-    },
-    {
-      id: 'conv-2',
-      title: 'Estructuras - Monitor: Carlos Díaz',
-      subtitle: 'Act. 1: Laboratorio Pilas/Colas',
-      unread: 0,
-      messages: [
-        { id: 'm1', from: userName, at: '08:10', text: 'Recuerda confirmar el salón del lab.' },
-        { id: 'm2', from: 'Carlos Díaz', at: '08:15', text: 'Salón L-302 confirmado.' },
-      ],
-    },
-    {
-      id: 'conv-3',
-      title: 'Bases de Datos - Monitor: María Pérez',
-      subtitle: 'Act. 2: Normalización',
-      unread: 5,
-      messages: [
-        { id: 'm1', from: 'María Pérez', at: '07:55', text: '¿Usamos el mismo dataset?' },
-      ],
-    },
-  ]), [userName]);
-
-  const [selectedId, setSelectedId] = useState(conversations[0]?.id);
-  const selected = conversations.find(c => c.id === selectedId);
+  const [conversations, setConversations] = useState([]);
+  const [selectedId, setSelectedId] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [loadingConversations, setLoadingConversations] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [error, setError] = useState('');
 
   const [draft, setDraft] = useState('');
   const [attachments, setAttachments] = useState([]); // [{file, preview}]
   const fileInputRef = useRef(null);
+
+  const selected = useMemo(
+    () => conversations.find(c => c.id === selectedId),
+    [conversations, selectedId]
+  );
+
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return {};
+    return {
+      Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`
+    };
+  };
+
+  const fetchConversations = async () => {
+    if (!userId || !role) return;
+    setLoadingConversations(true);
+    setError('');
+    try {
+      const response = await fetch(`${BACKEND_URL}/chat/conversations/${userId}/${role}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        }
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'No fue posible cargar conversaciones');
+      }
+      const data = await response.json();
+      setConversations(Array.isArray(data) ? data : []);
+
+      if (Array.isArray(data) && data.length > 0) {
+        setSelectedId(prev => {
+          if (prev && data.some(c => c.id === prev)) return prev;
+          return data[0].id;
+        });
+      } else {
+        setSelectedId('');
+        setMessages([]);
+      }
+    } catch (e) {
+      setError(typeof e.message === 'string' ? e.message : 'Error al cargar conversaciones');
+      setConversations([]);
+      setSelectedId('');
+      setMessages([]);
+    } finally {
+      setLoadingConversations(false);
+    }
+  };
+
+  const fetchMessages = async (conversationId) => {
+    if (!conversationId) return;
+    setLoadingMessages(true);
+    setError('');
+    try {
+      const response = await fetch(`${BACKEND_URL}/chat/messages/${conversationId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        }
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'No fue posible cargar mensajes');
+      }
+      const data = await response.json();
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setError(typeof e.message === 'string' ? e.message : 'Error al cargar mensajes');
+      setMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchConversations();
+  }, [userId, role]);
+
+  useEffect(() => {
+    if (selectedId) {
+      fetchMessages(selectedId);
+    }
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const interval = setInterval(() => {
+      fetchMessages(selectedId);
+      fetchConversations();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [selectedId]);
 
   const handleOpenFileDialog = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -64,26 +132,78 @@ function Chat() {
   };
 
   const removeAttachment = (index) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments(prev => {
+      const item = prev[index];
+      if (item?.preview) URL.revokeObjectURL(item.preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
-  const handleSend = () => {
+  const formatTime = (dateValue) => {
+    if (!dateValue) return '';
+    return new Date(dateValue).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const resolveAttachmentUrl = (att) => {
+    if (!att?.url) return '';
+    if (att.url.startsWith('http://') || att.url.startsWith('https://')) return att.url;
+    return `${BACKEND_URL}${att.url}`;
+  };
+
+  const handleSend = async () => {
     if (!draft.trim() && attachments.length === 0) return;
-    selected.messages.push({
-      id: 'm' + (selected.messages.length + 1),
-      from: userName,
-      at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: draft.trim(),
-      attachments: attachments.map(a => ({
-        name: a.file.name,
-        type: a.file.type,
-        size: a.file.size,
-        preview: a.preview
-      }))
-    });
-    // limpiar
-    setDraft('');
-    setAttachments([]);
+    if (!selected?.id || !selected?.otherUserId || !userId || !role) return;
+
+    const payload = {
+      conversationId: selected.id,
+      senderId: userId,
+      senderRole: role,
+      receiverId: selected.otherUserId,
+      message: draft.trim()
+    };
+
+    try {
+      setError('');
+      let response;
+
+      if (attachments.length > 0) {
+        const formData = new FormData();
+        formData.append('payload', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        attachments.forEach(a => formData.append('files', a.file));
+
+        response = await fetch(`${BACKEND_URL}/chat/messages/with-attachments`, {
+          method: 'POST',
+          headers: {
+            ...getAuthHeader()
+          },
+          body: formData
+        });
+      } else {
+        response = await fetch(`${BACKEND_URL}/chat/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'No fue posible enviar el mensaje');
+      }
+
+      attachments.forEach(a => {
+        if (a.preview) URL.revokeObjectURL(a.preview);
+      });
+      setDraft('');
+      setAttachments([]);
+      await fetchMessages(selected.id);
+      await fetchConversations();
+    } catch (e) {
+      setError(typeof e.message === 'string' ? e.message : 'Error al enviar mensaje');
+    }
   };
 
   return (
@@ -100,6 +220,8 @@ function Chat() {
               <p className="muted">Comunicación directa con monitores</p>
             </div>
             <div className="chat-conversation-list">
+              {loadingConversations && <p className="muted" style={{ padding: '0 16px' }}>Cargando conversaciones...</p>}
+              {!loadingConversations && conversations.length === 0 && <p className="muted" style={{ padding: '0 16px' }}>No tienes chats disponibles.</p>}
               {conversations.map(conv => (
                 <button
                   key={conv.id}
@@ -108,7 +230,6 @@ function Chat() {
                 >
                   <div className="item-titles">
                     <div className="item-title">{conv.title}</div>
-                    {!!conv.unread && <span className="badge">{conv.unread}</span>}
                   </div>
                   <div className="item-subtitle">{conv.subtitle}</div>
                 </button>
@@ -125,30 +246,33 @@ function Chat() {
             </div>
 
             <div className="chat-messages">
-              {(selected?.messages || []).map(msg => (
+              {!!error && <p className="muted">{error}</p>}
+              {loadingMessages && <p className="muted">Cargando mensajes...</p>}
+              {!loadingMessages && messages.length === 0 && <p className="muted">Aún no hay mensajes en esta conversación.</p>}
+              {messages.map(msg => (
                 <div
                   key={msg.id}
-                  className={"message-bubble " + (msg.from === userName ? 'own' : 'other')}
+                  className={"message-bubble " + (msg.senderId === userId ? 'own' : 'other')}
                 >
                   <div className="message-meta">
-                    <span className="author">{msg.from === userName ? 'Tú' : msg.from}</span>
-                    <span className="time">{msg.at}</span>
+                    <span className="author">{msg.senderId === userId ? 'Tú' : selected?.title?.replace(/^(Monitor: |Profesor: )/, '') || userName}</span>
+                    <span className="time">{formatTime(msg.createdAt)}</span>
                   </div>
-                  {!!msg.text && <div className="message-text">{msg.text}</div>}
+                  {!!msg.message && <div className="message-text">{msg.message}</div>}
                   {msg.attachments && msg.attachments.length > 0 && (
                     <div className="message-attachments">
                       {msg.attachments.map((att, i) => (
                         <div key={i} className="attachment-item">
-                          {att.preview && att.type.startsWith('image/') ? (
-                            <img src={att.preview} alt={att.name} className="attachment-thumb" />
+                          {att.contentType && att.contentType.startsWith('image/') ? (
+                            <img src={resolveAttachmentUrl(att)} alt={att.name} className="attachment-thumb" />
                           ) : (
                             <div className="attachment-file-icon" title={att.name}>
                               📎
                             </div>
                           )}
                           <div className="attachment-info" title={att.name}>
-                            <span className="attachment-name">{att.name}</span>
-                            <span className="attachment-size">{Math.round(att.size/1024)} KB</span>
+                            <a className="attachment-name" href={resolveAttachmentUrl(att)} target="_blank" rel="noreferrer">{att.name}</a>
+                            <span className="attachment-size">{Math.max(1, Math.round((att.size || 0)/1024))} KB</span>
                           </div>
                         </div>
                       ))}
@@ -179,9 +303,10 @@ function Chat() {
                   placeholder="Escribe un mensaje relacionado con la actividad..."
                   value={draft}
                   onChange={e => setDraft(e.target.value)}
+                  disabled={!selectedId}
                 />
                 <div className="input-actions">
-                  <button type="button" className="attach-btn" onClick={handleOpenFileDialog} title="Adjuntar archivos">📎</button>
+                  <button type="button" className="attach-btn" onClick={handleOpenFileDialog} title="Adjuntar archivos" disabled={!selectedId}>📎</button>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -189,7 +314,7 @@ function Chat() {
                     style={{display:'none'}}
                     onChange={handleFilesSelected}
                   />
-                  <button className="chat-send-button" onClick={handleSend}>Enviar</button>
+                  <button className="chat-send-button" onClick={handleSend} disabled={!selectedId}>Enviar</button>
                 </div>
               </div>
             </div>
