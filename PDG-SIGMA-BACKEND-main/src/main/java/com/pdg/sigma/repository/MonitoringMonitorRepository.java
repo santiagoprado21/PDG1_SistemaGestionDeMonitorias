@@ -4,6 +4,8 @@ import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.domain.MonitoringMonitor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,5 +26,11 @@ public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMon
     
     // Obtener monitorías aprobadas por el jefe de departamento
     List<MonitoringMonitor> findByEstadoSeleccion(String estadoSeleccion);
+
+    @Query("SELECT mm FROM MonitoringMonitor mm WHERE lower(mm.estadoSeleccion) = 'seleccionado' AND mm.monitoring.professor.id = :professorId")
+    List<MonitoringMonitor> findSelectedByProfessorId(@Param("professorId") String professorId);
+
+    @Query("SELECT mm FROM MonitoringMonitor mm WHERE lower(mm.estadoSeleccion) = 'seleccionado' AND mm.monitor.idMonitor = :monitorId")
+    List<MonitoringMonitor> findSelectedByMonitorId(@Param("monitorId") String monitorId);
 
 }
