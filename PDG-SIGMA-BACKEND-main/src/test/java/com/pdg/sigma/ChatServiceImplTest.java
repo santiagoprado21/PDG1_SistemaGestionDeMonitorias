@@ -106,6 +106,30 @@ class ChatServiceImplTest {
     }
 
     @Test
+    void sendMessage_withActivityId_keepsActivityReference() throws Exception {
+        ChatMessageCreateDTO payload = new ChatMessageCreateDTO();
+        payload.setConversationId("prof-PROF3__mon-MON3");
+        payload.setSenderId("PROF3");
+        payload.setSenderRole("professor");
+        payload.setReceiverId("MON3");
+        payload.setActivityId(88);
+        payload.setMessage("Revisa la actividad 88");
+
+        when(chatMessageRepository.save(any(ChatMessage.class))).thenAnswer(invocation -> {
+            ChatMessage message = invocation.getArgument(0);
+            message.setId(12L);
+            message.setCreatedAt(new Date());
+            return message;
+        });
+        when(chatAttachmentRepository.findByMessageIdOrderByIdAsc(12L)).thenReturn(List.of());
+
+        ChatMessageDTO result = chatService.sendMessage(payload, List.of());
+
+        assertThat(result.getActivityId()).isEqualTo(88);
+        assertThat(result.getMessage()).isEqualTo("Revisa la actividad 88");
+    }
+
+    @Test
     void sendMessage_withoutTextAndFiles_throwsValidationError() {
         ChatMessageCreateDTO payload = new ChatMessageCreateDTO();
         payload.setSenderId("PROF1");
