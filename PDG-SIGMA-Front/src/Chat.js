@@ -8,6 +8,22 @@ function Chat() {
   const userId = localStorage.getItem('userId') || '';
   const userName = localStorage.getItem('userName') || 'Usuario';
 
+  const getChatSeenStorageKey = () => `sigmaChatLastSeen:${role}:${userId}`;
+
+  const markConversationAsSeen = (conversationId, currentMessages) => {
+    if (!conversationId || !Array.isArray(currentMessages) || currentMessages.length === 0) return;
+    const latest = currentMessages[currentMessages.length - 1];
+    if (!latest?.createdAt) return;
+    try {
+      const key = getChatSeenStorageKey();
+      const current = JSON.parse(localStorage.getItem(key) || '{}');
+      current[conversationId] = latest.createdAt;
+      localStorage.setItem(key, JSON.stringify(current));
+    } catch {
+      // noop
+    }
+  };
+
   const [conversations, setConversations] = useState([]);
   const [selectedId, setSelectedId] = useState('');
   const [messages, setMessages] = useState([]);
@@ -51,6 +67,13 @@ function Chat() {
       const data = await response.json();
       setConversations(Array.isArray(data) ? data : []);
 
+      const focusConversationId = localStorage.getItem('focusChatConversationId');
+      if (focusConversationId && Array.isArray(data) && data.some(c => c.id === focusConversationId)) {
+        setSelectedId(focusConversationId);
+        localStorage.removeItem('focusChatConversationId');
+        return;
+      }
+
       if (Array.isArray(data) && data.length > 0) {
         setSelectedId(prev => {
           if (prev && data.some(c => c.id === prev)) return prev;
@@ -87,7 +110,9 @@ function Chat() {
         throw new Error(text || 'No fue posible cargar mensajes');
       }
       const data = await response.json();
-      setMessages(Array.isArray(data) ? data : []);
+      const safeMessages = Array.isArray(data) ? data : [];
+      setMessages(safeMessages);
+      markConversationAsSeen(conversationId, safeMessages);
     } catch (e) {
       setError(typeof e.message === 'string' ? e.message : 'Error al cargar mensajes');
       setMessages([]);
