@@ -34,6 +34,8 @@ function Chat() {
   const [draft, setDraft] = useState('');
   const [attachments, setAttachments] = useState([]); // [{file, preview}]
   const fileInputRef = useRef(null);
+  const messagesRef = useRef(null);
+  const shouldScrollToBottomRef = useRef(true);
 
   const selected = useMemo(
     () => conversations.find(c => c.id === selectedId),
@@ -139,6 +141,22 @@ function Chat() {
     }, 10000);
     return () => clearInterval(interval);
   }, [selectedId]);
+
+  useEffect(() => {
+    const container = messagesRef.current;
+    if (!container) return;
+
+    if (shouldScrollToBottomRef.current) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleMessagesScroll = () => {
+    const container = messagesRef.current;
+    if (!container) return;
+    const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    shouldScrollToBottomRef.current = distanceToBottom < 60;
+  };
 
   const handleOpenFileDialog = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -270,7 +288,7 @@ function Chat() {
               </div>
             </div>
 
-            <div className="chat-messages">
+            <div className="chat-messages" ref={messagesRef} onScroll={handleMessagesScroll}>
               {!!error && <p className="muted">{error}</p>}
               {loadingMessages && <p className="muted">Cargando mensajes...</p>}
               {!loadingMessages && messages.length === 0 && <p className="muted">Aún no hay mensajes en esta conversación.</p>}
