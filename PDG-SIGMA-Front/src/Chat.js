@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import VerticalNavbar from './VerticalNavbar';
 import './Chat.css';
 import { BACKEND_URL } from './config/ApiBackend';
-
+//.
 function Chat() {
   const role = (localStorage.getItem('role') || '').toLowerCase();
   const userId = localStorage.getItem('userId') || '';
