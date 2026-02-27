@@ -199,4 +199,100 @@
     margin-left: 4px;
     font-weight: bold;
   }
+
+  .monitor-table-controls {
+    width: 100%;
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .monitor-table-controls label {
+    width: 100%;
+    text-align: left;
+    max-width: 460px;
+    color: #4a4a4a;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .monitor-table-controls select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
+    min-width: 220px;
+    font-size: 0.95rem;
+    background: #fff;
+  }
+
+  .monitor-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 0.9rem;
+  }
+
+  .monitor-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .monitor-report-table th,
+  .monitor-report-table td {
+    padding: 0.6rem 0.55rem;
+    border-bottom: 1px solid #ececec;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .monitor-report-table thead th {
+    background: #f3f4fa;
+    color: #2f2f2f;
+    font-weight: 600;
+  }
+
+  .monitor-report-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .monitor-table-pagination {
+    width: 100%;
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    color: #4a4a4a;
+    font-size: 0.9rem;
+  }
+
+  .monitor-table-pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .monitor-table-pagination .chart-download-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .comparison-message {
+    margin-top: 0.85rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .comparison-message.positive {
+    color: rgb(0, 196, 159);
+  }
+
+  .comparison-message.negative {
+    color: rgb(255, 82, 82);
+  }
   

@@ -5,7 +5,7 @@ import autoTable from 'jspdf-autotable';
 import VerticalNavbar from './VerticalNavbar';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  PieChart, Pie, Cell,
+  Cell,
   LineChart, Line
 } from 'recharts';
 import {PopUp} from "./PopUp";
@@ -19,8 +19,6 @@ function Reports() {
   // console.log("Reports se está renderizando");
   const [asistenciaDataOriginal, setAsistenciaDataOriginal] = useState([]);
 
-  // const [categoryUsageDataOriginal, setCategoryUsageDataOriginal] = useState([]);
-  const [categoryReportData, setCategoryReportData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
@@ -34,6 +32,17 @@ function Reports() {
   const [course, setCourse] = useState('');
   const [professor, setProfessor] = useState('');
   const [monitor, setMonitor] = useState('');
+  const [selectedMonitorRow, setSelectedMonitorRow] = useState('');
+  const [monitorSortBy, setMonitorSortBy] = useState('name_asc');
+  const [monitorPage, setMonitorPage] = useState(1);
+
+  const loggedUserId = localStorage.getItem('userId');
+  const loggedRole = (localStorage.getItem('role') || '').toLowerCase();
+
+  const normalizeProfessorName = (name = '') => {
+    const cleaned = String(name).replace(/^\s*dra?\.?\s+/i, '').trim();
+    return cleaned || 'Profesor';
+  };
 
   //Porcentaje efectividad por materia de monitores
   const[completedPercent, setCompletedPercent] = useState("")
@@ -49,9 +58,13 @@ function Reports() {
 
   const fetchReportsData = useCallback(async () => {
     const user = localStorage.getItem('userId');
-    const currentRole = localStorage.getItem('role');
+    const currentRole = (localStorage.getItem('role') || '').toLowerCase();
+    const isProfessorRole = currentRole === 'professor';
 
     if (!user || !currentRole) {
+      setMessage("No se pudo cargar la información: inicia sesión nuevamente para consultar reportes.");
+      setIsOpen(true);
+      setChange(true);
       return;
     }
 
@@ -65,19 +78,35 @@ function Reports() {
           },
       });
       const monitorJson = await monitorResponse.json();
-      setMonitorPerformanceDataOriginal(Array.isArray(monitorJson) ? monitorJson : []);
+      const monitorList = Array.isArray(monitorJson) ? monitorJson : [];
+      const scopedMonitorList = isProfessorRole
+        ? monitorList.filter((item) => String(item.idProfessor) === String(user))
+        : monitorList;
+      setMonitorPerformanceDataOriginal(scopedMonitorList);
 
       let professorList = [];
-      const professorIds = [...new Set((Array.isArray(monitorJson) ? monitorJson : []).map(report => report.idProfessor).filter(Boolean))];
-      for (const value of professorIds) {
-        const professorResponse = await fetch(`${BACKEND_URL}/monitoring/getProfessorReport/${value}`,{
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,
-                'Authorization':localStorage.getItem('token')
-            },
+      if (isProfessorRole && user) {
+        const professorResponse = await fetch(`${BACKEND_URL}/monitoring/getProfessorReport/${user}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token')
+          },
         });
         const professorJson = await professorResponse.json();
-        professorList = professorList.concat(Array.isArray(professorJson) ? professorJson : []);
+        professorList = Array.isArray(professorJson) ? professorJson : [];
+      } else {
+        const professorIds = [...new Set(scopedMonitorList.map(report => report.idProfessor).filter(Boolean))];
+        for (const value of professorIds) {
+          const professorResponse = await fetch(`${BACKEND_URL}/monitoring/getProfessorReport/${value}`,{
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' ,
+                  'Authorization':localStorage.getItem('token')
+              },
+          });
+          const professorJson = await professorResponse.json();
+          professorList = professorList.concat(Array.isArray(professorJson) ? professorJson : []);
+        }
       }
       setProfessorDataOriginal(professorList);
 
@@ -89,24 +118,9 @@ function Reports() {
           });
       const attendanceJson = await attendanceResponse.json();
       setAsistenciaDataOriginal(Array.isArray(attendanceJson) ? attendanceJson : []);
-
-      const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${currentRole}/${user}`;
-      const categoriesResponse = await fetch(url,{
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' ,
-              'Authorization':localStorage.getItem('token')
-          },
-          });
-      if (!categoriesResponse.ok) {
-          const errorData = await categoriesResponse.json().catch(() => ({}));
-          throw new Error(errorData.error || `Error ${categoriesResponse.status}`);
-      }
-      const categoriesJson = await categoriesResponse.json();
-      setCategoryReportData(categoriesJson || null);
       setLastUpdatedAt(new Date());
     } catch (error) {
       console.error("Error actualizando reportes en tiempo real:", error);
-      setCategoryReportData(null);
     } finally {
       setIsRefreshing(false);
     }
@@ -116,6 +130,10 @@ function Reports() {
     setMessage("Usa los filtros de período, departamento, profesor o monitor para consultar el dashboard de reportes.")
     setIsOpen(true)
     setChange(true)
+  }, [fetchReportsData]);
+
+  useEffect(() => {
+    fetchReportsData();
   }, [fetchReportsData]);
 
   const getValues = (data) =>{
@@ -162,8 +180,6 @@ function Reports() {
   // const monitorPerformanceDataOriginal = [
   //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, semestre: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
   // ];
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   //  Función que aplica los filtros actuales
   const applyFilters = (data) => {
@@ -220,6 +236,29 @@ function Reports() {
     [professorDataOriginal, semester, program, course, professor]
   );
 
+  const professorChartData = useMemo(() => {
+    const groupedByProfessor = new Map();
+
+    dashboardProfessorData.forEach((item) => {
+      const professorName = normalizeProfessorName(item.name || 'Profesor');
+      if (!groupedByProfessor.has(professorName)) {
+        groupedByProfessor.set(professorName, {
+          name: professorName,
+          completed: 0,
+          pending: 0,
+          late: 0
+        });
+      }
+
+      const current = groupedByProfessor.get(professorName);
+      current.completed += Number(item.completed) || 0;
+      current.pending += Number(item.pending) || 0;
+      current.late += Number(item.late) || 0;
+    });
+
+    return Array.from(groupedByProfessor.values());
+  }, [dashboardProfessorData]);
+
   const dashboardMetrics = useMemo(() => {
     const totalMonitors = new Set(dashboardMonitorData.map(d => d.name)).size;
     const totalProfessors = new Set(dashboardMonitorData.map(d => d.professor)).size;
@@ -249,6 +288,147 @@ function Reports() {
     };
   }, [dashboardMonitorData, dashboardProfessorData]);
 
+  const periodComparison = useMemo(() => {
+    const parseSemesterOrder = (value) => {
+      const normalized = String(value || '').trim();
+      const match = normalized.match(/(\d{4})\D*(\d{1,2})?/);
+      if (!match) return -1;
+
+      const year = Number(match[1]) || 0;
+      const term = Number(match[2]) || 0;
+      return (year * 100) + term;
+    };
+
+    const scopedByFilters = monitorPerformanceDataOriginal.filter((item) =>
+      (!program || item.program === program) &&
+      (!course || item.course === course) &&
+      (!professor || item.professor === professor) &&
+      (!monitor || item.name === monitor)
+    );
+
+    const semesters = [...new Set(scopedByFilters.map((item) => item.semester).filter(Boolean))]
+      .sort((a, b) => parseSemesterOrder(b) - parseSemesterOrder(a));
+
+    if (semesters.length === 0) {
+      return {
+        currentSemester: null,
+        previousSemester: null,
+        currentCompliance: 0,
+        previousCompliance: 0,
+        delta: 0
+      };
+    }
+
+    const currentSemester = semester || semesters[0];
+    const currentIndex = semesters.findIndex((value) => value === currentSemester);
+    const previousSemester = currentIndex >= 0 && currentIndex < semesters.length - 1
+      ? semesters[currentIndex + 1]
+      : null;
+
+    const getSemesterBreakdown = (targetSemester) => {
+      if (!targetSemester) {
+        return {
+          completed: 0,
+          pending: 0,
+          late: 0,
+          compliance: 0
+        };
+      }
+
+      const totals = scopedByFilters
+        .filter((item) => item.semester === targetSemester)
+        .reduce((acc, item) => {
+          acc.completed += Number(item.completed) || 0;
+          acc.pending += Number(item.pending) || 0;
+          acc.late += Number(item.late) || 0;
+          return acc;
+        }, { completed: 0, pending: 0, late: 0 });
+
+      const totalBase = totals.completed + totals.pending + totals.late;
+      if (totalBase === 0) {
+        return {
+          completed: 0,
+          pending: 0,
+          late: 0,
+          compliance: 0
+        };
+      }
+
+      const completed = Math.round((totals.completed / totalBase) * 100);
+      const pending = Math.round((totals.pending / totalBase) * 100);
+      const late = Math.max(0, 100 - completed - pending);
+
+      return {
+        completed,
+        pending,
+        late,
+        compliance: completed
+      };
+    };
+
+    const currentBreakdown = getSemesterBreakdown(currentSemester);
+    const previousBreakdown = getSemesterBreakdown(previousSemester);
+    const currentCompliance = currentBreakdown.compliance;
+    const previousCompliance = previousBreakdown.compliance;
+
+    return {
+      currentSemester,
+      previousSemester,
+      currentCompliance,
+      previousCompliance,
+      delta: currentCompliance - previousCompliance,
+      currentBreakdown,
+      previousBreakdown
+    };
+  }, [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]);
+
+  const periodComparisonChartData = useMemo(() => {
+    if (!periodComparison.currentSemester) return [];
+
+    const rows = [
+      {
+        periodo: `${periodComparison.currentSemester} (actual)`,
+        cumplimiento: periodComparison.currentCompliance
+      }
+    ];
+
+    if (periodComparison.previousSemester) {
+      rows.push({
+        periodo: `${periodComparison.previousSemester} (anterior)`,
+        cumplimiento: periodComparison.previousCompliance
+      });
+    }
+
+    const maxCompliance = Math.max(...rows.map((row) => row.cumplimiento));
+    const minCompliance = Math.min(...rows.map((row) => row.cumplimiento));
+
+    return rows.map((row) => ({
+      ...row,
+      barColor: row.cumplimiento === maxCompliance && maxCompliance !== minCompliance
+        ? 'rgb(0, 196, 159)'
+        : row.cumplimiento === minCompliance && maxCompliance !== minCompliance
+          ? 'rgb(255, 82, 82)'
+          : 'rgb(0, 196, 159)'
+    }));
+
+  }, [periodComparison]);
+
+  const periodComparisonMessage = useMemo(() => {
+    if (!periodComparison.currentSemester) {
+      return 'Sin datos suficientes para comparar períodos.';
+    }
+    if (!periodComparison.previousSemester) {
+      return 'No hay período anterior disponible para comparar.';
+    }
+    if (periodComparison.delta > 0) {
+      return `El cumplimiento actual ha subido ${periodComparison.delta}% frente al período anterior.`;
+    }
+    if (periodComparison.delta < 0) {
+      return `El cumplimiento actual ha bajado ${Math.abs(periodComparison.delta)}% frente al período anterior.`;
+    }
+    return 'El cumplimiento actual se mantuvo igual frente al período anterior.';
+  }, [periodComparison]);
+
   const chartReadyAttendanceData = filteredAttendanceData.map(d => {
     let displayValue;
     let attendance;
@@ -270,43 +450,6 @@ function Reports() {
   });
 
   const lineName = course ? `Asistentes - ${course}` : "Total Asistentes";
-
-  const pieChartData = useMemo(() => {
-    if (!categoryReportData) {
-      return [];
-    }
-    if(program ==='' || semester === '') {
-      return [];
-    }
-
-    if (course) {
-      const courseDetail = categoryReportData.detalle_por_curso?.find(
-        (detail) => detail.curso === course
-      );
-    
-      if (courseDetail && Array.isArray(courseDetail.categorias)) {
-        return courseDetail.categorias.map(cat => ({
-          categoria: cat.categoria,
-          cantidad_total: cat.cantidad 
-        }))
-        .slice(0, 5);
-      } else {
-        return [];
-      }
-    } else {
-      const totals = categoryReportData?.totales_por_categoria;
-      if (Array.isArray(totals)) {
-        console.log("Calculando pieChartData: Devolviendo totales:", totals);
-        return totals.slice(0, 5);
-      } else {
-        console.warn("totales_por_categoria no es un arreglo válido:", totals);
-        return [];
-      }
-    }
-    
-  }, [categoryReportData, course, program, semester]); 
-
-    const categoryChartTitle = course ? `Uso de Categorías - ${course}` : "Top 5 de actividades por categoría";
 
    const exportToCSV = (data, filename, filters) => {
     if (!data || data.length === 0) return;
@@ -396,7 +539,80 @@ function Reports() {
 
 
   const monitorPerformanceData = dashboardMonitorData;
-  const professorData = dashboardProfessorData;
+  const professorData = professorChartData;
+  const MONITOR_PAGE_SIZE = 10;
+
+  const monitorSummaryRows = useMemo(() => {
+    const groupedByMonitor = new Map();
+
+    monitorPerformanceData.forEach((item) => {
+      const monitorName = item.name || 'Sin nombre';
+      if (!groupedByMonitor.has(monitorName)) {
+        groupedByMonitor.set(monitorName, {
+          name: monitorName,
+          completed: 0,
+          pending: 0,
+          late: 0
+        });
+      }
+
+      const current = groupedByMonitor.get(monitorName);
+      current.completed += Number(item.completed) || 0;
+      current.pending += Number(item.pending) || 0;
+      current.late += Number(item.late) || 0;
+    });
+
+    return Array.from(groupedByMonitor.values()).map((item) => {
+      const total = item.completed + item.pending + item.late;
+      const compliance = total > 0 ? Math.round((item.completed / total) * 100) : 0;
+
+      return {
+        ...item,
+        total,
+        compliance
+      };
+    });
+  }, [monitorPerformanceData]);
+
+  const monitorRowOptions = useMemo(() => {
+    return [...monitorSummaryRows]
+      .map((item) => item.name)
+      .sort((a, b) => a.localeCompare(b));
+  }, [monitorSummaryRows]);
+
+  const filteredSortedMonitorRows = useMemo(() => {
+    const filtered = monitorSummaryRows.filter((item) =>
+      !selectedMonitorRow || item.name === selectedMonitorRow
+    );
+
+    const sorted = [...filtered].sort((a, b) => {
+      if (monitorSortBy === 'name_asc') return a.name.localeCompare(b.name);
+      if (monitorSortBy === 'name_desc') return b.name.localeCompare(a.name);
+      return a.name.localeCompare(b.name);
+    });
+
+    return sorted;
+  }, [monitorSummaryRows, selectedMonitorRow, monitorSortBy]);
+
+  const monitorPageCount = Math.max(1, Math.ceil(filteredSortedMonitorRows.length / MONITOR_PAGE_SIZE));
+
+  const paginatedMonitorRows = useMemo(() => {
+    const start = (monitorPage - 1) * MONITOR_PAGE_SIZE;
+    return filteredSortedMonitorRows.slice(start, start + MONITOR_PAGE_SIZE);
+  }, [filteredSortedMonitorRows, monitorPage]);
+
+  const monitorPageStart = filteredSortedMonitorRows.length === 0 ? 0 : ((monitorPage - 1) * MONITOR_PAGE_SIZE) + 1;
+  const monitorPageEnd = Math.min(monitorPage * MONITOR_PAGE_SIZE, filteredSortedMonitorRows.length);
+
+  useEffect(() => {
+    setMonitorPage(1);
+  }, [selectedMonitorRow, monitorSortBy, monitorSummaryRows.length]);
+
+  useEffect(() => {
+    if (monitorPage > monitorPageCount) {
+      setMonitorPage(monitorPageCount);
+    }
+  }, [monitorPage, monitorPageCount]);
 
   //Porcentaje actividades monitores
 
@@ -479,7 +695,7 @@ useEffect(() => {
       >{message}
       </PopUp>
       <div className="reports-top-bar">
-        <h2 className="reports-title">Dashboard de Reportes de Cumplimiento</h2>
+        <h2 className="reports-title">Reportes de cumplimientos</h2>
         <div className="realtime-status">
           <span>{isRefreshing ? 'Actualizando datos...' : `Última actualización: ${lastUpdatedAt ? lastUpdatedAt.toLocaleTimeString('es-CO') : 'pendiente'}`}</span>
           <button
@@ -571,92 +787,178 @@ useEffect(() => {
                 <span>Cumplimiento de monitores</span>
                 <strong>{dashboardMetrics.monitorCompliance}%</strong>
               </div>
+              <div className="dashboard-metric-card">
+                <span>Comparativo período actual vs anterior</span>
+                <strong>
+                  {periodComparison.previousSemester
+                    ? `${periodComparison.delta >= 0 ? 'Ha subido' : 'Ha bajado'} ${Math.abs(periodComparison.delta)}%`
+                    : 'N/D'}
+                </strong>
+                <span>
+                  {periodComparison.currentSemester
+                    ? `${periodComparison.currentSemester}: ${periodComparison.currentCompliance}%`
+                    : 'Sin datos de período'}
+                  {periodComparison.previousSemester
+                    ? ` | ${periodComparison.previousSemester}: ${periodComparison.previousCompliance}%`
+                    : ''}
+                </span>
+              </div>
             </div>
           </div>
+
+          <div className="chart-card">
+            <h3>Comparativo período actual vs anterior</h3>
+            <BarChart width={500} height={260} data={periodComparisonChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="periodo" />
+              <YAxis allowDecimals={false} domain={[0, 100]} />
+              <Tooltip formatter={(value) => [`${value}%`, 'Cumplimiento']} />
+              <Legend />
+              <Bar dataKey="cumplimiento" name="Cumplimiento">
+                {periodComparisonChartData.map((entry) => (
+                  <Cell key={`comparison-cell-${entry.periodo}`} fill={entry.barColor} />
+                ))}
+              </Bar>
+            </BarChart>
+            <p className={`comparison-message ${periodComparison.delta >= 0 ? 'positive' : 'negative'}`}>
+              {periodComparisonMessage}
+            </p>
+          </div>
           
-    {/* Gráfico de barras - MONITOR */}
     <div className="chart-card">
       <h3>Rendimiento de monitores</h3>
-      <BarChart width={500} height={300} data={monitorPerformanceData}>
+      <BarChart width={500} height={260} data={paginatedMonitorRows}>
         <CartesianGrid strokeDasharray="3 3" />
-        
-        {/* Mostrar solo el nombre del monitor */}
-        <XAxis 
-          dataKey="nameAndCourse" 
-          tickFormatter={(value) => value.split(' ')[0]} 
-        />
-        
-        <YAxis />
-        
-        {/* Tooltip */}
-        <Tooltip 
+        <XAxis dataKey="name" />
+        <YAxis allowDecimals={false} />
+        <Tooltip
           formatter={(value, name, props) => {
             const map = {
               completed: 'Completado',
               pending: 'Pendiente',
-              late: 'Tarde',
+              late: 'Tarde'
             };
 
             const payload = props.payload;
+            const completed = payload?.completed || 0;
+            const pending = payload?.pending || 0;
+            const late = payload?.late || 0;
+            const total = completed + pending + late;
+            const percentage = total > 0 ? Math.round((Number(value) / total) * 100) : 0;
 
-            if (payload && typeof value === 'number') {
-              const completed = payload.completed || 0;
-              const pending = payload.pending || 0;
-              const late = payload.late || 0;
-              const total = completed + pending + late;
-
-              const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-
-              return [`${value} actividades - ${percentage}%`, map[name] || name];
-            }
-
-            return [`${value}`, map[name] || name];
+            return [`${value} actividades (${percentage}%)`, map[name] || name];
           }}
-          labelFormatter={(label) => `${label}`}
         />
-
-        {/* Legend */}
-        <Legend 
+        <Legend
           formatter={(value) => {
             const map = {
               completed: 'Completado',
               pending: 'Pendiente',
-              late: 'Tarde',
+              late: 'Tarde'
             };
             return map[value] || value;
-          }} 
+          }}
         />
-        
-        {/* Barra de Completado */}
         <Bar dataKey="completed" stackId="a" fill="rgb(0, 196, 159)" />
-
-        {/* Barra de Pendiente */}
-        <Bar dataKey="pending" stackId="a" fill="rgb(255, 82, 82)"/>
-
-        {/* Barra de Tarde */}
+        <Bar dataKey="pending" stackId="a" fill="rgb(255, 82, 82)" />
         <Bar dataKey="late" stackId="a" fill="rgb(255, 187, 40)" />
-           
       </BarChart>
 
-          <div className="chart-download-container">
-            <button className="chart-download-button" onClick={() => exportToCSV(monitorPerformanceData, 'Rendimiento_Monitores', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>Descargar CSV</button>
-            <button className="chart-download-button" onClick={() => exportToPDF(monitorPerformanceData, 'Rendimiento_Monitores', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>Descargar PDF</button>
-          </div>
+      <div className="monitor-table-controls">
+        <label htmlFor="monitor-row-select">Selecciona monitor</label>
+        <select
+          id="monitor-row-select"
+          value={selectedMonitorRow}
+          onChange={(e) => setSelectedMonitorRow(e.target.value)}
+        >
+          <option value="">Todos los monitores</option>
+          {monitorRowOptions.map((monitorName) => (
+            <option key={monitorName} value={monitorName}>
+              {monitorName}
+            </option>
+          ))}
+        </select>
+        <select value={monitorSortBy} onChange={(e) => setMonitorSortBy(e.target.value)}>
+          <option value="name_asc">Ordenar: nombre (A-Z)</option>
+          <option value="name_desc">Ordenar: nombre (Z-A)</option>
+        </select>
+      </div>
+
+      <div className="monitor-table-wrapper">
+        <table className="monitor-report-table">
+          <thead>
+            <tr>
+              <th>Monitor</th>
+              <th>Completadas</th>
+              <th>Pendientes</th>
+              <th>Tardías</th>
+              <th>Total</th>
+              <th>Cumplimiento</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedMonitorRows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>No hay datos para los filtros actuales.</td>
+              </tr>
+            ) : (
+              paginatedMonitorRows.map((item) => (
+                <tr key={item.name}>
+                  <td>{item.name}</td>
+                  <td>{item.completed}</td>
+                  <td>{item.pending}</td>
+                  <td>{item.late}</td>
+                  <td>{item.total}</td>
+                  <td>{item.compliance}%</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="monitor-table-pagination">
+        <span>{`Mostrando ${monitorPageStart}-${monitorPageEnd} de ${filteredSortedMonitorRows.length}`}</span>
+        <div className="monitor-table-pagination-actions">
+          <button
+            className="chart-download-button"
+            type="button"
+            disabled={monitorPage <= 1}
+            onClick={() => setMonitorPage((prev) => Math.max(1, prev - 1))}
+          >
+            Anterior
+          </button>
+          <span>{`Página ${monitorPage} de ${monitorPageCount}`}</span>
+          <button
+            className="chart-download-button"
+            type="button"
+            disabled={monitorPage >= monitorPageCount}
+            onClick={() => setMonitorPage((prev) => Math.min(monitorPageCount, prev + 1))}
+          >
+            Siguiente
+          </button>
         </div>
+      </div>
+
+      <div className="chart-download-container">
+        <button className="chart-download-button" onClick={() => exportToCSV(monitorSummaryRows, 'Rendimiento_Monitores', {
+              semester,
+              program,
+              course,
+              professor,
+              monitor
+            })
+          }>Descargar CSV</button>
+        <button className="chart-download-button" onClick={() => exportToPDF(monitorSummaryRows, 'Rendimiento_Monitores', {
+              semester,
+              program,
+              course,
+              professor,
+              monitor
+            })
+          }>Descargar PDF</button>
+      </div>
+    </div>
 
 
          {/* Porcentaje de tareas - MONITOR*/}
@@ -686,51 +988,6 @@ useEffect(() => {
                 })
               }>Descargar CSV</button>
               <button className="chart-download-button" onClick={() => exportToPDF(porcentages, 'Resumen_Tareas_Monitor', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>Descargar PDF</button>
-            </div>
-          </div>
-
-          {/* Gráfico de pastel*/}
-          <div className="chart-card">
-            <h3>{categoryChartTitle}</h3>
-             <PieChart width={400} height={300}>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="cantidad_total"
-                nameKey="categoria"
-                label={({ categoria }) => categoria}
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}-${entry.categoria}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value, name, props) => {
-                  const total = pieChartData.reduce((acc, curr) => acc + curr.cantidad_total, 0);
-                  const percent = ((value / total) * 100).toFixed(1);
-                  return [`${value} actividades (${percent}%)`, 'Cantidad'];
-                }} 
-              />
-            </PieChart>
-            <div className="chart-download-container">
-              <button className="chart-download-button" onClick={() => exportToCSV(pieChartData, 'Categorias_Por_Curso', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>Descargar CSV</button>
-              <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
                   semester,
                   program,
                   course,
@@ -789,7 +1046,7 @@ useEffect(() => {
               {/* Mostrar solo el nombre (jeje sin el apellido) en el eje X */}
               <XAxis 
                 dataKey="name" 
-                tickFormatter={(value) => value.split(' ')[0]} 
+                tickFormatter={(value) => normalizeProfessorName(value)} 
               />
               
               <YAxis />
@@ -818,15 +1075,7 @@ useEffect(() => {
                   return [`${value}`, map[name] || name];
                 }}
 
-                labelFormatter={(label) => {
-                  const parts = label.split(' ');
-                  if (parts.length >= 3) {
-                    const nombreCompleto = `${parts[0]} ${parts[1]}`;
-                    const nombreCurso = parts.slice(2).join(' ');
-                    return `${nombreCompleto} ${nombreCurso}`;
-                  }
-                  return label; // fallback
-                }}
+                labelFormatter={(label) => `Profesor: ${normalizeProfessorName(label)}`}
               />
 
 
