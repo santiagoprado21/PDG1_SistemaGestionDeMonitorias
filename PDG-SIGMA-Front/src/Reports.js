@@ -288,8 +288,6 @@ function Reports() {
     
   }, [categoryReportData, course]); 
 
-    const categoryChartTitle = course ? `Uso de Categorías - ${course}` : "Top 5 de actividades por categoría";
-
    const exportToCSV = (data, filename, filters) => {
     if (!data || data.length === 0) return;
 
@@ -408,6 +406,93 @@ function Reports() {
   const coursesToShow = getValues("courses", { semester, program });
   const professorsToShow = getValues("professors", { semester, program, course });
   const monitorsToShow = getValues("monitors", { semester, program, course, professor });
+
+  const parseSemesterOrder = (semesterValue) => {
+    const value = String(semesterValue || '').trim();
+    const match = value.match(/^(\d{4})[-\/.](\d)$/);
+    if (!match) return Number.MIN_SAFE_INTEGER;
+    const year = Number(match[1]);
+    const period = Number(match[2]);
+    if (Number.isNaN(year) || Number.isNaN(period)) return Number.MIN_SAFE_INTEGER;
+    return year * 10 + period;
+  };
+
+  const semesterComparison = useMemo(() => {
+    const source = Array.isArray(monitorPerformanceDataOriginal)
+      ? monitorPerformanceDataOriginal.filter(item =>
+          (!program || item.program === program) &&
+          (!course || item.course === course) &&
+          (!professor || item.professor === professor) &&
+          (!monitor || item.name === monitor)
+        )
+      : [];
+
+    const semesterSet = [...new Set(source.map(item => item.semester).filter(Boolean))];
+    const orderedSemesters = semesterSet.sort((a, b) => parseSemesterOrder(a) - parseSemesterOrder(b));
+
+    if (orderedSemesters.length === 0) {
+      return {
+        chartData: [],
+        exportData: [],
+        currentSemester: '',
+        previousSemester: '',
+      };
+    }
+
+    const currentSemester = orderedSemesters.includes(semester)
+      ? semester
+      : orderedSemesters[orderedSemesters.length - 1];
+
+    const currentIndex = orderedSemesters.indexOf(currentSemester);
+    const previousSemester = currentIndex > 0 ? orderedSemesters[currentIndex - 1] : '';
+
+    const aggregateBySemester = (semesterValue) => {
+      return source
+        .filter(item => item.semester === semesterValue)
+        .reduce((accumulator, item) => {
+          accumulator.completed += item.completed || 0;
+          accumulator.pending += item.pending || 0;
+          accumulator.late += item.late || 0;
+          return accumulator;
+        }, { completed: 0, pending: 0, late: 0 });
+    };
+
+    const currentTotals = aggregateBySemester(currentSemester);
+    const previousTotals = previousSemester
+      ? aggregateBySemester(previousSemester)
+      : { completed: 0, pending: 0, late: 0 };
+
+    const chartData = [
+      {
+        indicador: 'Completadas',
+        [currentSemester]: currentTotals.completed,
+        [previousSemester || 'Semestre anterior']: previousTotals.completed,
+      },
+      {
+        indicador: 'Pendientes',
+        [currentSemester]: currentTotals.pending,
+        [previousSemester || 'Semestre anterior']: previousTotals.pending,
+      },
+      {
+        indicador: 'Tardías',
+        [currentSemester]: currentTotals.late,
+        [previousSemester || 'Semestre anterior']: previousTotals.late,
+      },
+    ];
+
+    const exportData = chartData.map(row => ({
+      Indicador: row.indicador,
+      [currentSemester]: row[currentSemester],
+      [previousSemester || 'Semestre anterior']: row[previousSemester || 'Semestre anterior'],
+    }));
+
+    return {
+      chartData,
+      exportData,
+      currentSemester,
+      previousSemester,
+    };
+  }, [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]);
 
 
   const [monitorPerformanceData, setMonitorPerformanceData] = useState([]);
@@ -701,6 +786,49 @@ useEffect(() => {
           </div>
         </div>
 
+        <div className="chart-card">
+          <h3>
+            {semesterComparison.previousSemester
+              ? `Comparativo por semestre (${semesterComparison.previousSemester} vs ${semesterComparison.currentSemester})`
+              : 'Comparativo por semestre'}
+          </h3>
+
+          {semesterComparison.previousSemester ? (
+            <>
+              <BarChart width={500} height={300} data={semesterComparison.chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="indicador" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={semesterComparison.previousSemester} fill="rgb(255, 187, 40)" />
+                <Bar dataKey={semesterComparison.currentSemester} fill="rgb(0, 196, 159)" />
+              </BarChart>
+
+              <div className="chart-download-container">
+                <button className="chart-download-button" onClick={() => exportToCSV(semesterComparison.exportData, 'Comparativo_Semestres', {
+                      semester,
+                      program,
+                      course,
+                      professor,
+                      monitor
+                    })
+                  }>CSV</button>
+                <button className="chart-download-button" onClick={() => exportToPDF(semesterComparison.exportData, 'Comparativo_Semestres', {
+                      semester,
+                      program,
+                      course,
+                      professor,
+                      monitor
+                    })
+                  }>PDF</button>
+              </div>
+            </>
+          ) : (
+            <p>No hay suficientes semestres con datos para comparar.</p>
+          )}
+        </div>
+
 
          {/* Porcentaje de tareas - MONITOR*/}
          <div className="chart-card">
@@ -740,49 +868,51 @@ useEffect(() => {
           </div>
 
           {/* Gráfico de pastel*/}
-          <div className="chart-card">
-            <h3>{categoryChartTitle}</h3>
-             <PieChart width={400} height={300}>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="cantidad_total"
-                nameKey="categoria"
-                label={({ categoria }) => categoria}
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}-${entry.categoria}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value, name, props) => {
-                  const total = pieChartData.reduce((acc, curr) => acc + curr.cantidad_total, 0);
-                  const percent = ((value / total) * 100).toFixed(1);
-                  return [`${value} actividades (${percent}%)`, 'Cantidad'];
-                }} 
-              />
-            </PieChart>
-            <div className="chart-download-container">
-              <button className="chart-download-button" onClick={() => exportToCSV(pieChartData, 'Categorias_Por_Curso', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>CSV</button>
-              <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>PDF</button>
+          {course && (
+            <div className="chart-card">
+              <h3>{`Uso de Categorías - ${course}`}</h3>
+               <PieChart width={400} height={300}>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="cantidad_total"
+                  nameKey="categoria"
+                  label={({ categoria }) => categoria}
+                >
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}-${entry.categoria}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name, props) => {
+                    const total = pieChartData.reduce((acc, curr) => acc + curr.cantidad_total, 0);
+                    const percent = ((value / total) * 100).toFixed(1);
+                    return [`${value} actividades (${percent}%)`, 'Cantidad'];
+                  }} 
+                />
+              </PieChart>
+              <div className="chart-download-container">
+                <button className="chart-download-button" onClick={() => exportToCSV(pieChartData, 'Categorias_Por_Curso', {
+                    semester,
+                    program,
+                    course,
+                    professor,
+                    monitor
+                  })
+                }>CSV</button>
+                <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
+                    semester,
+                    program,
+                    course,
+                    professor,
+                    monitor
+                  })
+                }>PDF</button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Asistencias */}
           <div className="chart-card">
