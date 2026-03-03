@@ -12,6 +12,8 @@ import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
 import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
 import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
 import EvaluacionMonitoriaEstudiante from './EvaluacionMonitoriaEstudiante';
+import Chat from './Chat';
+
 
 // HU-010: Componentes para el flujo de convocatorias (nuevo flujo único)
 import CreateConvocatoria from './CreateConvocatoria';
@@ -74,6 +76,9 @@ function App() {
 
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
+
+         {/* Chat interno (UI) */}
+         <Route path="/chat" element={<Chat />} />
 
          {/* ========== HU-010: Rutas para Convocatorias de Monitoría ========== */}
          
