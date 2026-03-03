@@ -333,6 +333,72 @@ function Reports() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const exportToPDF = (data, filename, filters) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const tableHeaders = headers.map(header => `<th>${header}</th>`).join('');
+    const tableRows = data
+      .map(row => {
+        const values = headers
+          .map(header => {
+            const rawValue = row[header];
+            const value = typeof rawValue === 'object' && rawValue !== null
+              ? JSON.stringify(rawValue)
+              : (rawValue ?? '');
+            return `<td>${value}</td>`;
+          })
+          .join('');
+        return `<tr>${values}</tr>`;
+      })
+      .join('');
+
+    const filtersRows = [
+      ['Semestre', filters.semester],
+      ['Programa', filters.program],
+      ['Curso', filters.course],
+      ['Profesor', filters.professor],
+      ['Monitor', filters.monitor],
+    ]
+      .filter(([, value]) => value && String(value).trim() !== '')
+      .map(([label, value]) => `<tr><td><strong>${label}</strong></td><td>${value}</td></tr>`)
+      .join('');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${filename}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; }
+            h1 { margin-bottom: 12px; font-size: 22px; }
+            h2 { margin-top: 18px; margin-bottom: 10px; font-size: 16px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            th, td { border: 1px solid #d1d5db; padding: 8px; font-size: 12px; text-align: left; }
+            th { background: #f3f4f6; }
+          </style>
+        </head>
+        <body>
+          <h1>${filename}</h1>
+          <table>
+            <thead><tr>${tableHeaders}</tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+          <h2>Filtros aplicados</h2>
+          <table>
+            <tbody>${filtersRows || '<tr><td colspan="2">Sin filtros adicionales</td></tr>'}</tbody>
+          </table>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   //const categoryUsageData = applyFilters(categoryUsageDataOriginal);
   const asistenciaData = chartReadyAttendanceData;
 
@@ -623,7 +689,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(monitorPerformanceData, 'Rendimiento_Monitores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
           </div>
         </div>
 
@@ -653,7 +727,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentages, 'Resumen_Tareas_Monitor', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
             </div>
           </div>
 
@@ -690,7 +772,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
             </div>
           </div>
 
@@ -719,7 +809,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(asistenciaData, `Asistencia_${lineName.replace(' ', '_')}`, {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
               {/* datos filtrados originales*/}
               {/* <button className="chart-download-button" onClick={() => exportToCSV(filteredAttendanceData, 'Asistencia_Detallada_Filtrada')}>Descargar Detalle Filtrado</button> */}
             </div>
@@ -800,7 +898,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(professorData, 'Rendimiento_Profesores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
           </div>
         </div>
 
@@ -830,7 +936,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentagesProfessor, 'Resumen_Tareas_Profesor', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
             </div>
           </div>
 
