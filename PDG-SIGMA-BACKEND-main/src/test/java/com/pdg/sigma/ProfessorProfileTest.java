@@ -39,7 +39,7 @@ public class ProfessorProfileTest {
         // Simulación de servicio
         Mockito.when(professorService.getProfile(professorId)).thenReturn(mockProfessor);
 
-        mockMvc.perform(get("http://localhost:5433/professor/profile/{id}", professorId)
+                mockMvc.perform(get("/professor/profile/{id}", professorId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()) // HTTP 200
                 .andExpect(jsonPath("$.school").value("Barberi de Ingeniería, Diseño y Ciencias Aplicadas"))
@@ -58,7 +58,7 @@ public class ProfessorProfileTest {
         Mockito.when(professorService.getProfile(invalidId))
                 .thenThrow(new Exception("No existe profesor con este ID"));
 
-        mockMvc.perform(get("http://localhost:5433/professor/profile/{id}", invalidId)
+                mockMvc.perform(get("/professor/profile/{id}", invalidId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()) // HTTP 404
                 .andExpect(content().string("No existe profesor con este ID"));
@@ -74,7 +74,7 @@ public class ProfessorProfileTest {
         Mockito.when(professorService.getProfile(professorId))
                 .thenThrow(new Exception("No tiene asignado cursos para este semestre"));
 
-        mockMvc.perform(get("http://localhost:5433/professor/profile/{id}", professorId)
+                mockMvc.perform(get("/professor/profile/{id}", professorId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()) // HTTP 404
                 .andExpect(content().string("No tiene asignado cursos para este semestre"));

@@ -8,12 +8,114 @@ const NotificationIcon = () => {
   const [alerts, setAlerts] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [sound, setSound] = useState(true);
-  const [types, setTypes] = useState({ PROGRESS_UPDATE: true, COMPLETED: true, OVERDUE: true, DUE_SOON: true });
+  const [types, setTypes] = useState({ PROGRESS_UPDATE: true, COMPLETED: true, OVERDUE: true, DUE_SOON: true, CHAT: true });
   const [loadingPrefs, setLoadingPrefs] = useState(false);
   const [sseEnabled, setSseEnabled] = useState(true); // flag local para habilitar SSE
   const eventSourceRef = useRef(null);
   const [saved, setSaved] = useState(false);
+  const [chatAlerts, setChatAlerts] = useState([]);
+  const previousChatUnreadRef = useRef(0);
   const navigate = useNavigate();
+
+  const getChatSeenStorageKey = () => {
+    const user = localStorage.getItem('userId') || '';
+    const role = localStorage.getItem('role') || '';
+    return `sigmaChatLastSeen:${role}:${user}`;
+  };
+
+  const loadChatSeenMap = () => {
+    try {
+      const raw = localStorage.getItem(getChatSeenStorageKey());
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const saveChatSeenMap = (map) => {
+    localStorage.setItem(getChatSeenStorageKey(), JSON.stringify(map));
+  };
+
+  const fetchChatAlerts = async () => {
+    if (types.CHAT === false) {
+      setChatAlerts([]);
+      previousChatUnreadRef.current = 0;
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    const role = (localStorage.getItem("role") || '').toLowerCase();
+    const token = localStorage.getItem('token');
+    if (!userId || !(role === 'professor' || role === 'monitor')) {
+      setChatAlerts([]);
+      previousChatUnreadRef.current = 0;
+      return;
+    }
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: token
+      };
+
+      const convResp = await fetch(`${BACKEND_URL}/chat/conversations/${userId}/${role}`, {
+        method: 'GET',
+        headers
+      });
+      if (!convResp.ok) {
+        setChatAlerts([]);
+        return;
+      }
+
+      const conversations = await convResp.json();
+      const safeConversations = Array.isArray(conversations) ? conversations : [];
+      const seenMap = loadChatSeenMap();
+      const nextAlerts = [];
+
+      for (const conv of safeConversations) {
+        if (!conv?.id) continue;
+        const msgResp = await fetch(`${BACKEND_URL}/chat/messages/${conv.id}`, {
+          method: 'GET',
+          headers
+        });
+        if (!msgResp.ok) continue;
+
+        const messages = await msgResp.json();
+        const safeMessages = Array.isArray(messages) ? messages : [];
+        const lastSeen = seenMap[conv.id] || '';
+
+        const unreadMessages = safeMessages.filter(m =>
+          m &&
+          m.senderId !== userId &&
+          !!m.createdAt &&
+          (!lastSeen || new Date(m.createdAt).getTime() > new Date(lastSeen).getTime())
+        );
+
+        if (unreadMessages.length > 0) {
+          const lastUnread = unreadMessages[unreadMessages.length - 1];
+          nextAlerts.push({
+            id: `chat-${conv.id}`,
+            type: 'CHAT',
+            message: `Nuevo mensaje en chat con ${conv.title?.replace(/^(Monitor: |Profesor: )/, '') || 'usuario'}`,
+            date: new Date(lastUnread.createdAt).toLocaleDateString(),
+            conversationId: conv.id,
+            unreadCount: unreadMessages.length
+          });
+        }
+      }
+
+      const newUnread = nextAlerts.reduce((acc, item) => acc + (item.unreadCount || 0), 0);
+      const soundPref = JSON.parse(localStorage.getItem('sigmaNotif.sound') || 'true');
+      if (soundPref && previousChatUnreadRef.current > 0 && newUnread > previousChatUnreadRef.current) {
+        try { new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); } catch(_){ }
+      }
+      previousChatUnreadRef.current = newUnread;
+      setChatAlerts(nextAlerts);
+    } catch (e) {
+      console.warn('Error al consultar alertas de chat', e);
+      setChatAlerts([]);
+    }
+  };
 
   const loadPrefsLocal = () => {
     try {
@@ -138,6 +240,7 @@ const NotificationIcon = () => {
     };
 
     fetchActivities();
+    fetchChatAlerts();
     // Activar polling solo si NO hay SSE activo (o no aplica para el rol)
     let interval;
     const roleNow = localStorage.getItem('role');
@@ -145,8 +248,12 @@ const NotificationIcon = () => {
     if (!(roleNow === 'professor' && sseActive)) {
       interval = setInterval(fetchActivities, 60000); // fallback polling
     }
+    const chatInterval = setInterval(fetchChatAlerts, 10000);
 
-    return () => { if (interval) clearInterval(interval); };
+    return () => {
+      if (interval) clearInterval(interval);
+      clearInterval(chatInterval);
+    };
   }, [types, sseEnabled]);
 
   // SSE subscription for professor real-time
@@ -190,11 +297,13 @@ const NotificationIcon = () => {
 
   // Cargar preferencias backend al abrir ajustes
 
+  const displayedAlerts = [...chatAlerts, ...alerts];
+
   return (
     <div className="notification-container">
       <div className="bell-wrapper" title="Notificaciones" onClick={() => setShowNotifications(!showNotifications)}>
         <Bell size={30} className="bell-icon" />
-        {alerts.length > 0 && <span className="notification-badge">{alerts.length}</span>}
+        {displayedAlerts.length > 0 && <span className="notification-badge">{displayedAlerts.length}</span>}
       </div>
 
       {showNotifications && (
@@ -209,7 +318,7 @@ const NotificationIcon = () => {
 
           {!showSettings && (
             <>
-              {alerts.length > 0 ? (
+              {displayedAlerts.length > 0 ? (
                 <ul className="notification-list">
                   {/* Acciones generales */}
                   <div style={{ display:'flex', justifyContent:'flex-end', padding:'0 6px 8px 6px' }}>
@@ -231,19 +340,29 @@ const NotificationIcon = () => {
                       >Marcar todas como leídas</button>
                     )}
                   </div>
-                  {alerts.map(alert => (
+                  {displayedAlerts.map(alert => (
                     <li key={alert.id} className="notification-item">
                       <div className="notification-box" onClick={async () => {
                           try {
                             // Marcar como leída si viene del backend
                             const role = localStorage.getItem('role');
-                            if (role === 'professor') {
+                            if (role === 'professor' && alert.type !== 'CHAT') {
                               await fetch(`${BACKEND_URL}/notifications/${alert.id}/read`, {
                                 method: 'PUT',
                                 headers: { 'Content-Type': 'application/json' , 'Authorization':localStorage.getItem('token') }
                               });
                             }
                           } catch (e) { /* noop */ }
+                          if (alert.type === 'CHAT' && alert.conversationId) {
+                            const seenMap = loadChatSeenMap();
+                            seenMap[alert.conversationId] = new Date().toISOString();
+                            saveChatSeenMap(seenMap);
+                            setChatAlerts(prev => prev.filter(a => a.id !== alert.id));
+                            localStorage.setItem('focusChatConversationId', alert.conversationId);
+                            navigate('/chat');
+                            setShowNotifications(false);
+                            return;
+                          }
                           if (alert.activityId) {
                             localStorage.setItem('focusActivityId', String(alert.activityId));
                           }
@@ -288,6 +407,10 @@ const NotificationIcon = () => {
                 <label style={{ display:'flex', gap:8, alignItems:'center' }}>
                   <input type="checkbox" checked={!!types.DUE_SOON} onChange={() => setTypes(prev => ({ ...prev, DUE_SOON: !prev.DUE_SOON }))} />
                   Próximas a vencer
+                </label>
+                <label style={{ display:'flex', gap:8, alignItems:'center' }}>
+                  <input type="checkbox" checked={!!types.CHAT} onChange={() => setTypes(prev => ({ ...prev, CHAT: !prev.CHAT }))} />
+                  Chat
                 </label>
               </div>
               <div style={{ display:'flex', justifyContent:'flex-end', marginTop: 12 }}>
