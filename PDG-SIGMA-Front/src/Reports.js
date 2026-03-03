@@ -37,6 +37,7 @@ function Reports() {
   const [course, setCourse] = useState('');
   const [professor, setProfessor] = useState('');
   const [monitor, setMonitor] = useState('');
+  const [monitorSortOrder, setMonitorSortOrder] = useState('A-Z');
 
   //Porcentaje efectividad por materia de monitores
   const[completedPercent, setCompletedPercent] = useState("")
@@ -184,6 +185,22 @@ function Reports() {
     if (!key) return [];
 
     return [...new Set(source.map(item => item[key]).filter(Boolean))];
+  };
+
+  const sortAlphabetically = (values = []) => {
+    return [...values].sort((a, b) => String(a).localeCompare(String(b), 'es', { sensitivity: 'base' }));
+  };
+
+  const sortMonitorsByOrder = (values = [], order = 'A-Z') => {
+    const sorted = sortAlphabetically(values);
+    return order === 'Z-A' ? sorted.reverse() : sorted;
+  };
+
+  const normalizeProfessorLabel = (value = '') => {
+    return String(value)
+      .replace(/\bDr\.?\b/gi, 'Profesor')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   };
 
   // const monitorPerformanceDataOriginal = [
@@ -405,7 +422,33 @@ function Reports() {
   const programsToShow = getValues("programs", { semester });
   const coursesToShow = getValues("courses", { semester, program });
   const professorsToShow = getValues("professors", { semester, program, course });
-  const monitorsToShow = getValues("monitors", { semester, program, course, professor });
+  const isProfessorRole = String(role || '').toLowerCase() === 'professor';
+  const currentUserId = localStorage.getItem('userId');
+  const ownProfessorName = useMemo(() => {
+    if (!isProfessorRole || !Array.isArray(professorDataOriginal)) return '';
+
+    const byId = professorDataOriginal.find(item => String(item.idProfessor) === String(currentUserId));
+    if (byId?.name) return byId.name;
+
+    const uniqueNames = [...new Set(professorDataOriginal.map(item => item.name).filter(Boolean))];
+    return uniqueNames.length === 1 ? uniqueNames[0] : '';
+  }, [isProfessorRole, professorDataOriginal, currentUserId]);
+  const effectiveProfessorFilter = isProfessorRole ? ownProfessorName : professor;
+  const monitorsToShow = (isProfessorRole && !ownProfessorName)
+    ? []
+    : getValues("monitors", { semester, program, course, professor: effectiveProfessorFilter });
+  const sortedSemestersToShow = sortAlphabetically(semestersToShow);
+  const sortedProgramsToShow = sortAlphabetically(programsToShow);
+  const sortedCoursesToShow = sortAlphabetically(coursesToShow);
+  const sortedProfessorsToShow = sortAlphabetically(professorsToShow);
+  const orderedMonitorsToShow = sortMonitorsByOrder(monitorsToShow, monitorSortOrder);
+  const professorChartData = useMemo(() => {
+    return professorData.map(item => ({
+      ...item,
+      name: normalizeProfessorLabel(item.name),
+      nameAndCourse: `${normalizeProfessorLabel(item.name)} ${item.course || ''}`.trim(),
+    }));
+  }, [professorData]);
 
   const parseSemesterOrder = (semesterValue) => {
     const value = String(semesterValue || '').trim();
@@ -418,11 +461,20 @@ function Reports() {
   };
 
   const semesterComparison = useMemo(() => {
+    if (isProfessorRole && !ownProfessorName) {
+      return {
+        chartData: [],
+        exportData: [],
+        currentSemester: '',
+        previousSemester: '',
+      };
+    }
+
     const source = Array.isArray(monitorPerformanceDataOriginal)
       ? monitorPerformanceDataOriginal.filter(item =>
           (!program || item.program === program) &&
           (!course || item.course === course) &&
-          (!professor || item.professor === professor) &&
+          (!effectiveProfessorFilter || item.professor === effectiveProfessorFilter) &&
           (!monitor || item.name === monitor)
         )
       : [];
@@ -492,7 +544,7 @@ function Reports() {
       currentSemester,
       previousSemester,
     };
-  }, [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]);
+  }, [monitorPerformanceDataOriginal, semester, program, course, effectiveProfessorFilter, monitor, isProfessorRole, ownProfessorName]);
 
 
   const [monitorPerformanceData, setMonitorPerformanceData] = useState([]);
@@ -514,7 +566,13 @@ function Reports() {
 
   useEffect(() => {
     setMonitorPage(1);
-  }, [semester, program, course, professor, monitor]);
+  }, [semester, program, course, professor, monitor, monitorSortOrder]);
+
+  useEffect(() => {
+    if (monitor && !orderedMonitorsToShow.includes(monitor)) {
+      setMonitor('');
+    }
+  }, [monitor, orderedMonitorsToShow]);
   console.log("BEFORE",monitorPerformanceData);
 
   //Porcentaje actividades monitores
@@ -561,11 +619,19 @@ function Reports() {
 
   //Filter professor report 
   useEffect(() => {
-    const data = professorDataOriginal;
-    const report = data.filter(d => (d.name === professor) && (d.course === course));
+    if (isProfessorRole && !ownProfessorName) {
+      setProfessorData([]);
+      return;
+    }
+
+    const data = Array.isArray(professorDataOriginal) ? professorDataOriginal : [];
+    const report = data.filter(item =>
+      (!course || item.course === course) &&
+      (!effectiveProfessorFilter || item.name === effectiveProfessorFilter)
+    );
     setProfessorData(report);
     
-  }, [professor]); 
+  }, [professorDataOriginal, course, effectiveProfessorFilter, isProfessorRole, ownProfessorName]); 
 
 
   //Porcentaje actividades profesores
@@ -627,7 +693,7 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setSemester(e.target.value)}>
                   <option value="">Semestre*</option>
-                  {semestersToShow.map((semester, index) => (
+              {sortedSemestersToShow.map((semester, index) => (
                       <option key={index} value={semester}>
                       {semester}
                       </option>
@@ -637,7 +703,7 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setProgram(e.target.value)}>
               <option value="">Programa*</option>
-                {programsToShow.map((program, index) => (
+              {sortedProgramsToShow.map((program, index) => (
                     <option key={index} value={program}>
                     {program}
                     </option>
@@ -647,33 +713,25 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setCourse(e.target.value)}>
             <option value="">Curso*</option>
-                {coursesToShow.map((course, index) => (
+              {sortedCoursesToShow.map((course, index) => (
                     <option key={index} value={course}>
                     {course}
                     </option>
                 ))}
             </select>
           </div>
-          <div className="filter-group">
-            <select onChange={(e) => setProfessor(e.target.value)}>
-            <option value="">Profesor</option>
-                {professorsToShow.map((professor, index) => (
-                    <option key={index} value={professor}>
-                    {professor}
-                    </option>
-                ))}
-            </select>
-          </div>
-          <div className="filter-group">
-            <select onChange={(e) => setMonitor(e.target.value)}>
-              <option value="">Monitor</option>
-              {monitorsToShow.map((monitor, index) => (
-                    <option key={index} value={monitor}>
-                    {monitor}
-                    </option>
-                ))}
-            </select>
-          </div>
+          {!isProfessorRole && (
+            <div className="filter-group">
+              <select onChange={(e) => setProfessor(e.target.value)}>
+              <option value="">Profesor</option>
+                  {sortedProfessorsToShow.map((professor, index) => (
+                      <option key={index} value={professor}>
+                      {normalizeProfessorLabel(professor)}
+                      </option>
+                  ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
       <div className="reports-container">
@@ -743,6 +801,38 @@ useEffect(() => {
         <Bar dataKey="late" stackId="a" fill="rgb(255, 187, 40)" />
            
       </BarChart>
+
+      <div className="monitor-table-controls">
+        <div className="filter-group">
+          <select value={monitorSortOrder} onChange={(e) => setMonitorSortOrder(e.target.value)}>
+            <option value="A-Z">Orden monitores: A - Z</option>
+            <option value="Z-A">Orden monitores: Z - A</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="monitor-table-wrapper">
+        {orderedMonitorsToShow.length > 0 ? (
+          <table className="monitor-report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Monitores</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderedMonitorsToShow.map((monitorName, index) => (
+                <tr key={`${monitorName}-${index}`}>
+                  <td>{index + 1}</td>
+                  <td>{monitorName}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="comparison-message">No hay monitores para los filtros seleccionados.</p>
+        )}
+      </div>
 
       {monitorPerformanceData.length > monitorsPerPage && (
         <div className="monitor-table-pagination">
@@ -955,13 +1045,13 @@ useEffect(() => {
 
         {/* Gráfico de barras - PROFESOR */}
         <div className="chart-card">
-          <h3>Rendimiento de profesores</h3>
-            <BarChart width={500} height={300} data={professorData}>
+          <h3>{isProfessorRole ? 'Rendimiento del profesor' : 'Rendimiento de profesores'}</h3>
+            <BarChart width={500} height={300} data={professorChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               
               {/* Mostrar solo el nombre (jeje sin el apellido) en el eje X */}
               <XAxis 
-                dataKey="name" 
+                dataKey="nameAndCourse" 
                 tickFormatter={(value) => value.split(' ')[0]} 
               />
               
@@ -992,13 +1082,14 @@ useEffect(() => {
                 }}
 
                 labelFormatter={(label) => {
+                  const normalizedLabel = normalizeProfessorLabel(label);
                   const parts = label.split(' ');
                   if (parts.length >= 3) {
                     const nombreCompleto = `${parts[0]} ${parts[1]}`;
                     const nombreCurso = parts.slice(2).join(' ');
-                    return `${nombreCompleto} ${nombreCurso}`;
+                    return normalizeProfessorLabel(`${nombreCompleto} ${nombreCurso}`);
                   }
-                  return label; // fallback
+                  return normalizedLabel; // fallback
                 }}
               />
 
@@ -1021,7 +1112,7 @@ useEffect(() => {
             </BarChart>
 
           <div className="chart-download-container">
-            <button className="chart-download-button" onClick={() => exportToCSV(professorData, 'Rendimiento_Profesores', {
+            <button className="chart-download-button" onClick={() => exportToCSV(professorChartData, 'Rendimiento_Profesores', {
                   semester,
                   program,
                   course,
@@ -1029,7 +1120,7 @@ useEffect(() => {
                   monitor
                 })
               }>CSV</button>
-            <button className="chart-download-button" onClick={() => exportToPDF(professorData, 'Rendimiento_Profesores', {
+            <button className="chart-download-button" onClick={() => exportToPDF(professorChartData, 'Rendimiento_Profesores', {
                   semester,
                   program,
                   course,

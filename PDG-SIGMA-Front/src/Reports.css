@@ -210,6 +210,14 @@
     border-bottom: none;
   }
 
+  .monitor-report-table tbody tr:nth-child(even) {
+    background: #fbfbfe;
+  }
+
+  .monitor-report-table tbody tr:hover {
+    background: #f3f4fa;
+  }
+
   .monitor-table-pagination {
     width: 100%;
     margin-top: 0.8rem;
