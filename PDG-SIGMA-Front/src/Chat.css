@@ -1,0 +1,49 @@
+.page-layout{display:flex;height:100vh;overflow:hidden;background:#f4f6fb}
+.left-column{width:250px;flex:0 0 250px}
+.right-column{flex:1;display:flex;padding:12px;min-height:0;overflow:hidden}
+.chat-container{display:flex;gap:0;flex:1;height:100%;min-height:0;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 6px 22px rgba(38,50,90,.08)}
+.chat-sidebar{width:360px;flex:0 0 360px;background:#fbfcff;display:flex;flex-direction:column;min-height:0}
+.chat-sidebar-header{padding:18px 18px 12px;background:#fff}
+.chat-sidebar-header h2{margin:0;font-size:26px;line-height:1.1;font-weight:700;color:#232a3d}
+.muted{color:#7d879d;font-size:13px;margin-top:6px}
+.chat-conversation-list{overflow:auto;padding:8px;min-height:0}
+.chat-conversation-item{width:100%;text-align:left;border:0;padding:12px 12px;background:transparent;cursor:pointer;border-radius:10px;margin-bottom:6px}
+.chat-conversation-item:hover{background:#f2f5ff}
+.chat-conversation-item.selected{background:#eaf0ff}
+.item-titles{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.item-title{font-weight:700;color:#1b2430;font-size:16px}
+.item-subtitle{font-size:13px;color:#6e768a;margin-top:4px}
+.badge{background:#5454e8;color:#fff;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700}
+.chat-main{flex:1;display:flex;flex-direction:column;background:#f8faff;min-height:0}
+.chat-header{display:flex;align-items:center;gap:12px;padding:16px 18px;background:#fff}
+.chat-title{font-weight:800;font-size:30px;color:#1f2737;line-height:1.2}
+.chat-subtitle{font-size:14px;color:#6e768a;margin-top:2px}
+.chat-messages{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,#f8faff 0%,#f4f7fd 100%);min-height:0}
+.message-bubble{max-width:72%;border-radius:14px;padding:11px 13px;background:#fff;box-shadow:0 1px 3px rgba(30,41,59,.04)}
+.message-bubble.own{align-self:flex-end;background:#e7f0ff}
+.message-bubble.other{align-self:flex-start}
+.message-meta{display:flex;gap:8px;font-size:12px;color:#6b7280;margin-bottom:5px}
+.message-text{white-space:pre-wrap;color:#1c2434;font-size:16px;line-height:1.45}
+.chat-input-area{display:flex;gap:8px;padding:12px 16px;background:#fff}
+.input-left{flex:1;display:flex;flex-direction:column;gap:8px}
+.attachment-bar{flex-wrap:wrap;gap:6px;background:#f2f5fb;padding:6px;border-radius:10px;display:flex}
+.pending-attachment{display:flex;align-items:center;gap:6px;background:#fff;padding:4px 6px;border-radius:6px;max-width:220px}
+.pending-thumb{width:32px;height:32px;object-fit:cover;border-radius:4px}
+.pending-icon{font-size:18px}
+.pending-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.remove-attachment-btn{border:0;background:#e04f5f;color:#fff;width:22px;height:22px;border-radius:4px;cursor:pointer;font-size:12px}
+.remove-attachment-btn:hover{background:#c73848}
+.chat-textarea{flex:1;resize:none;max-height:120px;overflow:auto;border:0;border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;line-height:1.4;background:#fbfcff}
+.chat-textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(84,84,232,.12)}
+.input-actions{display:flex;gap:8px;justify-content:flex-end}
+.attach-btn{background:#ffffff;border:0;border-radius:10px;padding:0 14px;cursor:pointer;font-size:18px;display:flex;align-items:center}
+.attach-btn:hover{background:#eef3ff}
+.chat-send-button{background:#5454e8;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+.chat-send-button:hover{background:#3d3dd9}
+.message-attachments{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.attachment-item{display:flex;align-items:center;gap:10px;background:#fafbff;padding:6px 8px;border-radius:8px}
+.attachment-thumb{width:60px;height:60px;object-fit:cover;border-radius:6px}
+.attachment-file-icon{font-size:28px}
+.attachment-info{display:flex;flex-direction:column;font-size:11px;color:#444}
+.attachment-name{font-weight:600;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attachment-size{color:#6b7280}

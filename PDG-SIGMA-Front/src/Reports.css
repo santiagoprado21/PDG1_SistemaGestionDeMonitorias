@@ -8,6 +8,9 @@
   position: relative;
   text-align: center;
   margin: 20px 0;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  box-sizing: border-box;
 }
 
 .reports-title {
@@ -17,18 +20,68 @@
   margin-left: 200px; 
   font-family: var(--main-font-family);
 }
+.realtime-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  color: #4a4a4a;
+  font-size: 0.92rem;
+}
 
 .reports-container {
     display: flex;
-    margin-left: 200px; 
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    box-sizing: border-box;
   }
   
   .reports-content {
     flex: 1;
+    padding: 0 1.5rem 2em 1.5rem;
     padding-bottom: 2em;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
     gap: 2rem;
+  }
+
+    .dashboard-summary-card {
+    grid-column: 1 / -1;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  }
+
+  .dashboard-summary-card h3 {
+    margin: 0 0 1rem 0;
+    color: #2e2e2e;
+  }
+
+  .dashboard-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .dashboard-metric-card {
+    background: #f7f8fc;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .dashboard-metric-card span {
+    font-size: 0.9rem;
+    color: #5a5a5a;
+  }
+
+  .dashboard-metric-card strong {
+    font-size: 1.2rem;
+    color: #1e1e1e;
   }
   
   .chart-card {
@@ -89,6 +142,7 @@
   .chart-download-container {
     display: flex;
     justify-content: center;
+    gap: 0.6rem;
     margin-top: 15px;
   }
   
@@ -108,14 +162,14 @@
   }
   
   .filters-container {
-    margin-left: 250px; 
-    margin-right: 50px;
+    margin: 0;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 1rem;
-    padding: 1rem 0;
+    padding: 1rem 1.5rem;
     margin-bottom: 1rem;
+    box-sizing: border-box;
   }
   
   .filter-group {
