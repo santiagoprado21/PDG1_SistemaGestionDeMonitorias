@@ -52,7 +52,7 @@ function Reports() {
 
   useEffect(() => {
     console.log("obtener---")
-    setMessage("Para obtener la información de los reportes, debes al menos seleccionar información para los primeros 3 filtros.")
+    setMessage("Puedes usar los filtros para refinar la información de los reportes.")
     setIsOpen(!isOpen)
     setChange(!change)
     const user = localStorage.getItem('userId');
@@ -144,38 +144,47 @@ function Reports() {
     fetchCategories();
   }, []);
 
-  const getValues = (data) =>{
-    
-    const list = [];
-    monitorPerformanceDataOriginal.forEach((a) =>{
+  const getValues = (type, activeFilters = {}) => {
+    if (!Array.isArray(monitorPerformanceDataOriginal)) return [];
 
-        if(data === "semester"){
-            if(!list.includes(a.semester)){
-                list.push(a.semester);
-            }
-        }else if(data === "courses" && program !== ''){
-            if(!list.includes(a.course) && a.program === program){
-                list.push(a.course);
-            }
-        }else if(data === "professors" && course !== ''){
+    const {
+      semester: filterSemester = '',
+      program: filterProgram = '',
+      course: filterCourse = '',
+      professor: filterProfessor = '',
+    } = activeFilters;
 
-            if(!list.includes(a.professor) && a.course === course){
-                list.push(a.professor);
+    let source = monitorPerformanceDataOriginal.filter(Boolean);
 
-            }
-        }else if(data === "programs"){
-            if(!list.includes(a.program)){
-                list.push(a.program);
-            }
-        }else {
-            if(!list.includes(a.name) && a.course === course){
-                list.push(a.name);
-            }
-        }
-       
-    });
-    return list;
-  }
+    if (type !== 'semester') {
+      source = source.filter(item => !filterSemester || item.semester === filterSemester);
+    }
+
+    if (type === 'courses' || type === 'professors' || type === 'monitors') {
+      source = source.filter(item => !filterProgram || item.program === filterProgram);
+    }
+
+    if (type === 'professors' || type === 'monitors') {
+      source = source.filter(item => !filterCourse || item.course === filterCourse);
+    }
+
+    if (type === 'monitors') {
+      source = source.filter(item => !filterProfessor || item.professor === filterProfessor);
+    }
+
+    const keyByType = {
+      semester: 'semester',
+      programs: 'program',
+      courses: 'course',
+      professors: 'professor',
+      monitors: 'name',
+    };
+
+    const key = keyByType[type];
+    if (!key) return [];
+
+    return [...new Set(source.map(item => item[key]).filter(Boolean))];
+  };
 
   // const monitorPerformanceDataOriginal = [
   //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, semestre: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
@@ -329,13 +338,32 @@ function Reports() {
 
   
   const semestersToShow = getValues("semester");
-  const coursesToShow = getValues("courses");
-  const professorsToShow = getValues("professors");
-  const programsToShow = getValues("programs");
-  const monitorsToShow = getValues("monitors");
+  const programsToShow = getValues("programs", { semester });
+  const coursesToShow = getValues("courses", { semester, program });
+  const professorsToShow = getValues("professors", { semester, program, course });
+  const monitorsToShow = getValues("monitors", { semester, program, course, professor });
 
 
   const [monitorPerformanceData, setMonitorPerformanceData] = useState([]);
+  const [monitorPage, setMonitorPage] = useState(1);
+  const monitorsPerPage = 10;
+
+  const totalMonitorPages = Math.max(1, Math.ceil(monitorPerformanceData.length / monitorsPerPage));
+  const paginatedMonitorPerformanceData = useMemo(() => {
+    const start = (monitorPage - 1) * monitorsPerPage;
+    const end = start + monitorsPerPage;
+    return monitorPerformanceData.slice(start, end);
+  }, [monitorPerformanceData, monitorPage]);
+
+  useEffect(() => {
+    if (monitorPage > totalMonitorPages) {
+      setMonitorPage(totalMonitorPages);
+    }
+  }, [monitorPage, totalMonitorPages]);
+
+  useEffect(() => {
+    setMonitorPage(1);
+  }, [semester, program, course, professor, monitor]);
   console.log("BEFORE",monitorPerformanceData);
 
   //Porcentaje actividades monitores
@@ -367,43 +395,18 @@ function Reports() {
           late: `${Math.round((totalLate / total) * 100)}%`
         }]);
       }
+    } else {
+      setCompletedPercent("0%");
+      setPendingPercent("0%");
+      setLatePercent("0%");
+      setPorcentages([{ completed: "0%", late: "0%", pending: "0%" }]);
     }
   }, [monitorPerformanceData]);
   
   //Filter monitors information
   useEffect(() => {
-    setMonitor('');
-    setProfessor('');
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [course]); 
-
-  useEffect(() => {
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course) &&
-      (!professor || d.professor === professor) &&
-      (!monitor || d.name === monitor)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [monitor]); 
+    setMonitorPerformanceData(applyFilters(monitorPerformanceDataOriginal));
+  }, [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]);
 
   //Filter professor report 
   useEffect(() => {
@@ -445,6 +448,11 @@ useEffect(() => {
       setPendingPercentProfessor(`${pendingPercent}%`);
       setLatePercentProfessor(`${latePercent}%`);
     }
+  } else {
+    setCompletedPercentProfessor("0%");
+    setPendingPercentProfessor("0%");
+    setLatePercentProfessor("0%");
+    setPorcentagesProfessor([{ completed: "0%", late: "0%", pending: "0%" }]);
   }
 }, [professorData]);
 
@@ -524,7 +532,7 @@ useEffect(() => {
     {/* Gráfico de barras - MONITOR */}
     <div className="chart-card">
       <h3>Rendimiento de monitores</h3>
-      <BarChart width={500} height={300} data={monitorPerformanceData}>
+      <BarChart width={500} height={300} data={paginatedMonitorPerformanceData}>
         <CartesianGrid strokeDasharray="3 3" />
         
         {/* Mostrar solo el nombre del monitor */}
@@ -584,6 +592,28 @@ useEffect(() => {
         <Bar dataKey="late" stackId="a" fill="rgb(255, 187, 40)" />
            
       </BarChart>
+
+      {monitorPerformanceData.length > monitorsPerPage && (
+        <div className="monitor-table-pagination">
+          <span>Página {monitorPage} de {totalMonitorPages}</span>
+          <div className="monitor-table-pagination-actions">
+            <button
+              className="chart-download-button"
+              onClick={() => setMonitorPage(previous => Math.max(1, previous - 1))}
+              disabled={monitorPage === 1}
+            >
+              Anterior
+            </button>
+            <button
+              className="chart-download-button"
+              onClick={() => setMonitorPage(previous => Math.min(totalMonitorPages, previous + 1))}
+              disabled={monitorPage === totalMonitorPages}
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
 
           <div className="chart-download-container">
             <button className="chart-download-button" onClick={() => exportToCSV(monitorPerformanceData, 'Rendimiento_Monitores', {
