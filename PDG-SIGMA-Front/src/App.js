@@ -35,6 +35,9 @@ import VistaMonitorActividades from './VistaMonitorActividades';
 // HU-007: Cierre de Monitorías
 import CerrarMonitorias from './CerrarMonitorias';
 
+// HU2-273: Vista Monitor - Mis Postulaciones
+import MisPostulaciones from './MisPostulaciones';
+
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
@@ -111,6 +114,10 @@ function App() {
          {/* ========== HU-017: Vista Monitor - Plan de Actividades ========== */}
          {/* Monitor: Ver actividades asignadas por profesores */}
          <Route path="/mis-actividades" element={<VistaMonitorActividades />} />
+
+         {/* ========== HU2-273: Mis Postulaciones ========== */}
+         {/* Monitor: Ver el estado de sus postulaciones a convocatorias */}
+         <Route path="/mis-postulaciones" element={<MisPostulaciones />} />
 
          {/* ========== HU-007: Cierre de Monitorías ========== */}
          {/* Jefe de Departamento: Cerrar monitorías al final del semestre */}
