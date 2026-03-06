@@ -198,6 +198,12 @@ function VerticalNavbar() {
             {role === "monitor" && (
               <>
                 <NavLink
+                  to="/mis-postulaciones"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  📝 Mis Postulaciones
+                </NavLink>
+                <NavLink
                   to="/mis-actividades"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >

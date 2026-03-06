@@ -39,8 +39,7 @@ public class AuthService {
 
     public AuthService(WebClient.Builder webClientBuilder) {
         //this.webClient = webClientBuilder.baseUrl("https://api-banner-production.up.railway.app").build();
-        // Puerto 5431 cuando API-Banner usa cloud profile
-        this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:5435").build();
     }
 
     public AuthDTO loginUser(AuthDTO auth) throws Exception{

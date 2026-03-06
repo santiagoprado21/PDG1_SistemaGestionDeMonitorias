@@ -39,6 +39,7 @@ public class MonitorApplicationDTO implements Serializable {
     private String courseName;
     private String professorName;
     private Integer requestedHours;
+    private String requestStatus; // RequestStatus de la MonitoringRequest
     
     // Detalles de la postulación
     private String motivationLetter;
@@ -59,6 +60,7 @@ public class MonitorApplicationDTO implements Serializable {
             this.courseName = request.getCourse() != null ? request.getCourse().getName() : null;
             this.professorName = request.getProfessor() != null ? request.getProfessor().getName() : null;
             this.requestedHours = request.getRequestedHours();
+            this.requestStatus = request.getStatus() != null ? request.getStatus().name() : null;
         }
         
         if (application.getMonitor() != null) {
