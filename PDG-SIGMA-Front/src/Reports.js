@@ -37,6 +37,7 @@ function Reports() {
   const [course, setCourse] = useState('');
   const [professor, setProfessor] = useState('');
   const [monitor, setMonitor] = useState('');
+  const [monitorSortOrder, setMonitorSortOrder] = useState('A-Z');
 
   //Porcentaje efectividad por materia de monitores
   const[completedPercent, setCompletedPercent] = useState("")
@@ -52,7 +53,7 @@ function Reports() {
 
   useEffect(() => {
     console.log("obtener---")
-    setMessage("Para obtener la información de los reportes, debes al menos seleccionar información para los primeros 3 filtros.")
+    setMessage("Puedes usar los filtros para refinar la información de los reportes.")
     setIsOpen(!isOpen)
     setChange(!change)
     const user = localStorage.getItem('userId');
@@ -144,38 +145,63 @@ function Reports() {
     fetchCategories();
   }, []);
 
-  const getValues = (data) =>{
-    
-    const list = [];
-    monitorPerformanceDataOriginal.forEach((a) =>{
+  const getValues = (type, activeFilters = {}) => {
+    if (!Array.isArray(monitorPerformanceDataOriginal)) return [];
 
-        if(data === "semester"){
-            if(!list.includes(a.semester)){
-                list.push(a.semester);
-            }
-        }else if(data === "courses" && program !== ''){
-            if(!list.includes(a.course) && a.program === program){
-                list.push(a.course);
-            }
-        }else if(data === "professors" && course !== ''){
+    const {
+      semester: filterSemester = '',
+      program: filterProgram = '',
+      course: filterCourse = '',
+      professor: filterProfessor = '',
+    } = activeFilters;
 
-            if(!list.includes(a.professor) && a.course === course){
-                list.push(a.professor);
+    let source = monitorPerformanceDataOriginal.filter(Boolean);
 
-            }
-        }else if(data === "programs"){
-            if(!list.includes(a.program)){
-                list.push(a.program);
-            }
-        }else {
-            if(!list.includes(a.name) && a.course === course){
-                list.push(a.name);
-            }
-        }
-       
-    });
-    return list;
-  }
+    if (type !== 'semester') {
+      source = source.filter(item => !filterSemester || item.semester === filterSemester);
+    }
+
+    if (type === 'courses' || type === 'professors' || type === 'monitors') {
+      source = source.filter(item => !filterProgram || item.program === filterProgram);
+    }
+
+    if (type === 'professors' || type === 'monitors') {
+      source = source.filter(item => !filterCourse || item.course === filterCourse);
+    }
+
+    if (type === 'monitors') {
+      source = source.filter(item => !filterProfessor || item.professor === filterProfessor);
+    }
+
+    const keyByType = {
+      semester: 'semester',
+      programs: 'program',
+      courses: 'course',
+      professors: 'professor',
+      monitors: 'name',
+    };
+
+    const key = keyByType[type];
+    if (!key) return [];
+
+    return [...new Set(source.map(item => item[key]).filter(Boolean))];
+  };
+
+  const sortAlphabetically = (values = []) => {
+    return [...values].sort((a, b) => String(a).localeCompare(String(b), 'es', { sensitivity: 'base' }));
+  };
+
+  const sortMonitorsByOrder = (values = [], order = 'A-Z') => {
+    const sorted = sortAlphabetically(values);
+    return order === 'Z-A' ? sorted.reverse() : sorted;
+  };
+
+  const normalizeProfessorLabel = (value = '') => {
+    return String(value)
+      .replace(/\bDr\.?\b/gi, 'Profesor')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  };
 
   // const monitorPerformanceDataOriginal = [
   //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, semestre: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
@@ -279,8 +305,6 @@ function Reports() {
     
   }, [categoryReportData, course]); 
 
-    const categoryChartTitle = course ? `Uso de Categorías - ${course}` : "Top 5 de actividades por categoría";
-
    const exportToCSV = (data, filename, filters) => {
     if (!data || data.length === 0) return;
 
@@ -324,18 +348,231 @@ function Reports() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const exportToPDF = (data, filename, filters) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const tableHeaders = headers.map(header => `<th>${header}</th>`).join('');
+    const tableRows = data
+      .map(row => {
+        const values = headers
+          .map(header => {
+            const rawValue = row[header];
+            const value = typeof rawValue === 'object' && rawValue !== null
+              ? JSON.stringify(rawValue)
+              : (rawValue ?? '');
+            return `<td>${value}</td>`;
+          })
+          .join('');
+        return `<tr>${values}</tr>`;
+      })
+      .join('');
+
+    const filtersRows = [
+      ['Semestre', filters.semester],
+      ['Programa', filters.program],
+      ['Curso', filters.course],
+      ['Profesor', filters.professor],
+      ['Monitor', filters.monitor],
+    ]
+      .filter(([, value]) => value && String(value).trim() !== '')
+      .map(([label, value]) => `<tr><td><strong>${label}</strong></td><td>${value}</td></tr>`)
+      .join('');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${filename}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; }
+            h1 { margin-bottom: 12px; font-size: 22px; }
+            h2 { margin-top: 18px; margin-bottom: 10px; font-size: 16px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            th, td { border: 1px solid #d1d5db; padding: 8px; font-size: 12px; text-align: left; }
+            th { background: #f3f4f6; }
+          </style>
+        </head>
+        <body>
+          <h1>${filename}</h1>
+          <table>
+            <thead><tr>${tableHeaders}</tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+          <h2>Filtros aplicados</h2>
+          <table>
+            <tbody>${filtersRows || '<tr><td colspan="2">Sin filtros adicionales</td></tr>'}</tbody>
+          </table>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   //const categoryUsageData = applyFilters(categoryUsageDataOriginal);
   const asistenciaData = chartReadyAttendanceData;
 
   
   const semestersToShow = getValues("semester");
-  const coursesToShow = getValues("courses");
-  const professorsToShow = getValues("professors");
-  const programsToShow = getValues("programs");
-  const monitorsToShow = getValues("monitors");
+  const programsToShow = getValues("programs", { semester });
+  const coursesToShow = getValues("courses", { semester, program });
+  const professorsToShow = getValues("professors", { semester, program, course });
+  const isProfessorRole = String(role || '').toLowerCase() === 'professor';
+  const currentUserId = localStorage.getItem('userId');
+  const ownProfessorName = useMemo(() => {
+    if (!isProfessorRole || !Array.isArray(professorDataOriginal)) return '';
+
+    const byId = professorDataOriginal.find(item => String(item.idProfessor) === String(currentUserId));
+    if (byId?.name) return byId.name;
+
+    const uniqueNames = [...new Set(professorDataOriginal.map(item => item.name).filter(Boolean))];
+    return uniqueNames.length === 1 ? uniqueNames[0] : '';
+  }, [isProfessorRole, professorDataOriginal, currentUserId]);
+  const effectiveProfessorFilter = isProfessorRole ? ownProfessorName : professor;
+  const monitorsToShow = (isProfessorRole && !ownProfessorName)
+    ? []
+    : getValues("monitors", { semester, program, course, professor: effectiveProfessorFilter });
+  const sortedSemestersToShow = sortAlphabetically(semestersToShow);
+  const sortedProgramsToShow = sortAlphabetically(programsToShow);
+  const sortedCoursesToShow = sortAlphabetically(coursesToShow);
+  const sortedProfessorsToShow = sortAlphabetically(professorsToShow);
+  const orderedMonitorsToShow = sortMonitorsByOrder(monitorsToShow, monitorSortOrder);
+  const professorChartData = useMemo(() => {
+    return professorData.map(item => ({
+      ...item,
+      name: normalizeProfessorLabel(item.name),
+      nameAndCourse: `${normalizeProfessorLabel(item.name)} ${item.course || ''}`.trim(),
+    }));
+  }, [professorData]);
+
+  const parseSemesterOrder = (semesterValue) => {
+    const value = String(semesterValue || '').trim();
+    const match = value.match(/^(\d{4})[-\/.](\d)$/);
+    if (!match) return Number.MIN_SAFE_INTEGER;
+    const year = Number(match[1]);
+    const period = Number(match[2]);
+    if (Number.isNaN(year) || Number.isNaN(period)) return Number.MIN_SAFE_INTEGER;
+    return year * 10 + period;
+  };
+
+  const semesterComparison = useMemo(() => {
+    if (isProfessorRole && !ownProfessorName) {
+      return {
+        chartData: [],
+        exportData: [],
+        currentSemester: '',
+        previousSemester: '',
+      };
+    }
+
+    const source = Array.isArray(monitorPerformanceDataOriginal)
+      ? monitorPerformanceDataOriginal.filter(item =>
+          (!program || item.program === program) &&
+          (!course || item.course === course) &&
+          (!effectiveProfessorFilter || item.professor === effectiveProfessorFilter) &&
+          (!monitor || item.name === monitor)
+        )
+      : [];
+
+    const semesterSet = [...new Set(source.map(item => item.semester).filter(Boolean))];
+    const orderedSemesters = semesterSet.sort((a, b) => parseSemesterOrder(a) - parseSemesterOrder(b));
+
+    if (orderedSemesters.length === 0) {
+      return {
+        chartData: [],
+        exportData: [],
+        currentSemester: '',
+        previousSemester: '',
+      };
+    }
+
+    const currentSemester = orderedSemesters.includes(semester)
+      ? semester
+      : orderedSemesters[orderedSemesters.length - 1];
+
+    const currentIndex = orderedSemesters.indexOf(currentSemester);
+    const previousSemester = currentIndex > 0 ? orderedSemesters[currentIndex - 1] : '';
+
+    const aggregateBySemester = (semesterValue) => {
+      return source
+        .filter(item => item.semester === semesterValue)
+        .reduce((accumulator, item) => {
+          accumulator.completed += item.completed || 0;
+          accumulator.pending += item.pending || 0;
+          accumulator.late += item.late || 0;
+          return accumulator;
+        }, { completed: 0, pending: 0, late: 0 });
+    };
+
+    const currentTotals = aggregateBySemester(currentSemester);
+    const previousTotals = previousSemester
+      ? aggregateBySemester(previousSemester)
+      : { completed: 0, pending: 0, late: 0 };
+
+    const chartData = [
+      {
+        indicador: 'Completadas',
+        [currentSemester]: currentTotals.completed,
+        [previousSemester || 'Semestre anterior']: previousTotals.completed,
+      },
+      {
+        indicador: 'Pendientes',
+        [currentSemester]: currentTotals.pending,
+        [previousSemester || 'Semestre anterior']: previousTotals.pending,
+      },
+      {
+        indicador: 'Tardías',
+        [currentSemester]: currentTotals.late,
+        [previousSemester || 'Semestre anterior']: previousTotals.late,
+      },
+    ];
+
+    const exportData = chartData.map(row => ({
+      Indicador: row.indicador,
+      [currentSemester]: row[currentSemester],
+      [previousSemester || 'Semestre anterior']: row[previousSemester || 'Semestre anterior'],
+    }));
+
+    return {
+      chartData,
+      exportData,
+      currentSemester,
+      previousSemester,
+    };
+  }, [monitorPerformanceDataOriginal, semester, program, course, effectiveProfessorFilter, monitor, isProfessorRole, ownProfessorName]);
 
 
   const [monitorPerformanceData, setMonitorPerformanceData] = useState([]);
+  const [monitorPage, setMonitorPage] = useState(1);
+  const monitorsPerPage = 10;
+
+  const totalMonitorPages = Math.max(1, Math.ceil(monitorPerformanceData.length / monitorsPerPage));
+  const paginatedMonitorPerformanceData = useMemo(() => {
+    const start = (monitorPage - 1) * monitorsPerPage;
+    const end = start + monitorsPerPage;
+    return monitorPerformanceData.slice(start, end);
+  }, [monitorPerformanceData, monitorPage]);
+
+  useEffect(() => {
+    if (monitorPage > totalMonitorPages) {
+      setMonitorPage(totalMonitorPages);
+    }
+  }, [monitorPage, totalMonitorPages]);
+
+  useEffect(() => {
+    setMonitorPage(1);
+  }, [semester, program, course, professor, monitor, monitorSortOrder]);
+
+  useEffect(() => {
+    if (monitor && !orderedMonitorsToShow.includes(monitor)) {
+      setMonitor('');
+    }
+  }, [monitor, orderedMonitorsToShow]);
   console.log("BEFORE",monitorPerformanceData);
 
   //Porcentaje actividades monitores
@@ -367,51 +604,34 @@ function Reports() {
           late: `${Math.round((totalLate / total) * 100)}%`
         }]);
       }
+    } else {
+      setCompletedPercent("0%");
+      setPendingPercent("0%");
+      setLatePercent("0%");
+      setPorcentages([{ completed: "0%", late: "0%", pending: "0%" }]);
     }
   }, [monitorPerformanceData]);
   
   //Filter monitors information
   useEffect(() => {
-    setMonitor('');
-    setProfessor('');
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [course]); 
-
-  useEffect(() => {
-    const data = monitorPerformanceDataOriginal; 
-    const report = data.filter(d =>
-      (!semester || d.semester === semester) &&
-      (!program || d.program === program) &&
-      (!course || d.course === course) &&
-      (!professor || d.professor === professor) &&
-      (!monitor || d.name === monitor)
-    );
-
-    if(course !== '' && program !=='' && semester !== ''){
-      setMonitorPerformanceData(report);
-    }
-    
-    
-  }, [monitor]); 
+    setMonitorPerformanceData(applyFilters(monitorPerformanceDataOriginal));
+  }, [monitorPerformanceDataOriginal, semester, program, course, professor, monitor]);
 
   //Filter professor report 
   useEffect(() => {
-    const data = professorDataOriginal;
-    const report = data.filter(d => (d.name === professor) && (d.course === course));
+    if (isProfessorRole && !ownProfessorName) {
+      setProfessorData([]);
+      return;
+    }
+
+    const data = Array.isArray(professorDataOriginal) ? professorDataOriginal : [];
+    const report = data.filter(item =>
+      (!course || item.course === course) &&
+      (!effectiveProfessorFilter || item.name === effectiveProfessorFilter)
+    );
     setProfessorData(report);
     
-  }, [professor]); 
+  }, [professorDataOriginal, course, effectiveProfessorFilter, isProfessorRole, ownProfessorName]); 
 
 
   //Porcentaje actividades profesores
@@ -445,6 +665,11 @@ useEffect(() => {
       setPendingPercentProfessor(`${pendingPercent}%`);
       setLatePercentProfessor(`${latePercent}%`);
     }
+  } else {
+    setCompletedPercentProfessor("0%");
+    setPendingPercentProfessor("0%");
+    setLatePercentProfessor("0%");
+    setPorcentagesProfessor([{ completed: "0%", late: "0%", pending: "0%" }]);
   }
 }, [professorData]);
 
@@ -468,7 +693,7 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setSemester(e.target.value)}>
                   <option value="">Semestre*</option>
-                  {semestersToShow.map((semester, index) => (
+              {sortedSemestersToShow.map((semester, index) => (
                       <option key={index} value={semester}>
                       {semester}
                       </option>
@@ -478,7 +703,7 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setProgram(e.target.value)}>
               <option value="">Programa*</option>
-                {programsToShow.map((program, index) => (
+              {sortedProgramsToShow.map((program, index) => (
                     <option key={index} value={program}>
                     {program}
                     </option>
@@ -488,33 +713,25 @@ useEffect(() => {
           <div className="filter-group">
             <select onChange={(e) => setCourse(e.target.value)}>
             <option value="">Curso*</option>
-                {coursesToShow.map((course, index) => (
+              {sortedCoursesToShow.map((course, index) => (
                     <option key={index} value={course}>
                     {course}
                     </option>
                 ))}
             </select>
           </div>
-          <div className="filter-group">
-            <select onChange={(e) => setProfessor(e.target.value)}>
-            <option value="">Profesor</option>
-                {professorsToShow.map((professor, index) => (
-                    <option key={index} value={professor}>
-                    {professor}
-                    </option>
-                ))}
-            </select>
-          </div>
-          <div className="filter-group">
-            <select onChange={(e) => setMonitor(e.target.value)}>
-              <option value="">Monitor</option>
-              {monitorsToShow.map((monitor, index) => (
-                    <option key={index} value={monitor}>
-                    {monitor}
-                    </option>
-                ))}
-            </select>
-          </div>
+          {!isProfessorRole && (
+            <div className="filter-group">
+              <select onChange={(e) => setProfessor(e.target.value)}>
+              <option value="">Profesor</option>
+                  {sortedProfessorsToShow.map((professor, index) => (
+                      <option key={index} value={professor}>
+                      {normalizeProfessorLabel(professor)}
+                      </option>
+                  ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
       <div className="reports-container">
@@ -524,7 +741,7 @@ useEffect(() => {
     {/* Gráfico de barras - MONITOR */}
     <div className="chart-card">
       <h3>Rendimiento de monitores</h3>
-      <BarChart width={500} height={300} data={monitorPerformanceData}>
+      <BarChart width={500} height={300} data={paginatedMonitorPerformanceData}>
         <CartesianGrid strokeDasharray="3 3" />
         
         {/* Mostrar solo el nombre del monitor */}
@@ -585,6 +802,60 @@ useEffect(() => {
            
       </BarChart>
 
+      <div className="monitor-table-controls">
+        <div className="filter-group">
+          <select value={monitorSortOrder} onChange={(e) => setMonitorSortOrder(e.target.value)}>
+            <option value="A-Z">Orden monitores: A - Z</option>
+            <option value="Z-A">Orden monitores: Z - A</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="monitor-table-wrapper">
+        {orderedMonitorsToShow.length > 0 ? (
+          <table className="monitor-report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Monitores</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderedMonitorsToShow.map((monitorName, index) => (
+                <tr key={`${monitorName}-${index}`}>
+                  <td>{index + 1}</td>
+                  <td>{monitorName}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="comparison-message">No hay monitores para los filtros seleccionados.</p>
+        )}
+      </div>
+
+      {monitorPerformanceData.length > monitorsPerPage && (
+        <div className="monitor-table-pagination">
+          <span>Página {monitorPage} de {totalMonitorPages}</span>
+          <div className="monitor-table-pagination-actions">
+            <button
+              className="chart-download-button"
+              onClick={() => setMonitorPage(previous => Math.max(1, previous - 1))}
+              disabled={monitorPage === 1}
+            >
+              Anterior
+            </button>
+            <button
+              className="chart-download-button"
+              onClick={() => setMonitorPage(previous => Math.min(totalMonitorPages, previous + 1))}
+              disabled={monitorPage === totalMonitorPages}
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
+
           <div className="chart-download-container">
             <button className="chart-download-button" onClick={() => exportToCSV(monitorPerformanceData, 'Rendimiento_Monitores', {
                   semester,
@@ -593,8 +864,59 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(monitorPerformanceData, 'Rendimiento_Monitores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
           </div>
+        </div>
+
+        <div className="chart-card">
+          <h3>
+            {semesterComparison.previousSemester
+              ? `Comparativo por semestre (${semesterComparison.previousSemester} vs ${semesterComparison.currentSemester})`
+              : 'Comparativo por semestre'}
+          </h3>
+
+          {semesterComparison.previousSemester ? (
+            <>
+              <BarChart width={500} height={300} data={semesterComparison.chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="indicador" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={semesterComparison.previousSemester} fill="rgb(255, 187, 40)" />
+                <Bar dataKey={semesterComparison.currentSemester} fill="rgb(0, 196, 159)" />
+              </BarChart>
+
+              <div className="chart-download-container">
+                <button className="chart-download-button" onClick={() => exportToCSV(semesterComparison.exportData, 'Comparativo_Semestres', {
+                      semester,
+                      program,
+                      course,
+                      professor,
+                      monitor
+                    })
+                  }>CSV</button>
+                <button className="chart-download-button" onClick={() => exportToPDF(semesterComparison.exportData, 'Comparativo_Semestres', {
+                      semester,
+                      program,
+                      course,
+                      professor,
+                      monitor
+                    })
+                  }>PDF</button>
+              </div>
+            </>
+          ) : (
+            <p>No hay suficientes semestres con datos para comparar.</p>
+          )}
         </div>
 
 
@@ -623,46 +945,64 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
-            </div>
-          </div>
-
-          {/* Gráfico de pastel*/}
-          <div className="chart-card">
-            <h3>{categoryChartTitle}</h3>
-             <PieChart width={400} height={300}>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="cantidad_total"
-                nameKey="categoria"
-                label={({ categoria }) => categoria}
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}-${entry.categoria}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value, name, props) => {
-                  const total = pieChartData.reduce((acc, curr) => acc + curr.cantidad_total, 0);
-                  const percent = ((value / total) * 100).toFixed(1);
-                  return [`${value} actividades (${percent}%)`, 'Cantidad'];
-                }} 
-              />
-            </PieChart>
-            <div className="chart-download-container">
-              <button className="chart-download-button" onClick={() => exportToCSV(pieChartData, 'Categorias_Por_Curso', {
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentages, 'Resumen_Tareas_Monitor', {
                   semester,
                   program,
                   course,
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>PDF</button>
             </div>
           </div>
+
+          {/* Gráfico de pastel*/}
+          {course && (
+            <div className="chart-card">
+              <h3>{`Uso de Categorías - ${course}`}</h3>
+               <PieChart width={400} height={300}>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="cantidad_total"
+                  nameKey="categoria"
+                  label={({ categoria }) => categoria}
+                >
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}-${entry.categoria}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name, props) => {
+                    const total = pieChartData.reduce((acc, curr) => acc + curr.cantidad_total, 0);
+                    const percent = ((value / total) * 100).toFixed(1);
+                    return [`${value} actividades (${percent}%)`, 'Cantidad'];
+                  }} 
+                />
+              </PieChart>
+              <div className="chart-download-container">
+                <button className="chart-download-button" onClick={() => exportToCSV(pieChartData, 'Categorias_Por_Curso', {
+                    semester,
+                    program,
+                    course,
+                    professor,
+                    monitor
+                  })
+                }>CSV</button>
+                <button className="chart-download-button" onClick={() => exportToPDF(pieChartData, 'Categorias_Por_Curso', {
+                    semester,
+                    program,
+                    course,
+                    professor,
+                    monitor
+                  })
+                }>PDF</button>
+              </div>
+            </div>
+          )}
 
           {/* Asistencias */}
           <div className="chart-card">
@@ -689,7 +1029,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(asistenciaData, `Asistencia_${lineName.replace(' ', '_')}`, {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
               {/* datos filtrados originales*/}
               {/* <button className="chart-download-button" onClick={() => exportToCSV(filteredAttendanceData, 'Asistencia_Detallada_Filtrada')}>Descargar Detalle Filtrado</button> */}
             </div>
@@ -697,13 +1045,13 @@ useEffect(() => {
 
         {/* Gráfico de barras - PROFESOR */}
         <div className="chart-card">
-          <h3>Rendimiento de profesores</h3>
-            <BarChart width={500} height={300} data={professorData}>
+          <h3>{isProfessorRole ? 'Rendimiento del profesor' : 'Rendimiento de profesores'}</h3>
+            <BarChart width={500} height={300} data={professorChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               
               {/* Mostrar solo el nombre (jeje sin el apellido) en el eje X */}
               <XAxis 
-                dataKey="name" 
+                dataKey="nameAndCourse" 
                 tickFormatter={(value) => value.split(' ')[0]} 
               />
               
@@ -734,13 +1082,14 @@ useEffect(() => {
                 }}
 
                 labelFormatter={(label) => {
+                  const normalizedLabel = normalizeProfessorLabel(label);
                   const parts = label.split(' ');
                   if (parts.length >= 3) {
                     const nombreCompleto = `${parts[0]} ${parts[1]}`;
                     const nombreCurso = parts.slice(2).join(' ');
-                    return `${nombreCompleto} ${nombreCurso}`;
+                    return normalizeProfessorLabel(`${nombreCompleto} ${nombreCurso}`);
                   }
-                  return label; // fallback
+                  return normalizedLabel; // fallback
                 }}
               />
 
@@ -763,14 +1112,22 @@ useEffect(() => {
             </BarChart>
 
           <div className="chart-download-container">
-            <button className="chart-download-button" onClick={() => exportToCSV(professorData, 'Rendimiento_Profesores', {
+            <button className="chart-download-button" onClick={() => exportToCSV(professorChartData, 'Rendimiento_Profesores', {
                   semester,
                   program,
                   course,
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+            <button className="chart-download-button" onClick={() => exportToPDF(professorChartData, 'Rendimiento_Profesores', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
           </div>
         </div>
 
@@ -800,7 +1157,15 @@ useEffect(() => {
                   professor,
                   monitor
                 })
-              }>Descargar</button>
+              }>CSV</button>
+              <button className="chart-download-button" onClick={() => exportToPDF(porcentagesProfessor, 'Resumen_Tareas_Profesor', {
+                  semester,
+                  program,
+                  course,
+                  professor,
+                  monitor
+                })
+              }>PDF</button>
             </div>
           </div>
 
