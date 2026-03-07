@@ -10,16 +10,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.pdg.sigma.domain.ChatAttachment;
 import com.pdg.sigma.domain.ChatMessage;
+import com.pdg.sigma.domain.DepartmentHead;
 import com.pdg.sigma.domain.Monitor;
-import com.pdg.sigma.domain.MonitoringMonitor;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ChatAttachmentDTO;
 import com.pdg.sigma.dto.ChatConversationDTO;
@@ -27,21 +21,29 @@ import com.pdg.sigma.dto.ChatMessageCreateDTO;
 import com.pdg.sigma.dto.ChatMessageDTO;
 import com.pdg.sigma.repository.ChatAttachmentRepository;
 import com.pdg.sigma.repository.ChatMessageRepository;
+import com.pdg.sigma.repository.DepartmentHeadRepository;
 import com.pdg.sigma.repository.MonitorRepository;
-import com.pdg.sigma.repository.MonitoringMonitorRepository;
 import com.pdg.sigma.repository.ProfessorRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-
-    @Autowired
-    private MonitoringMonitorRepository monitoringMonitorRepository;
 
     @Autowired
     private MonitorRepository monitorRepository;
 
     @Autowired
     private ProfessorRepository professorRepository;
+
+    @Autowired
+    private DepartmentHeadRepository departmentHeadRepository;
+
+    @Autowired
+    private DepartmentHeadService departmentHeadService;
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
@@ -72,10 +74,24 @@ public class ChatServiceImpl implements ChatService {
                     continue;
                 }
                 String monitorId = monitor.getIdMonitor();
-                String conversationId = buildConversationId(userId, monitorId);
+                String conversationId = buildProfessorMonitorConversationId(userId, monitorId);
                 String monitorName = buildMonitorName(monitor);
                 uniqueConversations.putIfAbsent(conversationId,
                         new ChatConversationDTO(conversationId, "Monitor: " + monitorName, "Chat directo", monitorId));
+            }
+
+            List<DepartmentHead> heads = departmentHeadRepository.findAll();
+            for (DepartmentHead head : heads) {
+                if (head.getId() == null || head.getId().isBlank()) {
+                    continue;
+                }
+                String headId = head.getId();
+                String conversationId = buildHeadProfessorConversationId(headId, userId);
+                uniqueConversations.putIfAbsent(conversationId,
+                        new ChatConversationDTO(conversationId,
+                                "Jefe de Departamento: " + buildDepartmentHeadName(head),
+                                "Chat directo",
+                                headId));
             }
         } else if ("monitor".equals(normalizedRole)) {
             List<Professor> professors = professorRepository.findAll();
@@ -85,7 +101,19 @@ public class ChatServiceImpl implements ChatService {
                 }
                 String professorId = professor.getId();
                 String professorName = buildProfessorName(professor);
-                String conversationId = buildConversationId(professorId, userId);
+                String conversationId = buildProfessorMonitorConversationId(professorId, userId);
+                uniqueConversations.putIfAbsent(conversationId,
+                        new ChatConversationDTO(conversationId, "Profesor: " + professorName, "Chat directo", professorId));
+            }
+        } else if ("jfedpto".equals(normalizedRole)) {
+            List<Professor> professors = departmentHeadService.getProfessorsByDepartmentHead(userId);
+            for (Professor professor : professors) {
+                if (professor.getId() == null || professor.getId().isBlank()) {
+                    continue;
+                }
+                String professorId = professor.getId();
+                String professorName = buildProfessorName(professor);
+                String conversationId = buildHeadProfessorConversationId(userId, professorId);
                 uniqueConversations.putIfAbsent(conversationId,
                         new ChatConversationDTO(conversationId, "Profesor: " + professorName, "Chat directo", professorId));
             }
@@ -100,7 +128,7 @@ public class ChatServiceImpl implements ChatService {
                             .map(ChatMessage::getCreatedAt)
                             .orElse(new java.util.Date(0L))).reversed());
         } catch (Exception ignored) {
-            // Si la tabla chat_message no existe aún, mantenemos el orden actual para no bloquear el listado.
+            // If chat tables are not available yet, keep base ordering.
         }
         return ordered;
     }
@@ -111,7 +139,7 @@ public class ChatServiceImpl implements ChatService {
             List<ChatMessage> messages = chatMessageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
             return messages.stream().map(this::toDTO).toList();
         } catch (Exception ignored) {
-            // Si la tabla chat_message no existe aún, devolvemos historial vacío para mantener la UI operativa.
+            // If chat tables are not available yet, return empty list to keep UI usable.
             return List.of();
         }
     }
@@ -207,8 +235,12 @@ public class ChatServiceImpl implements ChatService {
         return role.trim().toLowerCase(Locale.ROOT);
     }
 
-    private String buildConversationId(String professorId, String monitorId) {
+    private String buildProfessorMonitorConversationId(String professorId, String monitorId) {
         return "prof-" + professorId + "__mon-" + monitorId;
+    }
+
+    private String buildHeadProfessorConversationId(String headId, String professorId) {
+        return "head-" + headId + "__prof-" + professorId;
     }
 
     private String resolveConversationId(ChatMessageCreateDTO payload, String senderRole) throws Exception {
@@ -222,10 +254,22 @@ public class ChatServiceImpl implements ChatService {
         }
 
         if ("professor".equals(senderRole)) {
-            return buildConversationId(payload.getSenderId(), receiverId);
+            if (isMonitorUser(receiverId)) {
+                return buildProfessorMonitorConversationId(payload.getSenderId(), receiverId);
+            }
+            if (isDepartmentHeadUser(receiverId)) {
+                return buildHeadProfessorConversationId(receiverId, payload.getSenderId());
+            }
+            throw new Exception("receiverId inválido para rol professor");
         }
         if ("monitor".equals(senderRole)) {
-            return buildConversationId(receiverId, payload.getSenderId());
+            return buildProfessorMonitorConversationId(receiverId, payload.getSenderId());
+        }
+        if ("jfedpto".equals(senderRole)) {
+            if (!isProfessorUser(receiverId)) {
+                throw new Exception("receiverId inválido para rol jfedpto");
+            }
+            return buildHeadProfessorConversationId(payload.getSenderId(), receiverId);
         }
         throw new Exception("Rol no soportado para chat: " + senderRole);
     }
@@ -238,19 +282,49 @@ public class ChatServiceImpl implements ChatService {
         String professorPrefix = "prof-";
         String monitorPrefix = "__mon-";
         int sep = conversationId.indexOf(monitorPrefix);
-        if (!conversationId.startsWith(professorPrefix) || sep < 0) {
-            throw new Exception("conversationId inválido");
-        }
-        String professorId = conversationId.substring(professorPrefix.length(), sep);
-        String monitorId = conversationId.substring(sep + monitorPrefix.length());
 
-        if ("professor".equals(senderRole)) {
-            return monitorId;
+        if (conversationId.startsWith(professorPrefix) && sep >= 0) {
+            String professorId = conversationId.substring(professorPrefix.length(), sep);
+            String monitorId = conversationId.substring(sep + monitorPrefix.length());
+
+            if ("professor".equals(senderRole)) {
+                return monitorId;
+            }
+            if ("monitor".equals(senderRole)) {
+                return professorId;
+            }
+            throw new Exception("Rol no soportado para conversationId professor-monitor");
         }
-        if ("monitor".equals(senderRole)) {
-            return professorId;
+
+        String headPrefix = "head-";
+        String profSuffix = "__prof-";
+        int headSep = conversationId.indexOf(profSuffix);
+        if (conversationId.startsWith(headPrefix) && headSep >= 0) {
+            String headId = conversationId.substring(headPrefix.length(), headSep);
+            String professorId = conversationId.substring(headSep + profSuffix.length());
+
+            if ("jfedpto".equals(senderRole)) {
+                return professorId;
+            }
+            if ("professor".equals(senderRole)) {
+                return headId;
+            }
+            throw new Exception("Rol no soportado para conversationId jefe-profesor");
         }
-        throw new Exception("Rol no soportado para chat: " + senderRole);
+
+        throw new Exception("conversationId inválido");
+    }
+
+    private boolean isMonitorUser(String userId) {
+        return userId != null && monitorRepository.findByIdMonitor(userId).isPresent();
+    }
+
+    private boolean isProfessorUser(String userId) {
+        return userId != null && professorRepository.existsById(userId);
+    }
+
+    private boolean isDepartmentHeadUser(String userId) {
+        return userId != null && departmentHeadRepository.existsById(userId);
     }
 
     private String buildMonitorName(Monitor monitor) {
@@ -283,6 +357,17 @@ public class ChatServiceImpl implements ChatService {
         return fromRepo.map(p -> p.getName() != null ? p.getName().trim() : "")
                 .filter(s -> !s.isBlank())
                 .orElse("Profesor " + professor.getId());
+    }
+
+    private String buildDepartmentHeadName(DepartmentHead head) {
+        if (head == null) {
+            return "Jefe";
+        }
+        String name = head.getName() != null ? head.getName().trim() : "";
+        if (!name.isBlank()) {
+            return name;
+        }
+        return "Jefe " + head.getId();
     }
 
     private void ensureChatTables() {
