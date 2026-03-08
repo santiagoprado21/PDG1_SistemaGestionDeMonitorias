@@ -186,7 +186,7 @@ function VerticalNavbar() {
         {/* Acceso para Monitor, Profesor y Jefe de Departamento */}
         {(role === "monitor" || role === "professor" || role === "jfedpto") && (
           <>
-            {(role === "monitor" || role === "professor") && (
+            {(role === "monitor" || role === "professor" || role === "jfedpto") && (
               <NavLink
                 to="/chat"
                 className={({ isActive }) => (isActive ? "active" : "")}
