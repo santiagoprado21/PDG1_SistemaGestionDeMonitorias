@@ -212,7 +212,7 @@ useEffect(() => {
                           onClick={() => navigate(`/plan-actividades/${curso.id}`)}
                           title="Ver plan de actividades"
                         >
-                          📋 Plan
+                          Plan
                         </button>
                       ) : (
                         <span style={{color: '#88898c', fontSize: '0.9em'}}>-</span>
@@ -230,3 +230,4 @@ useEffect(() => {
 }
 
 export default Profile;
+

@@ -176,40 +176,15 @@
 }
 
 /* Botones */
-.btn-primary {
-    background-color: var(--azul-icesi);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s;
-}
 
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--morado-icesi);
+.btn-primary,
+.btn-secondary {
+    min-height: 35px;
 }
 
 .btn-primary:disabled {
     background-color: var(--gris-2);
     cursor: not-allowed;
-}
-
-.btn-secondary {
-    background-color: var(--blanco);
-    color: var(--azul-icesi);
-    padding: 10px 20px;
-    border: 2px solid var(--azul-icesi);
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-    background-color: var(--azul-icesi);
-    color: white;
 }
 
 /* Estados vacíos */
@@ -281,11 +256,7 @@
 }
 
 .btn-close {
-    background: none;
-    border: none;
     font-size: 32px;
-    color: var(--gris-1);
-    cursor: pointer;
     line-height: 1;
     padding: 0;
     width: 32px;
@@ -293,7 +264,7 @@
 }
 
 .btn-close:hover {
-    color: var(--negro);
+    transform: rotate(90deg);
 }
 
 .modal-body {

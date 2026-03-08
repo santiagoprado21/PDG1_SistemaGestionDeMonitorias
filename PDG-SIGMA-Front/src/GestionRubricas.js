@@ -4,12 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
+import { BarChart3, Info, Plus, ClipboardList, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * HU-011: Componente para gestionar rúbricas de evaluación
  * El profesor puede crear, editar y eliminar rúbricas para asociar a actividades
  */
 function GestionRubricas() {
+    const iconProps = {
+        size: 16,
+        strokeWidth: 2,
+        strokeLinecap: 'butt',
+        strokeLinejoin: 'miter'
+    };
+
     const navigate = useNavigate();
     const user = localStorage.getItem('userId');
     
@@ -247,10 +255,10 @@ function GestionRubricas() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content gestion-rubricas-content">
-                <h1>📊 Gestión de Rúbricas</h1>
+                <h1><BarChart3 {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Gestión de Rúbricas</h1>
                 <p className="subtitle">Crea y gestiona rúbricas para evaluar las actividades de tus monitores</p>
                 <div className="info-banner">
-                    <span className="info-icon">ℹ️</span>
+                    <span className="info-icon"><Info {...iconProps} /></span>
                     <div className="info-text">
                         <strong>Las rúbricas son recursos reutilizables</strong> que puedes asociar a cualquier actividad de cualquiera de tus monitorías. 
                         Una misma rúbrica puede usarse en múltiples actividades.
@@ -259,10 +267,10 @@ function GestionRubricas() {
 
                 <div className="rubricas-actions">
                     <button className="btn-primary" onClick={() => handleOpenModal()}>
-                        ➕ Crear Nueva Rúbrica
+                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Crear Nueva Rúbrica
                     </button>
                     <button className="btn-secondary" onClick={() => navigate('/plan-actividades')}>
-                        📋 Ir a Plan de Actividades
+                        <ClipboardList {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Ir a Plan de Actividades
                     </button>
                 </div>
 
@@ -305,16 +313,16 @@ function GestionRubricas() {
 
                                 <div className="rubrica-actions">
                                     <button 
-                                        className="btn-edit"
+                                        className="btn-edit btn-secondary"
                                         onClick={() => handleOpenModal(rubric)}
                                         title="Editar rúbrica">
-                                        ✏️ Editar
+                                        <Pencil {...iconProps} size={14} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Editar
                                     </button>
                                     <button 
-                                        className="btn-delete"
+                                        className="btn-delete btn-danger"
                                         onClick={() => handleDeleteRubric(rubric.id)}
                                         title="Eliminar rúbrica">
-                                        🗑️ Eliminar
+                                        <Trash2 {...iconProps} size={14} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Eliminar
                                     </button>
                                 </div>
                             </div>
@@ -328,7 +336,7 @@ function GestionRubricas() {
                         <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>{editingRubric ? 'Editar Rúbrica' : 'Nueva Rúbrica'}</h2>
-                                <button className="btn-close" onClick={handleCloseModal}>×</button>
+                                <button className="btn-close btn-secondary" onClick={handleCloseModal}>×</button>
                             </div>
 
                             <form onSubmit={handleSubmit}>
@@ -408,7 +416,7 @@ function GestionRubricas() {
                                                     className="btn-remove-criterion"
                                                     onClick={() => handleRemoveCriteria(index)}
                                                     title="Eliminar criterio">
-                                                    🗑️
+                                                    <Trash2 {...iconProps} size={14} />
                                                 </button>
                                             </div>
                                         </div>
@@ -418,7 +426,7 @@ function GestionRubricas() {
                                         type="button"
                                         className="btn-add-criterion"
                                         onClick={handleAddCriteria}>
-                                        ➕ Agregar Criterio
+                                        <Plus {...iconProps} size={14} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Criterio
                                     </button>
                                 </div>
 

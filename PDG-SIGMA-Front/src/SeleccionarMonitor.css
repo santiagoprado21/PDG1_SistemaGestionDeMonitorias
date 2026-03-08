@@ -16,20 +16,12 @@
 }
 
 .btn-back {
-    padding: 0.6rem 1.2rem;
-    background: white;
-    border: 2px solid var(--azul-icesi);
-    color: var(--azul-icesi);
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+    min-height: 35px;
     transition: all 0.3s;
     margin-bottom: 1rem;
 }
 
 .btn-back:hover {
-    background: var(--azul-icesi);
-    color: white;
     transform: translateX(-5px);
 }
 
@@ -156,20 +148,13 @@
 
 /* Botones */
 .btn-select-monitor {
-    padding: 0.6rem 1.2rem;
-    background: var(--verde-icesi);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+    min-height: 35px;
     transition: all 0.3s;
 }
 
 .btn-select-monitor:hover {
-    background: var(--verde-icesi);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-green-md);
+    box-shadow: var(--shadow-md);
 }
 
 /* Paginación */
@@ -368,35 +353,18 @@
 }
 
 .btn-cancel {
-    padding: 0.8rem 1.5rem;
-    background: var(--gris-1);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+    min-height: 35px;
     transition: all 0.3s;
 }
 
-.btn-cancel:hover {
-    background: var(--gris-1);
-}
-
 .btn-confirm-select {
-    padding: 0.8rem 1.5rem;
-    background: var(--verde-icesi);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+    min-height: 35px;
     transition: all 0.3s;
 }
 
 .btn-confirm-select:hover {
-    background: var(--verde-icesi);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-green-md);
+    box-shadow: var(--shadow-md);
 }
 
 /* Responsive */

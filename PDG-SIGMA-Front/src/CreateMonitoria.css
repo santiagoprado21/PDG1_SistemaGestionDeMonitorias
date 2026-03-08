@@ -134,15 +134,7 @@
 /* ============================BUTTON================================= */
 
 .btn-create-monitoria {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-  color: white;
-  padding: 15px 40px;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--main-font-family);
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
+  min-height: 35px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   margin-top: 1em;
@@ -156,7 +148,6 @@
 .btn-create-monitoria:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--morado-icesi) 100%);
 }
 
 .btn-create-monitoria:active {
@@ -164,22 +155,12 @@
 }
 
 .btn-create-monitoria:disabled {
-  background: var(--gris-2);
-  cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .btn-upload-csv {
-  background: linear-gradient(135deg, var(--info-color) 0%, var(--azul-icesi) 100%);
-  color: white;
-  padding: 12px 30px;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--main-font-family);
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  min-height: 35px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
@@ -187,7 +168,6 @@
 .btn-upload-csv:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--azul-icesi) 100%);
 }
 
 .btn-upload-csv:active {

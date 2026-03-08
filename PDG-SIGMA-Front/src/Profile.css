@@ -78,14 +78,7 @@
 
   /* Botón Plan de Actividades */
   .btn-plan-actividades {
-    background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--morado-icesi) 100%);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
+    min-height: 35px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px var(--shadow-primary-md);
   }

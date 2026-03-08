@@ -5,20 +5,9 @@
   }
   
   .update-button {
-    width: 100px;
-    height: 35px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    color: white;
-    background-color: var(--azul-icesi);
-  }
-  
-  .update-button:hover {
-    background-color: var(--azul-icesi);
-  }
+      min-width: 120px;
+      min-height: 35px;
+    }
   
   .update-options {
     position: absolute;
@@ -59,17 +48,12 @@
   
   .submit-button {
     width: 100%;
-    height: 35px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    color: white;
-    background-color: var(--verde-icesi);
+    min-height: 35px;
   }
-  
-  .submit-button:hover {
-    background-color: var(--verde-icesi);
+
+  .update-button:focus-visible,
+  .submit-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring-soft);
   }
   

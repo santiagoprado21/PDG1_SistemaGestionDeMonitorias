@@ -14,7 +14,7 @@
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--main-color) 0%, var(--azul-icesi) 100%);
+    background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
     position: relative;
     box-shadow: 0 4px 10px var(--shadow-primary-md);
     transition: transform .25s ease, box-shadow .25s ease;
@@ -87,7 +87,7 @@
     margin-bottom: 10px;
     padding-bottom: 6px;
     font-weight: 600;
-    background: linear-gradient(90deg, var(--main-color), var(--azul-icesi));
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
     -webkit-background-clip: text;
     background-clip: text; /* estándar para navegadores modernos */
     color: transparent;
@@ -100,7 +100,7 @@
     bottom: 0;
     width: 60%;
     height: 2px;
-    background: linear-gradient(90deg, var(--main-color), transparent);
+    background: linear-gradient(90deg, var(--color-primary), transparent);
     border-radius: 2px;
 }
 
@@ -118,7 +118,7 @@
 
 .notification-box {
     background: linear-gradient(120deg,var(--gris-2) 0%, var(--blanco) 85%);
-    border-left: 5px solid var(--main-color);
+    border-left: 5px solid var(--color-primary);
     padding: 10px 12px;
     border-radius: 8px;
     font-size: 12.5px;
@@ -148,11 +148,11 @@
     max-height: 340px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--main-color) var(--gris-2);
+    scrollbar-color: var(--color-primary) var(--gris-2);
 }
 .notification-list::-webkit-scrollbar { width: 6px; }
 .notification-list::-webkit-scrollbar-track { background: var(--gris-2); border-radius: 10px; }
-.notification-list::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
+.notification-list::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 10px; }
 .notification-list::-webkit-scrollbar-thumb:hover { background: var(--azul-icesi); }
 
 

@@ -135,7 +135,7 @@ function VerConvocatorias() {
             });
 
             if (response.ok) {
-                setMessage("✅ ¡Has enviado tu postulación correctamente a la monitoría!\n\n📋 El profesor revisará tu carta de motivación y decidirá quién será el monitor seleccionado.\n\n⏳ Te notificaremos el resultado de tu postulación.");
+                setMessage("¡Has enviado tu postulación correctamente a la monitoría!\n\nEl profesor revisará tu carta de motivación y decidirá quién será el monitor seleccionado.\n\nTe notificaremos el resultado de tu postulación.");
                 setIsOpen(true);
                 closeModal();
                 loadMyApplications();
@@ -273,7 +273,7 @@ function VerConvocatorias() {
                                                 textAlign: 'center',
                                                 fontWeight: 'bold'
                                             }}>
-                                                ✓ Ya te postulaste
+                                                Ya te postulaste
                                             </div>
                                         ) : (
                                             <button
@@ -440,4 +440,5 @@ function VerConvocatorias() {
 }
 
 export default VerConvocatorias;
+
 

@@ -2,7 +2,7 @@ import React from "react";
 import "./CustomComponents.css"; // Importamos los estilos
 
 // Icono de campana personalizado
-const Bell = ({ size = 24, color = "black" }) => (
+const Bell = ({ size = 24, color = "var(--color-primary)" }) => (
   <svg
     className="bell-icon"
     width={size}
@@ -11,8 +11,8 @@ const Bell = ({ size = 24, color = "black" }) => (
     viewBox="0 0 24 24"
     stroke={color}
     strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    strokeLinecap="butt"
+    strokeLinejoin="miter"
   >
     <path d="M12 22c1.1 0 2-.9 2-2H10a2 2 0 0 0 2 2z" />
     <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9z" />

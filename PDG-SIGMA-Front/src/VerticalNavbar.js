@@ -5,8 +5,30 @@ import {PopUp} from "./PopUp";
 import "./VerticalNavbar.css";
 import { BACKEND_URL } from './config/ApiBackend';
 import NotificationIcon from './NotificationIcon';
+import {
+  Megaphone,
+  Star,
+  MessageSquare,
+  FileText,
+  ClipboardList,
+  ClipboardCheck,
+  Plus,
+  BarChart3,
+  UserCheck,
+  FolderInput,
+  CheckSquare,
+  Lock
+} from 'lucide-react';
 
 function VerticalNavbar() {
+  const navIconProps = {
+    size: 16,
+    strokeWidth: 2,
+    strokeLinecap: 'butt',
+    strokeLinejoin: 'miter',
+    style: { marginRight: 8, verticalAlign: 'text-bottom' }
+  };
+
   const [role, setRole] = useState("");
   const [user, setUser] = useState("");
   const [initials, setInitials] = useState("");
@@ -170,7 +192,7 @@ function VerticalNavbar() {
             to="/ver-convocatorias"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-            📢 Convocatorias Abiertas
+            <Megaphone {...navIconProps} />Convocatorias Abiertas
           </NavLink>
         )}
 
@@ -179,7 +201,7 @@ function VerticalNavbar() {
             to="/evaluacion-monitoria"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-            ⭐ Evaluacion de monitoria
+            <Star {...navIconProps} />Evaluacion de monitoria
           </NavLink>
         )}
 
@@ -191,7 +213,7 @@ function VerticalNavbar() {
                 to="/chat"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
-                💬 Chat
+                <MessageSquare {...navIconProps} />Chat
               </NavLink>
             )}
 
@@ -201,25 +223,25 @@ function VerticalNavbar() {
                   to="/mis-postulaciones"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
-                  📝 Mis Postulaciones
+                  <FileText {...navIconProps} />Mis Postulaciones
                 </NavLink>
                 <NavLink
                   to="/mis-actividades"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
-                  📋 Mis Actividades
+                  <ClipboardList {...navIconProps} />Mis Actividades
                 </NavLink>
                 <NavLink
                   to="/mis-evaluaciones"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
-                  ⭐ Mis evaluaciones
+                  <Star {...navIconProps} />Mis evaluaciones
                 </NavLink>
                 <NavLink
                   to="/evaluar-supervisor"
                   className={({ isActive }) => (isActive ? "active" : "")}
                 >
-                  📝 Evaluar supervisor
+                  <ClipboardCheck {...navIconProps} />Evaluar supervisor
                 </NavLink>
               </>
             )}
@@ -235,14 +257,14 @@ function VerticalNavbar() {
               to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              ➕ Crear Convocatoria
+              <Plus {...navIconProps} />Crear Convocatoria
             </NavLink>
             
             <NavLink
               to="/mis-convocatorias"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📋 Mis Convocatorias
+              <ClipboardList {...navIconProps} />Mis Convocatorias
             </NavLink>
             
             {/* HU-011: Plan de Actividades */}
@@ -250,7 +272,7 @@ function VerticalNavbar() {
               to="/plan-actividades"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📋 Plan de Actividades
+              <ClipboardCheck {...navIconProps} />Plan de Actividades
             </NavLink>
             
             {/* HU-011: Gestión de Rúbricas */}
@@ -258,7 +280,7 @@ function VerticalNavbar() {
               to="/gestion-rubricas"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📊 Gestión de Rúbricas
+              <BarChart3 {...navIconProps} />Gestión de Rúbricas
             </NavLink>
 
             {/* HU-015: Evaluar Monitores */}
@@ -266,7 +288,7 @@ function VerticalNavbar() {
               to="/evaluar-monitores"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📈 Evaluar Monitores
+              <UserCheck {...navIconProps} />Evaluar Monitores
             </NavLink>
 
           </>
@@ -280,14 +302,14 @@ function VerticalNavbar() {
               to="/crear-monitoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📂 Crear Monitorías CSV
+              <FolderInput {...navIconProps} />Crear Monitorías CSV
             </NavLink>
 
             <NavLink
               to="/evaluacion-monitoria"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              📊 Resultados monitoria
+              <BarChart3 {...navIconProps} />Resultados monitoria
             </NavLink>
             
             {/* HU-010: Aprobar Monitorías del flujo de convocatorias */}
@@ -295,7 +317,7 @@ function VerticalNavbar() {
               to="/aprobar-monitorias-hu010"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              ✓ Aprobar Convocatorias
+              <CheckSquare {...navIconProps} />Aprobar Convocatorias
             </NavLink>
             
             {/* HU-007: Cerrar Monitorías */}
@@ -303,14 +325,14 @@ function VerticalNavbar() {
               to="/cerrar-monitorias"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              🔒 Cerrar Monitorías
+              <Lock {...navIconProps} />Cerrar Monitorías
             </NavLink>
             
             <NavLink
               to="/GenerateSimonFile"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Generar Archivo SIMON
+              <FileText {...navIconProps} />Generar Archivo SIMON
             </NavLink>
           </>
         )}

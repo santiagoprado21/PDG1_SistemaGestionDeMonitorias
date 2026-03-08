@@ -142,15 +142,7 @@
 
 .btn-postularse {
   width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--info-color) 0%, var(--azul-icesi) 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--main-font-family);
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  min-height: 35px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
@@ -158,7 +150,6 @@
 .btn-postularse:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--azul-icesi) 100%);
 }
 
 .already-applied {
@@ -298,29 +289,9 @@
 }
 
 .btn-modal {
-  padding: 13px 30px;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--main-font-family);
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+  min-height: 35px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.btn-cancel {
-  background-color: var(--gris-1);
-  color: white;
-}
-
-.btn-cancel:hover {
-  background-color: var(--gris-1);
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, var(--success-color) 0%, var(--verde-icesi) 100%);
-  color: white;
 }
 
 .btn-submit:hover:not(:disabled) {
@@ -329,8 +300,6 @@
 }
 
 .btn-submit:disabled {
-  background: var(--gris-2);
-  cursor: not-allowed;
   opacity: 0.6;
 }
 

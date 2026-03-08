@@ -492,7 +492,7 @@ function CreateMonitoria() {
                 {/* Botón de carga CSV */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
                     <button className="btn-upload-csv" onClick={handleUpload}>
-                        📂 Cargar Datos (CSV/Excel)
+                        Cargar Datos (CSV/Excel)
                     </button>
                 </div>
 
@@ -785,4 +785,5 @@ function CreateMonitoria() {
 }
 
 export default CreateMonitoria;
+
 

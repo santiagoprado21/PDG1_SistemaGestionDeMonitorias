@@ -166,7 +166,7 @@ function CreateConvocatoria() {
             });
 
             if (response.ok) {
-                setMessage("✅ ¡Convocatoria creada exitosamente!\n\n📋 Tu convocatoria está ahora PENDIENTE DE APROBACIÓN por el Jefe de Departamento.\n\n⏳ Una vez aprobada, los estudiantes podrán postularse.");
+                setMessage("¡Convocatoria creada exitosamente!\n\nTu convocatoria está ahora PENDIENTE DE APROBACIÓN por el Jefe de Departamento.\n\nUna vez aprobada, los estudiantes podrán postularse.");
                 setIsOpen(true);
                 resetForm();
                 loadMyConvocatorias();
@@ -498,4 +498,5 @@ function CreateConvocatoria() {
 }
 
 export default CreateConvocatoria;
+
 

@@ -24,7 +24,7 @@ function GenerateSimonFile() {
     const loadPreview = async () => {
         setIsLoading(true);
         try {
-            console.log("🔄 Cargando vista previa de monitorías aprobadas...");
+            console.log("Cargando vista previa de monitorías aprobadas...");
             const response = await fetch(`${BACKEND_URL}/simon/preview`, {
                 method: 'GET',
                 headers: {
@@ -38,8 +38,8 @@ function GenerateSimonFile() {
             }
 
             const data = await response.json();
-            console.log("✅ Datos recibidos:", data);
-            console.log("📊 Total monitorías:", data.totalMonitorings);
+            console.log("Datos recibidos:", data);
+            console.log("Total monitorías:", data.totalMonitorings);
             setPreviewData(data);
         } catch (error) {
             console.error('❌ Error:', error);
@@ -179,7 +179,7 @@ function GenerateSimonFile() {
                         onClick={handleGenerateFile}
                         disabled={!previewData || !previewData.canGenerate || isLoading}
                     >
-                        {isLoading ? 'Generando...' : '📥 Generar y Descargar Archivo SIMON'}
+                        {isLoading ? 'Generando...' : 'Generar y Descargar Archivo SIMON'}
                     </button>
                     <button 
                         className="btn-toggle-history"
@@ -190,13 +190,13 @@ function GenerateSimonFile() {
                         }}
                         disabled={isLoading}
                     >
-                        🔄 Refrescar Datos
+                        Refrescar Datos
                     </button>
                     <button 
                         className="btn-toggle-history"
                         onClick={() => setShowHistory(!showHistory)}
                     >
-                        {showHistory ? '📋 Ocultar Historial' : '📋 Ver Historial'}
+                        {showHistory ? 'Ocultar Historial' : 'Ver Historial'}
                     </button>
                 </div>
 
@@ -279,7 +279,7 @@ function GenerateSimonFile() {
 
                 {/* Información Adicional */}
                 <div className="simon-info-card">
-                    <h3>ℹ️ Información Importante</h3>
+                    <h3>Información Importante</h3>
                     <ul>
                         <li>El archivo generado está en formato Excel (.xlsx)</li>
                         <li>Solo se incluyen monitorías <strong>aprobadas por el jefe de departamento</strong></li>
@@ -296,4 +296,5 @@ function GenerateSimonFile() {
 }
 
 export default GenerateSimonFile;
+
 

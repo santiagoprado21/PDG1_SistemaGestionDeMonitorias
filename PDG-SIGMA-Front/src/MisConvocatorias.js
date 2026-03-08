@@ -5,8 +5,16 @@ import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
 import LoadingSpinner from './LoadingSpinner';
+import { Clock3, Megaphone, UserRound, X, ClipboardList, Search, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function MisConvocatorias() {
+    const iconProps = {
+        size: 14,
+        strokeWidth: 2,
+        strokeLinecap: 'butt',
+        strokeLinejoin: 'miter'
+    };
+
     const navigate = useNavigate();
     const [myConvocatorias, setMyConvocatorias] = useState([]);
     const [filteredConvocatorias, setFilteredConvocatorias] = useState([]);
@@ -91,18 +99,18 @@ function MisConvocatorias() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#e4eb60', icon: '⏳' },
-            'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4cb979', icon: '📢' },
-            'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#5454e9', icon: '👤' },
+            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#e4eb60', icon: <Clock3 {...iconProps} /> },
+            'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4cb979', icon: <Megaphone {...iconProps} /> },
+            'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#5454e9', icon: <UserRound {...iconProps} /> },
             'APROBADA': { label: 'Cerrada', color: '#88898c' },
-            'RECHAZADA': { label: 'Rechazada', color: '#e9683b', icon: '✗' },
-            'CANCELADA': { label: 'Cancelada', color: '#e4eb60', icon: '⏳' }
+            'RECHAZADA': { label: 'Rechazada', color: '#e9683b', icon: <X {...iconProps} /> },
+            'CANCELADA': { label: 'Cancelada', color: '#e4eb60', icon: <Clock3 {...iconProps} /> }
         };
 
         const config = statusConfig[status] || { 
             label: status ? status.replace(/_/g, ' ') : 'Sin estado', 
             color: '#e4eb60', 
-            icon: '' 
+            icon: null 
         };
 
         return (
@@ -113,9 +121,12 @@ function MisConvocatorias() {
                 borderRadius: '12px',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                display: 'inline-block'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
             }}>
-                {config.icon} {config.label}
+                {config.icon}
+                {config.label}
             </span>
         );
     };
@@ -208,8 +219,8 @@ function MisConvocatorias() {
                             }}>
                                 <p style={{ color: '#88898c', fontSize: '1.1rem' }}>
                                     {myConvocatorias.length === 0 
-                                        ? '📋 No tienes convocatorias creadas aún' 
-                                        : '🔍 No se encontraron convocatorias con los filtros aplicados'}
+                                        ? (<><ClipboardList {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />No tienes convocatorias creadas aun</>) 
+                                        : (<><Search {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />No se encontraron convocatorias con los filtros aplicados</>)}
                                 </p>
                             </div>
                         ) : (
@@ -287,12 +298,12 @@ function MisConvocatorias() {
                                                             onMouseOver={(e) => e.target.style.backgroundColor = '#5454e9'}
                                                             onMouseOut={(e) => e.target.style.backgroundColor = '#5454e9'}
                                                         >
-                                                            👥 Ver Postulantes
+                                                            <Users {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Ver Postulantes
                                                         </button>
                                                     )}
                                                     {conv.status === 'PENDIENTE_APROBACION_JEFE' && (
-                                                        <span style={{ color: '#e4eb60', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            ⏳ Esperando jefe
+                                                        <span style={{ color: '#e4eb60', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <Clock3 {...iconProps} />Esperando jefe
                                                         </span>
                                                     )}
                                                     {conv.status === 'APROBADA' && (
@@ -309,13 +320,13 @@ function MisConvocatorias() {
                                                         </span>
                                                     )}
                                                     {conv.status === 'RECHAZADA' && (
-                                                        <span style={{ color: '#e9683b', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            ✗ Rechazada
+                                                        <span style={{ color: '#e9683b', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <X {...iconProps} />Rechazada
                                                         </span>
                                                     )}
                                                     {conv.status === 'MONITOR_SELECCIONADO' && (
-                                                        <span style={{ color: '#5454e9', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            👤 Monitor elegido
+                                                        <span style={{ color: '#5454e9', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <UserRound {...iconProps} />Monitor elegido
                                                         </span>
                                                     )}
                                                 </td>
@@ -341,7 +352,7 @@ function MisConvocatorias() {
                                                 fontWeight: '600'
                                             }}
                                         >
-                                            ← Anterior
+                                            <ChevronLeft {...iconProps} style={{ marginRight: '4px', verticalAlign: 'text-bottom' }} />Anterior
                                         </button>
                                         <span style={{ margin: '0 15px', fontWeight: '600', color: '#000000' }}>
                                             Página {currentPage} de {totalPages}
@@ -360,7 +371,7 @@ function MisConvocatorias() {
                                                 fontWeight: '600'
                                             }}
                                         >
-                                            Siguiente →
+                                            Siguiente<ChevronRight {...iconProps} style={{ marginLeft: '4px', verticalAlign: 'text-bottom' }} />
                                         </button>
                                     </div>
                                 )}

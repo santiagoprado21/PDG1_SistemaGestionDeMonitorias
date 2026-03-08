@@ -2,8 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { Bell } from "./CustomComponents";
 import { BACKEND_URL } from './config/ApiBackend';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Settings } from 'lucide-react';
 
 const NotificationIcon = () => {
+  const iconProps = {
+    size: 14,
+    strokeWidth: 2,
+    strokeLinecap: 'butt',
+    strokeLinejoin: 'miter'
+  };
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [alerts, setAlerts] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
@@ -313,7 +321,13 @@ const NotificationIcon = () => {
             <button
               style={{ background:'transparent', border:'none', color:'#5454e9', cursor:'pointer', fontWeight:600 }}
               onClick={() => { const ns = !showSettings; setShowSettings(ns); if(ns) loadPrefsBackend(); }}
-            >{showSettings ? '← Atrás' : '⚙ Preferencias'}</button>
+            >
+              {showSettings ? (
+                <><ArrowLeft {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Atras</>
+              ) : (
+                <><Settings {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Preferencias</>
+              )}
+            </button>
           </div>
 
           {!showSettings && (

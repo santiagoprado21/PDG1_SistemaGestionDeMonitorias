@@ -2,8 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import VerticalNavbar from './VerticalNavbar';
 import './Chat.css';
 import { BACKEND_URL } from './config/ApiBackend';
+import { Paperclip, X } from 'lucide-react';
 //.
 function Chat() {
+  const iconProps = {
+    size: 16,
+    strokeWidth: 2,
+    strokeLinecap: 'butt',
+    strokeLinejoin: 'miter'
+  };
+
   const role = (localStorage.getItem('role') || '').toLowerCase();
   const userId = localStorage.getItem('userId') || '';
   const userName = localStorage.getItem('userName') || 'Usuario';
@@ -310,7 +318,7 @@ function Chat() {
                             <img src={resolveAttachmentUrl(att)} alt={att.name} className="attachment-thumb" />
                           ) : (
                             <div className="attachment-file-icon" title={att.name}>
-                              📎
+                              <Paperclip {...iconProps} size={14} />
                             </div>
                           )}
                           <div className="attachment-info" title={att.name}>
@@ -333,10 +341,10 @@ function Chat() {
                       {a.preview && a.file.type.startsWith('image/') ? (
                         <img src={a.preview} alt={a.file.name} className="pending-thumb" />
                       ) : (
-                        <div className="pending-icon" title={a.file.name}>📎</div>
+                        <div className="pending-icon" title={a.file.name}><Paperclip {...iconProps} size={14} /></div>
                       )}
                       <span className="pending-name" title={a.file.name}>{a.file.name}</span>
-                      <button type="button" className="remove-attachment-btn" onClick={() => removeAttachment(i)}>✕</button>
+                      <button type="button" className="remove-attachment-btn" onClick={() => removeAttachment(i)}><X {...iconProps} size={14} /></button>
                     </div>
                   ))}
                 </div>
@@ -349,7 +357,7 @@ function Chat() {
                   disabled={!selectedId}
                 />
                 <div className="input-actions">
-                  <button type="button" className="attach-btn" onClick={handleOpenFileDialog} title="Adjuntar archivos" disabled={!selectedId}>📎</button>
+                  <button type="button" className="attach-btn" onClick={handleOpenFileDialog} title="Adjuntar archivos" disabled={!selectedId}><Paperclip {...iconProps} size={14} /></button>
                   <input
                     ref={fileInputRef}
                     type="file"

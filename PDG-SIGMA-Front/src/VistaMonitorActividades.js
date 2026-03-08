@@ -398,8 +398,8 @@ function VistaMonitorActividades() {
             setActivityPlans(recalculatedPlans);
 
             setMessage(isLate ? 
-                '✅ Actividad marcada como completada (tardía)' : 
-                '✅ Actividad marcada como completada'
+                'Actividad marcada como completada (tardía)' : 
+                'Actividad marcada como completada'
             );
             setIsOpen(true);
             setShowActivityDetail(false);
@@ -788,7 +788,7 @@ function VistaMonitorActividades() {
         if (filteredPlans.length === 0) {
             return (
                 <div className="empty-state">
-                    <p>📭 No tienes actividades asignadas</p>
+                    <p>No tienes actividades asignadas</p>
                     <p className="empty-subtitle">Espera a que tu profesor asigne actividades</p>
                 </div>
             );
@@ -839,9 +839,9 @@ function VistaMonitorActividades() {
                                         </div>
                                         <p className="activity-description">{activity.description}</p>
                                         <div className="activity-meta">
-                                            <span>📅 {formatDate(activity.finish)}</span>
-                                            {activity.category && <span>📂 {activity.category}</span>}
-                                            {activity.durationHours && <span>⏱️ {activity.durationHours} h</span>}
+                                            <span>{formatDate(activity.finish)}</span>
+                                            {activity.category && <span>{activity.category}</span>}
+                                            {activity.durationHours && <span>{activity.durationHours} h</span>}
                                             {activity.priority && (
                                                 <span className={`priority-badge ${getPriorityColor(activity.priority)}`}>
                                                     {activity.priority}
@@ -860,7 +860,7 @@ function VistaMonitorActividades() {
                                         </div>
                                         {isUrgent && (
                                             <div className="urgent-banner">
-                                                ⚠️ ¡URGENTE! Quedan {daysRemaining} día{daysRemaining !== 1 ? 's' : ''}
+                                                ¡URGENTE! Quedan {daysRemaining} día{daysRemaining !== 1 ? 's' : ''}
                                             </div>
                                         )}
                                     </div>
@@ -874,7 +874,7 @@ function VistaMonitorActividades() {
                                                 }}
                                                 title="Descargar rúbrica"
                                             >
-                                                📥 Rúbrica
+                                                Rúbrica
                                             </button>
                                         )}
                                         {activity.state === 'PENDIENTE' && (
@@ -886,7 +886,7 @@ function VistaMonitorActividades() {
                                                 }}
                                                 title="Marcar como completada"
                                             >
-                                                ✓ Completar
+                                                Completar
                                             </button>
                                         )}
                                     </div>
@@ -920,7 +920,7 @@ function VistaMonitorActividades() {
             <VerticalNavbar />
             <div className="vista-monitor-content">
                 <div className="page-header">
-                    <h1>📋 Mis Actividades</h1>
+                    <h1>Mis Actividades</h1>
                     <p className="subtitle">Revisa y gestiona las actividades asignadas por tus profesores</p>
                 </div>
 
@@ -929,7 +929,7 @@ function VistaMonitorActividades() {
                     <div className="search-bar">
                         <input
                             type="text"
-                            placeholder="🔍 Buscar por curso, profesor o programa..."
+                            placeholder="Buscar por curso, profesor o programa..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="search-input"
@@ -978,7 +978,7 @@ function VistaMonitorActividades() {
                             }}
                             className="clear-filters-btn"
                         >
-                            🔄 Limpiar filtros
+                            Limpiar filtros
                         </button>
                     </div>
                 </div>
@@ -1031,7 +1031,7 @@ function VistaMonitorActividades() {
                                     className="close-btn"
                                     onClick={() => setShowActivityDetail(false)}
                                 >
-                                    ✕
+                                    x
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1245,7 +1245,7 @@ function VistaMonitorActividades() {
                                             className="download-btn-modal"
                                             onClick={() => downloadRubric(selectedActivity.rubricId, selectedActivity.name)}
                                         >
-                                            📥 Descargar Rúbrica
+                                            Descargar Rúbrica
                                         </button>
                                     </div>
                                 )}
@@ -1255,13 +1255,13 @@ function VistaMonitorActividades() {
                                         <h3>Marcar como Completada</h3>
                                         <p>Al marcar esta actividad como completada, se registrará la fecha y hora actual.</p>
                                         {getDaysRemaining(selectedActivity.finish) < 0 && (
-                                            <p className="warning-text">⚠️ Esta actividad está vencida. Se marcará como completada tardíamente.</p>
+                                            <p className="warning-text">Esta actividad está vencida. Se marcará como completada tardíamente.</p>
                                         )}
                                         <button 
                                             className="complete-btn-modal"
                                             onClick={() => requestCompleteActivity(selectedActivity)}
                                         >
-                                            ✓ Marcar como Completada
+                                            Marcar como Completada
                                         </button>
                                     </div>
                                 )}
@@ -1278,12 +1278,12 @@ function VistaMonitorActividades() {
                 <div className="modal-overlay" onClick={() => setShowConfirmComplete(false)}>
                     <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="confirm-modal-header">
-                            <h2>✓ Confirmar Completitud</h2>
+                            <h2>Confirmar Completitud</h2>
                             <button 
                                 className="close-btn"
                                 onClick={() => setShowConfirmComplete(false)}
                             >
-                                ✕
+                                x
                             </button>
                         </div>
                         
@@ -1291,7 +1291,7 @@ function VistaMonitorActividades() {
                             <div className="activity-info-confirm">
                                 <h3>{activityToComplete.name}</h3>
                                 <p className="activity-course-confirm">
-                                    📚 {activityToComplete.monitoring?.courseName || 'N/A'}
+                                    {activityToComplete.monitoring?.courseName || 'N/A'}
                                 </p>
                             </div>
 
@@ -1302,7 +1302,7 @@ function VistaMonitorActividades() {
 
                             {getDaysRemaining(activityToComplete.finish) < 0 && (
                                 <div className="warning-box">
-                                    <span className="warning-icon">⚠️</span>
+                                    <span className="warning-icon">!</span>
                                     <div className="warning-content">
                                         <strong>Actividad vencida</strong>
                                         <p>Esta actividad se marcará como <strong>completada tardíamente</strong>.</p>
@@ -1312,7 +1312,7 @@ function VistaMonitorActividades() {
 
                             {getDaysRemaining(activityToComplete.finish) >= 0 && (
                                 <div className="success-box">
-                                    <span className="success-icon">✓</span>
+                                    <span className="success-icon">OK</span>
                                     <div className="success-content">
                                         <strong>¡Bien hecho!</strong>
                                         <p>Estás completando esta actividad a tiempo.</p>
@@ -1332,7 +1332,7 @@ function VistaMonitorActividades() {
                                 className="btn-confirm"
                                 onClick={confirmCompleteActivity}
                             >
-                                ✓ Marcar como Completada
+                                Marcar como Completada
                             </button>
                         </div>
                     </div>
@@ -1343,4 +1343,5 @@ function VistaMonitorActividades() {
 }
 
 export default VistaMonitorActividades;
+
 

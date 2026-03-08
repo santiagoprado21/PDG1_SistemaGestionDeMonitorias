@@ -331,20 +331,12 @@
 
 .submit-button {
   align-self: flex-end;
-  background-color: var(--color-primary);
-  color: var(--blanco);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--fs-body);
-  font-weight: 600;
-  cursor: pointer;
+  min-height: 35px;
   box-shadow: var(--shadow-md);
   transition: transform var(--tr-fast), box-shadow var(--tr-fast), background-color var(--tr-fast);
 }
 
-.submit-button:hover {
-  background-color: var(--color-primary-hover);
+.submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }

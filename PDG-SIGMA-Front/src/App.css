@@ -355,13 +355,8 @@ label {
 
 .view-button{
   width: 5em;
-  border-radius: 0.5em;
-  border-width: 1px;
   padding-right: 0.7em;
   padding-left: 0.7em;
-  padding-bottom: 0.1em;
-  padding-top: 0.1em;
-  font-size: 0.9em;
 }
 
 .view-button:hover + .requirement-text {
@@ -369,24 +364,14 @@ label {
 }
 
 .apply-button{
-  background-color: var(--gris-2);
   width: 5em;
-  border-radius: 0.5em;
-  border-width: 1px;
-  border-style: solid; 
-  border-color: var(--negro); 
   padding-right: 0.7em;
   padding-left: 0.7em;
-  padding-bottom: 0.1em;
-  padding-top: 0.1em;
   text-decoration: none;
-  font-family: var(--main-font-family);
-  font-size: 0.9em;
-  color: black;
 }
 
 .apply-button:hover{
-  background-color: var(--morado-icesi);
+  background-color: var(--color-primary);
 }
 
 .status-active{
