@@ -1,8 +1,8 @@
 .mis-postulaciones-container {
     display: flex;
     min-height: 100vh;
-    background-color: #f4f6f9;
-    font-family: var(--main-font-family, 'Segoe UI', sans-serif);
+    background-color: var(--blanco);
+    font-family: var(--main-font-family);
 }
 
 .mis-postulaciones-content {
@@ -19,12 +19,12 @@
 
 .mis-post-header h1 {
     font-size: 1.8rem;
-    color: #1a1a2e;
+    color: var(--negro);
     margin: 0 0 0.3rem 0;
 }
 
 .mis-post-subtitle {
-    color: #666;
+    color: var(--gris-1);
     font-size: 0.95rem;
     margin: 0;
 }
@@ -38,7 +38,7 @@
 }
 
 .stat-card {
-    background: #fff;
+    background: var(--blanco);
     border-radius: 10px;
     padding: 1rem 1.5rem;
     display: flex;
@@ -46,23 +46,23 @@
     align-items: center;
     min-width: 110px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
-    border-top: 3px solid #c0c0c0;
+    border-top: 3px solid var(--gris-2);
 }
 
-.stat-card.stat-revision { border-top-color: #f0a500; }
-.stat-card.stat-seleccionado { border-top-color: #2e7d32; }
-.stat-card.stat-no-seleccionado { border-top-color: #b71c1c; }
+.stat-card.stat-revision { border-top-color: var(--amarillo-icesi); }
+.stat-card.stat-seleccionado { border-top-color: var(--verde-icesi); }
+.stat-card.stat-no-seleccionado { border-top-color: var(--naranja-icesi); }
 
 .stat-number {
     font-size: 2rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: var(--negro);
     line-height: 1;
 }
 
 .stat-label {
     font-size: 0.78rem;
-    color: #888;
+    color: var(--gris-1);
     margin-top: 0.3rem;
     text-align: center;
 }
@@ -78,11 +78,11 @@
 .filter-tab {
     padding: 0.5rem 1.1rem;
     border-radius: 20px;
-    border: 1.5px solid #d0d0d0;
-    background: #fff;
+    border: 1.5px solid var(--gris-2);
+    background: var(--blanco);
     cursor: pointer;
     font-size: 0.88rem;
-    color: #555;
+    color: var(--gris-1);
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -90,14 +90,14 @@
 }
 
 .filter-tab:hover {
-    border-color: #1565c0;
-    color: #1565c0;
+    border-color: var(--azul-icesi);
+    color: var(--azul-icesi);
 }
 
 .filter-tab-active {
-    background: #1565c0;
-    color: #fff;
-    border-color: #1565c0;
+    background: var(--azul-icesi);
+    color: var(--blanco);
+    border-color: var(--azul-icesi);
 }
 
 .filter-count {
@@ -120,13 +120,13 @@
 }
 
 .postulacion-card {
-    background: #fff;
+    background: var(--blanco);
     border-radius: 12px;
     padding: 1.3rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
-    border-left: 4px solid #c0c0c0;
+    border-left: 4px solid var(--gris-2);
     position: relative;
 }
 
@@ -136,8 +136,8 @@
 }
 
 .postulacion-card.card-seleccionado {
-    border-left-color: #2e7d32;
-    background: #f0faf0;
+    border-left-color: var(--verde-icesi);
+    background: var(--verde-icesi);
 }
 
 .card-header-row {
@@ -151,20 +151,20 @@
 .card-course {
     font-size: 1rem;
     font-weight: 600;
-    color: #1a1a2e;
+    color: var(--negro);
     margin: 0;
     flex: 1;
 }
 
 .card-body p {
     font-size: 0.88rem;
-    color: #555;
+    color: var(--gris-1);
     margin: 0.25rem 0;
 }
 
 .card-label {
     font-weight: 600;
-    color: #333;
+    color: var(--negro);
     margin-right: 0.3rem;
 }
 
@@ -174,7 +174,7 @@
     gap: 0.4rem;
     margin-top: 0.8rem;
     padding-top: 0.8rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--gris-2);
     font-size: 0.83rem;
     flex-wrap: wrap;
 }
@@ -184,7 +184,7 @@
     bottom: 0.8rem;
     right: 1rem;
     font-size: 0.78rem;
-    color: #aaa;
+    color: var(--gris-1);
 }
 
 /* ===== BADGES - Estado de la postulación ===== */
@@ -198,21 +198,21 @@
 }
 
 .badge-postulado {
-    background: #fff8e1;
-    color: #f57f17;
-    border: 1px solid #ffe082;
+    background: var(--amarillo-icesi);
+    color: var(--naranja-icesi);
+    border: 1px solid var(--amarillo-icesi);
 }
 
 .badge-seleccionado {
-    background: #e8f5e9;
-    color: #2e7d32;
-    border: 1px solid #a5d6a7;
+    background: var(--verde-icesi);
+    color: var(--blanco);
+    border: 1px solid var(--verde-icesi);
 }
 
 .badge-no-seleccionado {
-    background: #fce4ec;
-    color: #b71c1c;
-    border: 1px solid #ef9a9a;
+    background: var(--naranja-icesi);
+    color: var(--naranja-icesi);
+    border: 1px solid var(--naranja-icesi);
 }
 
 /* ===== BADGES - Estado de la convocatoria ===== */
@@ -226,49 +226,49 @@
 }
 
 .req-pendiente {
-    background: #f3e5f5;
-    color: #7b1fa2;
-    border: 1px solid #ce93d8;
+    background: var(--gris-2);
+    color: var(--morado-icesi);
+    border: 1px solid var(--morado-icesi);
 }
 
 .req-abierta {
-    background: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid #90caf9;
+    background: var(--gris-2);
+    color: var(--azul-icesi);
+    border: 1px solid var(--azul-icesi);
 }
 
 .req-seleccionado {
-    background: #ede7f6;
-    color: #4527a0;
-    border: 1px solid #b39ddb;
+    background: var(--gris-2);
+    color: var(--morado-icesi);
+    border: 1px solid var(--morado-icesi);
 }
 
 .req-aprobada {
-    background: #e8f5e9;
-    color: #1b5e20;
-    border: 1px solid #a5d6a7;
+    background: var(--verde-icesi);
+    color: var(--verde-icesi);
+    border: 1px solid var(--verde-icesi);
 }
 
 .req-rechazada {
-    background: #ffebee;
-    color: #c62828;
-    border: 1px solid #ef9a9a;
+    background: var(--naranja-icesi);
+    color: var(--naranja-icesi);
+    border: 1px solid var(--naranja-icesi);
 }
 
 .req-cancelada {
-    background: #f5f5f5;
-    color: #757575;
-    border: 1px solid #e0e0e0;
+    background: var(--blanco);
+    color: var(--gris-1);
+    border: 1px solid var(--gris-2);
 }
 
 /* ===== EMPTY STATE ===== */
 .mis-post-empty {
     text-align: center;
     padding: 4rem 2rem;
-    background: #fff;
+    background: var(--blanco);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    color: #888;
+    color: var(--gris-1);
 }
 
 .mis-post-empty p {
@@ -278,7 +278,7 @@
 
 .empty-hint {
     font-size: 0.88rem !important;
-    color: #aaa !important;
+    color: var(--gris-1) !important;
 }
 
 /* ===== MODAL ===== */
@@ -294,7 +294,7 @@
 }
 
 .modal-content {
-    background: #fff;
+    background: var(--blanco);
     border-radius: 12px;
     width: 100%;
     max-width: 580px;
@@ -310,17 +310,17 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--gris-2);
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--blanco);
     z-index: 1;
 }
 
 .modal-header h2 {
     margin: 0;
     font-size: 1.1rem;
-    color: #1a1a2e;
+    color: var(--negro);
 }
 
 .close-btn {
@@ -328,14 +328,14 @@
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
-    color: #888;
+    color: var(--gris-1);
     padding: 4px 8px;
     border-radius: 4px;
     transition: background 0.15s;
 }
 
 .close-btn:hover {
-    background: #f0f0f0;
+    background: var(--gris-2);
 }
 
 .modal-body {
@@ -351,20 +351,20 @@
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #888;
+    color: var(--gris-1);
     margin: 0 0 0.6rem 0;
     padding-bottom: 0.3rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--gris-2);
 }
 
 .detail-section p {
     margin: 0.35rem 0;
     font-size: 0.92rem;
-    color: #444;
+    color: var(--gris-1);
 }
 
 .motivation-text {
-    background: #f9f9f9;
+    background: var(--blanco);
     border-radius: 8px;
     padding: 0.8rem 1rem;
     font-style: italic;
@@ -373,9 +373,9 @@
 }
 
 .selected-banner {
-    background: #e8f5e9;
-    color: #1b5e20;
-    border: 1px solid #a5d6a7;
+    background: var(--verde-icesi);
+    color: var(--verde-icesi);
+    border: 1px solid var(--verde-icesi);
     border-radius: 8px;
     padding: 0.9rem 1.2rem;
     font-size: 0.95rem;
@@ -386,15 +386,15 @@
 
 .modal-footer {
     padding: 1rem 1.5rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--gris-2);
     display: flex;
     justify-content: flex-end;
 }
 
 .btn-cerrar {
     padding: 0.5rem 1.5rem;
-    background: #1565c0;
-    color: #fff;
+    background: var(--azul-icesi);
+    color: var(--blanco);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -403,7 +403,7 @@
 }
 
 .btn-cerrar:hover {
-    background: #0d47a1;
+    background: var(--azul-icesi);
 }
 
 /* ===== RESPONSIVE ===== */

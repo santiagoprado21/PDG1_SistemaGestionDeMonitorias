@@ -22,7 +22,7 @@
 }
   
 .button-apply {
-    background-color: #28a745; /* Verde */
+    background-color: var(--verde-icesi); /* Verde */
     color: white;
 }
   
@@ -31,7 +31,7 @@
 }
   
 .button {
-    background-color: #6a0dad; /* Morado */
+    background-color: var(--morado-icesi); /* Morado */
     color: white;
     border: none;
     border-radius: 5px;
@@ -40,6 +40,6 @@
 }
   
 .button:hover {
-    background-color: #5a0cad; /* Tono más oscuro para hover */
+    background-color: var(--morado-icesi); /* Tono más oscuro para hover */
 }
   

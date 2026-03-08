@@ -13,7 +13,7 @@
   }
   
   .profile-card {
-    background: #fff;
+    background: var(--blanco);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -32,7 +32,7 @@
   
   .courses-container {
     width: 80%;
-    background: #fff;
+    background: var(--blanco);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -46,7 +46,7 @@
   
   .courses-table th, .courses-table td {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--gris-2);
     text-align: center;
   }
   
@@ -62,7 +62,7 @@
 
   .select-semester-filter {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     font-size: 16px;
     width: 100%; 
@@ -78,7 +78,7 @@
 
   /* Botón Plan de Actividades */
   .btn-plan-actividades {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--morado-icesi) 100%);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -87,12 +87,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px var(--shadow-primary-md);
   }
 
   .btn-plan-actividades:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px var(--shadow-primary-lg);
   }
 
   .btn-plan-actividades:active {

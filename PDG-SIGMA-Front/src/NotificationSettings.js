@@ -56,7 +56,7 @@ export default function NotificationSettings() {
           </div>
         </div>
 
-        <form onSubmit={onSubmit} style={{ maxWidth: 560, margin: '16px auto', background: '#fff', padding: 16, borderRadius: 12, boxShadow: '0 8px 22px -8px rgba(0,0,0,0.2)' }}>
+        <form onSubmit={onSubmit} style={{ maxWidth: 560, margin: '16px auto', background: '#ffffff', padding: 16, borderRadius: 12, boxShadow: '0 8px 22px -8px rgba(0,0,0,0.2)' }}>
           <div style={{ marginBottom: 14 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <input type="checkbox" checked={sound} onChange={() => setSound(!sound)} />

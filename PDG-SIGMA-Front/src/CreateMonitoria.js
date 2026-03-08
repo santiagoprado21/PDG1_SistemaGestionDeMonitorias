@@ -673,7 +673,7 @@ function CreateMonitoria() {
                     <h3>Mis Monitorías ({records.length})</h3>
                     
                     {currentRecords.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#888', padding: '20px' }}>
+                        <p style={{ textAlign: 'center', color: '#88898c', padding: '20px' }}>
                             No tienes monitorías creadas aún
                         </p>
                     ) : (
@@ -711,7 +711,7 @@ function CreateMonitoria() {
                                                     onClick={() => handleDelete(record.id)}
                                                     style={{
                                                         padding: '6px 12px',
-                                                        backgroundColor: '#f44336',
+                                                        backgroundColor: '#e9683b',
                                                         color: 'white',
                                                         border: 'none',
                                                         borderRadius: '4px',
@@ -727,7 +727,7 @@ function CreateMonitoria() {
                                                         onClick={() => openBudgetPopup(record)}
                                                         style={{
                                                             padding: '6px 12px',
-                                                            backgroundColor: '#2196F3',
+                                                            backgroundColor: '#5454e9',
                                                             color: 'white',
                                                             border: 'none',
                                                             borderRadius: '4px',

@@ -13,11 +13,11 @@
     font-size: 15px;
     font-weight: bold;
     color: white;
-    background-color: #007bff;
+    background-color: var(--azul-icesi);
   }
   
   .update-button:hover {
-    background-color: #0056b3;
+    background-color: var(--azul-icesi);
   }
   
   .update-options {
@@ -25,7 +25,7 @@
     top: 40px;
     right: 0;
     background: white;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -66,10 +66,10 @@
     font-size: 15px;
     font-weight: bold;
     color: white;
-    background-color: #28a745;
+    background-color: var(--verde-icesi);
   }
   
   .submit-button:hover {
-    background-color: #218838;
+    background-color: var(--verde-icesi);
   }
   

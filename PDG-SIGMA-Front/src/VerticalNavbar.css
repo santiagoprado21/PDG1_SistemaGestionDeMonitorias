@@ -1,6 +1,6 @@
 :root {
-    --main-color: #5454e8;
-      --hover-color: rgb(66, 65, 65);
+    --main-color: var(--azul-icesi);
+      --hover-color: var(--morado-icesi);
     --grey-color: grey;
   }
 

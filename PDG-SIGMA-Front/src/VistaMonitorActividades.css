@@ -156,19 +156,19 @@
 }
 
 .stat-card.pending {
-    border-left-color: #F59E0B;
+    border-left-color: var(--amarillo-icesi);
 }
 
 .stat-card.pending h3 {
-    color: #F59E0B;
+    color: var(--amarillo-icesi);
 }
 
 .stat-card.in-progress {
-    border-left-color: #0EA5E9;
+    border-left-color: var(--azul-icesi);
 }
 
 .stat-card.in-progress h3 {
-    color: #0EA5E9;
+    color: var(--azul-icesi);
 }
 
 .stat-card.completed {
@@ -180,11 +180,11 @@
 }
 
 .stat-card.hours {
-    border-left-color: #8B5CF6;
+    border-left-color: var(--morado-icesi);
 }
 
 .stat-card.hours h3 {
-    color: #8B5CF6;
+    color: var(--morado-icesi);
 }
 
 /* 📦 Contenedor de actividades */
@@ -265,23 +265,23 @@
 }
 
 .badge-total {
-    background: #E0E7FF;
-    color: #4338CA;
+    background: var(--gris-2);
+    color: var(--morado-icesi);
 }
 
 .badge-pending {
-    background: #FEF3C7;
-    color: #D97706;
+    background: var(--amarillo-icesi);
+    color: var(--naranja-icesi);
 }
 
 .badge-progress {
-    background: #E0F2FE;
-    color: #0369A1;
+    background: var(--gris-2);
+    color: var(--azul-icesi);
 }
 
 .badge-completed {
-    background: #D1FAE5;
-    color: #059669;
+    background: var(--verde-icesi);
+    color: var(--verde-icesi);
 }
 
 /* 📝 Lista de actividades */
@@ -311,7 +311,7 @@
 
 .activity-item.urgent {
     border-left: 4px solid var(--color-danger);
-    background: #FEF2F2;
+    background: var(--naranja-icesi);
 }
 
 .activity-main {
@@ -369,14 +369,14 @@
 .activity-progress-indicator .progress-bar {
     width: 100%;
     height: 8px;
-    background: #E5E7EB;
+    background: var(--gris-2);
     border-radius: var(--radius-md);
     overflow: hidden;
 }
 
 .activity-progress-indicator .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366F1, #3B82F6);
+    background: linear-gradient(90deg, var(--azul-icesi), var(--azul-icesi));
     border-radius: var(--radius-md);
     transition: width 0.3s ease;
 }
@@ -390,18 +390,18 @@
 }
 
 .status-pending {
-    background: #FEF3C7;
-    color: #D97706;
+    background: var(--amarillo-icesi);
+    color: var(--naranja-icesi);
 }
 
 .status-in-progress {
-    background: #DBEAFE;
-    color: #1D4ED8;
+    background: var(--gris-2);
+    color: var(--azul-icesi);
 }
 
 .status-completed {
-    background: #D1FAE5;
-    color: #059669;
+    background: var(--verde-icesi);
+    color: var(--verde-icesi);
 }
 
 .priority-badge {
@@ -412,18 +412,18 @@
 }
 
 .priority-high {
-    background: #FEE2E2;
-    color: #DC2626;
+    background: var(--naranja-icesi);
+    color: var(--naranja-icesi);
 }
 
 .priority-medium {
-    background: #FEF3C7;
-    color: #D97706;
+    background: var(--amarillo-icesi);
+    color: var(--naranja-icesi);
 }
 
 .priority-low {
-    background: #DBEAFE;
-    color: #2563EB;
+    background: var(--gris-2);
+    color: var(--azul-icesi);
 }
 
 .urgent-banner {
@@ -474,7 +474,7 @@
 }
 
 .complete-activity-btn:hover {
-    background: #059669;
+    background: var(--verde-icesi);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }
@@ -546,7 +546,7 @@
 
 .close-btn:hover {
     transform: rotate(90deg);
-    background: #B91C1C;
+    background: var(--naranja-icesi);
 }
 
 .modal-body {
@@ -614,7 +614,7 @@
 }
 
 .complete-btn-modal:hover {
-    background: #059669;
+    background: var(--verde-icesi);
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
@@ -623,7 +623,7 @@
     color: var(--color-error);
     font-weight: 500;
     padding: var(--space-2);
-    background: #fef2f2;
+    background: var(--naranja-icesi);
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--color-error);
     margin: var(--space-2) 0;
@@ -703,13 +703,13 @@
 }
 
 .warning-box {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--naranja-icesi);
+    border: 1px solid var(--naranja-icesi);
 }
 
 .success-box {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: var(--verde-icesi);
+    border: 1px solid var(--verde-icesi);
 }
 
 .warning-icon,
@@ -777,7 +777,7 @@
 }
 
 .btn-confirm:hover {
-    background: #059669;
+    background: var(--verde-icesi);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -1020,20 +1020,20 @@
     padding: var(--space-2) var(--space-4);
     border: none;
     border-radius: var(--radius-sm);
-    background: #1E3A8A;
+    background: var(--azul-icesi);
     color: white;
     cursor: pointer;
     transition: all var(--tr-fast);
 }
 
 .progress-history-evidence:hover {
-    background: #1D4ED8;
+    background: var(--azul-icesi);
 }
 
 .progress-completed-message {
     padding: var(--space-3);
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: var(--verde-icesi);
+    border: 1px solid var(--verde-icesi);
     border-radius: var(--radius-md);
     color: var(--color-success);
     font-weight: 500;

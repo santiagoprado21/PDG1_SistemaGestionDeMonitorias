@@ -177,9 +177,9 @@ function CerrarMonitorias() {
     };
 
     const getComplianceColor = (percentage) => {
-        if (percentage >= 90) return '#4CAF50'; // Verde
-        if (percentage >= 70) return '#FF9800'; // Naranja
-        return '#F44336'; // Rojo
+        if (percentage >= 90) return '#4cb979'; // Verde
+        if (percentage >= 70) return '#e4eb60'; // Naranja
+        return '#e9683b'; // Rojo
     };
 
     return (

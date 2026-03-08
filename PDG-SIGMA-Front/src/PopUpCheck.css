@@ -34,16 +34,16 @@
   }
   
   .button-apply {
-    background-color: #d3d3d3; /* Deshabilitado inicialmente */
+    background-color: var(--gris-2); /* Deshabilitado inicialmente */
     color: white;
   }
   
   .button-apply.enabled {
-    background-color: #28a745; /* Verde */
+    background-color: var(--verde-icesi); /* Verde */
   }
   
   .button-close {
-    background-color: #dc3545; /* Rojo */
+    background-color: var(--naranja-icesi); /* Rojo */
     color: white;
   }
   

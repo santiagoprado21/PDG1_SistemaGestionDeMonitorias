@@ -1,7 +1,7 @@
 .cerrar-monitorias-container {
     display: flex;
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background-color: var(--blanco);
 }
 
 .cerrar-monitorias-container .main-content {
@@ -12,12 +12,12 @@
 }
 
 .cerrar-monitorias-container h1 {
-    color: #333;
+    color: var(--negro);
     margin-bottom: 10px;
 }
 
 .cerrar-monitorias-container .subtitle {
-    color: #666;
+    color: var(--gris-1);
     margin-bottom: 30px;
 }
 
@@ -38,12 +38,12 @@
 
 .filter-group label {
     font-weight: 600;
-    color: #333;
+    color: var(--negro);
 }
 
 .filter-group select {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     font-size: 14px;
 }
@@ -62,17 +62,17 @@
     border-radius: 8px 8px 0 0;
     cursor: pointer;
     font-weight: 500;
-    color: #666;
+    color: var(--gris-1);
     transition: all 0.3s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .tab:hover {
-    background: #f0f0f0;
+    background: var(--gris-2);
 }
 
 .tab.active {
-    background: #5454e8;
+    background: var(--azul-icesi);
     color: white;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .monitoring-card.closed {
-    border: 2px solid #9E9E9E;
+    border: 2px solid var(--gris-1);
 }
 
 .card-header {
@@ -132,7 +132,7 @@
     gap: 10px;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--gris-2);
 }
 
 .card-header input[type="checkbox"] {
@@ -143,13 +143,13 @@
 
 .card-header h3 {
     margin: 0;
-    color: #333;
+    color: var(--negro);
     font-size: 18px;
     flex: 1;
 }
 
 .badge-closed {
-    background: #9E9E9E;
+    background: var(--gris-1);
     color: white;
     padding: 4px 12px;
     border-radius: 12px;
@@ -159,25 +159,25 @@
 
 .card-body p {
     margin: 8px 0;
-    color: #666;
+    color: var(--gris-1);
     font-size: 14px;
 }
 
 .card-body p strong {
-    color: #333;
+    color: var(--negro);
 }
 
 .card-footer {
     margin-top: 15px;
     padding-top: 15px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--gris-2);
     display: flex;
     gap: 10px;
 }
 
 /* Botones */
 .btn-primary {
-    background-color: #5454e8;
+    background-color: var(--azul-icesi);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -188,19 +188,19 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-    background-color: #3d3db8;
+    background-color: var(--morado-icesi);
 }
 
 .btn-primary:disabled {
-    background-color: #ccc;
+    background-color: var(--gris-2);
     cursor: not-allowed;
 }
 
 .btn-secondary {
-    background-color: #fff;
-    color: #5454e8;
+    background-color: var(--blanco);
+    color: var(--azul-icesi);
     padding: 10px 20px;
-    border: 2px solid #5454e8;
+    border: 2px solid var(--azul-icesi);
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -208,7 +208,7 @@
 }
 
 .btn-secondary:hover {
-    background-color: #5454e8;
+    background-color: var(--azul-icesi);
     color: white;
 }
 
@@ -223,12 +223,12 @@
 
 .empty-state p {
     font-size: 18px;
-    color: #666;
+    color: var(--gris-1);
     margin-bottom: 10px;
 }
 
 .empty-state small {
-    color: #999;
+    color: var(--gris-1);
 }
 
 /* Loading */
@@ -236,7 +236,7 @@
     text-align: center;
     padding: 40px;
     font-size: 18px;
-    color: #666;
+    color: var(--gris-1);
 }
 
 /* Modal */
@@ -272,19 +272,19 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--gris-2);
 }
 
 .modal-header h2 {
     margin: 0;
-    color: #333;
+    color: var(--negro);
 }
 
 .btn-close {
     background: none;
     border: none;
     font-size: 32px;
-    color: #999;
+    color: var(--gris-1);
     cursor: pointer;
     line-height: 1;
     padding: 0;
@@ -293,7 +293,7 @@
 }
 
 .btn-close:hover {
-    color: #333;
+    color: var(--negro);
 }
 
 .modal-body {
@@ -308,13 +308,13 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #333;
+    color: var(--negro);
 }
 
 .modal-body .form-group textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     font-family: inherit;
     font-size: 14px;
@@ -324,13 +324,13 @@
 .help-text {
     display: block;
     margin-top: 8px;
-    color: #666;
+    color: var(--gris-1);
     font-size: 13px;
 }
 
 .modal-footer {
     padding: 20px;
-    border-top: 2px solid #f0f0f0;
+    border-top: 2px solid var(--gris-2);
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -345,7 +345,7 @@
 .report-section {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--gris-2);
 }
 
 .report-section:last-child {
@@ -353,18 +353,18 @@
 }
 
 .report-section h3 {
-    color: #5454e8;
+    color: var(--azul-icesi);
     margin-bottom: 15px;
     font-size: 18px;
 }
 
 .report-section p {
     margin: 10px 0;
-    color: #666;
+    color: var(--gris-1);
 }
 
 .report-section p strong {
-    color: #333;
+    color: var(--negro);
 }
 
 /* Métricas */
@@ -376,11 +376,11 @@
 }
 
 .metric-card {
-    background: #f9f9f9;
+    background: var(--blanco);
     padding: 20px;
     border-radius: 8px;
     text-align: center;
-    border: 2px solid #f0f0f0;
+    border: 2px solid var(--gris-2);
 }
 
 .metric-value {
@@ -390,7 +390,7 @@
 }
 
 .metric-label {
-    color: #666;
+    color: var(--gris-1);
     font-size: 14px;
     font-weight: 600;
 }

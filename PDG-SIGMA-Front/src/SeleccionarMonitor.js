@@ -170,11 +170,11 @@ function SeleccionarMonitor() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
-            'POSTULADO': { text: 'Postulado', color: '#2196F3' },
-            'SELECCIONADO': { text: '✓ Seleccionado', color: '#4CAF50' },
-            'NO_SELECCIONADO': { text: 'No Seleccionado', color: '#9E9E9E' }
+            'POSTULADO': { text: 'Postulado', color: '#5454e9' },
+            'SELECCIONADO': { text: '✓ Seleccionado', color: '#4cb979' },
+            'NO_SELECCIONADO': { text: 'No Seleccionado', color: '#88898c' }
         };
-        const statusInfo = statusMap[status] || { text: status, color: '#757575' };
+        const statusInfo = statusMap[status] || { text: status, color: '#88898c' };
         return (
             <span style={{
                 padding: '6px 12px',
@@ -285,11 +285,11 @@ function SeleccionarMonitor() {
                                                             Seleccionar
                                                         </button>
                                                     ) : postulante.status === 'SELECCIONADO' ? (
-                                                        <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>
+                                                        <span style={{ color: '#4cb979', fontWeight: 'bold' }}>
                                                             Ya seleccionado
                                                         </span>
                                                     ) : (
-                                                        <span style={{ color: '#999' }}>
+                                                        <span style={{ color: '#88898c' }}>
                                                             No seleccionado
                                                         </span>
                                                     )}

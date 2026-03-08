@@ -3,7 +3,7 @@
     top: -50px; /* Oculto por encima de la pantalla */
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgb(94, 94, 234); /* Color morado suave */
+    background-color: var(--color-primary);
     color: white;
     padding: 1rem 2rem;
     border-radius: 5px;

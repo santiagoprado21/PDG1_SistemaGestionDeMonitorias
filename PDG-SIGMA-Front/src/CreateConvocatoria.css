@@ -1,8 +1,8 @@
 /* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
 /* Colores institucionales ya definidos en index.css:
-   --color-primary: #5555EA (Azul institucional)
-   --color-danger: #D32F2F (Rojo de alerta)
-   --color-success: #10B981 (Verde de confirmación)
+   --color-primary: var(--azul-icesi) (Azul institucional)
+   --color-danger: var(--naranja-icesi) (Rojo de alerta)
+   --color-success: var(--verde-icesi) (Verde de confirmación)
    --font-primary: 'Plus Jakarta Sans', sans-serif
 */
 
@@ -10,7 +10,7 @@
   padding: 20px;
   margin-left: 200px;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--blanco);
 }
 
 /* ============================TITLE================================= */
@@ -22,7 +22,7 @@
   align-items: center;
   margin-bottom: 2em;
   padding: 2em 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   margin: 0 9em 2em 9em;
@@ -66,7 +66,7 @@
 .form-section h3 {
   font-family: var(--main-font-family);
   font-size: 24px;
-  color: #333;
+  color: var(--negro);
   margin: 0 0 1.5em 0;
   padding-bottom: 0.5em;
   border-bottom: 3px solid var(--color-primary);
@@ -91,7 +91,7 @@
 .form-group label {
   font-family: var(--main-font-family);
   font-weight: 600;
-  color: #555;
+  color: var(--gris-1);
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -100,12 +100,12 @@
 .form-group select,
 .form-group textarea {
   padding: 12px 15px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--gris-2);
   border-radius: 8px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-primary);
   font-size: 14px;
   transition: all 0.3s ease;
-  background-color: #fafafa;
+  background-color: var(--blanco);
 }
 
 .form-group input:focus,
@@ -114,12 +114,12 @@
   outline: none;
   border-color: var(--color-primary);
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(84, 84, 232, 0.1);
+  box-shadow: 0 0 0 3px var(--shadow-primary-xs);
 }
 
 .form-group input:disabled,
 .form-group select:disabled {
-  background-color: #f0f0f0;
+  background-color: var(--gris-2);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -139,7 +139,7 @@
 /* ============================BUTTON================================= */
 
 .btn-create-monitoria {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
   color: white;
   padding: 15px 40px;
   border: none;
@@ -161,7 +161,7 @@
 .btn-create-monitoria:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  background: linear-gradient(135deg, #6b6be8 0%, #8b8be8 100%);
+  background: linear-gradient(135deg, var(--azul-icesi) 0%, var(--morado-icesi) 100%);
 }
 
 .btn-create-monitoria:active {
@@ -169,7 +169,7 @@
 }
 
 .btn-create-monitoria:disabled {
-  background: #ccc;
+  background: var(--gris-2);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -187,7 +187,7 @@
 .table-section h3 {
   font-family: var(--main-font-family);
   font-size: 24px;
-  color: #333;
+  color: var(--negro);
   margin: 0 0 1.5em 0;
   display: flex;
   align-items: center;
@@ -204,7 +204,7 @@
 }
 
 .monitorias-table thead {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
 }
 
 .monitorias-table thead th {
@@ -219,12 +219,12 @@
 }
 
 .monitorias-table tbody tr {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--gris-2);
   transition: background-color 0.2s ease;
 }
 
 .monitorias-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--blanco);
 }
 
 .monitorias-table tbody tr:last-child {
@@ -233,7 +233,7 @@
 
 .monitorias-table tbody td {
   padding: 14px 12px;
-  color: #555;
+  color: var(--gris-1);
   font-size: 14px;
   vertical-align: middle;
 }
@@ -252,7 +252,7 @@
 }
 
 .monitorias-table button:hover {
-  background-color: #1976D2;
+  background-color: var(--azul-icesi);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
@@ -285,7 +285,7 @@
 }
 
 .pagination button:disabled {
-  background-color: #ccc;
+  background-color: var(--gris-2);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -293,7 +293,7 @@
 .pagination span {
   font-family: var(--main-font-family);
   font-size: 16px;
-  color: #555;
+  color: var(--gris-1);
   font-weight: 600;
 }
 

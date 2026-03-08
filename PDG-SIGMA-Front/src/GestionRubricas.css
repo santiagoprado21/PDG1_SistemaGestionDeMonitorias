@@ -18,14 +18,14 @@
 }
 
 .subtitle {
-    color: #7f8c8d;
+    color: var(--gris-1);
     font-size: 1rem;
     margin-bottom: 1rem;
 }
 
 /* Banner informativo */
 .info-banner {
-    background: linear-gradient(135deg, #f0f0fd 0%, #f8f8fd 100%);
+    background: linear-gradient(135deg, var(--gris-2) 0%, var(--gris-2) 100%);
     border-left: 4px solid var(--color-primary);
     border-radius: 8px;
     padding: 1rem 1.5rem;
@@ -42,7 +42,7 @@
 }
 
 .info-text {
-    color: #2c3e50;
+    color: var(--negro);
     font-size: 0.95rem;
     line-height: 1.5;
 }
@@ -69,14 +69,14 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px var(--shadow-primary-md);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px var(--shadow-primary-lg);
 }
 
 .btn-primary:disabled {
@@ -85,12 +85,12 @@
 }
 
 .btn-secondary {
-    background: #ecf0f1;
-    color: #2c3e50;
+    background: var(--gris-2);
+    color: var(--negro);
 }
 
 .btn-secondary:hover {
-    background: #bdc3c7;
+    background: var(--gris-2);
 }
 
 /* Grid de Rúbricas */
@@ -104,7 +104,7 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 3rem;
-    color: #95a5a6;
+    color: var(--gris-1);
 }
 
 .no-rubricas p {
@@ -137,7 +137,7 @@
 
 .rubrica-header h3 {
     margin: 0;
-    color: #2c3e50;
+    color: var(--negro);
     font-size: 1.25rem;
     font-weight: 600;
     flex: 1;
@@ -147,7 +147,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 8px;
@@ -167,7 +167,7 @@
 }
 
 .rubrica-description {
-    color: #7f8c8d;
+    color: var(--gris-1);
     margin-bottom: 1rem;
     font-size: 0.95rem;
     line-height: 1.5;
@@ -180,7 +180,7 @@
 }
 
 .rubrica-criteria h4 {
-    color: #34495e;
+    color: var(--negro);
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
     font-weight: 600;
@@ -195,7 +195,7 @@
 }
 
 .rubrica-criteria li {
-    background: #f8f9fa;
+    background: var(--blanco);
     border-left: 3px solid var(--color-primary);
     padding: 0.75rem;
     margin-bottom: 0.5rem;
@@ -210,7 +210,7 @@
 }
 
 .criterion-info strong {
-    color: #2c3e50;
+    color: var(--negro);
     font-size: 0.9rem;
 }
 
@@ -225,12 +225,12 @@
 
 .rubrica-criteria p {
     margin: 0;
-    color: #7f8c8d;
+    color: var(--gris-1);
     font-size: 0.85rem;
 }
 
 .no-criteria {
-    color: #95a5a6;
+    color: var(--gris-1);
     font-style: italic;
     text-align: center;
     padding: 1rem;
@@ -241,7 +241,7 @@
     display: flex;
     gap: 0.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #ecf0f1;
+    border-top: 1px solid var(--gris-2);
 }
 
 .btn-edit, .btn-delete {
@@ -256,22 +256,22 @@
 }
 
 .btn-edit {
-    background: #3498db;
+    background: var(--azul-icesi);
     color: white;
 }
 
 .btn-edit:hover {
-    background: #2980b9;
+    background: var(--azul-icesi);
     transform: translateY(-1px);
 }
 
 .btn-delete {
-    background: #e74c3c;
+    background: var(--naranja-icesi);
     color: white;
 }
 
 .btn-delete:hover {
-    background: #c0392b;
+    background: var(--naranja-icesi);
     transform: translateY(-1px);
 }
 
@@ -309,8 +309,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 2px solid #ecf0f1;
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+    border-bottom: 2px solid var(--gris-2);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
     border-radius: 12px 12px 0 0;
 }
@@ -350,11 +350,11 @@ form {
 }
 
 .form-section h3 {
-    color: #2c3e50;
+    color: var(--negro);
     font-size: 1.1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 2px solid var(--gris-2);
 }
 
 .form-group {
@@ -365,7 +365,7 @@ form {
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #2c3e50;
+    color: var(--negro);
     font-size: 0.9rem;
 }
 
@@ -374,7 +374,7 @@ form {
 .form-group textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #ecf0f1;
+    border: 2px solid var(--gris-2);
     border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s;
@@ -387,7 +387,7 @@ form {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px var(--shadow-primary-xs);
 }
 
 /* Criterios en el formulario */
@@ -399,7 +399,7 @@ form {
 }
 
 .total-points {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7b7be8 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 8px;
@@ -412,8 +412,8 @@ form {
 }
 
 .criterion-item {
-    background: #f8f9fa;
-    border: 2px solid #ecf0f1;
+    background: var(--blanco);
+    border: 2px solid var(--gris-2);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -445,7 +445,7 @@ form {
 }
 
 .btn-remove-criterion {
-    background: #e74c3c;
+    background: var(--naranja-icesi);
     color: white;
     border: none;
     border-radius: 6px;
@@ -458,7 +458,7 @@ form {
 }
 
 .btn-remove-criterion:hover {
-    background: #c0392b;
+    background: var(--naranja-icesi);
     transform: scale(1.1);
 }
 
@@ -476,9 +476,9 @@ form {
 }
 
 .btn-add-criterion:hover {
-    background: #f8f9ff;
-    border-color: #7b7be8;
-    color: #7b7be8;
+    background: var(--blanco);
+    border-color: var(--azul-icesi);
+    color: var(--azul-icesi);
 }
 
 /* Acciones del modal */
@@ -487,8 +487,8 @@ form {
     justify-content: flex-end;
     gap: 1rem;
     padding: 1.5rem;
-    border-top: 2px solid #ecf0f1;
-    background: #f8f9fa;
+    border-top: 2px solid var(--gris-2);
+    background: var(--blanco);
     border-radius: 0 0 12px 12px;
 }
 
@@ -497,7 +497,7 @@ form {
     text-align: center;
     padding: 3rem;
     font-size: 1.2rem;
-    color: #95a5a6;
+    color: var(--gris-1);
 }
 
 /* Responsive */

@@ -36,7 +36,7 @@
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  color: #fff;
+  color: var(--blanco);
   text-align: left;
 }
 
@@ -176,7 +176,7 @@
 
 .monitoria-primary {
   background-color: var(--color-primary);
-  color: #fff;
+  color: var(--blanco);
 }
 
 .monitoria-secondary {
@@ -205,7 +205,7 @@
 
 .monitoria-share-box button {
   background-color: var(--color-primary);
-  color: #fff;
+  color: var(--blanco);
   border: none;
   border-radius: var(--radius-md);
   padding: 0 var(--space-4);

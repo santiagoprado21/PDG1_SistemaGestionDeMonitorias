@@ -682,15 +682,15 @@ function PlanActividades() {
                                                 padding: '10px',
                                                 fontSize: '15px',
                                                 borderRadius: '4px',
-                                                border: '2px solid #ddd',
-                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4CAF50' : '#FF9800'
+                                                border: '2px solid #cecfd4',
+                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4cb979' : '#e4eb60'
                                             }}
                                         >
                                             <option value="PENDIENTE">⏳ PENDIENTE</option>
                                             <option value="COMPLETADO">✅ COMPLETADO</option>
                                             <option value="COMPLETADOT">⚠️ COMPLETADO TARDE</option>
                                         </select>
-                                        <small style={{ display: 'block', marginTop: '8px', color: '#666', fontSize: '13px' }}>
+                                        <small style={{ display: 'block', marginTop: '8px', color: '#88898c', fontSize: '13px' }}>
                                             {formData.state === 'PENDIENTE' && '➡️ La actividad está pendiente de completar'}
                                             {formData.state === 'COMPLETADO' && '✅ La actividad fue completada a tiempo'}
                                             {formData.state === 'COMPLETADOT' && '⚠️ La actividad fue completada con retraso'}

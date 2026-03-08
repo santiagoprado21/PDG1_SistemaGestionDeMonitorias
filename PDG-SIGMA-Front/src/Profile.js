@@ -215,7 +215,7 @@ useEffect(() => {
                           📋 Plan
                         </button>
                       ) : (
-                        <span style={{color: '#95a5a6', fontSize: '0.9em'}}>-</span>
+                        <span style={{color: '#88898c', fontSize: '0.9em'}}>-</span>
                       )}
                     </td>
                   )}

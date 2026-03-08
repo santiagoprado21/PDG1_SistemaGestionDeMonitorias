@@ -200,7 +200,7 @@ function VerConvocatorias() {
                         ))}
                     </select>
                 </label>
-                <span style={{ color: '#666' }}>
+                <span style={{ color: '#88898c' }}>
                     Mostrando {filteredConvocatorias.length} convocatorias
                 </span>
             </div>
@@ -211,9 +211,9 @@ function VerConvocatorias() {
                     <div style={{ 
                         textAlign: 'center', 
                         padding: '60px',
-                        backgroundColor: '#f5f5f5',
+                        backgroundColor: '#ffffff',
                         borderRadius: '8px',
-                        color: '#888'
+                        color: '#88898c'
                     }}>
                         <h3>No hay convocatorias disponibles</h3>
                         <p>En este momento no hay convocatorias abiertas para postularse</p>
@@ -228,7 +228,7 @@ function VerConvocatorias() {
                             const applied = hasApplied(conv.id);
                             return (
                                 <div key={conv.id} style={{
-                                    border: '1px solid #ddd',
+                                    border: '1px solid #cecfd4',
                                     borderRadius: '8px',
                                     padding: '20px',
                                     backgroundColor: 'white',
@@ -237,10 +237,10 @@ function VerConvocatorias() {
                                     ':hover': { transform: 'translateY(-2px)' }
                                 }}>
                                     <div style={{ marginBottom: '15px' }}>
-                                        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
+                                        <h3 style={{ margin: '0 0 10px 0', color: '#000000' }}>
                                             {conv.courseName}
                                         </h3>
-                                        <div style={{ fontSize: '14px', color: '#666' }}>
+                                        <div style={{ fontSize: '14px', color: '#88898c' }}>
                                             <p style={{ margin: '5px 0' }}>
                                                 <strong>Profesor:</strong> {conv.professorName}
                                             </p>
@@ -260,15 +260,15 @@ function VerConvocatorias() {
                                     </div>
 
                                     <div style={{ 
-                                        borderTop: '1px solid #eee', 
+                                        borderTop: '1px solid #cecfd4', 
                                         paddingTop: '15px',
                                         marginTop: '15px'
                                     }}>
                                         {applied ? (
                                             <div style={{
                                                 padding: '12px',
-                                                backgroundColor: '#E8F5E9',
-                                                color: '#2E7D32',
+                                                backgroundColor: '#4cb979',
+                                                color: '#ffffff',
                                                 borderRadius: '4px',
                                                 textAlign: 'center',
                                                 fontWeight: 'bold'
@@ -281,7 +281,7 @@ function VerConvocatorias() {
                                                 style={{
                                                     width: '100%',
                                                     padding: '12px',
-                                                    backgroundColor: '#2196F3',
+                                                    backgroundColor: '#5454e9',
                                                     color: 'white',
                                                     border: 'none',
                                                     borderRadius: '4px',
@@ -289,8 +289,8 @@ function VerConvocatorias() {
                                                     fontSize: '16px',
                                                     fontWeight: 'bold'
                                                 }}
-                                                onMouseOver={(e) => e.target.style.backgroundColor = '#1976D2'}
-                                                onMouseOut={(e) => e.target.style.backgroundColor = '#2196F3'}
+                                                onMouseOver={(e) => e.target.style.backgroundColor = '#5454e9'}
+                                                onMouseOut={(e) => e.target.style.backgroundColor = '#5454e9'}
                                             >
                                                 Postularse
                                             </button>
@@ -360,7 +360,7 @@ function VerConvocatorias() {
                         overflow: 'auto'
                     }}>
                         <h2 style={{ marginTop: 0 }}>Postularse a Monitoría</h2>
-                        <h3 style={{ color: '#666', marginTop: '10px' }}>
+                        <h3 style={{ color: '#88898c', marginTop: '10px' }}>
                             {selectedConvocatoria?.courseName}
                         </h3>
                         
@@ -379,7 +379,7 @@ function VerConvocatorias() {
                                         width: '100%',
                                         padding: '12px',
                                         borderRadius: '4px',
-                                        border: '1px solid #ccc',
+                                        border: '1px solid #cecfd4',
                                         fontSize: '14px',
                                         fontFamily: 'inherit'
                                     }}
@@ -404,7 +404,7 @@ function VerConvocatorias() {
                                     onClick={closeModal}
                                     style={{
                                         padding: '12px 24px',
-                                        backgroundColor: '#9E9E9E',
+                                        backgroundColor: '#88898c',
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '4px',
@@ -419,7 +419,7 @@ function VerConvocatorias() {
                                     disabled={motivationLetter.length < 50}
                                     style={{
                                         padding: '12px 24px',
-                                        backgroundColor: motivationLetter.length < 50 ? '#ccc' : '#4CAF50',
+                                        backgroundColor: motivationLetter.length < 50 ? '#cecfd4' : '#4cb979',
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '4px',

@@ -201,16 +201,16 @@ function CreateConvocatoria() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
-            'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#FF9800' },
-            'CONVOCATORIA_ABIERTA': { text: 'Abierta', color: '#4CAF50' },
-            'MONITOR_SELECCIONADO': { text: 'Monitor Seleccionado', color: '#2196F3' },
-            'APROBADA': { text: 'Cerrada', color: '#9E9E9E' },
-            'RECHAZADA': { text: 'Rechazada', color: '#F44336' },
-            'CANCELADA': { text: 'Cancelada', color: '#FF9800' }
+            'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#e4eb60' },
+            'CONVOCATORIA_ABIERTA': { text: 'Abierta', color: '#4cb979' },
+            'MONITOR_SELECCIONADO': { text: 'Monitor Seleccionado', color: '#5454e9' },
+            'APROBADA': { text: 'Cerrada', color: '#88898c' },
+            'RECHAZADA': { text: 'Rechazada', color: '#e9683b' },
+            'CANCELADA': { text: 'Cancelada', color: '#e4eb60' }
         };
         const statusInfo = statusMap[status] || { 
             text: status ? status.replace(/_/g, ' ') : 'Sin estado', 
-            color: '#757575' 
+            color: '#88898c' 
         };
         return (
             <span style={{
@@ -400,7 +400,7 @@ function CreateConvocatoria() {
                                 placeholder="Explica por qué se requiere un monitor para este curso..."
                                 rows="5"
                                 required
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cecfd4' }}
                             />
                             <small style={{ color: justification.length < 50 ? 'red' : 'green' }}>
                                 {justification.length} / 50 caracteres mínimos
@@ -418,7 +418,7 @@ function CreateConvocatoria() {
                     <h3>Mis Convocatorias ({myConvocatorias.length})</h3>
                     
                     {currentRecords.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#888', padding: '20px' }}>
+                        <p style={{ textAlign: 'center', color: '#88898c', padding: '20px' }}>
                             No tienes convocatorias creadas aún
                         </p>
                     ) : (
@@ -450,7 +450,7 @@ function CreateConvocatoria() {
                                                         onClick={() => navigate(`/seleccionar-monitor/${conv.id}`)}
                                                         style={{
                                                             padding: '6px 12px',
-                                                            backgroundColor: '#2196F3',
+                                                            backgroundColor: '#5454e9',
                                                             color: 'white',
                                                             border: 'none',
                                                             borderRadius: '4px',

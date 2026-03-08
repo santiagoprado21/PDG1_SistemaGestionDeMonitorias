@@ -207,7 +207,7 @@ function Reports() {
   //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, semestre: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
   // ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const COLORS = ['#5454e9', '#4cb979', '#e4eb60', '#e9683b'];
 
   //  Función que aplica los filtros actuales
   const applyFilters = (data) => {
@@ -388,12 +388,12 @@ function Reports() {
         <head>
           <title>${filename}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; }
+            body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px; color: #000000; }
             h1 { margin-bottom: 12px; font-size: 22px; }
             h2 { margin-top: 18px; margin-bottom: 10px; font-size: 16px; }
             table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-            th, td { border: 1px solid #d1d5db; padding: 8px; font-size: 12px; text-align: left; }
-            th { background: #f3f4f6; }
+            th, td { border: 1px solid #cecfd4; padding: 8px; font-size: 12px; text-align: left; }
+            th { background: #ffffff; }
           </style>
         </head>
         <body>
@@ -792,13 +792,13 @@ useEffect(() => {
         />
         
         {/* Barra de Completado */}
-        <Bar dataKey="completed" stackId="a" fill="rgb(0, 196, 159)" />
+        <Bar dataKey="completed" stackId="a" fill="#4cb979" />
 
         {/* Barra de Pendiente */}
-        <Bar dataKey="pending" stackId="a" fill="rgb(255, 82, 82)"/>
+        <Bar dataKey="pending" stackId="a" fill="#e9683b"/>
 
         {/* Barra de Tarde */}
-        <Bar dataKey="late" stackId="a" fill="rgb(255, 187, 40)" />
+        <Bar dataKey="late" stackId="a" fill="#e4eb60" />
            
       </BarChart>
 
@@ -891,8 +891,8 @@ useEffect(() => {
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey={semesterComparison.previousSemester} fill="rgb(255, 187, 40)" />
-                <Bar dataKey={semesterComparison.currentSemester} fill="rgb(0, 196, 159)" />
+                <Bar dataKey={semesterComparison.previousSemester} fill="#e4eb60" />
+                <Bar dataKey={semesterComparison.currentSemester} fill="#4cb979" />
               </BarChart>
 
               <div className="chart-download-container">
@@ -1016,7 +1016,7 @@ useEffect(() => {
               <Line
                 type="monotone"
                 dataKey="asistencia"
-                stroke="#8884d8"
+                stroke="#865cf0"
                 name={lineName}
                 activeDot={{ r: 8 }}
               />
@@ -1106,9 +1106,9 @@ useEffect(() => {
                 }} 
               />
 
-              <Bar dataKey="completed" stackId="a" fill="rgb(0, 196, 159)" />
-              <Bar dataKey="pending" stackId="a" fill="rgb(255, 82, 82)" />
-              <Bar dataKey="late" stackId="a" fill="rgb(255, 187, 40)" />
+              <Bar dataKey="completed" stackId="a" fill="#4cb979" />
+              <Bar dataKey="pending" stackId="a" fill="#e9683b" />
+              <Bar dataKey="late" stackId="a" fill="#e4eb60" />
             </BarChart>
 
           <div className="chart-download-container">

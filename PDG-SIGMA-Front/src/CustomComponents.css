@@ -14,19 +14,19 @@
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--main-color) 0%, #6d6df0 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, var(--azul-icesi) 100%);
     position: relative;
-    box-shadow: 0 4px 10px rgba(84,84,232,0.35);
+    box-shadow: 0 4px 10px var(--shadow-primary-md);
     transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .bell-wrapper:hover {
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 14px rgba(84,84,232,0.5);
+    box-shadow: 0 6px 14px var(--shadow-primary-xl);
 }
 
 .bell-icon {
-        stroke: #fff;
+        stroke: var(--blanco);
         animation: bell-pulse 4s infinite;
 }
 
@@ -42,8 +42,8 @@
         position: absolute;
         top: -4px;
         right: -4px;
-        background: #ff4757;
-        color: #fff;
+        background: var(--naranja-icesi);
+        color: var(--blanco);
         font-size: 10px;
         font-weight: bold;
         padding: 3px 6px;
@@ -59,10 +59,10 @@
 }
 
 .custom-card {
-        background: #ffffff;
-        border: 1px solid #ececff;
+        background: var(--blanco);
+        border: 1px solid var(--gris-2);
         border-radius: 14px;
-        box-shadow: 0 8px 26px -4px rgba(0,0,0,0.15), 0 4px 12px -2px rgba(84,84,232,0.25);
+        box-shadow: 0 8px 26px -4px rgba(0,0,0,0.15), 0 4px 12px -2px var(--shadow-primary-sm);
         padding: 14px 16px 10px 16px;
         width: 360px;
         position: absolute;
@@ -87,7 +87,7 @@
     margin-bottom: 10px;
     padding-bottom: 6px;
     font-weight: 600;
-    background: linear-gradient(90deg, var(--main-color), #6d6df0);
+    background: linear-gradient(90deg, var(--main-color), var(--azul-icesi));
     -webkit-background-clip: text;
     background-clip: text; /* estándar para navegadores modernos */
     color: transparent;
@@ -100,7 +100,7 @@
     bottom: 0;
     width: 60%;
     height: 2px;
-    background: linear-gradient(90deg, var(--main-color), rgba(84,84,232,0));
+    background: linear-gradient(90deg, var(--main-color), transparent);
     border-radius: 2px;
 }
 
@@ -113,11 +113,11 @@
 .notification-item {
     margin-bottom: 8px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--gris-2);
 }
 
 .notification-box {
-    background: linear-gradient(120deg,#f4f6ff 0%, #ffffff 85%);
+    background: linear-gradient(120deg,var(--gris-2) 0%, var(--blanco) 85%);
     border-left: 5px solid var(--main-color);
     padding: 10px 12px;
     border-radius: 8px;
@@ -135,7 +135,7 @@
 
 .notification-date {
         font-size: 10.5px;
-        color: #555;
+        color: var(--gris-1);
         text-align: right;
         display: block;
         margin-top: 6px;
@@ -148,12 +148,12 @@
     max-height: 340px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--main-color) #ececff;
+    scrollbar-color: var(--main-color) var(--gris-2);
 }
 .notification-list::-webkit-scrollbar { width: 6px; }
-.notification-list::-webkit-scrollbar-track { background: #ececff; border-radius: 10px; }
+.notification-list::-webkit-scrollbar-track { background: var(--gris-2); border-radius: 10px; }
 .notification-list::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 10px; }
-.notification-list::-webkit-scrollbar-thumb:hover { background: #6d6df0; }
+.notification-list::-webkit-scrollbar-thumb:hover { background: var(--azul-icesi); }
 
 
 
