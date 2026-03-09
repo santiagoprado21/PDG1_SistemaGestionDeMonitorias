@@ -38,7 +38,7 @@ public class AuthService {
 
     private final WebClient webClient;
 
-    @Value("${sigma.banner-api.base-url:http://localhost:5431}")
+    @Value("${sigma.banner-api.base-url:http://localhost:5435}")
     private String bannerApiBaseUrl;
 
     public AuthService(WebClient.Builder webClientBuilder) {

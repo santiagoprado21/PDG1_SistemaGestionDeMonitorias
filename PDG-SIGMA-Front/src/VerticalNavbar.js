@@ -321,7 +321,7 @@ function VerticalNavbar() {
               to="/Reports"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Reportes
+              🧾 Reportes
             </NavLink>
           </>
         )}
