@@ -1,20 +1,40 @@
 .alert {
     position: fixed;
-    top: -50px; /* Oculto por encima de la pantalla */
+    top: 10px;
     left: 50%;
-    transform: translateX(-50%);
-    background-color: rgb(94, 94, 234); /* Color morado suave */
-    color: white;
+    transform: translate(-50%, -18px);
+    opacity: 0;
+    width: min(92vw, 520px);
+    background-color: #f4f6fa; /* Gris neutro para mejor contraste con la UI */
+    color: #1f2a44;
+    border: 1px solid #4f5bd5; /* Borde azul institucional */
     padding: 1rem 2rem;
-    border-radius: 5px;
+    border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     font-size: 1rem;
     font-weight: bold;
+    text-align: center;
     z-index: 1000;
-    transition: top 0.3s ease-in-out; /* Animación suave */
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .alert-info {
+    border-color: #4f5bd5;
+  }
+
+  .alert-success {
+    border-color: #2f8f5b;
   }
   
   .alert-show {
-    top: 10px; /* Aparece en esta posición */
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (max-width: 480px) {
+    .alert {
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+    }
   }
   

@@ -25,6 +25,8 @@ import com.pdg.sigma.repository.DepartmentHeadRepository;
 import com.pdg.sigma.repository.MonitorRepository;
 import com.pdg.sigma.repository.ProfessorRepository;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ChatServiceImpl implements ChatService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatServiceImpl.class);
 
     @Autowired
     private MonitorRepository monitorRepository;
@@ -59,7 +63,12 @@ public class ChatServiceImpl implements ChatService {
 
     @PostConstruct
     public void initChatSchema() {
-        ensureChatTables();
+        try {
+            ensureChatTables();
+        } catch (Exception ex) {
+            // Avoid blocking full app startup when DB has a transient connectivity issue.
+            LOGGER.warn("No se pudo inicializar el esquema de chat al arrancar; se reintentara bajo demanda.", ex);
+        }
     }
 
     @Override

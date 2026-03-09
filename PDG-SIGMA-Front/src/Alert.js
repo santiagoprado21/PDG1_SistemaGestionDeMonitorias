@@ -1,7 +1,7 @@
 import React, {useEffect } from "react";
 import "./Alert.css"; // Archivo de estilos separado
 
-const Alert = ({ show, onClose }) => {
+const Alert = ({ show, onClose, message }) => {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
@@ -12,8 +12,12 @@ const Alert = ({ show, onClose }) => {
   }, [show, onClose]);
 
   return (
-    <div className={`alert ${show ? "alert-show" : ""}`}>
-      Has iniciado sesión como estudiante
+    <div
+      className={`alert alert-info ${show ? "alert-show" : ""}`}
+      role="status"
+      aria-live="polite"
+    >
+      {message || "Iniciaste sesion como estudiante"}
     </div>
   );
 };
