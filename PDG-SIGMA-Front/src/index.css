@@ -1,18 +1,28 @@
 :root {
-  /* Colores institucionales */
-  --color-primary: #5555ea;
-  --color-primary-hover: #4444d8;
-  --color-secondary: #4b5563;
-  --color-secondary-bg: #f9fafb;
-  --color-danger: #d32f2f;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-border: #e5e7eb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
-  --color-bg-body: #ffffff;
-  --color-bg-alt: #f3f4f6;
-  --color-focus: #93c5fd;
+  /* ── Paleta institucional Icesi ───────────────────────────── */
+  --color-primary:        #5454e9;   /* Azul Icesi principal    */
+  --color-primary-hover:  #3f3fd4;   /* Azul Icesi oscurecido   */
+
+  --color-yellow:         #e4eb60;   /* Amarillo Icesi          */
+  --color-orange:         #e9683b;   /* Naranja Icesi           */
+  --color-purple:         #865cf0;   /* Morado Icesi            */
+  --color-green:          #4cb979;   /* Verde Icesi             */
+  --color-black:          #000000;   /* Negro Icesi             */
+  --color-gray-1:         #88898c;   /* Gris 1 Icesi            */
+  --color-gray-2:         #cecfd4;   /* Gris 2 Icesi            */
+
+  /* ── Roles semánticos (usan la paleta anterior) ──────────── */
+  --color-secondary:      #88898c;   /* → Gris 1                */
+  --color-secondary-bg:   #f9fafb;
+  --color-danger:         #e9683b;   /* → Naranja Icesi         */
+  --color-success:        #4cb979;   /* → Verde Icesi           */
+  --color-warning:        #e4eb60;   /* → Amarillo Icesi        */
+  --color-border:         #cecfd4;   /* → Gris 2                */
+  --color-text-primary:   #000000;   /* → Negro Icesi           */
+  --color-text-secondary: #88898c;   /* → Gris 1                */
+  --color-bg-body:        #ffffff;
+  --color-bg-alt:         #f3f4f6;
+  --color-focus:          #865cf0;   /* → Morado Icesi          */
 
   /* Tipografía */
   --font-primary: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
