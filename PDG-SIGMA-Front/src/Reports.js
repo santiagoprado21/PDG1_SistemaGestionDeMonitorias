@@ -4,10 +4,61 @@ import VerticalNavbar from './VerticalNavbar';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell,
-  LineChart, Line, LabelList
+  LabelList
 } from 'recharts';
 import {PopUp} from "./PopUp";
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+
+const REPORT_HELP_CONTENT = {
+  monitorPerformance: {
+    summary: 'Muestra el avance de actividades por monitor para los filtros seleccionados.',
+    bullets: [
+      'Barras verdes: completadas, amarillas: tardias, rojas: pendientes.',
+      'Usa el orden A-Z / Z-A para ubicar monitores rapidamente.',
+      'El tooltip del grafico indica cantidad y porcentaje por estado.'
+    ]
+  },
+  semesterComparison: {
+    summary: 'Compara el desempeno del semestre actual frente al semestre anterior disponible.',
+    bullets: [
+      'Se requiere al menos dos semestres con datos para ver la comparacion.',
+      'Cada barra representa actividades completadas, pendientes y tardias.',
+      'Si cambias filtros, la comparacion se recalcula automaticamente.'
+    ]
+  },
+  monitorTaskSummary: {
+    summary: 'Resume en porcentaje el estado total de tareas de monitores.',
+    bullets: [
+      'Completadas: actividades finalizadas dentro del periodo.',
+      'Completadas tardias: cerradas despues de la fecha esperada.',
+      'Pendientes: actividades que aun no se han completado.'
+    ]
+  },
+  categoryUsage: {
+    summary: 'Presenta las categorias mas usadas en las actividades del curso filtrado.',
+    bullets: [
+      'Solo aparece cuando seleccionas curso, programa y semestre.',
+      'Cada porcion del pastel indica la proporcion de uso por categoria.',
+      'Se muestran las 5 categorias con mayor cantidad de registros.'
+    ]
+  },
+  professorPerformance: {
+    summary: 'Mide el avance de actividades asociadas a cada profesor y curso.',
+    bullets: [
+      'En perfil profesor se muestra el rendimiento propio.',
+      'Usa los filtros para comparar cursos o periodos especificos.',
+      'El tooltip muestra cantidad y porcentaje por estado de actividad.'
+    ]
+  },
+  professorTaskSummary: {
+    summary: 'Consolida en porcentaje el estado de tareas relacionadas con profesores.',
+    bullets: [
+      'Permite detectar carga pendiente y oportunidad de mejora.',
+      'Las tarjetas se actualizan segun los filtros aplicados.',
+      'Puedes exportar el resumen en CSV o PDF para seguimiento.'
+    ]
+  }
+};
 
 function Reports() {
 
@@ -17,8 +68,6 @@ function Reports() {
 
   // console.log("Reports se está renderizando");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [asistenciaDataOriginal, setAsistenciaDataOriginal] = useState([]);
-
   // const [categoryUsageDataOriginal, setCategoryUsageDataOriginal] = useState([]);
   const [categoryReportData, setCategoryReportData] = useState([]);
   const [courseSelectedM, setCourseSelectedM] = useState("");
@@ -38,6 +87,7 @@ function Reports() {
   const [professor, setProfessor] = useState('');
   const [monitor, setMonitor] = useState('');
   const [monitorSortOrder, setMonitorSortOrder] = useState('A-Z');
+  const [openHelpKey, setOpenHelpKey] = useState(null);
 
   //Porcentaje efectividad por materia de monitores
   const[completedPercent, setCompletedPercent] = useState("")
@@ -68,7 +118,16 @@ function Reports() {
             'Authorization': localStorage.getItem('token')
           },
         });
+        if (!monitorResponse.ok) {
+          const errorData = await monitorResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || `Error ${monitorResponse.status}`);
+        }
         const monitorJson = await monitorResponse.json();
+        if (!Array.isArray(monitorJson)) {
+          setMonitorPerformanceDataOriginal([]);
+          setProfessorDataOriginal([]);
+          return;
+        }
         setMonitorPerformanceDataOriginal(monitorJson);
         
         let professorList = [];
@@ -99,27 +158,18 @@ function Reports() {
 
     fetchActivities();
 
-    const fetchAttendance = async () => {
-      try {
-        const attendanceResponse = await fetch(`${BACKEND_URL}/monitoring/getAttendanceReport/${role}/${user}`,{
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,
-                'Authorization':localStorage.getItem('token')
-            },
-            });
-        const attendanceJson = await attendanceResponse.json();
-        setAsistenciaDataOriginal(attendanceJson);
-
-      } catch (error) {
-        console.error('Error fetching attendance data:', error);
-      }
-    };
-    fetchAttendance();
-
     const fetchCategories = async () => {
+      const normalizedRole = String(role || '').toLowerCase();
+      let url = '';
 
-      // const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${user}`;
-      const url = `${BACKEND_URL}/monitoring/getCategoriesReport/${role}/${user}`;
+      if (normalizedRole === 'professor') {
+        url = `${BACKEND_URL}/monitoring/getCategoriesReport/professor/${user}`;
+      } else if (normalizedRole === 'jfedpto') {
+        url = `${BACKEND_URL}/monitoring/getCategoriesReport/jfedpto/${user}`;
+      } else {
+        setCategoryReportData([]);
+        return;
+      }
 
       try {
         const categoriesResponse = await fetch(url,{
@@ -225,50 +275,6 @@ function Reports() {
     );
     
   };
-
-  const applyAttendanceFilters = (data) => {
-    if (!Array.isArray(data)) {
-      console.warn("applyAttendanceFilters recibió datos que no son un array:", data);
-      return [];
-    }
-    return data.filter(d => {
-      if (!d) return false;
-
-      const semesterMatch = !semester || d.semestre === semester;
-
-      const courseMatch = !course ||
-        (Array.isArray(d.asistencia_por_curso) && 
-         d.asistencia_por_curso.some(item => item.curso === course));
-
-      return semesterMatch && courseMatch;
-    });
-  };
-
-  const filteredAttendanceData = applyAttendanceFilters(asistenciaDataOriginal);
-
-  const chartReadyAttendanceData = filteredAttendanceData.map(d => {
-    if(course !== '' && program !=='' && semester !== ''){
-      let displayValue;
-      let attendance;
-      if (course) {
-        const courseEntry = d.asistencia_por_curso?.find(item => item.curso === course);
-        displayValue = courseEntry ? courseEntry.cantidad : 0;
-        attendance = courseEntry? courseEntry.estudiantes : [];
-      } else {
-        displayValue = d.total_mes;
-      }
-
-      return {
-        mes: d.mes,
-        semestre: d.semestre, 
-        asistencia: displayValue,
-        asistentes:attendance
-      };
-    }
-    return undefined;
-  });
-
-  const lineName = course ? `Asistentes - ${course}` : "Total Asistentes";
 
   const pieChartData = useMemo(() => {
     if (!categoryReportData) {
@@ -415,9 +421,6 @@ function Reports() {
   };
 
   //const categoryUsageData = applyFilters(categoryUsageDataOriginal);
-  const asistenciaData = chartReadyAttendanceData;
-
-  
   const semestersToShow = getValues("semester");
   const programsToShow = getValues("programs", { semester });
   const coursesToShow = getValues("courses", { semester, program });
@@ -441,7 +444,6 @@ function Reports() {
   const sortedProgramsToShow = sortAlphabetically(programsToShow);
   const sortedCoursesToShow = sortAlphabetically(coursesToShow);
   const sortedProfessorsToShow = sortAlphabetically(professorsToShow);
-  const orderedMonitorsToShow = sortMonitorsByOrder(monitorsToShow, monitorSortOrder);
   const professorChartData = useMemo(() => {
     return professorData.map(item => ({
       ...item,
@@ -551,12 +553,45 @@ function Reports() {
   const [monitorPage, setMonitorPage] = useState(1);
   const monitorsPerPage = 10;
 
-  const totalMonitorPages = Math.max(1, Math.ceil(monitorPerformanceData.length / monitorsPerPage));
+  const sortedMonitorPerformanceData = useMemo(() => {
+    const data = [...monitorPerformanceData];
+    data.sort((a, b) => {
+      const byName = String(a?.name || '').localeCompare(String(b?.name || ''), 'es', { sensitivity: 'base' });
+      if (byName !== 0) {
+        return monitorSortOrder === 'Z-A' ? -byName : byName;
+      }
+
+      // If monitors share name, keep a stable order by course.
+      return String(a?.course || '').localeCompare(String(b?.course || ''), 'es', { sensitivity: 'base' });
+    });
+    return data;
+  }, [monitorPerformanceData, monitorSortOrder]);
+
+  const orderedMonitorsToShow = useMemo(() => {
+    const uniqueNames = [];
+    const seenNames = new Set();
+
+    for (const item of sortedMonitorPerformanceData) {
+      const name = item?.name;
+      if (name && !seenNames.has(name)) {
+        seenNames.add(name);
+        uniqueNames.push(name);
+      }
+    }
+
+    if (uniqueNames.length > 0) {
+      return uniqueNames;
+    }
+
+    return sortMonitorsByOrder(monitorsToShow, monitorSortOrder);
+  }, [sortedMonitorPerformanceData, monitorsToShow, monitorSortOrder]);
+
+  const totalMonitorPages = Math.max(1, Math.ceil(sortedMonitorPerformanceData.length / monitorsPerPage));
   const paginatedMonitorPerformanceData = useMemo(() => {
     const start = (monitorPage - 1) * monitorsPerPage;
     const end = start + monitorsPerPage;
-    return monitorPerformanceData.slice(start, end);
-  }, [monitorPerformanceData, monitorPage]);
+    return sortedMonitorPerformanceData.slice(start, end);
+  }, [sortedMonitorPerformanceData, monitorPage]);
 
   useEffect(() => {
     if (monitorPage > totalMonitorPages) {
@@ -673,6 +708,65 @@ useEffect(() => {
   }
 }, [professorData]);
 
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setOpenHelpKey(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  const renderCardTitle = (title, helpKey) => {
+    const help = REPORT_HELP_CONTENT[helpKey];
+
+    return (
+      <div className="chart-card-header">
+        <h3>{title}</h3>
+        <div
+          className="report-help-wrapper"
+          onMouseEnter={() => setOpenHelpKey(helpKey)}
+          onMouseLeave={() => setOpenHelpKey(null)}
+          onFocusCapture={() => setOpenHelpKey(helpKey)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              setOpenHelpKey(null);
+            }
+          }}
+        >
+          <button
+            type="button"
+            className="report-help-icon"
+            aria-label={`Ayuda de ${title}`}
+            aria-expanded={openHelpKey === helpKey}
+            onMouseEnter={() => setOpenHelpKey(helpKey)}
+            onMouseLeave={() => setOpenHelpKey(null)}
+            onFocus={() => setOpenHelpKey(helpKey)}
+            onBlur={() => setOpenHelpKey(null)}
+          >
+            ?
+          </button>
+
+          {openHelpKey === helpKey && help && (
+            <div className="report-help-tooltip" role="tooltip">
+              <p>{help.summary}</p>
+              <ul>
+                {help.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
 
   const handleClose = () =>{
       setIsOpen(!isOpen)
@@ -740,7 +834,7 @@ useEffect(() => {
           
     {/* Gráfico de barras - MONITOR */}
     <div className="chart-card">
-      <h3>Rendimiento de monitores</h3>
+      {renderCardTitle('Rendimiento de monitores', 'monitorPerformance')}
       <BarChart width={500} height={300} data={paginatedMonitorPerformanceData}>
         <CartesianGrid strokeDasharray="3 3" />
         
@@ -834,7 +928,7 @@ useEffect(() => {
         )}
       </div>
 
-      {monitorPerformanceData.length > monitorsPerPage && (
+      {sortedMonitorPerformanceData.length > monitorsPerPage && (
         <div className="monitor-table-pagination">
           <span>Página {monitorPage} de {totalMonitorPages}</span>
           <div className="monitor-table-pagination-actions">
@@ -857,7 +951,7 @@ useEffect(() => {
       )}
 
           <div className="chart-download-container">
-            <button className="chart-download-button" onClick={() => exportToCSV(monitorPerformanceData, 'Rendimiento_Monitores', {
+            <button className="chart-download-button" onClick={() => exportToCSV(sortedMonitorPerformanceData, 'Rendimiento_Monitores', {
                   semester,
                   program,
                   course,
@@ -865,7 +959,7 @@ useEffect(() => {
                   monitor
                 })
               }>CSV</button>
-            <button className="chart-download-button" onClick={() => exportToPDF(monitorPerformanceData, 'Rendimiento_Monitores', {
+            <button className="chart-download-button" onClick={() => exportToPDF(sortedMonitorPerformanceData, 'Rendimiento_Monitores', {
                   semester,
                   program,
                   course,
@@ -877,11 +971,12 @@ useEffect(() => {
         </div>
 
         <div className="chart-card">
-          <h3>
-            {semesterComparison.previousSemester
+          {renderCardTitle(
+            semesterComparison.previousSemester
               ? `Comparativo por semestre (${semesterComparison.previousSemester} vs ${semesterComparison.currentSemester})`
-              : 'Comparativo por semestre'}
-          </h3>
+              : 'Comparativo por semestre',
+            'semesterComparison'
+          )}
 
           {semesterComparison.previousSemester ? (
             <>
@@ -922,7 +1017,7 @@ useEffect(() => {
 
          {/* Porcentaje de tareas - MONITOR*/}
          <div className="chart-card">
-            <h3>Tareas completadas, tardías y pendientes de monitores</h3>
+          {renderCardTitle('Tareas completadas, tardias y pendientes de monitores', 'monitorTaskSummary')}
             <div className="reports-summary">
               <div className="summary-card completadas">
                 <h4>Completadas</h4>
@@ -960,7 +1055,7 @@ useEffect(() => {
           {/* Gráfico de pastel*/}
           {course && (
             <div className="chart-card">
-              <h3>{`Uso de Categorías - ${course}`}</h3>
+              {renderCardTitle(`Uso de Categorias - ${course}`, 'categoryUsage')}
                <PieChart width={400} height={300}>
                 <Pie
                   data={pieChartData}
@@ -1004,48 +1099,9 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Asistencias */}
-          <div className="chart-card">
-            <h3> {`Asistencia a monitorías ${course ? `(${course})` : '(mensual)'}`}</h3>
-            <LineChart width={500} height={300} data={asistenciaData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="mes" />
-              <YAxis allowDecimals={false} />
-              <Tooltip formatter={(value, name, props) => [`${value} asistentes`, lineName]} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="asistencia"
-                stroke="#8884d8"
-                name={lineName}
-                activeDot={{ r: 8 }}
-              />
-            </LineChart>
-            <div className="chart-download-container">
-              <button className="chart-download-button" onClick={() => exportToCSV(asistenciaData, `Asistencia_${lineName.replace(' ', '_')}`, {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>CSV</button>
-              <button className="chart-download-button" onClick={() => exportToPDF(asistenciaData, `Asistencia_${lineName.replace(' ', '_')}`, {
-                  semester,
-                  program,
-                  course,
-                  professor,
-                  monitor
-                })
-              }>PDF</button>
-              {/* datos filtrados originales*/}
-              {/* <button className="chart-download-button" onClick={() => exportToCSV(filteredAttendanceData, 'Asistencia_Detallada_Filtrada')}>Descargar Detalle Filtrado</button> */}
-            </div>
-          </div>
-
         {/* Gráfico de barras - PROFESOR */}
         <div className="chart-card">
-          <h3>{isProfessorRole ? 'Rendimiento del profesor' : 'Rendimiento de profesores'}</h3>
+          {renderCardTitle(isProfessorRole ? 'Rendimiento del profesor' : 'Rendimiento de profesores', 'professorPerformance')}
             <BarChart width={500} height={300} data={professorChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               
@@ -1134,7 +1190,7 @@ useEffect(() => {
 
          {/* Porcentaje de tareas - PROFESOR */}
          <div className="chart-card">
-            <h3>Tareas completadas, tardías y pendientes de profesores</h3>
+          {renderCardTitle('Tareas completadas, tardias y pendientes de profesores', 'professorTaskSummary')}
             <div className="reports-summary">
               <div className="summary-card completadas">
                 <h4>Completadas</h4>
