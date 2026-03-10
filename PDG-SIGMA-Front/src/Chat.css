@@ -1,4 +1,4 @@
-.page-layout{display:flex;height:100vh;overflow:hidden;background:#f4f6fb}
+.page-layout{--chat-radius-control:8px;--chat-own-bubble:rgba(85,85,234,.16);--chat-focus-ring:0 0 0 3px rgba(147,197,253,.45);display:flex;height:100vh;overflow:hidden;background:#f4f6fb}
 .left-column{width:250px;flex:0 0 250px}
 .right-column{flex:1;display:flex;padding:12px;min-height:0;overflow:hidden}
 .chat-container{display:flex;gap:0;flex:1;height:100%;min-height:0;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 6px 22px rgba(38,50,90,.08)}
@@ -20,7 +20,7 @@
 .chat-subtitle{font-size:14px;color:#6e768a;margin-top:2px}
 .chat-messages{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,#f8faff 0%,#f4f7fd 100%);min-height:0}
 .message-bubble{max-width:72%;border-radius:14px;padding:11px 13px;background:#fff;box-shadow:0 1px 3px rgba(30,41,59,.04)}
-.message-bubble.own{align-self:flex-end;background:#e7f0ff}
+.message-bubble.own{align-self:flex-end;background:var(--chat-own-bubble)}
 .message-bubble.other{align-self:flex-start}
 .message-meta{display:flex;gap:8px;font-size:12px;color:#6b7280;margin-bottom:5px}
 .message-text{white-space:pre-wrap;color:#1c2434;font-size:16px;line-height:1.45}
@@ -33,13 +33,18 @@
 .pending-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .remove-attachment-btn{border:0;background:#e04f5f;color:#fff;width:22px;height:22px;border-radius:4px;cursor:pointer;font-size:12px}
 .remove-attachment-btn:hover{background:#c73848}
-.chat-textarea{flex:1;resize:none;max-height:120px;overflow:auto;border:0;border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;line-height:1.4;background:#fbfcff}
+.chat-textarea{flex:1;resize:none;max-height:120px;overflow:auto;border:0;border-radius:var(--chat-radius-control);padding:12px 13px;font-family:inherit;font-size:16px;line-height:1.4;background:#fbfcff}
 .chat-textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(84,84,232,.12)}
+.chat-textarea:focus-visible{outline:none;box-shadow:var(--chat-focus-ring)}
 .input-actions{display:flex;gap:8px;justify-content:flex-end}
-.attach-btn{background:#ffffff;border:0;border-radius:10px;padding:0 14px;cursor:pointer;font-size:18px;display:flex;align-items:center}
-.attach-btn:hover{background:#eef3ff}
-.chat-send-button{background:#5454e8;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
-.chat-send-button:hover{background:#3d3dd9}
+.attach-btn{background:linear-gradient(135deg,var(--color-primary) 0%,#7b7be8 100%);color:#fff;border:0;border-radius:var(--chat-radius-control);padding:0 14px;cursor:pointer;font-size:18px;display:flex;align-items:center;box-shadow:0 4px 15px rgba(102,126,234,.3);transition:all .3s ease}
+.attach-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
+.attach-btn:focus-visible{outline:none;box-shadow:var(--chat-focus-ring)}
+.attach-btn:disabled{opacity:.5;cursor:not-allowed}
+.chat-send-button{background:linear-gradient(135deg,var(--color-primary) 0%,#7b7be8 100%);color:#fff;border:0;border-radius:var(--chat-radius-control);padding:10px 16px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(102,126,234,.3);transition:all .3s ease}
+.chat-send-button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
+.chat-send-button:focus-visible{outline:none;box-shadow:var(--chat-focus-ring)}
+.chat-send-button:disabled{opacity:.5;cursor:not-allowed}
 .message-attachments{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .attachment-item{display:flex;align-items:center;gap:10px;background:#fafbff;padding:6px 8px;border-radius:8px}
 .attachment-thumb{width:60px;height:60px;object-fit:cover;border-radius:6px}
@@ -47,3 +52,11 @@
 .attachment-info{display:flex;flex-direction:column;font-size:11px;color:#444}
 .attachment-name{font-weight:600;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .attachment-size{color:#6b7280}
+
+@media (max-width: 768px){
+	.chat-input-area{padding:10px 12px}
+	.chat-textarea{font-size:15px;padding:10px 12px}
+	.input-actions{gap:6px}
+	.attach-btn{min-height:40px;padding:0 12px;font-size:16px}
+	.chat-send-button{padding:10px 14px;font-size:14px}
+}
