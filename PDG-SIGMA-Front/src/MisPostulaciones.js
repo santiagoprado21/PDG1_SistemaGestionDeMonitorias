@@ -223,7 +223,11 @@ function MisPostulaciones() {
                             {filteredPostulaciones.map((postulacion) => (
                                 <div
                                     key={postulacion.id}
-                                    className={`postulacion-card ${postulacion.status === 'SELECCIONADO' ? 'card-seleccionado' : ''}`}
+                                    className={`postulacion-card ${{
+                                        'SELECCIONADO':    'card-seleccionado',
+                                        'NO_SELECCIONADO': 'card-no-seleccionado',
+                                        'POSTULADO':       'card-revision'
+                                    }[postulacion.status] || ''}`}
                                     onClick={() => openDetalle(postulacion)}
                                 >
                                     <div className="card-header-row">
