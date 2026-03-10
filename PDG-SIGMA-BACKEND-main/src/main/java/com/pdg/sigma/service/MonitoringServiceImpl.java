@@ -481,14 +481,14 @@ public class MonitoringServiceImpl implements MonitoringService{
             List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
 
             if(monitorings.isEmpty()){
-                throw new Exception("No hay monitorias creadas");
+                return new ArrayList<>();
             }
             List<MonitoringMonitor> monitors = new ArrayList<>();
             for(Monitoring monitoring:monitorings){
                 monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
             }
-            if( monitors.isEmpty()){
-                throw new Exception("No hay reportes por mostrar");
+            if(monitors.isEmpty()){
+                return new ArrayList<>();
             }
 
             List<ReportDTO> reportDTOList = new ArrayList<>();
@@ -525,10 +525,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                     reportDTOList.add(reportDTO);
                 }
             }
-            if(!reportDTOList.isEmpty()){
-                return reportDTOList;
-            }else
-                throw new Exception("No hay reportes por mostrar");
+            return reportDTOList;
         }
         Optional<DepartmentHead> hd = departmentHeadRepository.findById(idProfessor);
         if(hd.isEmpty()){
