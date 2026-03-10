@@ -53,7 +53,7 @@
 }
 
 .stat-card.stat-revision        { border-top-color: var(--color-gray-1);  border-left-color: var(--color-gray-1);  }
-.stat-card.stat-seleccionado    { border-top-color: var(--color-primary);  border-left-color: var(--color-primary);  }
+.stat-card.stat-seleccionado    { border-top-color: var(--color-green);    border-left-color: var(--color-green);    }
 .stat-card.stat-no-seleccionado { border-top-color: var(--color-orange);   border-left-color: var(--color-orange);   }
 
 .stat-number {
@@ -125,7 +125,7 @@
 .postulacion-card {
     background: var(--color-bg-body);
     border-radius: var(--radius-lg);
-    padding: 1.3rem;
+    padding: 1.3rem 1.3rem 2.2rem;
     box-shadow: var(--shadow-sm);
     cursor: pointer;
     transition: transform var(--tr-fast), box-shadow var(--tr-fast);
@@ -138,10 +138,10 @@
     box-shadow: var(--shadow-md);
 }
 
-/* Seleccionado → Azul Icesi */
+/* Seleccionado/Aprobado → Verde Icesi */
 .postulacion-card.card-seleccionado {
-    border-left-color: var(--color-primary);
-    background: #f0f0fd;
+    border-left-color: var(--color-green);
+    background: #f0faf4;
 }
 
 /* No seleccionado → Naranja Icesi */
@@ -150,10 +150,10 @@
     background: #fdf4f1;
 }
 
-/* En revisión / Postulado → Verde Icesi */
+/* En revisión / Postulado → Amarillo Icesi */
 .postulacion-card.card-revision {
-    border-left-color: var(--color-green);
-    background: #f0faf4;
+    border-left-color: var(--color-yellow);
+    background: #fdfee8;
 }
 
 .card-header-row {
@@ -213,18 +213,18 @@
     white-space: nowrap;
 }
 
-/* Pendiente → Gris institucional */
+/* Pendiente/En revisión → Amarillo Icesi */
 .badge-postulado {
-    background: #f2f2f3;
-    color: var(--color-gray-1);
-    border: 1px solid var(--color-gray-2);
+    background: #fdfee8;
+    color: #6b6e00;
+    border: 1px solid var(--color-yellow);
 }
 
-/* Seleccionado/Aceptada → Azul Icesi */
+/* Seleccionado/Aprobado → Verde Icesi */
 .badge-seleccionado {
-    background: #ebebfd;
-    color: var(--color-primary);
-    border: 1px solid #c0c0f7;
+    background: #eaf7f0;
+    color: var(--color-green);
+    border: 1px solid #b3e6cb;
 }
 
 /* No seleccionado/Rechazada → Naranja Icesi */
@@ -232,6 +232,25 @@
     background: #fdf0ec;
     color: var(--color-orange);
     border: 1px solid #f5c4b3;
+}
+
+/* ===== BADGES dentro de tarjeta — heredan el color del estado ===== */
+.postulacion-card.card-revision .req-status-badge {
+    background: #fdfee8;
+    color: #6b6e00;
+    border-color: var(--color-yellow);
+}
+
+.postulacion-card.card-seleccionado .req-status-badge {
+    background: #eaf7f0;
+    color: var(--color-green);
+    border-color: #b3e6cb;
+}
+
+.postulacion-card.card-no-seleccionado .req-status-badge {
+    background: #fdf0ec;
+    color: var(--color-orange);
+    border-color: #f5c4b3;
 }
 
 /* ===== BADGES - Estado de la convocatoria ===== */
@@ -304,6 +323,13 @@
 .empty-hint {
     font-size: 0.88rem !important;
     color: var(--color-gray-1) !important;
+}
+
+/* Estado convocatoria en el modal → siempre gris institucional */
+.modal-body .req-status-badge {
+    background: #f2f2f3 !important;
+    color: var(--color-gray-1) !important;
+    border-color: var(--color-gray-2) !important;
 }
 
 /* ===== MODAL ===== */

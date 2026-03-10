@@ -96,7 +96,7 @@ function MisPostulaciones() {
             case 'CONVOCATORIA_ABIERTA': return 'Convocatoria abierta';
             case 'MONITOR_SELECCIONADO': return 'Monitor seleccionado';
             case 'PENDIENTE_APROBACION': return 'Pendiente aprobación final';
-            case 'APROBADA': return 'Aprobada';
+            case 'APROBADA': return 'Cerrada';
             case 'RECHAZADA': return 'Rechazada';
             case 'CANCELADA': return 'Cancelada';
             default: return status || 'Desconocido';
