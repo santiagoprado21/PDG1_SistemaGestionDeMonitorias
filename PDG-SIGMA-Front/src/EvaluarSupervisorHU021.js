@@ -486,7 +486,7 @@ function EvaluarSupervisorHU021() {
 
               {selectedAssignment.evaluated && (
                 <div className="visibility-row">
-                  <span className="penalty-alert">✅ Ya enviaste esta evaluación. Si necesitas ajustes, contacta a coordinación.</span>
+                  <span className="penalty-alert">Ya enviaste esta evaluación. Si necesitas ajustes, contacta a coordinación.</span>
                 </div>
               )}
 
@@ -502,3 +502,4 @@ function EvaluarSupervisorHU021() {
 }
 
 export default EvaluarSupervisorHU021;
+

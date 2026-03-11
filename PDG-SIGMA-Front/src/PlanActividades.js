@@ -4,12 +4,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
+import { ClipboardList, AlertTriangle, Plus, BarChart3, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * HU-011: Creación de plan de actividades para monitores (Como profesor)
  * Componente para gestionar el plan completo de actividades de una monitoría
  */
 function PlanActividades() {
+    const iconProps = {
+        size: 16,
+        strokeWidth: 2,
+        strokeLinecap: 'butt',
+        strokeLinejoin: 'miter'
+    };
+
     const { monitoringId: urlMonitoringId } = useParams();
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
@@ -433,7 +441,7 @@ function PlanActividades() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content plan-actividades-content">
-                <h1>📋 Plan de Actividades</h1>
+                <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
 
                 {/* Selector de Monitoría */}
                 <div className="monitoring-selector">
@@ -459,16 +467,16 @@ function PlanActividades() {
                 {/* Mensaje informativo cuando no hay monitorías */}
                 {monitorings.length === 0 && (
                     <div className="warning-banner">
-                        <span className="warning-icon">⚠️</span>
+                        <span className="warning-icon"><AlertTriangle {...iconProps} /></span>
                         <div className="warning-text">
                             <strong>No tienes monitorías con monitor asignado</strong>
                             <p>Para crear un plan de actividades necesitas:</p>
                             <ol>
-                                <li>Crear una convocatoria de monitoría desde "➕ Crear Convocatoria"</li>
+                                <li>Crear una convocatoria de monitoría desde "Crear Convocatoria"</li>
                                 <li>Esperar a que estudiantes se postulen</li>
                                 <li>Seleccionar un monitor para la convocatoria</li>
                             </ol>
-                            <p>O si eres jefe de departamento, puedes crear monitorías directamente desde "📂 Crear Monitorías CSV"</p>
+                            <p>O si eres jefe de departamento, puedes crear monitorías directamente desde "Crear Monitorías CSV"</p>
                         </div>
                     </div>
                 )}
@@ -508,16 +516,16 @@ function PlanActividades() {
                         onClick={() => handleOpenModal()}
                         disabled={!selectedMonitoringId || monitorings.length === 0}
                     >
-                        ➕ Crear Nueva Actividad
+                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Crear Nueva Actividad
                     </button>
                     <button 
                         className="btn-secondary" 
                         onClick={() => navigate('/gestion-rubricas')}
                     >
-                        📊 Gestionar Rúbricas
+                        <BarChart3 {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Gestionar Rúbricas
                     </button>
                     <button className="btn-secondary" onClick={() => navigate(-1)}>
-                        ⬅️ Volver
+                        <ArrowLeft {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Volver
                     </button>
                 </div>
 
@@ -574,16 +582,16 @@ function PlanActividades() {
                                         </td>
                                         <td>
                                             <button 
-                                                className="btn-edit"
+                                                className="btn-edit btn-secondary"
                                                 onClick={() => handleOpenModal(activity)}
                                                 title="Editar">
-                                                ✏️
+                                                <Pencil {...iconProps} size={14} />
                                             </button>
                                             <button 
-                                                className="btn-delete"
+                                                className="btn-delete btn-danger"
                                                 onClick={() => handleDeleteActivity(activity.id)}
                                                 title="Eliminar">
-                                                🗑️
+                                                <Trash2 {...iconProps} size={14} />
                                             </button>
                                         </td>
                                     </tr>
@@ -599,12 +607,12 @@ function PlanActividades() {
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2>{editingActivity ? 'Editar Actividad' : 'Nueva Actividad'}</h2>
-                                <button className="btn-close" onClick={handleCloseModal}>×</button>
+                                <button className="btn-close btn-secondary" onClick={handleCloseModal}>×</button>
                             </div>
 
                             {conflicts.length > 0 && (
                                 <div className="conflicts-alert">
-                                    <strong>⚠️ Conflictos de horarios detectados:</strong>
+                                    <strong><AlertTriangle {...iconProps} size={14} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Conflictos de horarios detectados:</strong>
                                     <ul>
                                         {conflicts.map((conflict, idx) => (
                                             <li key={idx}>
@@ -682,18 +690,18 @@ function PlanActividades() {
                                                 padding: '10px',
                                                 fontSize: '15px',
                                                 borderRadius: '4px',
-                                                border: '2px solid #ddd',
-                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4CAF50' : '#FF9800'
+                                                border: '2px solid #cecfd4',
+                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4cb979' : '#e4eb60'
                                             }}
                                         >
-                                            <option value="PENDIENTE">⏳ PENDIENTE</option>
-                                            <option value="COMPLETADO">✅ COMPLETADO</option>
-                                            <option value="COMPLETADOT">⚠️ COMPLETADO TARDE</option>
+                                            <option value="PENDIENTE">PENDIENTE</option>
+                                            <option value="COMPLETADO">COMPLETADO</option>
+                                            <option value="COMPLETADOT">COMPLETADO TARDE</option>
                                         </select>
-                                        <small style={{ display: 'block', marginTop: '8px', color: '#666', fontSize: '13px' }}>
-                                            {formData.state === 'PENDIENTE' && '➡️ La actividad está pendiente de completar'}
-                                            {formData.state === 'COMPLETADO' && '✅ La actividad fue completada a tiempo'}
-                                            {formData.state === 'COMPLETADOT' && '⚠️ La actividad fue completada con retraso'}
+                                        <small style={{ display: 'block', marginTop: '8px', color: '#88898c', fontSize: '13px' }}>
+                                            {formData.state === 'PENDIENTE' && 'La actividad esta pendiente de completar'}
+                                            {formData.state === 'COMPLETADO' && 'La actividad fue completada a tiempo'}
+                                            {formData.state === 'COMPLETADOT' && 'La actividad fue completada con retraso'}
                                         </small>
                                     </div>
                                 )}

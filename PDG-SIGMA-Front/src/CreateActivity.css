@@ -1,7 +1,7 @@
 :root {
-    --main-color: #5454e8;
-    --hover-color: rgb(66, 65, 65);
-    --main-font-family: jakarta_bold, Arial, cursive;
+    --main-color: var(--azul-icesi);
+  --hover-color: var(--morado-icesi);
+  --main-font-family: var(--font-primary);
   }
   
   /* Contenedor principal del formulario */
@@ -14,8 +14,8 @@
   /* Contenedor del contenido del formulario con bordes y sombra */
   .create-activity-content {
     flex: 1;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: var(--blanco);
+    border: 1px solid var(--gris-2);
     border-radius: 8px;
     padding: 20px;
     margin-left: 400px; /* Espacio reservado para el navbar */
@@ -26,13 +26,13 @@
   /* Encabezado del formulario */
   .form-header {
     background-color: var(--main-color); /* Fondo morado */
-    color: #fff;
+    color: var(--blanco);
     padding: 15px;
     border-radius: 8px 8px 0 0;
     text-align: center;
     font-size: 24px;
     font-weight: bold;
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid var(--gris-2);
     margin-bottom: 20px;
   }
   
@@ -78,7 +78,7 @@
   .input-text,
   .input-date {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     width: 94%;
     box-sizing: border-box;
@@ -88,7 +88,7 @@
   /* Estilos únicos para select y textarea */
   .activity-select {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     width: 94%;
     box-sizing: border-box;
@@ -97,7 +97,7 @@
 
   .asign-to-select{
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     width: 97%;
     box-sizing: border-box;
@@ -106,7 +106,7 @@
   
   .activity-textarea {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 4px;
     width: 97%;
     box-sizing: border-box;
@@ -118,8 +118,8 @@
   .input-date:hover,
   .activity-select:hover,
   .activity-textarea:hover {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: var(--azul-icesi);
+    box-shadow: 0 0 5px var(--shadow-primary-xl);
   }
   
   /* Grupo para categoría con botón de agregar */
@@ -136,7 +136,7 @@
   .add-category-btn {
     margin-left: 10px;
     padding: 5px 10px;
-    background-color: #007bff;
+    background-color: var(--azul-icesi);
     border: none;
     color: white;
     border-radius: 4px;
@@ -145,7 +145,7 @@
   }
   
   .add-category-btn:hover {
-    background-color: #0056b3;
+    background-color: var(--azul-icesi);
   }
   
   /* Campo para nueva categoría */
@@ -169,18 +169,18 @@
   }
   
   .new-category-actions button:first-child {
-    background-color: #28a745;
+    background-color: var(--verde-icesi);
     color: white;
   }
   
   .new-category-actions button:last-child {
-    background-color: #dc3545;
+    background-color: var(--naranja-icesi);
     color: white;
   }
   
   /* Botón Confirmar */
   .confirm-button {
-    background-color: #28a745;
+    background-color: var(--verde-icesi);
     color: white;
     border: none;
     padding: 12px;
@@ -193,7 +193,7 @@
   }
   
   .confirm-button:hover {
-    background-color: #218838;
+    background-color: var(--verde-icesi);
   }
   
   /* Responsividad */
@@ -234,7 +234,7 @@
     width: 95.5%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gris-2);
     border-radius: 5px;
     font-size: 16px;
   }
@@ -263,10 +263,10 @@
   .checkbox-container2 {
     max-height: 160px; 
     overflow-y: auto;
-    border: 1px solid #ccc; 
+    border: 1px solid var(--gris-2); 
     padding: 10px;
     margin-top: 5px;
-    background-color: #f9f9f9;
+    background-color: var(--blanco);
   }
   
   .checkbox-container2 .checkbox-label {
@@ -278,11 +278,11 @@
   .disabled-section {
     opacity: 0.5;
     pointer-events: none; 
-    background-color: #eee; 
+    background-color: var(--gris-2); 
   }
   .disabled-message {
       font-style: italic;
-      color: #666;
+      color: var(--gris-1);
       text-align: center;
       padding: 10px 0;
   }

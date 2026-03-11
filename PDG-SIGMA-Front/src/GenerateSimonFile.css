@@ -1,7 +1,7 @@
 .generate-simon-container {
     display: flex;
     min-height: 100vh;
-    background-color: #f5f7fa;
+    background-color: var(--blanco);
 }
 
 .generate-simon-content {
@@ -14,9 +14,9 @@
 .generate-simon-title {
     font-size: 32px;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--negro);
     margin-bottom: 30px;
-    border-bottom: 3px solid #3498db;
+    border-bottom: 3px solid var(--azul-icesi);
     padding-bottom: 15px;
 }
 
@@ -36,14 +36,14 @@
 .simon-preview-card h2,
 .simon-history-card h2 {
     font-size: 22px;
-    color: #2c3e50;
+    color: var(--negro);
     margin-bottom: 20px;
     font-weight: 600;
 }
 
 .simon-info-card h3 {
     font-size: 20px;
-    color: #2c3e50;
+    color: var(--negro);
     margin-bottom: 15px;
     font-weight: 600;
 }
@@ -60,24 +60,24 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background-color: #f8f9fa;
+    background-color: var(--blanco);
     border-radius: 8px;
 }
 
 .summary-label {
     font-weight: 600;
-    color: #555;
+    color: var(--gris-1);
 }
 
 .summary-value {
     font-size: 20px;
     font-weight: 700;
-    color: #3498db;
+    color: var(--azul-icesi);
 }
 
 .semester-input {
     padding: 8px 12px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--gris-2);
     border-radius: 6px;
     font-size: 16px;
     width: 150px;
@@ -86,7 +86,7 @@
 
 .semester-input:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: var(--azul-icesi);
 }
 
 .summary-status {
@@ -97,13 +97,13 @@
 }
 
 .status-ready {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--verde-icesi);
+    color: var(--verde-icesi);
 }
 
 .status-not-ready {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--naranja-icesi);
+    color: var(--naranja-icesi);
 }
 
 /* Actions */
@@ -115,43 +115,27 @@
 
 .btn-generate-simon,
 .btn-toggle-history {
-    padding: 15px 30px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
+    min-height: 35px;
+    transition: all var(--tr-fast);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .btn-generate-simon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
     flex: 1;
 }
 
 .btn-generate-simon:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px var(--shadow-primary-lg);
 }
 
 .btn-generate-simon:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
     opacity: 0.6;
 }
 
-.btn-toggle-history {
-    background-color: #ecf0f1;
-    color: #2c3e50;
-}
 
-.btn-toggle-history:hover {
-    background-color: #bdc3c7;
-}
 
 /* Preview Table */
 .preview-table-container,
@@ -169,7 +153,7 @@
 
 .preview-table thead,
 .history-table thead {
-    background-color: #3498db;
+    background-color: var(--azul-icesi);
     color: white;
 }
 
@@ -184,31 +168,31 @@
 .preview-table td,
 .history-table td {
     padding: 12px;
-    border-bottom: 1px solid #ecf0f1;
+    border-bottom: 1px solid var(--gris-2);
 }
 
 .preview-table tbody tr:hover,
 .history-table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--blanco);
 }
 
 .more-records {
     text-align: center;
     padding: 15px;
-    color: #7f8c8d;
+    color: var(--gris-1);
     font-style: italic;
 }
 
 .no-history {
     text-align: center;
     padding: 30px;
-    color: #95a5a6;
+    color: var(--gris-1);
     font-style: italic;
 }
 
 .file-name {
-    font-family: 'Courier New', monospace;
-    color: #2980b9;
+    font-family: var(--font-primary);
+    color: var(--azul-icesi);
     font-size: 13px;
 }
 
@@ -222,7 +206,7 @@
     padding: 10px 0;
     padding-left: 25px;
     position: relative;
-    color: #555;
+    color: var(--gris-1);
     line-height: 1.6;
 }
 
@@ -230,7 +214,7 @@
     content: "✓";
     position: absolute;
     left: 0;
-    color: #27ae60;
+    color: var(--verde-icesi);
     font-weight: bold;
     font-size: 16px;
 }

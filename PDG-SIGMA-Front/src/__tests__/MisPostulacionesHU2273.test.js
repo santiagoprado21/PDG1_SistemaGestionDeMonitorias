@@ -113,7 +113,7 @@ describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
         renderComponent();
 
         expect(screen.getByTestId('vertical-navbar')).toBeInTheDocument();
-        expect(screen.getByText('📋 Mis Postulaciones')).toBeInTheDocument();
+        expect(screen.getByText('Mis Postulaciones')).toBeInTheDocument();
     });
 
     test('Debe mostrar el estado vacío cuando no hay postulaciones', async () => {
@@ -141,10 +141,10 @@ describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
         renderComponent();
 
         await waitFor(() => {
-            // "En revisión" aparece en badge, tab y stat → getAllByText
+            // "En revisión" aparece en badge, tab y stat  getAllByText
             expect(screen.getAllByText('En revisión').length).toBeGreaterThan(0);
             expect(screen.getByText('¡Seleccionado!')).toBeInTheDocument();
-            // "No seleccionado" aparece en badge y tab → getAllByText
+            // "No seleccionado" aparece en badge y tab  getAllByText
             expect(screen.getAllByText('No seleccionado').length).toBeGreaterThan(0);
         });
     });
@@ -166,7 +166,7 @@ describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Total')).toBeInTheDocument();
-            // Estos textos aparecen en stats Y en tabs de filtro → getAllByText
+            // Estos textos aparecen en stats Y en tabs de filtro  getAllByText
             expect(screen.getAllByText('En revisión').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Seleccionado').length).toBeGreaterThan(0);
             expect(screen.getAllByText('No seleccionado').length).toBeGreaterThan(0);
@@ -276,3 +276,4 @@ describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
         });
     });
 });
+

@@ -15,35 +15,35 @@
   .popup {
     background-color: white;
     border-radius: 15px;
-    padding: 20px;
+    padding: var(--space-5);
     width: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
+    text-align: left;
   }
   
   .content {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-5);
   }
   
   .button {
     border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    margin: 5px;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-5);
+    margin: var(--space-1);
     cursor: pointer;
   }
   
   .button-apply {
-    background-color: #d3d3d3; /* Deshabilitado inicialmente */
+    background-color: var(--gris-2); /* Deshabilitado inicialmente */
     color: white;
   }
   
   .button-apply.enabled {
-    background-color: #28a745; /* Verde */
+    background-color: var(--verde-icesi); /* Verde */
   }
   
   .button-close {
-    background-color: #dc3545; /* Rojo */
+    background-color: var(--naranja-icesi); /* Rojo */
     color: white;
   }
   

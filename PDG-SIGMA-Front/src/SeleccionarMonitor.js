@@ -170,11 +170,11 @@ function SeleccionarMonitor() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
-            'POSTULADO': { text: 'Postulado', color: '#2196F3' },
-            'SELECCIONADO': { text: '✓ Seleccionado', color: '#4CAF50' },
-            'NO_SELECCIONADO': { text: 'No Seleccionado', color: '#9E9E9E' }
+            'POSTULADO': { text: 'Postulado', color: '#5454e9' },
+            'SELECCIONADO': { text: 'Seleccionado', color: '#4cb979' },
+            'NO_SELECCIONADO': { text: 'No Seleccionado', color: '#88898c' }
         };
-        const statusInfo = statusMap[status] || { text: status, color: '#757575' };
+        const statusInfo = statusMap[status] || { text: status, color: '#88898c' };
         return (
             <span style={{
                 padding: '6px 12px',
@@ -203,7 +203,7 @@ function SeleccionarMonitor() {
                         className="btn-back"
                         onClick={() => navigate('/mis-convocatorias')}
                     >
-                        ← Volver a Mis Convocatorias
+                         Volver a Mis Convocatorias
                     </button>
                     <div className="title-container-seleccionar">
                         <div className="title-seleccionar">Seleccionar Monitor</div>
@@ -285,11 +285,11 @@ function SeleccionarMonitor() {
                                                             Seleccionar
                                                         </button>
                                                     ) : postulante.status === 'SELECCIONADO' ? (
-                                                        <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>
+                                                        <span style={{ color: '#4cb979', fontWeight: 'bold' }}>
                                                             Ya seleccionado
                                                         </span>
                                                     ) : (
-                                                        <span style={{ color: '#999' }}>
+                                                        <span style={{ color: '#88898c' }}>
                                                             No seleccionado
                                                         </span>
                                                     )}
@@ -307,14 +307,14 @@ function SeleccionarMonitor() {
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
                                     >
-                                        ← Anterior
+                                         Anterior
                                     </button>
                                     <span>Página {currentPage} de {totalPages}</span>
                                     <button 
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         disabled={currentPage === totalPages}
                                     >
-                                        Siguiente →
+                                        Siguiente 
                                     </button>
                                 </div>
                             )}
@@ -357,7 +357,7 @@ function SeleccionarMonitor() {
                             </div>
 
                             <div className="warning-box">
-                                <strong>⚠️ Importante:</strong>
+                                <strong>Importante:</strong>
                                 <p>Al seleccionar este monitor:</p>
                                 <ul>
                                     <li>Los demás postulantes serán marcados como "No Seleccionados"</li>
@@ -387,4 +387,5 @@ function SeleccionarMonitor() {
 }
 
 export default SeleccionarMonitor;
+
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./UpdateButton.css"; // Importa los estilos
 import {PopUp} from "./PopUp";
-import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { BACKEND_URL } from './config/ApiBackend';
 
 const UpdateButton = ({ role, userId }) => {
   const [showOptions, setShowOptions] = useState(false);
@@ -74,7 +74,7 @@ const UpdateButton = ({ role, userId }) => {
       </PopUp>
       <div className="content"></div>
 
-      <button className="update-button" onClick={() => setShowOptions(!showOptions)}>
+      <button className="update-button btn-primary" onClick={() => setShowOptions(!showOptions)}>
         Actualizar
       </button>
 
@@ -104,7 +104,7 @@ const UpdateButton = ({ role, userId }) => {
             )}
           </div>
 
-          <button type="submit" className="submit-button">
+          <button type="submit" className="submit-button btn-primary">
             Confirmar actualización
           </button>
         </form>

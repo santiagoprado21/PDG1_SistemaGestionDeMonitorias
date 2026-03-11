@@ -67,7 +67,7 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
             </BrowserRouter>
         );
 
-        expect(screen.getByText('🔒 Cierre de Monitorías')).toBeInTheDocument();
+        expect(screen.getByText('Cierre de Monitorías')).toBeInTheDocument();
         expect(screen.getByText('Cierre de monitorías al final del semestre')).toBeInTheDocument();
     });
 
@@ -212,7 +212,7 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
         });
 
         // Confirmar cierre (solo hay un botón con este texto exacto: el del modal)
-        const confirmButton = screen.getByRole('button', { name: /🔒 Cerrar Monitorías/ });
+        const confirmButton = screen.getByRole('button', { name: /Cerrar Monitorías/ });
         fireEvent.click(confirmButton);
 
         await waitFor(() => {
@@ -244,11 +244,11 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
             json: async () => [mockClosedMonitoring]
         });
 
-        const closedTab = screen.getByText(/🔒 Monitorías Cerradas/);
+        const closedTab = screen.getByText(/Monitorías Cerradas/);
         fireEvent.click(closedTab);
 
         await waitFor(() => {
-            expect(screen.getByText('📊 Ver Reporte')).toBeInTheDocument();
+            expect(screen.getByText('Ver Reporte')).toBeInTheDocument();
         });
     });
 
@@ -288,7 +288,7 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
             text: async () => 'Error al cerrar'
         });
 
-        const confirmButton = screen.getByRole('button', { name: /🔒 Cerrar Monitorías/ });
+        const confirmButton = screen.getByRole('button', { name: /Cerrar Monitorías/ });
         fireEvent.click(confirmButton);
 
         await waitFor(() => {
@@ -324,7 +324,7 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
         });
 
         // Intentar cerrar sin comentario
-        const confirmButton = screen.getByRole('button', { name: /🔒 Cerrar Monitorías/ });
+        const confirmButton = screen.getByRole('button', { name: /Cerrar Monitorías/ });
         fireEvent.click(confirmButton);
 
         await waitFor(() => {
@@ -332,3 +332,4 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
         });
     });
 });
+

@@ -154,7 +154,7 @@ function MisPostulaciones() {
 
             <div className="mis-postulaciones-content">
                 <div className="mis-post-header">
-                    <h1>📋 Mis Postulaciones</h1>
+                    <h1>Mis Postulaciones</h1>
                     <p className="mis-post-subtitle">
                         Consulta el estado de las convocatorias en las que has participado
                     </p>
@@ -211,7 +211,7 @@ function MisPostulaciones() {
                 {!isLoading && (
                     filteredPostulaciones.length === 0 ? (
                         <div className="mis-post-empty">
-                            <p>📭 No tienes postulaciones{filterEstado !== 'todas' ? ' en este estado' : ''}</p>
+                            <p>No tienes postulaciones{filterEstado !== 'todas' ? ' en este estado' : ''}</p>
                             {filterEstado === 'todas' && (
                                 <p className="empty-hint">
                                     Visita <strong>Convocatorias Abiertas</strong> para postularte a una monitoría
@@ -259,7 +259,7 @@ function MisPostulaciones() {
                                         </span>
                                     </div>
 
-                                    <div className="card-action-hint">Ver detalle →</div>
+                                    <div className="card-action-hint">Ver detalle </div>
                                 </div>
                             ))}
                         </div>
@@ -273,7 +273,7 @@ function MisPostulaciones() {
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>{selectedPostulacion.courseName}</h2>
-                            <button className="close-btn" onClick={closeModal}>✕</button>
+                            <button className="close-btn" onClick={closeModal}>x</button>
                         </div>
 
                         <div className="modal-body">
@@ -313,7 +313,7 @@ function MisPostulaciones() {
 
                             {selectedPostulacion.status === 'SELECCIONADO' && (
                                 <div className="selected-banner">
-                                    🎉 ¡Felicitaciones! Fuiste seleccionado como monitor para esta monitoría.
+                                    ¡Felicitaciones! Fuiste seleccionado como monitor para esta monitoría.
                                 </div>
                             )}
                         </div>
@@ -329,3 +329,4 @@ function MisPostulaciones() {
 }
 
 export default MisPostulaciones;
+

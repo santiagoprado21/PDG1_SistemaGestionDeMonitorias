@@ -5,9 +5,9 @@
     transform: translate(-50%, -18px);
     opacity: 0;
     width: min(92vw, 520px);
-    background-color: #f4f6fa; /* Gris neutro para mejor contraste con la UI */
-    color: #1f2a44;
-    border: 1px solid #4f5bd5; /* Borde azul institucional */
+  background-color: var(--color-secondary-bg);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-primary);
     padding: 1rem 2rem;
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);

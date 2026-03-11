@@ -1,7 +1,7 @@
 .mis-postulaciones-container {
     display: flex;
     min-height: 100vh;
-    background-color: var(--color-bg-alt);
+    background-color: var(--color-bg-body);
     font-family: var(--font-primary);
 }
 

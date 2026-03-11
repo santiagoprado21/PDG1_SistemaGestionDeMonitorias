@@ -5,8 +5,16 @@ import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
 import LoadingSpinner from './LoadingSpinner';
+import { Clock3, Megaphone, UserRound, X, ClipboardList, Search, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function MisConvocatorias() {
+    const iconProps = {
+        size: 14,
+        strokeWidth: 2,
+        strokeLinecap: 'butt',
+        strokeLinejoin: 'miter'
+    };
+
     const navigate = useNavigate();
     const [myConvocatorias, setMyConvocatorias] = useState([]);
     const [filteredConvocatorias, setFilteredConvocatorias] = useState([]);
@@ -91,18 +99,18 @@ function MisConvocatorias() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#ff9800', icon: '⏳' },
-            'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4CAF50', icon: '📢' },
-            'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#2196F3', icon: '👤' },
-            'APROBADA': { label: 'Cerrada', color: '#9E9E9E' },
-            'RECHAZADA': { label: 'Rechazada', color: '#f44336', icon: '✗' },
-            'CANCELADA': { label: 'Cancelada', color: '#ff9800', icon: '⏳' }
+            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#e4eb60', icon: <Clock3 {...iconProps} /> },
+            'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4cb979', icon: <Megaphone {...iconProps} /> },
+            'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#5454e9', icon: <UserRound {...iconProps} /> },
+            'APROBADA': { label: 'Cerrada', color: '#88898c' },
+            'RECHAZADA': { label: 'Rechazada', color: '#e9683b', icon: <X {...iconProps} /> },
+            'CANCELADA': { label: 'Cancelada', color: '#e4eb60', icon: <Clock3 {...iconProps} /> }
         };
 
         const config = statusConfig[status] || { 
             label: status ? status.replace(/_/g, ' ') : 'Sin estado', 
-            color: '#ff9800', 
-            icon: '' 
+            color: '#e4eb60', 
+            icon: null 
         };
 
         return (
@@ -113,9 +121,12 @@ function MisConvocatorias() {
                 borderRadius: '12px',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                display: 'inline-block'
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
             }}>
-                {config.icon} {config.label}
+                {config.icon}
+                {config.label}
             </span>
         );
     };
@@ -154,7 +165,7 @@ function MisConvocatorias() {
                                 onChange={(e) => setFilterStatus(e.target.value)}
                                 style={{
                                     padding: '8px 12px',
-                                    border: '2px solid #e0e0e0',
+                                    border: '2px solid #cecfd4',
                                     borderRadius: '8px',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
@@ -175,7 +186,7 @@ function MisConvocatorias() {
                                 onChange={(e) => setFilterCourse(e.target.value)}
                                 style={{
                                     padding: '8px 12px',
-                                    border: '2px solid #e0e0e0',
+                                    border: '2px solid #cecfd4',
                                     borderRadius: '8px',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
@@ -206,10 +217,10 @@ function MisConvocatorias() {
                                 borderRadius: '12px',
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                             }}>
-                                <p style={{ color: '#888', fontSize: '1.1rem' }}>
+                                <p style={{ color: '#88898c', fontSize: '1.1rem' }}>
                                     {myConvocatorias.length === 0 
-                                        ? '📋 No tienes convocatorias creadas aún' 
-                                        : '🔍 No se encontraron convocatorias con los filtros aplicados'}
+                                        ? (<><ClipboardList {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />No tienes convocatorias creadas aun</>) 
+                                        : (<><Search {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />No se encontraron convocatorias con los filtros aplicados</>)}
                                 </p>
                             </div>
                         ) : (
@@ -229,15 +240,15 @@ function MisConvocatorias() {
                                     </thead>
                                     <tbody>
                                         {currentRecords.map((conv) => (
-                                            <tr key={conv.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+                                            <tr key={conv.id} style={{ borderBottom: '1px solid #cecfd4' }}>
                                                 <td style={{ padding: '12px 8px', textAlign: 'center' }}>
                                                     <strong>#{conv.id}</strong>
                                                 </td>
                                                 <td style={{ padding: '12px 8px' }}>
-                                                    <div style={{ fontWeight: '600', color: '#2c3e50' }}>
+                                                    <div style={{ fontWeight: '600', color: '#000000' }}>
                                                         {conv.courseName}
                                                     </div>
-                                                    <div style={{ fontSize: '0.85rem', color: '#7f8c8d' }}>
+                                                    <div style={{ fontSize: '0.85rem', color: '#88898c' }}>
                                                         {conv.programName}
                                                     </div>
                                                 </td>
@@ -245,7 +256,7 @@ function MisConvocatorias() {
                                                     {conv.semester}
                                                 </td>
                                                 <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                                                    <strong style={{ color: '#667eea' }}>{conv.requestedHours}h</strong>
+                                                    <strong style={{ color: '#5454e9' }}>{conv.requestedHours}h</strong>
                                                 </td>
                                                 <td style={{ padding: '12px 8px', textAlign: 'center' }}>
                                                     {getStatusBadge(conv.status)}
@@ -254,16 +265,16 @@ function MisConvocatorias() {
                                                     {conv.status === 'CONVOCATORIA_ABIERTA' || conv.status === 'MONITOR_SELECCIONADO' || conv.status === 'APROBADA' ? (
                                                         <span style={{
                                                             padding: '6px 12px',
-                                                            background: conv.applicationCount > 0 ? '#e3f2fd' : '#f5f5f5',
+                                                            background: conv.applicationCount > 0 ? '#cecfd4' : '#ffffff',
                                                             borderRadius: '12px',
                                                             fontWeight: '700',
                                                             fontSize: '1rem',
-                                                            color: conv.applicationCount > 0 ? '#1976d2' : '#9e9e9e'
+                                                            color: conv.applicationCount > 0 ? '#5454e9' : '#88898c'
                                                         }}>
                                                             {conv.applicationCount || 0}
                                                         </span>
                                                     ) : (
-                                                        <span style={{ color: '#9e9e9e' }}>-</span>
+                                                        <span style={{ color: '#88898c' }}>-</span>
                                                     )}
                                                 </td>
                                                 <td style={{ padding: '12px 8px', textAlign: 'center', fontSize: '0.9rem' }}>
@@ -275,7 +286,7 @@ function MisConvocatorias() {
                                                             onClick={() => navigate(`/seleccionar-monitor/${conv.id}`)}
                                                             style={{
                                                                 padding: '8px 16px',
-                                                                backgroundColor: '#2196F3',
+                                                                backgroundColor: '#5454e9',
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '6px',
@@ -284,20 +295,20 @@ function MisConvocatorias() {
                                                                 fontSize: '0.9rem',
                                                                 transition: 'all 0.3s'
                                                             }}
-                                                            onMouseOver={(e) => e.target.style.backgroundColor = '#1976d2'}
-                                                            onMouseOut={(e) => e.target.style.backgroundColor = '#2196F3'}
+                                                            onMouseOver={(e) => e.target.style.backgroundColor = '#5454e9'}
+                                                            onMouseOut={(e) => e.target.style.backgroundColor = '#5454e9'}
                                                         >
-                                                            👥 Ver Postulantes
+                                                            <Users {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Ver Postulantes
                                                         </button>
                                                     )}
                                                     {conv.status === 'PENDIENTE_APROBACION_JEFE' && (
-                                                        <span style={{ color: '#ff9800', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            ⏳ Esperando jefe
+                                                        <span style={{ color: '#e4eb60', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <Clock3 {...iconProps} />Esperando jefe
                                                         </span>
                                                     )}
                                                     {conv.status === 'APROBADA' && (
                                                         <span style={{ 
-                                                            color: '#9E9E9E', 
+                                                            color: '#88898c', 
                                                             fontSize: '0.85rem', 
                                                             fontStyle: 'italic',
                                                             display: 'flex',
@@ -309,13 +320,13 @@ function MisConvocatorias() {
                                                         </span>
                                                     )}
                                                     {conv.status === 'RECHAZADA' && (
-                                                        <span style={{ color: '#f44336', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            ✗ Rechazada
+                                                        <span style={{ color: '#e9683b', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <X {...iconProps} />Rechazada
                                                         </span>
                                                     )}
                                                     {conv.status === 'MONITOR_SELECCIONADO' && (
-                                                        <span style={{ color: '#2196F3', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                                                            👤 Monitor elegido
+                                                        <span style={{ color: '#5454e9', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                            <UserRound {...iconProps} />Monitor elegido
                                                         </span>
                                                     )}
                                                 </td>
@@ -333,7 +344,7 @@ function MisConvocatorias() {
                                             style={{ 
                                                 margin: '0 5px', 
                                                 padding: '8px 16px',
-                                                backgroundColor: currentPage === 1 ? '#ccc' : '#667eea',
+                                                backgroundColor: currentPage === 1 ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
                                                 borderRadius: '6px',
@@ -341,9 +352,9 @@ function MisConvocatorias() {
                                                 fontWeight: '600'
                                             }}
                                         >
-                                            ← Anterior
+                                            <ChevronLeft {...iconProps} style={{ marginRight: '4px', verticalAlign: 'text-bottom' }} />Anterior
                                         </button>
-                                        <span style={{ margin: '0 15px', fontWeight: '600', color: '#2c3e50' }}>
+                                        <span style={{ margin: '0 15px', fontWeight: '600', color: '#000000' }}>
                                             Página {currentPage} de {totalPages}
                                         </span>
                                         <button 
@@ -352,7 +363,7 @@ function MisConvocatorias() {
                                             style={{ 
                                                 margin: '0 5px', 
                                                 padding: '8px 16px',
-                                                backgroundColor: currentPage === totalPages ? '#ccc' : '#667eea',
+                                                backgroundColor: currentPage === totalPages ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
                                                 borderRadius: '6px',
@@ -360,7 +371,7 @@ function MisConvocatorias() {
                                                 fontWeight: '600'
                                             }}
                                         >
-                                            Siguiente →
+                                            Siguiente<ChevronRight {...iconProps} style={{ marginLeft: '4px', verticalAlign: 'text-bottom' }} />
                                         </button>
                                     </div>
                                 )}

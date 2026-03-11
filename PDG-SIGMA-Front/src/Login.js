@@ -123,7 +123,7 @@ function Login() {
 
       {/* Navigation Bar */}
       <nav className="navbar-login" id="navbar-login">
-        <button className="return-btn-login" id="return-btn-login" onClick={handleReturnClick}> ← </button>
+        <button className="return-btn-login" id="return-btn-login" onClick={handleReturnClick}>  </button>
       </nav>
       
       {/* Main Login Form */}
@@ -166,3 +166,4 @@ function Login() {
 }
 
 export default Login;
+

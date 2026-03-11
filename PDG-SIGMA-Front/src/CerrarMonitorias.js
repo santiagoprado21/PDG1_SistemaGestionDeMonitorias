@@ -138,7 +138,7 @@ function CerrarMonitorias() {
                 }
             }
 
-            setPopupMessage(`✅ Se ${selectedMonitorings.length === 1 ? 'cerró' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitoría${selectedMonitorings.length > 1 ? 's' : ''}`);
+            setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerró' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitoría${selectedMonitorings.length > 1 ? 's' : ''}`);
             setShowPopup(true);
             setShowCloseModal(false);
             setClosureComment('');
@@ -177,16 +177,16 @@ function CerrarMonitorias() {
     };
 
     const getComplianceColor = (percentage) => {
-        if (percentage >= 90) return '#4CAF50'; // Verde
-        if (percentage >= 70) return '#FF9800'; // Naranja
-        return '#F44336'; // Rojo
+        if (percentage >= 90) return '#4cb979'; // Verde
+        if (percentage >= 70) return '#e4eb60'; // Naranja
+        return '#e9683b'; // Rojo
     };
 
     return (
         <div className="cerrar-monitorias-container">
             <VerticalNavbar />
             <div className="main-content">
-                <h1>🔒 Cierre de Monitorías</h1>
+                <h1>Cierre de Monitorías</h1>
                 <p className="subtitle">Cierre de monitorías al final del semestre</p>
 
                 {/* Selector de semestre */}
@@ -207,13 +207,13 @@ function CerrarMonitorias() {
                         className={`tab ${activeTab === 'pendientes' ? 'active' : ''}`}
                         onClick={() => setActiveTab('pendientes')}
                     >
-                        📋 Listas para Cerrar ({monitorings.length})
+                        Listas para Cerrar ({monitorings.length})
                     </button>
                     <button 
                         className={`tab ${activeTab === 'cerradas' ? 'active' : ''}`}
                         onClick={() => setActiveTab('cerradas')}
                     >
-                        🔒 Monitorías Cerradas ({closedMonitorings.length})
+                        Monitorías Cerradas ({closedMonitorings.length})
                     </button>
                 </div>
 
@@ -239,7 +239,7 @@ function CerrarMonitorias() {
                                             onClick={handleOpenCloseModal}
                                             disabled={selectedMonitorings.length === 0}
                                         >
-                                            🔒 Cerrar Seleccionadas ({selectedMonitorings.length})
+                                            Cerrar Seleccionadas ({selectedMonitorings.length})
                                         </button>
                                     </div>
                                 )}
@@ -247,7 +247,7 @@ function CerrarMonitorias() {
                                 {/* Lista de monitorías listas para cerrar */}
                                 {monitorings.length === 0 ? (
                                     <div className="empty-state">
-                                        <p>📭 No hay monitorías listas para cerrar en este semestre</p>
+                                        <p>No hay monitorías listas para cerrar en este semestre</p>
                                         <small>Solo se pueden cerrar monitorías en estado "APROBADA"</small>
                                     </div>
                                 ) : (
@@ -279,7 +279,7 @@ function CerrarMonitorias() {
                                 {/* Lista de monitorías cerradas */}
                                 {closedMonitorings.length === 0 ? (
                                     <div className="empty-state">
-                                        <p>📭 No hay monitorías cerradas en este semestre</p>
+                                        <p>No hay monitorías cerradas en este semestre</p>
                                     </div>
                                 ) : (
                                     <div className="monitorings-grid">
@@ -287,7 +287,7 @@ function CerrarMonitorias() {
                                             <div key={monitoring.id} className="monitoring-card closed">
                                                 <div className="card-header">
                                                     <h3>{monitoring.course?.name || 'Sin curso'}</h3>
-                                                    <span className="badge-closed">🔒 Cerrada</span>
+                                                    <span className="badge-closed">Cerrada</span>
                                                 </div>
                                                 <div className="card-body">
                                                     <p><strong>Programa:</strong> {monitoring.program?.name || 'N/A'}</p>
@@ -312,7 +312,7 @@ function CerrarMonitorias() {
                                                         className="btn-secondary"
                                                         onClick={() => handleViewReport(monitoring.id)}
                                                     >
-                                                        📊 Ver Reporte
+                                                        Ver Reporte
                                                     </button>
                                                 </div>
                                             </div>
@@ -329,8 +329,8 @@ function CerrarMonitorias() {
                     <div className="modal-overlay" onClick={() => setShowCloseModal(false)}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
-                                <h2>🔒 Cerrar Monitorías</h2>
-                                <button className="btn-close" onClick={() => setShowCloseModal(false)}>×</button>
+                                <h2>Cerrar Monitorías</h2>
+                                <button className="btn-close btn-secondary" onClick={() => setShowCloseModal(false)}>×</button>
                             </div>
                             <div className="modal-body">
                                 <p>Va a cerrar <strong>{selectedMonitorings.length}</strong> monitoría{selectedMonitorings.length > 1 ? 's' : ''}.</p>
@@ -357,8 +357,8 @@ function CerrarMonitorias() {
                                     </label>
                                     <small className="help-text">
                                         {autoCalculate 
-                                            ? '✅ El sistema calculará automáticamente las actividades completadas y horas trabajadas'
-                                            : '⚠️ Deberá ingresar manualmente las métricas de cumplimiento'}
+                                            ? 'El sistema calculará automáticamente las actividades completadas y horas trabajadas'
+                                            : 'Deberá ingresar manualmente las métricas de cumplimiento'}
                                     </small>
                                 </div>
                             </div>
@@ -367,7 +367,7 @@ function CerrarMonitorias() {
                                     Cancelar
                                 </button>
                                 <button className="btn-primary" onClick={handleCloseMonitorings}>
-                                    🔒 Cerrar Monitorías
+                                    Cerrar Monitorías
                                 </button>
                             </div>
                         </div>
@@ -379,8 +379,8 @@ function CerrarMonitorias() {
                     <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
                         <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
-                                <h2>📊 Reporte de Cumplimiento</h2>
-                                <button className="btn-close" onClick={() => setShowReportModal(false)}>×</button>
+                                <h2>Reporte de Cumplimiento</h2>
+                                <button className="btn-close btn-secondary" onClick={() => setShowReportModal(false)}>×</button>
                             </div>
                             <div className="modal-body report-body">
                                 <div className="report-section">
@@ -454,3 +454,4 @@ function CerrarMonitorias() {
 }
 
 export default CerrarMonitorias;
+

@@ -1,6 +1,6 @@
 :root {
-    --main-color: #5454e8;
-	--hover-color: rgb(66, 65, 65);
+    --main-color: var(--azul-icesi);
+    --hover-color: var(--morado-icesi);
 }
 
 body {
@@ -28,7 +28,7 @@ body.login-background {
 .return-btn-login {
     height: 2.3em;
     width: 3em;
-    background-color: rgb(24, 22, 22);
+    background-color: var(--negro);
     border-radius: 0.5em;
     font-family: var(--main-font-family);
     font-size: medium;
@@ -42,10 +42,10 @@ body.login-background {
 .main-login {
     width: 30em;
     height: 500px;
-    background: white;
+    background: var(--blanco);
     overflow: hidden;
     border-radius: 10px;
-    box-shadow: 5px 20px 70px #000;
+    box-shadow: 5px 20px 70px var(--negro);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -63,7 +63,7 @@ body.login-background {
 .input-login {
     width: 60%;
     height: 10px;
-    background: #e0dede;
+    background: var(--gris-2);
     display: flex;
     margin: 20px auto;
     padding: 12px;
@@ -74,15 +74,16 @@ body.login-background {
 
 .login-btn-container-login {
     width: 100%;
-    justify-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .button-login {
     width: 60%;
     height: 40px;
     display: block;
-    color: #fff;
-    background: gray;
+    color: var(--blanco);
+    background: var(--color-primary);
     font-size: 1em;
     font-weight: bold;
     margin-top: 1em;
@@ -113,10 +114,10 @@ body.login-background {
 .inputs-login {
     height: 2.4em;
 	width: 80%;
-    background-color: whitesmoke;
-    border: 1px solid #ddd;
+    background-color: var(--blanco);
+    border: 1px solid var(--gris-2);
     border-radius: 0.5em;
-    box-shadow: 0 1px px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1em;
 }
 
@@ -124,7 +125,9 @@ body.login-background {
     align-items: center;
     height: 2.5em;
     width: 13em;
-    background-color: grey;
+    display: block;
+    margin: 0 auto;
+    background-color: var(--color-primary);
     border: none; 
     outline: none; 
     box-shadow: none; 

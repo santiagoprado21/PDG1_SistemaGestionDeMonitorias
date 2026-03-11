@@ -1,32 +1,70 @@
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('./assets/fonts/PlusJakartaSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('./assets/fonts/PlusJakartaSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  /* ── Paleta institucional Icesi ───────────────────────────── */
-  --color-primary:        #5454e9;   /* Azul Icesi principal    */
-  --color-primary-hover:  #3f3fd4;   /* Azul Icesi oscurecido   */
+  /* Paleta oficial institucional */
+  --azul-icesi: #5454e9;
+  --blanco: #ffffff;
+  --amarillo-icesi: #e4eb60;
+  --naranja-icesi: #e9683b;
+  --morado-icesi: #865cf0;
+  --verde-icesi: #4cb979;
+  --gris-1: #88898c;
+  --gris-2: #cecfd4;
+  --negro: #000000;
 
-  --color-yellow:         #e4eb60;   /* Amarillo Icesi          */
-  --color-orange:         #e9683b;   /* Naranja Icesi           */
-  --color-purple:         #865cf0;   /* Morado Icesi            */
-  --color-green:          #4cb979;   /* Verde Icesi             */
-  --color-black:          #000000;   /* Negro Icesi             */
-  --color-gray-1:         #88898c;   /* Gris 1 Icesi            */
-  --color-gray-2:         #cecfd4;   /* Gris 2 Icesi            */
-
-  /* ── Roles semánticos (usan la paleta anterior) ──────────── */
-  --color-secondary:      #88898c;   /* → Gris 1                */
-  --color-secondary-bg:   #f9fafb;
-  --color-danger:         #e9683b;   /* → Naranja Icesi         */
-  --color-success:        #4cb979;   /* → Verde Icesi           */
-  --color-warning:        #e4eb60;   /* → Amarillo Icesi        */
-  --color-border:         #cecfd4;   /* → Gris 2                */
-  --color-text-primary:   #000000;   /* → Negro Icesi           */
-  --color-text-secondary: #88898c;   /* → Gris 1                */
-  --color-bg-body:        #ffffff;
-  --color-bg-alt:         #f3f4f6;
-  --color-focus:          #865cf0;   /* → Morado Icesi          */
+  /* Tokens globales (compatibilidad) */
+  --color-primary: var(--azul-icesi);
+  --color-primary-hover: #4444d8;
+  --color-icesi-yellow: var(--amarillo-icesi);
+  --color-icesi-orange: var(--naranja-icesi);
+  --color-icesi-green: var(--verde-icesi);
+  --color-icesi-purple: var(--morado-icesi);
+  --color-icesi-gray-1: var(--gris-1);
+  --color-icesi-gray-2: var(--gris-2);
+  --color-secondary: var(--gris-1);
+  --color-secondary-bg: var(--blanco);
+  --color-danger: var(--naranja-icesi);
+  --color-success: var(--verde-icesi);
+  --color-warning: var(--amarillo-icesi);
+  --color-border: var(--gris-2);
+  --color-text-primary: var(--negro);
+  --color-text-secondary: var(--gris-1);
+  --color-bg-body: var(--blanco);
+  --color-bg-alt: var(--gris-2);
+  --color-focus: var(--azul-icesi);
+  --color-tag-amarillo: var(--amarillo-icesi);
+  --color-tag-naranja: var(--naranja-icesi);
+  --color-tag-morado: var(--morado-icesi);
+  --color-tag-verde: var(--verde-icesi);
+  --color-yellow: var(--amarillo-icesi);
+  --color-orange: var(--naranja-icesi);
+  --color-purple: var(--morado-icesi);
+  --color-green: var(--verde-icesi);
+  --color-black: var(--negro);
+  --color-gray-1: var(--gris-1);
+  --color-gray-2: var(--gris-2);
 
   /* Tipografía */
-  --font-primary: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-primary: 'Plus Jakarta Sans', sans-serif;
   --font-secondary: 'Segoe UI', sans-serif;
+  --main-font-family: var(--font-primary);
+  --font-weight-title: 700;
+  --font-weight-subtitle: 500;
+  --font-weight-body: 400;
 
   /* Tamaños tipográficos base */
   --fs-h1: 28.4px;
@@ -43,6 +81,7 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 28px;
   --space-8: 32px;
   --space-10: 40px;
 
@@ -55,6 +94,23 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+  --shadow-primary-xs: rgba(84, 84, 233, 0.1);
+  --shadow-primary-sm: rgba(84, 84, 233, 0.2);
+  --shadow-primary-md: rgba(84, 84, 233, 0.3);
+  --shadow-primary-lg: rgba(84, 84, 233, 0.4);
+  --shadow-primary-xl: rgba(84, 84, 233, 0.5);
+  --shadow-green-md: rgba(76, 185, 121, 0.3);
+  --shadow-orange-xs: rgba(228, 235, 96, 0.18);
+  --shadow-orange-md: rgba(233, 104, 59, 0.3);
+  --shadow-slate-sm: rgba(38, 50, 90, 0.08);
+  --shadow-slate-xs: rgba(30, 41, 59, 0.04);
+  --focus-ring-soft: rgba(84, 84, 233, 0.2);
+
+  /* Botones institucionales */
+  --btn-radius: 4px;
+  --btn-font-size: 13px;
+  --btn-padding-y: 6px;
+  --btn-padding-x: 32px;
 
   /*  Transiciones */
   --tr-fast: 0.15s ease-in-out;
@@ -67,36 +123,240 @@
 body {
   margin: 0;
   font-family: var(--font-primary);
+  font-weight: var(--font-weight-body);
   background-color: var(--color-bg-body);
   color: var(--color-text-primary);
+  text-align: left;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+.text-secondary {
+  color: var(--gris-1);
+}
+
+.divider {
+  border-color: var(--gris-2);
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-primary);
+  text-align: left;
+}
+
+button {
+  font-family: var(--font-primary);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-institutional-primary,
+.btn-institutional-secondary,
+.submit-button,
+.chat-send-button,
+.btn-create-monitoria,
+.btn-upload-csv,
+.btn-postularse,
+.btn-submit,
+.btn-modal,
+.btn-select-monitor,
+.btn-confirm-select,
+.btn-confirm,
+.btn-plan-actividades,
+.btn-generate-simon,
+.btn-approve-hu010,
+.btn-modify-hu010,
+.btn-confirm-approve-hu010,
+.btn-confirm-modify-hu010,
+.btn-toggle-history,
+.attach-btn,
+.btn-cancel,
+.btn-cancel-hu010,
+.btn-back,
+.view-button,
+.apply-button {
+  border-radius: var(--btn-radius);
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  font-size: var(--btn-font-size);
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: background-color var(--tr-fast), color var(--tr-fast), border-color var(--tr-fast), box-shadow var(--tr-fast), transform var(--tr-fast);
+}
+
+.btn-primary,
+.btn-institutional-primary,
+.submit-button,
+.chat-send-button,
+.btn-create-monitoria,
+.btn-upload-csv,
+.btn-postularse,
+.btn-submit,
+.btn-select-monitor,
+.btn-confirm-select,
+.btn-confirm,
+.btn-plan-actividades,
+.btn-generate-simon,
+.btn-approve-hu010,
+.btn-modify-hu010,
+.btn-confirm-approve-hu010,
+.btn-confirm-modify-hu010 {
+  background-color: var(--color-primary);
+  color: var(--blanco);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-institutional-primary:hover:not(:disabled),
+.submit-button:hover:not(:disabled),
+.chat-send-button:hover:not(:disabled),
+.btn-create-monitoria:hover:not(:disabled),
+.btn-upload-csv:hover:not(:disabled),
+.btn-postularse:hover:not(:disabled),
+.btn-submit:hover:not(:disabled),
+.btn-select-monitor:hover:not(:disabled),
+.btn-confirm-select:hover:not(:disabled),
+.btn-confirm:hover:not(:disabled),
+.btn-plan-actividades:hover:not(:disabled),
+.btn-generate-simon:hover:not(:disabled),
+.btn-approve-hu010:hover:not(:disabled),
+.btn-modify-hu010:hover:not(:disabled),
+.btn-confirm-approve-hu010:hover:not(:disabled),
+.btn-confirm-modify-hu010:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.btn-secondary,
+.btn-institutional-secondary,
+.btn-toggle-history,
+.attach-btn,
+.btn-cancel,
+.btn-cancel-hu010,
+.btn-back,
+.view-button,
+.apply-button {
+  background-color: var(--blanco);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: var(--blanco);
+  border: 1px solid var(--color-danger);
+}
+
+.btn-secondary:hover:not(:disabled),
+.btn-institutional-secondary:hover:not(:disabled),
+.btn-toggle-history:hover:not(:disabled),
+.attach-btn:hover:not(:disabled),
+.btn-cancel:hover:not(:disabled),
+.btn-cancel-hu010:hover:not(:disabled),
+.btn-back:hover:not(:disabled),
+.view-button:hover:not(:disabled),
+.apply-button:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--blanco);
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.btn-institutional-primary:focus-visible,
+.btn-institutional-secondary:focus-visible,
+.submit-button:focus-visible,
+.chat-send-button:focus-visible,
+.btn-create-monitoria:focus-visible,
+.btn-upload-csv:focus-visible,
+.btn-postularse:focus-visible,
+.btn-submit:focus-visible,
+.btn-modal:focus-visible,
+.btn-select-monitor:focus-visible,
+.btn-confirm-select:focus-visible,
+.btn-confirm:focus-visible,
+.btn-plan-actividades:focus-visible,
+.btn-generate-simon:focus-visible,
+.btn-approve-hu010:focus-visible,
+.btn-modify-hu010:focus-visible,
+.btn-confirm-approve-hu010:focus-visible,
+.btn-confirm-modify-hu010:focus-visible,
+.btn-toggle-history:focus-visible,
+.attach-btn:focus-visible,
+.btn-cancel:focus-visible,
+.btn-cancel-hu010:focus-visible,
+.btn-back:focus-visible,
+.view-button:focus-visible,
+.apply-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring-soft);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-institutional-primary:disabled,
+.btn-institutional-secondary:disabled,
+.submit-button:disabled,
+.chat-send-button:disabled,
+.btn-create-monitoria:disabled,
+.btn-upload-csv:disabled,
+.btn-postularse:disabled,
+.btn-submit:disabled,
+.btn-modal:disabled,
+.btn-select-monitor:disabled,
+.btn-confirm-select:disabled,
+.btn-confirm:disabled,
+.btn-plan-actividades:disabled,
+.btn-generate-simon:disabled,
+.btn-approve-hu010:disabled,
+.btn-modify-hu010:disabled,
+.btn-confirm-approve-hu010:disabled,
+.btn-confirm-modify-hu010:disabled,
+.btn-toggle-history:disabled,
+.attach-btn:disabled,
+.btn-cancel:disabled,
+.btn-cancel-hu010:disabled,
+.btn-back:disabled,
+.view-button:disabled,
+.apply-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 h1 {
   font-size: var(--fs-h1);
-  font-weight: 700;
+  font-weight: var(--font-weight-title);
 }
 
 h2 {
   font-size: var(--fs-h2);
-  font-weight: 600;
+  font-weight: var(--font-weight-subtitle);
 }
 
 h3 {
   font-size: var(--fs-h3);
-  font-weight: 600;
+  font-weight: var(--font-weight-subtitle);
 }
 
 h4 {
   font-size: var(--fs-h4);
-  font-weight: 600;
+  font-weight: var(--font-weight-subtitle);
 }
 
 p,
 span,
 li {
   font-size: var(--fs-body);
+  font-weight: var(--font-weight-body);
 }
 
 .text-small {

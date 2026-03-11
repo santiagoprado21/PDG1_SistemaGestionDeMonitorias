@@ -15,31 +15,31 @@
 .popup {
     background-color: white;
     border-radius: 15px;
-    padding: 20px;
+    padding: var(--space-5);
     width: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
+    text-align: left;
 }
   
 .button-apply {
-    background-color: #28a745; /* Verde */
+    background-color: var(--verde-icesi); /* Verde */
     color: white;
 }
   
 .content {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-5);
 }
   
 .button {
-    background-color: #6a0dad; /* Morado */
+    background-color: var(--morado-icesi); /* Morado */
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-5);
     cursor: pointer;
 }
   
 .button:hover {
-    background-color: #5a0cad; /* Tono más oscuro para hover */
+    background-color: var(--morado-icesi); /* Tono más oscuro para hover */
 }
   

@@ -30,7 +30,7 @@
 
 .assignments-panel:hover,
 .form-panel:hover {
-  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 /* === Elementos principales === */
@@ -61,7 +61,7 @@
 .search-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  box-shadow: 0 0 0 2px var(--shadow-primary-sm);
   background-color: var(--color-bg-body);
 }
 
@@ -95,12 +95,12 @@
 .assignment-card.selected {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(85, 85, 234, 0.35);
+  border-color: var(--shadow-primary-md);
 }
 
 .assignment-card.selected {
-  background: linear-gradient(135deg, rgba(68, 68, 216, 0.95) 0%, rgba(85, 85, 234, 0.9) 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+  color: var(--blanco);
 }
 
 .assignment-card.selected .assignment-subtitle,
@@ -110,7 +110,7 @@
 }
 
 .assignment-card.selected .assignment-score strong {
-  color: #fff;
+  color: var(--blanco);
 }
 
 .assignment-header {
@@ -126,7 +126,7 @@
 }
 
 .assignment-card.selected .assignment-header h4 {
-  color: #fff;
+  color: var(--blanco);
 }
 
 .assignment-subtitle,
@@ -152,7 +152,7 @@
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--blanco);
   letter-spacing: 0.02em;
 }
 
@@ -191,10 +191,10 @@
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-2);
-  background: linear-gradient(135deg, rgba(68, 68, 216, 0.95) 0%, rgba(85, 85, 234, 0.9) 100%);
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
-  color: #fff;
+  color: var(--blanco);
 }
 
 .form-header h3 {
@@ -221,7 +221,7 @@
   justify-content: center;
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
-  color: #fff;
+  color: var(--blanco);
   min-width: 120px;
   text-align: center;
   background-color: rgba(255, 255, 255, 0.18);
@@ -268,7 +268,7 @@
 .scores-grid select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  box-shadow: 0 0 0 2px var(--shadow-primary-sm);
   background-color: var(--color-bg-body);
 }
 
@@ -295,7 +295,7 @@
 .comments-field textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(85, 85, 234, 0.2);
+  box-shadow: 0 0 0 2px var(--shadow-primary-sm);
   background-color: var(--color-bg-body);
 }
 
@@ -331,27 +331,19 @@
 
 .submit-button {
   align-self: flex-end;
-  background-color: var(--color-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--fs-body);
-  font-weight: 600;
-  cursor: pointer;
+  min-height: 35px;
   box-shadow: var(--shadow-md);
   transition: transform var(--tr-fast), box-shadow var(--tr-fast), background-color var(--tr-fast);
 }
 
-.submit-button:hover {
-  background-color: var(--color-primary-hover);
+.submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .submit-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.6);
+  box-shadow: 0 0 0 3px var(--focus-ring-soft);
 }
 
 .submit-button:disabled {

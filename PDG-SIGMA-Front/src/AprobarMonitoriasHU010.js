@@ -249,7 +249,7 @@ function AprobarMonitoriasHU010() {
                     <>
                         {currentRecords.length === 0 ? (
                             <div className="no-data-hu010">
-                                <h3>✓ No hay convocatorias pendientes de aprobación</h3>
+                                <h3>No hay convocatorias pendientes de aprobación</h3>
                                 <p>Todas las convocatorias creadas por profesores han sido procesadas.</p>
                             </div>
                         ) : (
@@ -305,21 +305,21 @@ function AprobarMonitoriasHU010() {
                                                                 onClick={() => openModal('approve', monitoria)}
                                                                 title="Aprobar sin cambios"
                                                             >
-                                                                ✓ Aprobar
+                                                                Aprobar
                                                             </button>
                                                             <button 
                                                                 className="btn-modify-hu010"
                                                                 onClick={() => openModal('modify', monitoria)}
                                                                 title="Modificar y aprobar"
                                                             >
-                                                                ✏️ Modificar
+                                                                Modificar
                                                             </button>
                                                             <button 
                                                                 className="btn-reject-hu010"
                                                                 onClick={() => openModal('reject', monitoria)}
                                                                 title="Rechazar convocatoria"
                                                             >
-                                                                ✗ Rechazar
+                                                                Rechazar
                                                             </button>
                                                         </div>
                                                     </td>
@@ -337,14 +337,14 @@ function AprobarMonitoriasHU010() {
                                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                             disabled={currentPage === 1}
                                         >
-                                            ← Anterior
+                                             Anterior
                                         </button>
                                         <span>Página {currentPage} de {totalPages}</span>
                                         <button 
                                             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                             disabled={currentPage === totalPages}
                                         >
-                                            Siguiente →
+                                            Siguiente 
                                         </button>
                                     </div>
                                 )}
@@ -360,9 +360,9 @@ function AprobarMonitoriasHU010() {
                     <div className="modal-content-aprobar-hu010" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header-hu010">
                             <h2>
-                                {modalAction === 'approve' && '✓ Aprobar Convocatoria'}
-                                {modalAction === 'reject' && '✗ Rechazar Convocatoria'}
-                                {modalAction === 'modify' && '✏️ Modificar y Aprobar Convocatoria'}
+                                {modalAction === 'approve' && 'Aprobar Convocatoria'}
+                                {modalAction === 'reject' && 'Rechazar Convocatoria'}
+                                {modalAction === 'modify' && 'Modificar y Aprobar Convocatoria'}
                             </h2>
                             <button className="modal-close-hu010" onClick={closeModal}>×</button>
                         </div>
@@ -508,13 +508,13 @@ function AprobarMonitoriasHU010() {
                                     className="textarea-comentario-hu010"
                                 />
                                 <small style={{ color: comentario.length > 0 ? 'green' : 'red' }}>
-                                    {comentario.length === 0 ? 'El comentario es obligatorio' : '✓ Comentario válido'}
+                                    {comentario.length === 0 ? 'El comentario es obligatorio' : 'Comentario válido'}
                                 </small>
                             </div>
 
                             {modalAction === 'reject' && (
                                 <div className="warning-box-hu010">
-                                    <strong>⚠️ Advertencia:</strong>
+                                    <strong>Advertencia:</strong>
                                     <p>Al rechazar esta convocatoria:</p>
                                     <ul>
                                         <li>La convocatoria será marcada como RECHAZADA</li>
@@ -527,7 +527,7 @@ function AprobarMonitoriasHU010() {
                             
                             {modalAction === 'approve' && (
                                 <div className="info-box-hu010">
-                                    <strong>ℹ️ Información:</strong>
+                                    <strong>Información:</strong>
                                     <p>Al aprobar esta convocatoria:</p>
                                     <ul>
                                         <li>La convocatoria estará ABIERTA para postulaciones</li>
@@ -539,7 +539,7 @@ function AprobarMonitoriasHU010() {
                             
                             {modalAction === 'modify' && (
                                 <div className="info-box-hu010">
-                                    <strong>✏️ Modificación:</strong>
+                                    <strong>Modificación:</strong>
                                     <p>Al modificar y aprobar esta convocatoria:</p>
                                     <ul>
                                         <li>Se aplicarán los cambios realizados</li>
@@ -577,4 +577,5 @@ function AprobarMonitoriasHU010() {
 }
 
 export default AprobarMonitoriasHU010;
+
 
