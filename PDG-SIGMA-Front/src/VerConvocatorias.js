@@ -17,13 +17,12 @@ function VerConvocatorias() {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Modal de postulación
     const [showModal, setShowModal] = useState(false);
     const [selectedConvocatoria, setSelectedConvocatoria] = useState(null);
     const [motivationLetter, setMotivationLetter] = useState("");
 
     const monitorId = localStorage.getItem('userId');
-    const userRole = localStorage.getItem('role');
+    const userRole  = localStorage.getItem('role');
 
     useEffect(() => {
         loadConvocatorias();
@@ -38,11 +37,8 @@ function VerConvocatorias() {
         setIsLoading(true);
         try {
             const response = await fetch(`${BACKEND_URL}/monitoring-request/open`, {
-                headers: {
-                    'Authorization': localStorage.getItem('token')
-                }
+                headers: { 'Authorization': localStorage.getItem('token') }
             });
-            
             if (response.ok) {
                 const data = await response.json();
                 setConvocatorias(data || []);
@@ -59,11 +55,8 @@ function VerConvocatorias() {
     const loadMyApplications = async () => {
         try {
             const response = await fetch(`${BACKEND_URL}/monitor-application/monitor/${monitorId}`, {
-                headers: {
-                    'Authorization': localStorage.getItem('token')
-                }
+                headers: { 'Authorization': localStorage.getItem('token') }
             });
-            
             if (response.ok) {
                 const data = await response.json();
                 setMyApplications(data || []);
@@ -75,27 +68,22 @@ function VerConvocatorias() {
 
     const applyFilters = () => {
         let filtered = convocatorias;
-
         if (filterProgram !== "Todos") {
             filtered = filtered.filter(c => c.programName === filterProgram);
         }
-
         setFilteredConvocatorias(filtered);
         setCurrentPage(1);
     };
 
-    const hasApplied = (convocatoriaId) => {
-        return myApplications.some(app => app.monitoringRequestId === convocatoriaId);
-    };
+    const hasApplied = (convocatoriaId) =>
+        myApplications.some(app => app.monitoringRequestId === convocatoriaId);
 
     const openModal = (convocatoria) => {
-        // Validar que solo estudiantes y monitores puedan postularse
         if (userRole !== 'student' && userRole !== 'monitor') {
             setMessage("Solo los estudiantes pueden postularse a las convocatorias.");
             setIsOpen(true);
             return;
         }
-        
         setSelectedConvocatoria(convocatoria);
         setMotivationLetter("");
         setShowModal(true);
@@ -109,21 +97,17 @@ function VerConvocatorias() {
 
     const handlePostularse = async (e) => {
         e.preventDefault();
-
         if (motivationLetter.length < 10) {
             setMessage("La carta de motivación debe tener al menos 50 caracteres");
             setIsOpen(true);
             return;
         }
-
         setIsLoading(true);
-
         const applicationData = {
             monitoringRequestId: selectedConvocatoria.id,
-            monitorId: monitorId,
-            motivationLetter: motivationLetter
+            monitorId,
+            motivationLetter
         };
-
         try {
             const response = await fetch(`${BACKEND_URL}/monitor-application/apply`, {
                 method: 'POST',
@@ -133,7 +117,6 @@ function VerConvocatorias() {
                 },
                 body: JSON.stringify(applicationData)
             });
-
             if (response.ok) {
                 setMessage("✅ ¡Has enviado tu postulación correctamente a la monitoría!\n\n📋 El profesor revisará tu carta de motivación y decidirá quién será el monitor seleccionado.\n\n⏳ Te notificaremos el resultado de tu postulación.");
                 setIsOpen(true);
@@ -152,146 +135,80 @@ function VerConvocatorias() {
         }
     };
 
-    const getUniquePrograms = () => {
-        const programs = [...new Set(convocatorias.map(c => c.programName))];
-        return programs.filter(p => p);
-    };
+    const getUniquePrograms = () =>
+        [...new Set(convocatorias.map(c => c.programName))].filter(Boolean);
 
-    // Paginación
-    const indexOfLastRecord = currentPage * recordsPerPage;
+    const indexOfLastRecord  = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = filteredConvocatorias.slice(indexOfFirstRecord, indexOfLastRecord);
-    const totalPages = Math.ceil(filteredConvocatorias.length / recordsPerPage);
+    const currentRecords     = filteredConvocatorias.slice(indexOfFirstRecord, indexOfLastRecord);
+    const totalPages         = Math.ceil(filteredConvocatorias.length / recordsPerPage);
 
     return (
         <div className="apply-monitor-container">
             <VerticalNavbar />
-            
+
             {isLoading && <LoadingSpinner />}
             <PopUp show={isOpen} onClose={() => setIsOpen(false)}>
-                <div style={{ 
-                    textAlign: 'center', 
-                    padding: '20px',
-                    whiteSpace: 'pre-line',
-                    fontSize: '16px',
-                    lineHeight: '1.6'
-                }}>
+                <div style={{ textAlign: 'center', padding: '20px', whiteSpace: 'pre-line', fontSize: '16px', lineHeight: '1.6' }}>
                     {message}
                 </div>
             </PopUp>
 
-            <div className="title-container-apply-monitor">
-                <div className="title-apply-monitor">Convocatorias de Monitoría Abiertas</div>
-                <div className="subtitle-create-monitoria">Postúlate a las convocatorias disponibles</div>
-            </div>
+            <div className="ver-convocatorias-content">
 
-            {/* Filtros */}
-            <div style={{ padding: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <label>
-                    <strong>Filtrar por Programa:</strong>
-                    <select 
-                        value={filterProgram}
-                        onChange={(e) => setFilterProgram(e.target.value)}
-                        style={{ marginLeft: '10px', padding: '8px', borderRadius: '4px' }}
-                    >
-                        <option value="Todos">Todos</option>
-                        {getUniquePrograms().map(program => (
-                            <option key={program} value={program}>{program}</option>
-                        ))}
-                    </select>
-                </label>
-                <span style={{ color: '#666' }}>
-                    Mostrando {filteredConvocatorias.length} convocatorias
-                </span>
-            </div>
+                {/* Header */}
+                <div className="ver-conv-header">
+                    <h1>Convocatorias de Monitoría Abiertas</h1>
+                    <p className="ver-conv-subtitle">Postúlate a las convocatorias disponibles</p>
+                </div>
 
-            {/* Grid de convocatorias */}
-            <div style={{ padding: '20px' }}>
+                {/* Filtros */}
+                <div className="ver-conv-filters">
+                    <label>
+                        Filtrar por Programa:
+                        <select value={filterProgram} onChange={(e) => setFilterProgram(e.target.value)}>
+                            <option value="Todos">Todos</option>
+                            {getUniquePrograms().map(program => (
+                                <option key={program} value={program}>{program}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <span className="ver-conv-count">
+                        {filteredConvocatorias.length} convocatoria{filteredConvocatorias.length !== 1 ? 's' : ''}
+                    </span>
+                </div>
+
+                {/* Grid */}
                 {currentRecords.length === 0 ? (
-                    <div style={{ 
-                        textAlign: 'center', 
-                        padding: '60px',
-                        backgroundColor: '#f5f5f5',
-                        borderRadius: '8px',
-                        color: '#888'
-                    }}>
+                    <div className="empty-state">
                         <h3>No hay convocatorias disponibles</h3>
                         <p>En este momento no hay convocatorias abiertas para postularse</p>
                     </div>
                 ) : (
-                    <div style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                        gap: '20px'
-                    }}>
+                    <div className="convocatorias-grid">
                         {currentRecords.map((conv) => {
                             const applied = hasApplied(conv.id);
                             return (
-                                <div key={conv.id} style={{
-                                    border: '1px solid #ddd',
-                                    borderRadius: '8px',
-                                    padding: '20px',
-                                    backgroundColor: 'white',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                    transition: 'transform 0.2s',
-                                    ':hover': { transform: 'translateY(-2px)' }
-                                }}>
-                                    <div style={{ marginBottom: '15px' }}>
-                                        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>
-                                            {conv.courseName}
-                                        </h3>
-                                        <div style={{ fontSize: '14px', color: '#666' }}>
-                                            <p style={{ margin: '5px 0' }}>
-                                                <strong>Profesor:</strong> {conv.professorName}
-                                            </p>
-                                            <p style={{ margin: '5px 0' }}>
-                                                <strong>Programa:</strong> {conv.programName}
-                                            </p>
-                                            <p style={{ margin: '5px 0' }}>
-                                                <strong>Semestre:</strong> {conv.semester}
-                                            </p>
-                                            <p style={{ margin: '5px 0' }}>
-                                                <strong>Horas:</strong> {conv.requestedHours} horas
-                                            </p>
-                                            <p style={{ margin: '5px 0' }}>
-                                                <strong>Postulantes:</strong> {conv.applicationCount || 0}
-                                            </p>
+                                <div key={conv.id} className={`convocatoria-card ${applied ? 'card-applied' : ''}`}>
+                                    <h3>{conv.courseName}</h3>
+
+                                    <div className="convocatoria-info">
+                                        <p><strong>Profesor:</strong> {conv.professorName}</p>
+                                        <p><strong>Programa:</strong> {conv.programName}</p>
+                                        <p><strong>Facultad:</strong> {conv.schoolName}</p>
+
+                                        <div className="conv-chips">
+                                            <span className="conv-chip chip-semestre">📅 {conv.semester}</span>
+                                            <span className="conv-chip chip-horas">⏱ {conv.requestedHours} horas</span>
+                                            <span className="conv-chip chip-postulantes">👥 {conv.applicationCount || 0} postulante{conv.applicationCount !== 1 ? 's' : ''}</span>
                                         </div>
                                     </div>
 
-                                    <div style={{ 
-                                        borderTop: '1px solid #eee', 
-                                        paddingTop: '15px',
-                                        marginTop: '15px'
-                                    }}>
+                                    <div className="convocatoria-actions">
                                         {applied ? (
-                                            <div style={{
-                                                padding: '12px',
-                                                backgroundColor: '#E8F5E9',
-                                                color: '#2E7D32',
-                                                borderRadius: '4px',
-                                                textAlign: 'center',
-                                                fontWeight: 'bold'
-                                            }}>
-                                                ✓ Ya te postulaste
-                                            </div>
+                                            <div className="already-applied">✓ Ya te postulaste</div>
                                         ) : (
-                                            <button
-                                                onClick={() => openModal(conv)}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '12px',
-                                                    backgroundColor: '#2196F3',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '16px',
-                                                    fontWeight: 'bold'
-                                                }}
-                                                onMouseOver={(e) => e.target.style.backgroundColor = '#1976D2'}
-                                                onMouseOut={(e) => e.target.style.backgroundColor = '#2196F3'}
-                                            >
+                                            <button className="btn-postularse" onClick={() => openModal(conv)}>
                                                 Postularse
                                             </button>
                                         )}
@@ -304,33 +221,19 @@ function VerConvocatorias() {
 
                 {/* Paginación */}
                 {totalPages > 1 && (
-                    <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                        <button 
+                    <div className="pagination">
+                        <button
                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                             disabled={currentPage === 1}
-                            style={{ 
-                                margin: '0 5px', 
-                                padding: '10px 20px', 
-                                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                                opacity: currentPage === 1 ? 0.5 : 1
-                            }}
                         >
-                            Anterior
+                            ← Anterior
                         </button>
-                        <span style={{ margin: '0 15px', fontSize: '16px' }}>
-                            Página {currentPage} de {totalPages}
-                        </span>
-                        <button 
+                        <span>Página {currentPage} de {totalPages}</span>
+                        <button
                             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                             disabled={currentPage === totalPages}
-                            style={{ 
-                                margin: '0 5px', 
-                                padding: '10px 20px', 
-                                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                                opacity: currentPage === totalPages ? 0.5 : 1
-                            }}
                         >
-                            Siguiente
+                            Siguiente →
                         </button>
                     </div>
                 )}
@@ -338,95 +241,32 @@ function VerConvocatorias() {
 
             {/* Modal de postulación */}
             {showModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '8px',
-                        padding: '30px',
-                        maxWidth: '600px',
-                        width: '90%',
-                        maxHeight: '80vh',
-                        overflow: 'auto'
-                    }}>
-                        <h2 style={{ marginTop: 0 }}>Postularse a Monitoría</h2>
-                        <h3 style={{ color: '#666', marginTop: '10px' }}>
-                            {selectedConvocatoria?.courseName}
-                        </h3>
-                        
-                        <form onSubmit={handlePostularse}>
-                            <div style={{ marginTop: '20px' }}>
-                                <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-                                    Carta de Motivación * (mínimo 50 caracteres)
-                                </label>
-                                <textarea
-                                    value={motivationLetter}
-                                    onChange={(e) => setMotivationLetter(e.target.value)}
-                                    placeholder="Explica por qué quieres ser monitor de este curso, tu experiencia y habilidades relevantes..."
-                                    rows="8"
-                                    required
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ccc',
-                                        fontSize: '14px',
-                                        fontFamily: 'inherit'
-                                    }}
-                                />
-                                <small style={{ 
-                                    color: motivationLetter.length < 50 ? 'red' : 'green',
-                                    display: 'block',
-                                    marginTop: '5px'
-                                }}>
-                                    {motivationLetter.length} / 50 caracteres mínimos
-                                </small>
-                            </div>
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Postularse a Monitoría</h2>
+                        <h3>{selectedConvocatoria?.courseName}</h3>
 
-                            <div style={{ 
-                                marginTop: '30px', 
-                                display: 'flex', 
-                                gap: '10px',
-                                justifyContent: 'flex-end'
-                            }}>
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    style={{
-                                        padding: '12px 24px',
-                                        backgroundColor: '#9E9E9E',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-                                        fontSize: '16px'
-                                    }}
-                                >
+                        <form onSubmit={handlePostularse}>
+                            <label>Carta de Motivación * (mínimo 50 caracteres)</label>
+                            <textarea
+                                value={motivationLetter}
+                                onChange={(e) => setMotivationLetter(e.target.value)}
+                                placeholder="Explica por qué quieres ser monitor de este curso, tu experiencia y habilidades relevantes..."
+                                rows="8"
+                                required
+                            />
+                            <small className={`char-counter ${motivationLetter.length >= 50 ? 'valid' : 'invalid'}`}>
+                                {motivationLetter.length} / 50 caracteres mínimos
+                            </small>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-modal btn-cancel" onClick={closeModal}>
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
+                                    className="btn-modal btn-submit"
                                     disabled={motivationLetter.length < 50}
-                                    style={{
-                                        padding: '12px 24px',
-                                        backgroundColor: motivationLetter.length < 50 ? '#ccc' : '#4CAF50',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        cursor: motivationLetter.length < 50 ? 'not-allowed' : 'pointer',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold'
-                                    }}
                                 >
                                     Enviar Postulación
                                 </button>
@@ -440,4 +280,3 @@ function VerConvocatorias() {
 }
 
 export default VerConvocatorias;
-
