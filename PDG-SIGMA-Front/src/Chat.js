@@ -15,6 +15,11 @@ function Chat() {
   const role = (localStorage.getItem('role') || '').toLowerCase();
   const userId = localStorage.getItem('userId') || '';
   const userName = localStorage.getItem('userName') || 'Usuario';
+  const sidebarSubtitle = role === 'jfedpto'
+    ? 'Comunicacion directa con profesores'
+    : role === 'professor'
+      ? 'Comunicacion directa con monitores y jefes de departamento'
+      : 'Comunicacion directa con profesores';
 
   const getChatSeenStorageKey = () => `sigmaChatLastSeen:${role}:${userId}`;
 
@@ -268,7 +273,7 @@ function Chat() {
           <div className="chat-sidebar">
             <div className="chat-sidebar-header">
               <h2>Chat</h2>
-              <p className="muted">Comunicación directa con monitores</p>
+              <p className="muted">{sidebarSubtitle}</p>
             </div>
             <div className="chat-conversation-list">
               {loadingConversations && <p className="muted" style={{ padding: '0 16px' }}>Cargando conversaciones...</p>}
@@ -306,7 +311,7 @@ function Chat() {
                   className={"message-bubble " + (msg.senderId === userId ? 'own' : 'other')}
                 >
                   <div className="message-meta">
-                    <span className="author">{msg.senderId === userId ? 'Tú' : selected?.title?.replace(/^(Monitor: |Profesor: )/, '') || userName}</span>
+                    <span className="author">{msg.senderId === userId ? 'Tu' : selected?.title?.replace(/^(Monitor: |Profesor: |Jefe de Departamento: )/, '') || userName}</span>
                     <span className="time">{formatTime(msg.createdAt)}</span>
                   </div>
                   {!!msg.message && <div className="message-text">{msg.message}</div>}

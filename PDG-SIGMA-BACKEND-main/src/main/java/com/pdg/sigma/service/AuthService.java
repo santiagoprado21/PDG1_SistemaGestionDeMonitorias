@@ -7,6 +7,7 @@ import com.pdg.sigma.domain.*;
 import com.pdg.sigma.repository.*;
 import com.pdg.sigma.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -37,9 +38,11 @@ public class AuthService {
 
     private final WebClient webClient;
 
+    @Value("${sigma.banner-api.base-url:http://localhost:5435}")
+    private String bannerApiBaseUrl;
+
     public AuthService(WebClient.Builder webClientBuilder) {
-        //this.webClient = webClientBuilder.baseUrl("https://api-banner-production.up.railway.app").build();
-        this.webClient = webClientBuilder.baseUrl("http://localhost:5435").build();
+        this.webClient = webClientBuilder.build();
     }
 
     public AuthDTO loginUser(AuthDTO auth) throws Exception{
@@ -93,7 +96,7 @@ public class AuthService {
     public String authAPI(String id, String password) throws Exception{
         AuthDTO authDTO = new AuthDTO(id,password);
         String respuesta = webClient.post()
-                .uri("/api/auth/login")
+            .uri(bannerApiBaseUrl + "/api/auth/login")
                 .bodyValue(authDTO)
                 .retrieve()
                 .bodyToMono(String.class)

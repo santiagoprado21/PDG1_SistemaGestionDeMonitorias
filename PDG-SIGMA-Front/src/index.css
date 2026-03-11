@@ -50,6 +50,13 @@
   --color-tag-naranja: var(--naranja-icesi);
   --color-tag-morado: var(--morado-icesi);
   --color-tag-verde: var(--verde-icesi);
+  --color-yellow: var(--amarillo-icesi);
+  --color-orange: var(--naranja-icesi);
+  --color-purple: var(--morado-icesi);
+  --color-green: var(--verde-icesi);
+  --color-black: var(--negro);
+  --color-gray-1: var(--gris-1);
+  --color-gray-2: var(--gris-2);
 
   /* Tipografía */
   --font-primary: 'Plus Jakarta Sans', sans-serif;
@@ -358,5 +365,5 @@ li {
 }
 
 code {
-  font-family: var(--font-primary);
+  font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

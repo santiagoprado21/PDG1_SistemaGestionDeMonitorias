@@ -481,14 +481,14 @@ public class MonitoringServiceImpl implements MonitoringService{
             List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
 
             if(monitorings.isEmpty()){
-                throw new Exception("No hay monitorias creadas");
+                return new ArrayList<>();
             }
             List<MonitoringMonitor> monitors = new ArrayList<>();
             for(Monitoring monitoring:monitorings){
                 monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
             }
-            if( monitors.isEmpty()){
-                throw new Exception("No hay reportes por mostrar");
+            if(monitors.isEmpty()){
+                return new ArrayList<>();
             }
 
             List<ReportDTO> reportDTOList = new ArrayList<>();
@@ -525,10 +525,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                     reportDTOList.add(reportDTO);
                 }
             }
-            if(!reportDTOList.isEmpty()){
-                return reportDTOList;
-            }else
-                throw new Exception("No hay reportes por mostrar");
+            return reportDTOList;
         }
         Optional<DepartmentHead> hd = departmentHeadRepository.findById(idProfessor);
         if(hd.isEmpty()){
@@ -540,28 +537,36 @@ public class MonitoringServiceImpl implements MonitoringService{
             throw new Exception("No existe un programa al que este asociado con este Id");
         }
 
-        HeadProgram headProgram = hp.get(0);
-        List<Course> courses = courseRepository.findByProgram(headProgram.getProgram());
-        for(Course course:courses){
-            System.out.println(course.getId());
+        List<Course> courses = new ArrayList<>();
+        for (HeadProgram headProgram : hp) {
+            courses.addAll(courseRepository.findByProgram(headProgram.getProgram()));
         }
         if(courses.isEmpty()){
             throw new Exception("No existe un cursos con este programa");
         }
-        List<ReportDTO> reportDTOList = new ArrayList<>();
-        for(Course course:courses){
-            List<CourseProfessor> courseProfessors = courseProfessorRepository.findByCourseId(course.getId());
-            System.out.println("Clases "+ courseProfessors.get(0).getCourse().getName());
-            if(courseProfessors.isEmpty()){
-                throw new Exception("No existe un curso con este Id");
+
+        List<Course> uniqueCourses = new ArrayList<>();
+        Set<Long> seenCourseIds = new HashSet<>();
+        for (Course course : courses) {
+            if (course != null && course.getId() != null && seenCourseIds.add(course.getId())) {
+                uniqueCourses.add(course);
+                System.out.println(course.getId());
             }
+        }
+        List<ReportDTO> reportDTOList = new ArrayList<>();
+        for(Course course:uniqueCourses){
+            List<CourseProfessor> courseProfessors = courseProfessorRepository.findByCourseId(course.getId());
+            if(courseProfessors.isEmpty()){
+                continue;
+            }
+            System.out.println("Clases "+ courseProfessors.get(0).getCourse().getName());
             for(CourseProfessor courseProfessor:courseProfessors){
                 Professor professor = courseProfessor.getProfessor();
                 System.out.println(professor.getName());
                 List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor);
 
                 if(monitorings.isEmpty()){
-                    throw new Exception("No hay monitorias creadas");
+                    continue;
                 }
                 List<MonitoringMonitor> monitors = new ArrayList<>();
                 for(Monitoring monitoring:monitorings){
@@ -570,7 +575,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                     }
                 }
                 if( monitors.isEmpty()){
-                    throw new Exception("No hay reportes por mostrar");
+                    continue;
                 }
                 for(MonitoringMonitor monitoring:monitors){
                     System.out.println("Monitorias "+monitoring.getMonitoring().getCourse().getName());

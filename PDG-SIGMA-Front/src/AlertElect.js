@@ -12,7 +12,11 @@ const AlertElect = ({ show, onClose }) => {
   }, [show, onClose]);
 
   return (
-    <div className={`alert ${show ? "alert-show" : ""}`}>
+    <div
+      className={`alert alert-success ${show ? "alert-show" : ""}`}
+      role="status"
+      aria-live="polite"
+    >
       La selección terminó. Los estudiantes serán notificados
     </div>
   );

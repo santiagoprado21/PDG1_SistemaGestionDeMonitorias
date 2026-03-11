@@ -81,4 +81,45 @@ class ChatFlowIntegrationTest {
                 .andExpect(jsonPath("$[1].message", is("Mensaje 2")))
                 .andExpect(jsonPath("$[1].activityId", is(88)));
     }
+
+    @Test
+    void sendAndRetrieveMessages_departmentHeadAndProfessor_keepsBidirectionalHistory() throws Exception {
+        String conversationId = "head-H_IT__prof-P_IT";
+
+        ChatMessageCreateDTO first = new ChatMessageCreateDTO();
+        first.setConversationId(conversationId);
+        first.setSenderId("H_IT");
+        first.setSenderRole("jfedpto");
+        first.setReceiverId("P_IT");
+        first.setMessage("Mensaje jefe a profesor");
+
+        ChatMessageCreateDTO second = new ChatMessageCreateDTO();
+        second.setConversationId(conversationId);
+        second.setSenderId("P_IT");
+        second.setSenderRole("professor");
+        second.setReceiverId("H_IT");
+        second.setMessage("Respuesta profesor a jefe");
+
+        mockMvc.perform(post("/chat/messages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(first)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.conversationId", is(conversationId)))
+                .andExpect(jsonPath("$.senderRole", is("jfedpto")));
+
+        mockMvc.perform(post("/chat/messages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(second)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.conversationId", is(conversationId)))
+                .andExpect(jsonPath("$.senderRole", is("professor")));
+
+        mockMvc.perform(get("/chat/messages/{conversationId}", conversationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].message", is("Mensaje jefe a profesor")))
+                .andExpect(jsonPath("$[0].senderRole", is("jfedpto")))
+                .andExpect(jsonPath("$[1].message", is("Respuesta profesor a jefe")))
+                .andExpect(jsonPath("$[1].senderRole", is("professor")));
+    }
 }

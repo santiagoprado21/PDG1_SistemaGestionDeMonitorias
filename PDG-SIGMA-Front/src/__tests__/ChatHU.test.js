@@ -137,4 +137,67 @@ describe('Chat HU tests', () => {
       );
     });
   });
+
+  it('jefe de departamento puede ver chat con profesor y enviar mensaje', async () => {
+    window.localStorage.setItem('role', 'jfedpto');
+    window.localStorage.setItem('userId', 'H1');
+
+    global.fetch = jest.fn((url, options = {}) => {
+      const method = (options.method || 'GET').toUpperCase();
+
+      if (url.includes('/chat/conversations/H1/jfedpto')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([
+            { id: 'head-H1__prof-P1', title: 'Profesor: Pedro Ruiz', subtitle: 'Chat directo', otherUserId: 'P1' }
+          ])
+        });
+      }
+
+      if (url.includes('/chat/messages/head-H1__prof-P1') && method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([])
+        });
+      }
+
+      if (url.endsWith('/chat/messages') && method === 'POST') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            id: 7,
+            conversationId: 'head-H1__prof-P1',
+            senderId: 'H1',
+            senderRole: 'jfedpto',
+            receiverId: 'P1',
+            message: 'Mensaje desde jefatura',
+            createdAt: '2026-03-07T10:00:00.000Z',
+            attachments: []
+          })
+        });
+      }
+
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<Chat />);
+
+    expect(await screen.findByText('Comunicacion directa con profesores')).toBeInTheDocument();
+    const professorTitles = await screen.findAllByText('Profesor: Pedro Ruiz');
+    expect(professorTitles.length).toBeGreaterThan(0);
+
+    const textarea = screen.getByPlaceholderText('Escribe un mensaje relacionado con la actividad...');
+    await userEvent.type(textarea, 'Mensaje desde jefatura');
+    await userEvent.click(screen.getByRole('button', { name: 'Enviar' }));
+
+    await waitFor(() => {
+      const postCall = global.fetch.mock.calls.find(
+        call => call[0] === 'http://localhost:5435/chat/messages' && call[1]?.method === 'POST'
+      );
+      expect(postCall).toBeTruthy();
+      const sentBody = JSON.parse(postCall[1].body);
+      expect(sentBody.senderRole).toBe('jfedpto');
+      expect(sentBody.receiverId).toBe('P1');
+    });
+  });
 });
