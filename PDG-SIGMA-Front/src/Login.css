@@ -74,7 +74,8 @@ body.login-background {
 
 .login-btn-container-login {
     width: 100%;
-    justify-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .button-login {
@@ -124,6 +125,8 @@ body.login-background {
     align-items: center;
     height: 2.5em;
     width: 13em;
+    display: block;
+    margin: 0 auto;
     background-color: var(--color-primary);
     border: none; 
     outline: none; 

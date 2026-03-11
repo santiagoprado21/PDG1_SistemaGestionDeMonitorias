@@ -74,6 +74,7 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 28px;
   --space-8: 32px;
   --space-10: 40px;
 
@@ -118,6 +119,7 @@ body {
   font-weight: var(--font-weight-body);
   background-color: var(--color-bg-body);
   color: var(--color-text-primary);
+  text-align: left;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -130,10 +132,14 @@ body {
   border-color: var(--gris-2);
 }
 
-button,
 input,
 select,
 textarea {
+  font-family: var(--font-primary);
+  text-align: left;
+}
+
+button {
   font-family: var(--font-primary);
 }
 
