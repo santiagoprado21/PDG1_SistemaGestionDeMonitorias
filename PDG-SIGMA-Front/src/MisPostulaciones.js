@@ -96,7 +96,7 @@ function MisPostulaciones() {
             case 'CONVOCATORIA_ABIERTA': return 'Convocatoria abierta';
             case 'MONITOR_SELECCIONADO': return 'Monitor seleccionado';
             case 'PENDIENTE_APROBACION': return 'Pendiente aprobación final';
-            case 'APROBADA': return 'Aprobada';
+            case 'APROBADA': return 'Cerrada';
             case 'RECHAZADA': return 'Rechazada';
             case 'CANCELADA': return 'Cancelada';
             default: return status || 'Desconocido';
@@ -223,7 +223,11 @@ function MisPostulaciones() {
                             {filteredPostulaciones.map((postulacion) => (
                                 <div
                                     key={postulacion.id}
-                                    className={`postulacion-card ${postulacion.status === 'SELECCIONADO' ? 'card-seleccionado' : ''}`}
+                                    className={`postulacion-card ${{
+                                        'SELECCIONADO':    'card-seleccionado',
+                                        'NO_SELECCIONADO': 'card-no-seleccionado',
+                                        'POSTULADO':       'card-revision'
+                                    }[postulacion.status] || ''}`}
                                     onClick={() => openDetalle(postulacion)}
                                 >
                                     <div className="card-header-row">
