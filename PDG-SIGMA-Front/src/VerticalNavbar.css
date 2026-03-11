@@ -44,16 +44,20 @@
     font-weight: bold;
   }
 
-.logo-container {
+.navbar-logo-container {
     width: 100%;
+  padding: 0;
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: var(--space-5, 20px);
   }
-  
-  .logo {
-    width: 180px; 
+
+  .navbar-logo {
+    width: 180px;
     height: auto;
+    object-fit: contain;
+    display: block;
   }
 
   .logout-container {

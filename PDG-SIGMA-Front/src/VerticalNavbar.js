@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   Plus,
   BarChart3,
+  PieChart,
   UserCheck,
   FolderInput,
   CheckSquare,
@@ -163,9 +164,9 @@ function VerticalNavbar() {
           {message}
       </PopUp>
       {/* Logo */}
-      <div className="logo-container">
+      <div className="navbar-logo-container">
         <NavLink to="/Profile">
-          <img src={logo} alt="Logo" className="logo" />
+          <img src={logo} alt="Universidad Icesi" className="navbar-logo" />
         </NavLink>
       </div>
   
@@ -343,7 +344,7 @@ function VerticalNavbar() {
               to="/Reports"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Reportes
+              <PieChart {...navIconProps} />Reportes
             </NavLink>
           </>
         )}
