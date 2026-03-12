@@ -18,12 +18,15 @@ import {
   UserCheck,
   FolderInput,
   CheckSquare,
-  Lock
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 
 function VerticalNavbar() {
   const navIconProps = {
-    size: 16,
+    size: 18,
     strokeWidth: 2,
     strokeLinecap: 'butt',
     strokeLinejoin: 'miter',
@@ -37,6 +40,11 @@ function VerticalNavbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState("")
   const [change, setChange] = useState(false)
+  const [isHoverExpanded, setIsHoverExpanded] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(() => window.innerWidth <= 768);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const isExpanded = isMobileView ? isMobileOpen : isHoverExpanded;
 
   const handleClose = () =>{
       setIsOpen(!isOpen)
@@ -133,6 +141,41 @@ function VerticalNavbar() {
         }
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobileView(mobile);
+      if (!mobile) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleSidebarMouseEnter = () => {
+    if (!isMobileView) {
+      setIsHoverExpanded(true);
+    }
+  };
+
+  const handleSidebarMouseLeave = () => {
+    if (!isMobileView) {
+      setIsHoverExpanded(false);
+    }
+  };
+
+  const handleToggleMobile = () => {
+    setIsMobileOpen((prev) => !prev);
+  };
+
+  const handleNavItemClick = () => {
+    if (isMobileView) {
+      setIsMobileOpen(false);
+    }
+  };
+
   function getInitials(name) {
     const nameParts = name.trim().split(" ");
           
@@ -153,10 +196,29 @@ function VerticalNavbar() {
     setChange(!change)
     localStorage.setItem("role", "");
     localStorage.setItem("userId", "");
+    if (isMobileView) {
+      setIsMobileOpen(false);
+    }
   };
 
   return (
-    <div className="vertical-navbar">
+    <>
+      {isMobileView && (
+        <button
+          type="button"
+          className="mobile-sidebar-toggle"
+          onClick={handleToggleMobile}
+          aria-label={isMobileOpen ? 'Cerrar menu lateral' : 'Abrir menu lateral'}
+        >
+          {isMobileOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
+      )}
+
+      <div
+        className={`vertical-navbar ${isExpanded ? 'expanded' : 'collapsed'} ${isMobileView ? (isMobileOpen ? 'mobile-open' : 'mobile-closed') : ''}`}
+        onMouseEnter={handleSidebarMouseEnter}
+        onMouseLeave={handleSidebarMouseLeave}
+      >
       <PopUp
           show={isOpen}
           onClose={() => handleClose()}
@@ -165,11 +227,11 @@ function VerticalNavbar() {
       </PopUp>
       {/* Logo */}
       <div className="navbar-logo-container">
-        <NavLink to="/Profile">
+        <NavLink to="/Profile" onClick={handleNavItemClick}>
           <img src={logo} alt="Universidad Icesi" className="navbar-logo" />
         </NavLink>
       </div>
-  
+
       {/* Menú */}
       <div className="menu-items">
         {/* Campana de notificaciones visible en todas las páginas */}
@@ -182,6 +244,7 @@ function VerticalNavbar() {
             to="/Profile"
             className="user-avatar"
             title={user ? `${user.name}` : ""}
+            onClick={handleNavItemClick}
           >
             {initials}
           </NavLink>
@@ -192,8 +255,10 @@ function VerticalNavbar() {
           <NavLink
             to="/ver-convocatorias"
             className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={handleNavItemClick}
           >
-            <Megaphone {...navIconProps} />Convocatorias Abiertas
+            <Megaphone {...navIconProps} />
+            <span className="nav-label">Convocatorias Abiertas</span>
           </NavLink>
         )}
 
@@ -201,8 +266,10 @@ function VerticalNavbar() {
           <NavLink
             to="/evaluacion-monitoria"
             className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={handleNavItemClick}
           >
-            <Star {...navIconProps} />Evaluacion de monitoria
+            <Star {...navIconProps} />
+            <span className="nav-label">Evaluacion de monitoria</span>
           </NavLink>
         )}
 
@@ -213,36 +280,46 @@ function VerticalNavbar() {
               <NavLink
                 to="/chat"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={handleNavItemClick}
               >
-                <MessageSquare {...navIconProps} />Chat
+                <MessageSquare {...navIconProps} />
+                <span className="nav-label">Chat</span>
               </NavLink>
             )}
 
             {role === "monitor" && (
               <>
                 <NavLink
-                  to="/mis-postulaciones"
+                  to="/evaluar-supervisor"
                   className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={handleNavItemClick}
                 >
-                  <FileText {...navIconProps} />Mis Postulaciones
+                  <ClipboardCheck {...navIconProps} />
+                  <span className="nav-label">Evaluar supervisor</span>
                 </NavLink>
                 <NavLink
                   to="/mis-actividades"
                   className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={handleNavItemClick}
                 >
-                  <ClipboardList {...navIconProps} />Mis Actividades
+                  <ClipboardList {...navIconProps} />
+                  <span className="nav-label">Mis Actividades</span>
                 </NavLink>
                 <NavLink
                   to="/mis-evaluaciones"
                   className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={handleNavItemClick}
                 >
-                  <Star {...navIconProps} />Mis evaluaciones
+                  <Star {...navIconProps} />
+                  <span className="nav-label">Mis evaluaciones</span>
                 </NavLink>
                 <NavLink
-                  to="/evaluar-supervisor"
+                  to="/mis-postulaciones"
                   className={({ isActive }) => (isActive ? "active" : "")}
+                  onClick={handleNavItemClick}
                 >
-                  <ClipboardCheck {...navIconProps} />Evaluar supervisor
+                  <FileText {...navIconProps} />
+                  <span className="nav-label">Mis Postulaciones</span>
                 </NavLink>
               </>
             )}
@@ -257,39 +334,47 @@ function VerticalNavbar() {
             <NavLink
               to="/crear-convocatoria"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <Plus {...navIconProps} />Crear Convocatoria
+              <Plus {...navIconProps} />
+              <span className="nav-label">Crear Convocatoria</span>
             </NavLink>
             
             <NavLink
-              to="/mis-convocatorias"
+              to="/evaluar-monitores"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <ClipboardList {...navIconProps} />Mis Convocatorias
+              <UserCheck {...navIconProps} />
+              <span className="nav-label">Evaluar Monitores</span>
             </NavLink>
-            
-            {/* HU-011: Plan de Actividades */}
-            <NavLink
-              to="/plan-actividades"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <ClipboardCheck {...navIconProps} />Plan de Actividades
-            </NavLink>
-            
+
             {/* HU-011: Gestión de Rúbricas */}
             <NavLink
               to="/gestion-rubricas"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <BarChart3 {...navIconProps} />Gestión de Rúbricas
+              <BarChart3 {...navIconProps} />
+              <span className="nav-label">Gestion de Rubricas</span>
             </NavLink>
 
-            {/* HU-015: Evaluar Monitores */}
             <NavLink
-              to="/evaluar-monitores"
+              to="/mis-convocatorias"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <UserCheck {...navIconProps} />Evaluar Monitores
+              <ClipboardList {...navIconProps} />
+              <span className="nav-label">Mis Convocatorias</span>
+            </NavLink>
+
+            <NavLink
+              to="/plan-actividades"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <ClipboardCheck {...navIconProps} />
+              <span className="nav-label">Plan de Actividades</span>
             </NavLink>
 
           </>
@@ -300,40 +385,48 @@ function VerticalNavbar() {
           <>
             {/* EXCEPCIÓN: Jefe puede crear monitorías directamente con CSV (sin convocatoria) */}
             <NavLink
+              to="/aprobar-monitorias-hu010"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <CheckSquare {...navIconProps} />
+              <span className="nav-label">Aprobar Convocatorias</span>
+            </NavLink>
+
+            <NavLink
+              to="/cerrar-monitorias"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <Lock {...navIconProps} />
+              <span className="nav-label">Cerrar Monitorias</span>
+            </NavLink>
+
+            <NavLink
               to="/crear-monitoria"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <FolderInput {...navIconProps} />Crear Monitorías CSV
+              <FolderInput {...navIconProps} />
+              <span className="nav-label">Crear Monitorias CSV</span>
+            </NavLink>
+
+            <NavLink
+              to="/GenerateSimonFile"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <FileText {...navIconProps} />
+              <span className="nav-label">Generar Archivo SIMON</span>
             </NavLink>
 
             <NavLink
               to="/evaluacion-monitoria"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <BarChart3 {...navIconProps} />Resultados monitoria
-            </NavLink>
-            
-            {/* HU-010: Aprobar Monitorías del flujo de convocatorias */}
-            <NavLink
-              to="/aprobar-monitorias-hu010"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <CheckSquare {...navIconProps} />Aprobar Convocatorias
-            </NavLink>
-            
-            {/* HU-007: Cerrar Monitorías */}
-            <NavLink
-              to="/cerrar-monitorias"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <Lock {...navIconProps} />Cerrar Monitorías
-            </NavLink>
-            
-            <NavLink
-              to="/GenerateSimonFile"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <FileText {...navIconProps} />Generar Archivo SIMON
+              <BarChart3 {...navIconProps} />
+              <span className="nav-label">Resultados monitoria</span>
             </NavLink>
           </>
         )}
@@ -343,8 +436,10 @@ function VerticalNavbar() {
             <NavLink
               to="/Reports"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
             >
-              <PieChart {...navIconProps} />Reportes
+              <PieChart {...navIconProps} />
+              <span className="nav-label">Reportes</span>
             </NavLink>
           </>
         )}
@@ -358,11 +453,14 @@ function VerticalNavbar() {
             }
             onClick={handleCloseLogout}
           >
-            Cerrar sesión
+            <LogOut {...navIconProps} />
+            <span className="nav-label">Cerrar sesion</span>
           </NavLink>
         </div>
       </div>
-    </div>
+      </div>
+      {isMobileView && isMobileOpen && <div className="navbar-backdrop" onClick={handleToggleMobile} />}
+    </>
   );  
 }
 
