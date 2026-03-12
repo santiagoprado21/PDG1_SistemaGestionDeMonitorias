@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from './img/logo.png';
 import Alert from './Alert';
-import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { BACKEND_URL } from './config/ApiBackend';
 
 function Login() {
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ function Login() {
     const [showLoginAlert, setShowLoginAlert] = useState(false);
     const [loginAlertMessage, setLoginAlertMessage] = useState('Iniciaste sesion como estudiante');
     const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const getLoginMessageByRole = (role) => {
       if (role === 'professor') {
@@ -25,10 +26,6 @@ function Login() {
         return 'Iniciaste sesion como estudiante';
       }
       return 'Iniciaste sesion';
-    };
-
-    const handleReturnClick = () => {
-        navigate('/'); // Redirige a la página principal
     };
 
     const handleChangeUser = (event) => {
@@ -114,53 +111,113 @@ function Login() {
       }, []);
 
   return (
-    <div>
+    <div className="login-page">
       <Alert
         show={showLoginAlert}
         onClose={() => setShowLoginAlert(false)}
         message={loginAlertMessage}
       />
 
-      {/* Navigation Bar */}
-      <nav className="navbar-login" id="navbar-login">
-        <button className="return-btn-login" id="return-btn-login" onClick={handleReturnClick}>  </button>
-      </nav>
-      
-      {/* Main Login Form */}
-      <div className="login-container">
-        <div className="main-login">
-            <form>
-                <img src={logo} alt="Logo" className="logo-login"/>
-                <div className="inputs-container">
-                    <input className="inputs-login" type="text" name="user" placeholder=" Usuario" value={userId} onChange={handleChangeUser} required />
-                    <input
-                      className="inputs-login"
-                      type="password"
-                      name="pswd"
-                      placeholder=" Clave"
-                      value={password}
-                      onChange={handleChangePassword}
-                      onKeyUp={handlePasswordKeyState}
-                      onKeyDown={handlePasswordKeyState}
-                      onBlur={() => setIsCapsLockOn(false)}
-                      required
-                    />
-                    {isCapsLockOn && (
-                      <p style={{ color: '#b45309', marginTop: '6px', fontSize: '0.9rem' }}>
-                        Bloq Mayus esta activado
-                      </p>
-                    )}
-                </div>
-                {errorMessage && (
-                  <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
-                )}
+      <main className="login-layout">
+        <section className="login-hero" aria-hidden="true">
+          <div className="login-hero-overlay" />
+          <img src={logo} alt="Universidad Icesi" className="logo-login" />
+          <div className="login-hero-caption">
+            <p>Llega mas lejos</p>
+            <a href="https://www.icesi.edu.co" target="_blank" rel="noreferrer">
+              icesi.edu.co
+            </a>
+          </div>
+        </section>
 
-                <div className="login-btn-container-login">
-                    <button className="login-btn-login" id="login-btn-login" type="submit" onClick={handleLoginClick}>Iniciar sesión</button>
+        <section className="login-panel">
+          <div className="login-panel-header">
+            <h1>ICESI SIGMA</h1>
+            <a href="https://banner.icesi.edu.co" target="_blank" rel="noreferrer">
+              Guia Banner
+            </a>
+          </div>
+
+          <div className="main-login">
+            <h2>Inicia sesion</h2>
+
+            <form className="login-form" onSubmit={handleLoginClick}>
+              <div className="field-group">
+                <label htmlFor="user">Usuario</label>
+                <input
+                  id="user"
+                  className="inputs-login"
+                  type="text"
+                  name="user"
+                  value={userId}
+                  onChange={handleChangeUser}
+                  autoComplete="username"
+                  required
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="pswd">Contrasena</label>
+                <div className="password-wrapper">
+                  <input
+                    id="pswd"
+                    className="inputs-login password-input"
+                    type={showPassword ? 'text' : 'password'}
+                    name="pswd"
+                    value={password}
+                    onChange={handleChangePassword}
+                    onKeyUp={handlePasswordKeyState}
+                    onKeyDown={handlePasswordKeyState}
+                    onBlur={() => setIsCapsLockOn(false)}
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3 4.27L4.28 3 21 19.72 19.73 21l-2.09-2.08A11.38 11.38 0 0 1 12 20C7 20 2.73 16.89 1 12c.72-2.03 1.97-3.83 3.58-5.28L3 4.27zm5.5 5.5A3.5 3.5 0 0 0 12 15.5c.53 0 1.04-.12 1.49-.33l-4.66-4.66c-.21.45-.33.96-.33 1.49zm3.47-5.74A11.58 11.58 0 0 1 12 4c5 0 9.27 3.11 11 8a11.82 11.82 0 0 1-3.35 4.67l-2.38-2.38A3.5 3.5 0 0 0 12.5 9.7l-2.82-2.82a11.87 11.87 0 0 1 2.29-1.85z" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 4c5 0 9.27 3.11 11 8-1.73 4.89-6 8-11 8S2.73 16.89 1 12c1.73-4.89 6-8 11-8zm0 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6z" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
+              </div>
+
+              {isCapsLockOn && (
+                <p className="caps-lock-warning">Bloq Mayus esta activado</p>
+              )}
+
+              {errorMessage && (
+                <p className="login-error-message">{errorMessage}</p>
+              )}
+
+              <button className="login-btn-login" id="login-btn-login" type="submit">
+                Iniciar sesión
+              </button>
             </form>
-        </div>
-       </div>
+
+            <div className="login-footer">
+              <p>Universidad Icesi, Calle 18 No. 122-135</p>
+              <p>Cali-Colombia | Telefono: 555 2334 | Fax: 555 1441</p>
+              <p>
+                Copyright c 2026{' '}
+                <a href="https://www.icesi.edu.co" target="_blank" rel="noreferrer">
+                  www.icesi.edu.co
+                </a>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
