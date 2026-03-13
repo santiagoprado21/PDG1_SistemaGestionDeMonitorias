@@ -4,6 +4,7 @@ import LoadingSpinner from './LoadingSpinner';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
 import './EvaluarMonitoresHU015.css';
+import './EvaluarSupervisorHU021.css';
 
 const SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
 
@@ -21,6 +22,41 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const EVALUATION_QUESTIONS = [
+  {
+    field: 'guidanceClarity',
+    text: 'El profesor proporciono instrucciones y objetivos claros para el desarrollo de mis actividades.'
+  },
+  {
+    field: 'roleExpectations',
+    text: 'Las expectativas del profesor sobre mi rol y responsabilidades estuvieron bien definidas desde el inicio.'
+  },
+  {
+    field: 'availabilityDisposition',
+    text: 'El profesor mostro una disposicion constante para atenderme cuando necesite resolver dudas o problemas.'
+  },
+  {
+    field: 'supportTimeliness',
+    text: 'El acompanamiento brindado por el profesor fue suficiente y oportuno durante todo el semestre.'
+  },
+  {
+    field: 'feedbackConstructive',
+    text: 'La retroalimentacion que recibi sobre mi trabajo fue constructiva y me ayudo a mejorar.'
+  },
+  {
+    field: 'feedbackFairness',
+    text: 'El profesor evaluo mi desempeno de manera justa y basada en los criterios acordados.'
+  },
+  {
+    field: 'respectfulTreatment',
+    text: 'El trato del profesor hacia mi fue siempre respetuoso, profesional y cordial.'
+  },
+  {
+    field: 'trustEnvironment',
+    text: 'El profesor fomento un ambiente de confianza que me permitio expresar mis ideas o dificultades.'
+  }
+];
+
 function EvaluarSupervisorHU021() {
   const monitorIdentifier = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
@@ -30,6 +66,7 @@ function EvaluarSupervisorHU021() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState('');
 
   const [formValues, setFormValues] = useState({
     guidanceClarity: 4,
@@ -119,6 +156,7 @@ function EvaluarSupervisorHU021() {
 
   const handleSelectAssignment = (assignment) => {
     setSelectedAssignment(assignment);
+    setSaveFeedback('');
     setFormValues({
       guidanceClarity: 4,
       roleExpectations: 4,
@@ -168,6 +206,7 @@ function EvaluarSupervisorHU021() {
 
   const resetForm = () => {
     setSelectedAssignment(null);
+    setSaveFeedback('');
     setFormValues({
       guidanceClarity: 4,
       roleExpectations: 4,
@@ -184,6 +223,7 @@ function EvaluarSupervisorHU021() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setSaveFeedback('');
     if (!selectedAssignment) {
       showMessage('Selecciona una monitoría para evaluar al supervisor.');
       return;
@@ -225,7 +265,13 @@ function EvaluarSupervisorHU021() {
       }
 
       showMessage('¡Gracias! Tu evaluación fue enviada correctamente.');
-      resetForm();
+      setSaveFeedback('Evaluación guardada correctamente.');
+      setSelectedAssignment((prev) => (prev ? {
+        ...prev,
+        evaluated: true,
+        status: 'Enviada',
+        submittedAt: new Date().toISOString()
+      } : prev));
       fetchAssignments();
     } catch (error) {
       console.error('Error guardando evaluación:', error);
@@ -261,8 +307,70 @@ function EvaluarSupervisorHU021() {
     );
   };
 
+  const renderScoreQuestion = ({ field, text }) => {
+    const selectedValue = formValues[field];
+
+    const handleScoreKeyDown = (event, currentIndex) => {
+      if (selectedAssignment.evaluated) {
+        return;
+      }
+
+      let nextIndex = currentIndex;
+
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        nextIndex = (currentIndex + 1) % SCORE_OPTIONS.length;
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        nextIndex = (currentIndex - 1 + SCORE_OPTIONS.length) % SCORE_OPTIONS.length;
+      } else if (event.key === 'Home') {
+        nextIndex = 0;
+      } else if (event.key === 'End') {
+        nextIndex = SCORE_OPTIONS.length - 1;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      updateScore(field, SCORE_OPTIONS[nextIndex]);
+    };
+
+    const selectedIndex = Math.max(0, SCORE_OPTIONS.indexOf(selectedValue));
+    const labelId = `${field}-label`;
+
+    return (
+      <div className="score-question" key={field}>
+        <span className="question-text" id={labelId}>
+          {text}
+          <span className="required-asterisk">*</span>
+        </span>
+
+        <div className="score-options" role="radiogroup" aria-labelledby={labelId}>
+          {SCORE_OPTIONS.map((option, index) => (
+            <button
+              type="button"
+              key={`${field}-${option}`}
+              className={`score-pill ${selectedValue === option ? 'active' : ''}`}
+              onClick={() => updateScore(field, option)}
+              onKeyDown={(event) => handleScoreKeyDown(event, index)}
+              disabled={selectedAssignment.evaluated}
+              role="radio"
+              aria-checked={selectedValue === option}
+              tabIndex={index === selectedIndex ? 0 : -1}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+
+        <div className="score-legend">
+          <span>1 = Bajo</span>
+          <span>7 = Alto</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="evaluar-monitores-layout">
+    <div className="evaluar-monitores-layout evaluar-supervisor-hu021">
       <VerticalNavbar />
       <PopUp show={isOpen} onClose={closePopup}>
         {message}
@@ -335,133 +443,7 @@ function EvaluarSupervisorHU021() {
               </header>
 
               <div className="scores-grid scores-grid--single">
-                <label>
-                  <span className="question-text">
-                    El profesor proporciono instrucciones y objetivos claros para el desarrollo de mis actividades.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.guidanceClarity}
-                    onChange={(event) => updateScore('guidanceClarity', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`guidance-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    Las expectativas del profesor sobre mi rol y responsabilidades estuvieron bien definidas desde el inicio.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.roleExpectations}
-                    onChange={(event) => updateScore('roleExpectations', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`role-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    El profesor mostro una disposicion constante para atenderme cuando necesite resolver dudas o problemas.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.availabilityDisposition}
-                    onChange={(event) => updateScore('availabilityDisposition', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`availability-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    El acompanamiento brindado por el profesor fue suficiente y oportuno durante todo el semestre.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.supportTimeliness}
-                    onChange={(event) => updateScore('supportTimeliness', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`support-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    La retroalimentacion que recibi sobre mi trabajo fue constructiva y me ayudo a mejorar.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.feedbackConstructive}
-                    onChange={(event) => updateScore('feedbackConstructive', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`feedback-constructive-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    El profesor evaluo mi desempeno de manera justa y basada en los criterios acordados.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.feedbackFairness}
-                    onChange={(event) => updateScore('feedbackFairness', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`feedback-fair-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    El trato del profesor hacia mi fue siempre respetuoso, profesional y cordial.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.respectfulTreatment}
-                    onChange={(event) => updateScore('respectfulTreatment', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`respect-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="question-text">
-                    El profesor fomento un ambiente de confianza que me permitio expresar mis ideas o dificultades.
-                    <span className="required-asterisk">*</span>
-                  </span>
-                  <select
-                    value={formValues.trustEnvironment}
-                    onChange={(event) => updateScore('trustEnvironment', event.target.value)}
-                    disabled={selectedAssignment.evaluated}
-                  >
-                    {SCORE_OPTIONS.map((option) => (
-                      <option key={`trust-${option}`} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
+                {EVALUATION_QUESTIONS.map(renderScoreQuestion)}
               </div>
 
               <label className="comments-field">
@@ -489,6 +471,8 @@ function EvaluarSupervisorHU021() {
                   <span className="penalty-alert">Ya enviaste esta evaluación. Si necesitas ajustes, contacta a coordinación.</span>
                 </div>
               )}
+
+              {saveFeedback && <p className="submit-feedback submit-feedback--success">{saveFeedback}</p>}
 
               <button type="submit" className="submit-button" disabled={saving || selectedAssignment.evaluated}>
                 {saving ? 'Enviando…' : 'Enviar evaluación'}
