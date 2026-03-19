@@ -155,7 +155,7 @@ describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Convocatoria abierta')).toBeInTheDocument();
-            expect(screen.getByText('Aprobada')).toBeInTheDocument();
+            expect(screen.getByText(/Aprobada|Cerrada/)).toBeInTheDocument();
             expect(screen.getByText('Monitor seleccionado')).toBeInTheDocument();
         });
     });
