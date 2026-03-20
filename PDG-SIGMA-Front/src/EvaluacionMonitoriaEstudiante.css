@@ -28,6 +28,13 @@
   gap: var(--space-5);
 }
 
+.evaluacion-container {
+  width: 100%;
+  max-width: 940px;
+  margin: 0 auto;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
 .monitoria-header {
   display: flex;
   align-items: center;
@@ -123,20 +130,56 @@
   gap: var(--space-2);
 }
 
-.monitoria-scale-option {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-bg-alt);
-  cursor: pointer;
-  font-size: 0.9rem;
+.scale-hint {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
 }
 
-.monitoria-scale-option input {
-  accent-color: var(--color-primary);
+.monitoria-scale-chip {
+  min-width: 40px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #d5d8e3;
+  background-color: #ffffff;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--tr-fast);
+}
+
+.monitoria-scale-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(63, 70, 227, 0.2);
+}
+
+.monitoria-scale-chip:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.monitoria-scale-chip.is-selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(63, 70, 227, 0.28);
+  animation: scale-chip-pop 180ms ease-out;
+}
+
+.monitoria-scale-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@keyframes scale-chip-pop {
+  0% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .monitoria-text-label {
@@ -150,13 +193,20 @@
 
 .monitoria-text-label textarea {
   min-height: 96px;
-  border: 1px solid var(--color-border);
+  border: 1px solid #ddd;
   border-radius: var(--radius-md);
   padding: var(--space-3);
   resize: vertical;
   background-color: var(--color-bg-alt);
   font-family: inherit;
   font-size: var(--fs-body);
+  transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+}
+
+.monitoria-text-label textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--shadow-primary-sm);
 }
 
 .monitoria-actions {
@@ -250,5 +300,24 @@
 
   .monitoria-share-box {
     flex-direction: column;
+  }
+
+  .monitoria-scale {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .monitoria-scale-chip {
+    flex: 0 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monitoria-scale-chip,
+  .monitoria-scale-chip.is-selected {
+    transition: none;
+    animation: none;
   }
 }

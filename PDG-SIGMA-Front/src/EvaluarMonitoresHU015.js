@@ -129,6 +129,28 @@ function EvaluarMonitoresHU015() {
     }));
   };
 
+  const handleScoreKeyDown = (event, field, currentValue) => {
+    const currentIndex = SCORE_OPTIONS.indexOf(Number(currentValue));
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const nextIndex = Math.min(SCORE_OPTIONS.length - 1, currentIndex + 1);
+      updateScore(field, SCORE_OPTIONS[nextIndex]);
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      const prevIndex = Math.max(0, currentIndex - 1);
+      updateScore(field, SCORE_OPTIONS[prevIndex]);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      updateScore(field, SCORE_OPTIONS[0]);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      updateScore(field, SCORE_OPTIONS[SCORE_OPTIONS.length - 1]);
+    }
+  };
+
   const formattedAverage = useMemo(() => {
     const { taskCompliance, timelyCommunication, planFulfillment, attitude } = formValues;
     const average = (taskCompliance + timelyCommunication + planFulfillment + attitude) / 4;
@@ -287,7 +309,7 @@ function EvaluarMonitoresHU015() {
           )}
         </section>
 
-        <section className="form-panel">
+        <section className="form-panel evaluacion-container">
           {!selectedAssignment ? (
             <div className="placeholder-panel">
               <h3>Selecciona una monitoría</h3>
@@ -310,50 +332,106 @@ function EvaluarMonitoresHU015() {
               <div className="scores-grid">
                 <label>
                   Cumplimiento de tareas
-                  <select
-                    value={formValues.taskCompliance}
-                    onChange={(event) => updateScore('taskCompliance', event.target.value)}
-                  >
+                  <div className="score-scale" role="radiogroup" aria-label="Cumplimiento de tareas">
                     {SCORE_OPTIONS.map((option) => (
-                      <option key={`task-${option}`} value={option}>{option}</option>
+                      <button
+                        key={`task-${option}`}
+                        type="button"
+                        className={`score-chip ${formValues.taskCompliance === option ? 'is-selected' : ''}`}
+                        onClick={() => updateScore('taskCompliance', option)}
+                        onKeyDown={(event) => handleScoreKeyDown(event, 'taskCompliance', formValues.taskCompliance)}
+                        disabled={saving}
+                        role="radio"
+                        tabIndex={formValues.taskCompliance === option ? 0 : -1}
+                        aria-checked={formValues.taskCompliance === option}
+                        aria-pressed={formValues.taskCompliance === option}
+                      >
+                        {option}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+                  <div className="scale-hint" aria-hidden="true">
+                    <span>1 = Bajo</span>
+                    <span>5 = Alto</span>
+                  </div>
                 </label>
 
                 <label>
                   Comunicación oportuna
-                  <select
-                    value={formValues.timelyCommunication}
-                    onChange={(event) => updateScore('timelyCommunication', event.target.value)}
-                  >
+                  <div className="score-scale" role="radiogroup" aria-label="Comunicación oportuna">
                     {SCORE_OPTIONS.map((option) => (
-                      <option key={`comm-${option}`} value={option}>{option}</option>
+                      <button
+                        key={`comm-${option}`}
+                        type="button"
+                        className={`score-chip ${formValues.timelyCommunication === option ? 'is-selected' : ''}`}
+                        onClick={() => updateScore('timelyCommunication', option)}
+                        onKeyDown={(event) => handleScoreKeyDown(event, 'timelyCommunication', formValues.timelyCommunication)}
+                        disabled={saving}
+                        role="radio"
+                        tabIndex={formValues.timelyCommunication === option ? 0 : -1}
+                        aria-checked={formValues.timelyCommunication === option}
+                        aria-pressed={formValues.timelyCommunication === option}
+                      >
+                        {option}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+                  <div className="scale-hint" aria-hidden="true">
+                    <span>1 = Bajo</span>
+                    <span>5 = Alto</span>
+                  </div>
                 </label>
 
                 <label>
                   Cumplimiento del plan de trabajo
-                  <select
-                    value={formValues.planFulfillment}
-                    onChange={(event) => updateScore('planFulfillment', event.target.value)}
-                  >
+                  <div className="score-scale" role="radiogroup" aria-label="Cumplimiento del plan de trabajo">
                     {SCORE_OPTIONS.map((option) => (
-                      <option key={`plan-${option}`} value={option}>{option}</option>
+                      <button
+                        key={`plan-${option}`}
+                        type="button"
+                        className={`score-chip ${formValues.planFulfillment === option ? 'is-selected' : ''}`}
+                        onClick={() => updateScore('planFulfillment', option)}
+                        onKeyDown={(event) => handleScoreKeyDown(event, 'planFulfillment', formValues.planFulfillment)}
+                        disabled={saving}
+                        role="radio"
+                        tabIndex={formValues.planFulfillment === option ? 0 : -1}
+                        aria-checked={formValues.planFulfillment === option}
+                        aria-pressed={formValues.planFulfillment === option}
+                      >
+                        {option}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+                  <div className="scale-hint" aria-hidden="true">
+                    <span>1 = Bajo</span>
+                    <span>5 = Alto</span>
+                  </div>
                 </label>
 
                 <label>
                   Actitud y servicio
-                  <select
-                    value={formValues.attitude}
-                    onChange={(event) => updateScore('attitude', event.target.value)}
-                  >
+                  <div className="score-scale" role="radiogroup" aria-label="Actitud y servicio">
                     {SCORE_OPTIONS.map((option) => (
-                      <option key={`att-${option}`} value={option}>{option}</option>
+                      <button
+                        key={`att-${option}`}
+                        type="button"
+                        className={`score-chip ${formValues.attitude === option ? 'is-selected' : ''}`}
+                        onClick={() => updateScore('attitude', option)}
+                        onKeyDown={(event) => handleScoreKeyDown(event, 'attitude', formValues.attitude)}
+                        disabled={saving}
+                        role="radio"
+                        tabIndex={formValues.attitude === option ? 0 : -1}
+                        aria-checked={formValues.attitude === option}
+                        aria-pressed={formValues.attitude === option}
+                      >
+                        {option}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+                  <div className="scale-hint" aria-hidden="true">
+                    <span>1 = Bajo</span>
+                    <span>5 = Alto</span>
+                  </div>
                 </label>
               </div>
 

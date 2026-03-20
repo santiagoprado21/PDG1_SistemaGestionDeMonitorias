@@ -96,6 +96,28 @@ function EvaluacionMonitoriaEstudiante() {
     }));
   };
 
+  const handleScoreKeyDown = (event, field, currentValue) => {
+    const currentIndex = SCORE_OPTIONS.indexOf(Number(currentValue));
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const nextIndex = Math.min(SCORE_OPTIONS.length - 1, currentIndex + 1);
+      handleScoreChange(field, SCORE_OPTIONS[nextIndex]);
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      const prevIndex = Math.max(0, currentIndex - 1);
+      handleScoreChange(field, SCORE_OPTIONS[prevIndex]);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      handleScoreChange(field, SCORE_OPTIONS[0]);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      handleScoreChange(field, SCORE_OPTIONS[SCORE_OPTIONS.length - 1]);
+    }
+  };
+
   const handleCommentChange = (field, value) => {
     setFormValues((prev) => ({
       ...prev,
@@ -218,7 +240,7 @@ function EvaluacionMonitoriaEstudiante() {
       </PopUp>
       <div className="monitoria-eval-content">
         {showForm && (
-          <section className="monitoria-form-panel">
+          <section className="monitoria-form-panel evaluacion-container">
             <header className="monitoria-header">
               <div>
                 <h2>Encuesta de experiencia con monitores</h2>
@@ -275,20 +297,27 @@ function EvaluacionMonitoriaEstudiante() {
                   {group.items.map((item) => (
                     <div key={item.key} className="monitoria-question">
                       <label>{item.label}</label>
-                      <div className="monitoria-scale">
+                      <div className="monitoria-scale" role="radiogroup" aria-label={item.label}>
                         {SCORE_OPTIONS.map((value) => (
-                          <label key={value} className="monitoria-scale-option">
-                            <input
-                              type="radio"
-                              name={item.key}
-                              value={value}
-                              checked={Number(formValues[item.key]) === value}
-                              onChange={() => handleScoreChange(item.key, value)}
-                              disabled={saving}
-                            />
-                            <span>{value}</span>
-                          </label>
+                          <button
+                            key={value}
+                            type="button"
+                            className={`monitoria-scale-chip ${Number(formValues[item.key]) === value ? 'is-selected' : ''}`}
+                            onClick={() => handleScoreChange(item.key, value)}
+                            onKeyDown={(event) => handleScoreKeyDown(event, item.key, formValues[item.key])}
+                            disabled={saving}
+                            role="radio"
+                            tabIndex={Number(formValues[item.key]) === value ? 0 : -1}
+                            aria-checked={Number(formValues[item.key]) === value}
+                            aria-pressed={Number(formValues[item.key]) === value}
+                          >
+                            {value}
+                          </button>
                         ))}
+                      </div>
+                      <div className="scale-hint" aria-hidden="true">
+                        <span>1 = Bajo</span>
+                        <span>7 = Alto</span>
                       </div>
                     </div>
                   ))}
