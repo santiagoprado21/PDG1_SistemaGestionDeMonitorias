@@ -153,12 +153,14 @@
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+    color: var(--color-primary);
 }
 
 .stat-label {
     display: block;
     font-size: 0.875rem;
-    opacity: 0.9;
+    opacity: 1;
+    color: var(--gris-1);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -189,6 +191,18 @@
 .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.plan-add-activity-btn {
+    background-color: var(--color-primary);
+    color: var(--blanco);
+    border: none;
+    font-weight: 700;
+}
+
+.plan-add-activity-btn:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    border: none;
 }
 
 /* Lista de Actividades */
@@ -224,6 +238,7 @@
 .activities-table th {
     padding: 1rem;
     text-align: left;
+    vertical-align: middle;
     font-weight: 600;
     font-size: 0.875rem;
     text-transform: uppercase;
@@ -231,7 +246,6 @@
 }
 
 .activities-table tbody tr {
-    border-bottom: 1px solid var(--gris-2);
     transition: background-color 0.2s;
 }
 
@@ -242,6 +256,22 @@
 .activities-table td {
     padding: 1rem;
     font-size: 0.95rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.rubric-cell {
+    width: 170px;
+}
+
+.rubric-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.25;
+    min-height: 2.5em;
+    word-break: break-word;
 }
 
 /* Badges */
@@ -249,15 +279,17 @@
     display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 88px;
 }
 
 .priority-badge.priority-alta {
     background: var(--naranja-icesi);
-    color: var(--naranja-icesi);
+    color: var(--blanco);
 }
 
 .priority-badge.priority-media {
@@ -278,12 +310,12 @@
 .state-badge.state-completado,
 .state-badge.state-completadot {
     background: var(--verde-icesi);
-    color: var(--verde-icesi);
+    color: var(--blanco);
 }
 
 .state-badge.state-completada {
     background: var(--verde-icesi);
-    color: var(--verde-icesi);
+    color: var(--blanco);
 }
 
 .state-badge.state-en-progreso {
@@ -292,16 +324,25 @@
 }
 
 /* Botones de acción en tabla */
-.btn-edit, .btn-delete {
-    font-size: 1rem;
-    padding: 0.5rem;
-    margin: 0 0.25rem;
-    min-width: 35px;
-    transition: transform 0.2s;
+.activity-action-btn {
+    color: #3a3a3a;
+    background: transparent;
+    border: none;
+    padding: 0.25rem;
+    margin: 0 0.2rem;
+    line-height: 0;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.btn-edit:hover, .btn-delete:hover {
-    transform: scale(1.2);
+.activity-action-btn:hover {
+    color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.activity-action-btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
 }
 
 /* Modal */

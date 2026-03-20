@@ -491,7 +491,7 @@ function PlanActividades() {
                         </div>
                         <div className="plan-stats">
                             <div className="stat-card">
-                                <span className="stat-value">{activityPlan.totalActivities}</span>
+                                <span className="stat-value">{activityPlan.totalActivities ?? activities.length ?? 0}</span>
                                 <span className="stat-label">Total</span>
                             </div>
                             <div className="stat-card completed">
@@ -512,11 +512,11 @@ function PlanActividades() {
 
                 <div className="plan-actions">
                     <button 
-                        className="btn-primary" 
+                        className="btn-primary plan-add-activity-btn" 
                         onClick={() => handleOpenModal()}
                         disabled={!selectedMonitoringId || monitorings.length === 0}
                     >
-                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Crear Nueva Actividad
+                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Actividad
                     </button>
                     <button 
                         className="btn-secondary" 
@@ -571,7 +571,9 @@ function PlanActividades() {
                                                 {activity.priority || 'MEDIA'}
                                             </span>
                                         </td>
-                                        <td>{activity.rubricName || '-'}</td>
+                                        <td className="rubric-cell">
+                                            <span className="rubric-text">{activity.rubricName?.trim() || 'Sin rúbrica'}</span>
+                                        </td>
                                         <td>
                                             <span className={`state-badge state-${activity.state?.toLowerCase()}`}>
                                                 {activity.state === 'PENDIENTE' ? 'Pendiente' : 
@@ -582,16 +584,16 @@ function PlanActividades() {
                                         </td>
                                         <td>
                                             <button 
-                                                className="btn-edit btn-secondary"
+                                                className="activity-action-btn btn-edit"
                                                 onClick={() => handleOpenModal(activity)}
-                                                title="Editar">
-                                                <Pencil {...iconProps} size={14} />
+                                                title="Editar actividad">
+                                                <Pencil {...iconProps} size={18} />
                                             </button>
                                             <button 
-                                                className="btn-delete btn-danger"
+                                                className="activity-action-btn btn-delete"
                                                 onClick={() => handleDeleteActivity(activity.id)}
-                                                title="Eliminar">
-                                                <Trash2 {...iconProps} size={14} />
+                                                title="Eliminar actividad">
+                                                <Trash2 {...iconProps} size={18} />
                                             </button>
                                         </td>
                                     </tr>
