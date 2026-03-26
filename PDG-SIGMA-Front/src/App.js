@@ -12,6 +12,7 @@ import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
 import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
 import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
 import EvaluacionMonitoriaEstudiante from './EvaluacionMonitoriaEstudiante';
+import GestionEncuestaMonitoresHU026 from './GestionEncuestaMonitoresHU026';
 import Chat from './Chat';
 
 
@@ -76,6 +77,9 @@ function App() {
 
          {/* HU-022: Evaluacion experiencia con monitores */}
          <Route path="/evaluacion-monitoria" element={<EvaluacionMonitoriaEstudiante />} />
+
+         {/* HU-026: Gestion banco de preguntas de encuesta a estudiantes */}
+         <Route path="/gestion-encuesta-monitores" element={<GestionEncuestaMonitoresHU026 />} />
 
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
