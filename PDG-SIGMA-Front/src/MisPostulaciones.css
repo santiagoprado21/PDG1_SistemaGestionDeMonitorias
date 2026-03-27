@@ -80,7 +80,7 @@
 
 .filter-tab {
     padding: 0.5rem 1.1rem;
-    border-radius: 20px;
+    border-radius: 2px;
     border: 1.5px solid var(--color-border);
     background: var(--color-bg-body);
     cursor: pointer;
@@ -381,7 +381,7 @@
     cursor: pointer;
     color: var(--color-gray-1);
     padding: 4px 8px;
-    border-radius: var(--radius-sm);
+    border-radius: 2px;
     transition: background var(--tr-fast);
 }
 
@@ -449,7 +449,7 @@
     background: var(--color-primary);
     color: #fff;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: background var(--tr-fast);

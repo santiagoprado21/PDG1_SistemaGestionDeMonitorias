@@ -145,7 +145,7 @@
 
 .ack-button {
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 2px;
   padding: var(--space-3) var(--space-5);
   background-color: var(--color-primary);
   color: var(--blanco);

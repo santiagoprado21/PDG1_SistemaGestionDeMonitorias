@@ -34,7 +34,7 @@
     background-color: var(--morado-icesi); /* Morado */
     color: white;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 2px;
     padding: var(--space-3) var(--space-5);
     cursor: pointer;
 }

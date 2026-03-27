@@ -7,7 +7,7 @@
 .chat-sidebar-header h2{margin:0;font-size:26px;line-height:1.1;font-weight:700;color:var(--negro)}
 .muted{color:var(--gris-1);font-size:13px;margin-top:6px}
 .chat-conversation-list{overflow:auto;padding:8px;min-height:0}
-.chat-conversation-item{width:100%;text-align:left;border:0;padding:12px 12px;background:transparent;cursor:pointer;border-radius:10px;margin-bottom:6px}
+.chat-conversation-item{width:100%;text-align:left;border:0;padding:12px 12px;background:transparent;cursor:pointer;border-radius:2px;margin-bottom:6px}
 .chat-conversation-item:hover{background:var(--gris-2)}
 .chat-conversation-item.selected{background:var(--gris-2)}
 .item-titles{display:flex;align-items:center;gap:8px;justify-content:space-between}
@@ -31,7 +31,7 @@
 .pending-thumb{width:32px;height:32px;object-fit:cover;border-radius:4px}
 .pending-icon{font-size:18px}
 .pending-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.remove-attachment-btn{border:0;background:var(--naranja-icesi);color:var(--blanco);width:22px;height:22px;border-radius:4px;cursor:pointer;font-size:12px}
+.remove-attachment-btn{border:0;background:var(--naranja-icesi);color:var(--blanco);width:22px;height:22px;border-radius:2px;cursor:pointer;font-size:12px}
 .remove-attachment-btn:hover{background:var(--naranja-icesi)}
 .chat-textarea{flex:1;resize:none;max-height:120px;overflow:auto;border:0;border-radius:10px;padding:12px 13px;font-family:inherit;font-size:16px;line-height:1.4;background:var(--blanco)}
 .chat-textarea:focus{outline:none;box-shadow:0 0 0 3px var(--shadow-primary-sm)}
