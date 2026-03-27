@@ -232,7 +232,7 @@
   background-color: var(--info-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -261,7 +261,7 @@
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   font-family: var(--main-font-family);
   font-size: 14px;

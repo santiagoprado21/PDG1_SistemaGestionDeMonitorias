@@ -187,7 +187,7 @@
     background: var(--color-primary);
     color: #fff;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     font-family: var(--font-primary);
     font-size: 0.95rem;
     font-weight: 600;
@@ -337,7 +337,7 @@
 .btn-modal {
     padding: 0.65rem 1.5rem;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     font-family: var(--font-primary);
     font-size: 0.9rem;
     font-weight: 600;
@@ -389,7 +389,7 @@
     background: var(--color-primary);
     color: #fff;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     cursor: pointer;
     font-family: var(--font-primary);
     font-size: 0.88rem;

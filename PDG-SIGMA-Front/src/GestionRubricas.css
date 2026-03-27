@@ -400,7 +400,7 @@ form {
     background: var(--naranja-icesi);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     width: 40px;
     height: 40px;
     cursor: pointer;
@@ -420,7 +420,7 @@ form {
     background: white;
     border: 2px dashed var(--color-primary);
     color: var(--color-primary);
-    border-radius: 8px;
+    border-radius: 2px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
