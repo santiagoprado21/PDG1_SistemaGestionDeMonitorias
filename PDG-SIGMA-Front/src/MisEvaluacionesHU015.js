@@ -3,7 +3,7 @@ import VerticalNavbar from './VerticalNavbar';
 import LoadingSpinner from './LoadingSpinner';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
-import './MisEvaluacionesHU015.css';
+import './MisEvaluaciones.css';
 
 const PERFORMANCE_LABELS = {
   EXCELENTE: 'Excelente',
