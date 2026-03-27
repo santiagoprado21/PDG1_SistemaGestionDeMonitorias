@@ -1,4 +1,4 @@
-import './VistaMonitorActividades.css';
+import './MisActividades.css';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
@@ -1031,7 +1031,7 @@ function VistaMonitorActividades() {
                                     className="close-btn"
                                     onClick={() => setShowActivityDetail(false)}
                                 >
-                                    x
+                                    ×
                                 </button>
                             </div>
                             <div className="modal-body">
@@ -1283,7 +1283,7 @@ function VistaMonitorActividades() {
                                 className="close-btn"
                                 onClick={() => setShowConfirmComplete(false)}
                             >
-                                x
+                                ×
                             </button>
                         </div>
                         
