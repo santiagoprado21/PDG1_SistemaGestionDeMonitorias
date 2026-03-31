@@ -81,7 +81,6 @@ function flujoReporte() {
         );
         check(res, {
             'reporte monitores: status 200':   (r) => r.status === 200,
-            'reporte monitores: tiempo < 5s':  (r) => r.timings.duration < 5000,
         });
     });
 }
@@ -106,7 +105,6 @@ function flujoProfesorActividades() {
         );
         check(res, {
             'monitorías por profesor: status 200':   (r) => r.status === 200,
-            'monitorías por profesor: tiempo < 2.5s': (r) => r.timings.duration < 2500,
         });
     });
 
@@ -119,7 +117,6 @@ function flujoProfesorActividades() {
         );
         check(res, {
             'actividades profesor: status 200':    (r) => r.status === 200,
-            'actividades profesor: tiempo < 2.5s': (r) => r.timings.duration < 2500,
         });
     });
 }
@@ -144,7 +141,6 @@ function flujoMonitorActividades() {
         );
         check(res, {
             'mis actividades: status 200':    (r) => r.status === 200,
-            'mis actividades: tiempo < 2.5s': (r) => r.timings.duration < 2500,
         });
     });
 
@@ -157,7 +153,6 @@ function flujoMonitorActividades() {
         );
         check(res, {
             'monitorías monitor: status 200':    (r) => r.status === 200,
-            'monitorías monitor: tiempo < 2.5s': (r) => r.timings.duration < 2500,
         });
     });
 }

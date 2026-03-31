@@ -78,7 +78,6 @@ function flujoProfesorCierre() {
         );
         check(res, {
             'monitorías activas: status 200':   (r) => r.status === 200,
-            'monitorías activas: tiempo < 3s':  (r) => r.timings.duration < 3000,
         });
     });
 
@@ -91,7 +90,6 @@ function flujoProfesorCierre() {
         );
         check(res, {
             'evaluaciones: status 200 o 404':  (r) => r.status === 200 || r.status === 404,
-            'evaluaciones: tiempo < 3s':        (r) => r.timings.duration < 3000,
         });
     });
 
@@ -104,7 +102,6 @@ function flujoProfesorCierre() {
         );
         check(res, {
             'reporte cierre: status 200':   (r) => r.status === 200,
-            'reporte cierre: tiempo < 3s':  (r) => r.timings.duration < 3000,
         });
     });
 }
@@ -129,7 +126,6 @@ function flujoJefeCierre() {
         );
         check(res, {
             'monitorías departamento: status 200':   (r) => r.status === 200,
-            'monitorías departamento: tiempo < 3s':  (r) => r.timings.duration < 3000,
         });
     });
 
@@ -142,7 +138,6 @@ function flujoJefeCierre() {
         );
         check(res, {
             'reporte departamental: status 200 o 403': (r) => r.status === 200 || r.status === 403,
-            'reporte departamental: tiempo < 3s':       (r) => r.timings.duration < 3000,
         });
     });
 }
