@@ -36,45 +36,6 @@ performance/
   - `API-Banner-main` en **`http://localhost:5435`**
   - Frontend (opcional para smoke) en **`http://localhost:3000`**
 
----
-
-## Instalación de k6
-
-### macOS
-```bash
-brew install k6
-```
-
-### Windows — Chocolatey
-```bash
-choco install k6
-```
-
-### Windows — winget
-```bash
-winget install k6 --source winget
-```
-
-### Linux (Debian/Ubuntu)
-```bash
-sudo gpg --no-default-keyring \
-  --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
-  --keyserver hkp://keyserver.ubuntu.com:80 \
-  --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-
-echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] \
-  https://dl.k6.io/deb stable main" \
-  | sudo tee /etc/apt/sources.list.d/k6.list
-
-sudo apt-get update && sudo apt-get install k6
-```
-
-### Verificar instalación
-```bash
-k6 version
-```
-
----
 
 ## Variables de entorno
 
@@ -110,7 +71,7 @@ Todos los scripts importan sus thresholds desde ese módulo.
 | Plan de actividades     | 2 500 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
 | Reportes                | 5 000 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
 | Cierre de monitorías    | 10 000 ms    | 0 %        | 100 %         | `tests/cierre.test.js`        |
-| Carga sostenida (mix)   | 3 000 ms     | < 1 %      | ≥ 99 %        | `scenarios/load.test.js`      |
+| Carga sostenida (mix)   | 4 500 ms     | < 1 %      | ≥ 99 %        | `scenarios/load.test.js`      |
 
 ### Thresholds etiquetados en el escenario de carga
 
@@ -218,17 +179,3 @@ retorna código de salida ≠ 0 — ideal para integrar en pipelines CI/CD.
 ```
 
 ---
-
-## Flujo recomendado antes de un deploy
-
-1. Asegurarte de que los backends están corriendo en sus puertos.
-2. Correr el smoke para verificar que todos los endpoints responden:
-   ```bash
-   k6 run -e PROFESSOR_ID=xxx -e PROFESSOR_PASS=yyy performance/smoke/smoke.test.js
-   ```
-3. Si el smoke pasa → correr los tests individuales del flujo modificado.
-4. Para releases importantes → correr el escenario de carga completo:
-   ```bash
-   k6 run performance/scenarios/load.test.js
-   ```
-5. Revisar que no haya `FAILED` en ningún threshold antes de hacer merge.
