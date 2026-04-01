@@ -10,18 +10,20 @@ Basado en [k6](https://k6.io/) — herramienta open-source de carga y rendimient
 ```
 performance/
 ├── config/
-│   └── env.js                  # Variables de entorno (BASE_URL, credenciales)
+│   ├── env.js                       # Variables de entorno (BASE_URL, credenciales, IDs académicos)
+│   └── thresholds.js                # SLAs centralizados (fuente única de verdad)
 ├── helpers/
-│   └── auth.js                 # Helper de login y headers de autorización
+│   └── auth.js                      # Helper de login y headers de autorización
 ├── smoke/
-│   └── smoke.test.js           # Smoke: 1 iteración por flujo crítico (< 2 min)
+│   └── smoke.test.js                # Smoke: 1 iteración por flujo crítico (< 2 min)
 ├── tests/
-│   ├── login.test.js           # SIGMA-PERF-003: carga en /auth/login
-│   ├── convocatorias.test.js   # SIGMA-PERF-004: flujo de convocatorias
-│   ├── actividades.test.js     # SIGMA-PERF-005: plan de actividades y reportes
-│   └── cierre.test.js          # SIGMA-PERF-006: cierre de monitorías
+│   ├── login.test.js                # SIGMA-PERF-003 / HU2-257: carga en /auth/login
+│   ├── convocatorias.test.js        # SIGMA-PERF-004 / HU2-261: listados de convocatorias (15 VUs)
+│   ├── convocatorias-ciclo.test.js  # SIGMA-PERF-009 / HU2-261: ciclo completo creación (1 VU)
+│   ├── actividades.test.js          # SIGMA-PERF-005: plan de actividades y reportes
+│   └── cierre.test.js               # SIGMA-PERF-006: cierre de monitorías
 ├── scenarios/
-│   └── load.test.js            # SIGMA-PERF-008: carga sostenida (mezcla de flujos)
+│   └── load.test.js                 # SIGMA-PERF-008: carga sostenida (mezcla de flujos, 15 VUs)
 └── README.md
 ```
 
@@ -84,15 +86,20 @@ k6 version
 
 Las credenciales y la URL base se pueden pasar como variables `-e` sin modificar el código.
 
-| Variable        | Por defecto              | Descripción                            |
-|-----------------|--------------------------|----------------------------------------|
-| `BASE_URL`      | `http://localhost:5433`  | URL base del backend SIGMA             |
-| `MONITOR_ID`    | `A00000000`              | ID del monitor de prueba               |
-| `MONITOR_PASS`  | `password123`            | Contraseña del monitor de prueba       |
-| `PROFESSOR_ID`  | `P0000000`               | ID del profesor de prueba              |
-| `PROFESSOR_PASS`| `password123`            | Contraseña del profesor de prueba      |
-| `HEAD_ID`       | `J0000000`               | ID del jefe de departamento de prueba  |
-| `HEAD_PASS`     | `password123`            | Contraseña del jefe de prueba          |
+| Variable        | Por defecto              | Descripción                                         |
+|-----------------|--------------------------|-----------------------------------------------------|
+| `BASE_URL`      | `http://localhost:5433`  | URL base del backend SIGMA                          |
+| `MONITOR_ID`    | `2220004`                | ID del monitor de prueba                            |
+| `MONITOR_PASS`  | `123456`                 | Contraseña del monitor de prueba                    |
+| `PROFESSOR_ID`  | `1002`                   | ID del profesor de prueba                           |
+| `PROFESSOR_PASS`| `prof123`                | Contraseña del profesor de prueba                   |
+| `HEAD_ID`       | `5001`                   | ID del jefe de departamento de prueba               |
+| `HEAD_PASS`     | `jefe123`                | Contraseña del jefe de prueba                       |
+| `DIRECTOR_ID`   | `5001`                   | ID del director para cierre (mismo que jefe)        |
+| `DIRECTOR_PASS` | `jefe123`                | Contraseña del director                             |
+| `COURSE_ID`     | `3`                      | ID del curso para crear convocatoria (Bases de Datos) |
+| `SCHOOL_ID`     | `1`                      | ID de la escuela (Facultad de Ingeniería)           |
+| `PROGRAM_ID`    | `1`                      | ID del programa (Ingeniería de Sistemas)            |
 
 > **Nota de seguridad:** nunca subas credenciales reales al repositorio.  
 > Úsalas solo con `-e` en la terminal o desde variables del entorno CI/CD.
@@ -125,11 +132,14 @@ k6 run \
 
 ### Tests individuales por flujo
 ```bash
-# Login (SIGMA-PERF-003)
+# Login — latencia y tasa de éxito (SIGMA-PERF-003 / HU2-257)
 k6 run tests/login.test.js
 
-# Convocatorias (SIGMA-PERF-004)
+# Convocatorias — listados: 3 roles, 15 VUs (SIGMA-PERF-004 / HU2-261)
 k6 run tests/convocatorias.test.js
+
+# Convocatorias — ciclo completo escritura: crear→aprobar→postular→seleccionar→cerrar (SIGMA-PERF-009 / HU2-261)
+k6 run tests/convocatorias-ciclo.test.js
 
 # Plan de actividades y reportes (SIGMA-PERF-005)
 k6 run tests/actividades.test.js
@@ -163,6 +173,7 @@ Los valores fueron ajustados tras mediciones reales con la DB alojada en Neon (c
 | Plan de actividades         | `tests/actividades.test.js`| 2 500 ms    | 0 %        | 100 %    |
 | Reporte de monitores        | `tests/actividades.test.js`| 5 000 ms    | 0 %        | 100 %    |
 | Cierre de monitorías        | `tests/cierre.test.js`     | 10 000 ms   | 0 %        | 100 %    |
+| Ciclo creación convocatoria | `tests/convocatorias-ciclo.test.js` | 5 000 ms por paso | 0 % | 100 % |
 | Carga sostenida (15 VUs)    | `scenarios/load.test.js`   | 4 500 ms    | < 1 %      | ≥ 99 %   |
 
 ### Thresholds por rol — Login (HU2-257)
@@ -209,6 +220,50 @@ Fecha: 2026-04-01. Ambiente: backend local + DB PostgreSQL en Neon (cloud).
   departamento. Con 8 VUs se midió p95 ≈ 9.42 s. Valor de corte: 10 000 ms.
 - **Carga mixta 4 500 ms**: bajo 15 VUs simultáneos (todos los flujos en paralelo), el
   p95 global medido fue 2.36 s. El límite de 4 500 ms da margen para variaciones de red.
+
+---
+
+## Ciclo completo de creación de convocatoria (HU2-261)
+
+El script `tests/convocatorias-ciclo.test.js` ejecuta el flujo HU-010 end-to-end.
+A diferencia de los tests de listado (alta carga, solo lectura), este test es **destructivo**
+(escribe datos reales en la DB) por lo que usa **1 VU y 3 iteraciones**.
+
+### Flujo de los 6 pasos
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Paso 1  Profesor crea convocatoria   POST /monitoring-request/create        │
+│          semester único por iteración (PERF-VU-ITER) → evita duplicados     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Paso 2  Jefe aprueba convocatoria    POST /monitoring-request/{id}/approve  │
+│          convocatoria pasa a estado CONVOCATORIA_ABIERTA                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Paso 3  Monitor se postula           POST /monitor-application/apply        │
+│          retorna applicationId para el paso siguiente                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Paso 4  Profesor selecciona monitor  POST /monitor-application/select       │
+│          crea la entidad Monitoring → retorna monitoringId                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Paso 5  Jefe aprueba monitoría       POST /monitoring/approve/{id}          │
+│          monitoría pasa a estado ACTIVA                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Paso 6  Cierre de monitoría          POST /monitoring-closure/{id}/close    │
+│          director (mismo usuario que jefe) cierra con autoCalculate=true     │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Datos académicos requeridos
+
+El test usa por defecto los datos del seed de la DB de prueba:
+
+| Dato           | Valor por defecto | Descripción                                      |
+|----------------|-------------------|--------------------------------------------------|
+| Profesor       | `1002`            | Dra. Patricia Méndez                             |
+| Curso          | `3`               | Bases de Datos (profesor 1002 lo dicta)          |
+| Escuela        | `1`               | Facultad de Ingeniería                           |
+| Programa       | `1`               | Ingeniería de Sistemas                           |
+| Jefe/Director  | `5001`            | Tiene permisos de aprobación y cierre            |
 
 ---
 

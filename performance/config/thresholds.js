@@ -83,6 +83,25 @@ export const cierreThresholds = {
 };
 
 /**
+ * SIGMA-PERF-009 / HU2-261
+ * Ciclo completo de creación de convocatoria (flujo de escritura, 1 VU).
+ * Cada paso puede ser más lento que lecturas porque implica writes en DB.
+ * Límite de 5 000 ms por paso para cubrir validaciones y writes transaccionales.
+ * Los checks miden que cada paso retornó el ID necesario para el siguiente.
+ */
+export const cicloThresholds = {
+    'http_req_duration':                            ['p(95)<5000'],
+    'http_req_duration{step:crear_convocatoria}':   ['p(95)<5000'],
+    'http_req_duration{step:aprobar_convocatoria}': ['p(95)<5000'],
+    'http_req_duration{step:postular_monitor}':     ['p(95)<5000'],
+    'http_req_duration{step:seleccionar_monitor}':  ['p(95)<5000'],
+    'http_req_duration{step:aprobar_monitoria}':    ['p(95)<5000'],
+    'http_req_duration{step:cerrar_monitoria}':     ['p(95)<5000'],
+    http_req_failed: ['rate==0'],
+    checks:          ['rate==1.00'],
+};
+
+/**
  * SIGMA-PERF-008
  * Escenario de carga sostenida con mezcla de todos los flujos (25 VUs).
  * Los thresholds son más holgados que los tests individuales porque bajo
