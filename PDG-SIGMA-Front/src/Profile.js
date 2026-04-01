@@ -122,15 +122,15 @@ useEffect(() => {
     setUserId(storedId || "");
   }, []);
 
-  const [semestreSeleccionado, setSemestreSeleccionado] = useState("Seleccionar semestre");
+  const [semestreSeleccionado, setSemestreSeleccionado] = useState("Seleccionar periodo");
 
   const semestresDisponibles = [
-    "Seleccionar semestre",
+    "Seleccionar periodo",
     ...new Set(cursosAsignados? cursosAsignados.map((curso) => curso.semester): []),
   ];
 
   const cursosFiltrados =
-    semestreSeleccionado === "Seleccionar semestre"
+    semestreSeleccionado === "Seleccionar periodo"
       ? cursosAsignados
       : cursosAsignados.filter((curso) => curso.semester === semestreSeleccionado);
 
@@ -197,7 +197,7 @@ useEffect(() => {
               <table className="courses-table">
                 <thead>
                   <tr>
-                    <th>Semestre</th>
+                    <th>Periodo</th>
                     <th>Curso</th>
                     {role === "professor" && <th>Monitor Asignado</th>}
                     {role === "monitor" && <th>Profesor Asignado</th>}
