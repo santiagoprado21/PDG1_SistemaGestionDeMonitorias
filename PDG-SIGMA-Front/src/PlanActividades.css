@@ -21,7 +21,7 @@
 .monitoring-selector {
     background: white;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
     display: flex;
@@ -33,7 +33,7 @@
 .warning-banner {
     background: linear-gradient(135deg, var(--amarillo-icesi) 0%, var(--blanco) 100%);
     border-left: 4px solid var(--naranja-icesi);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1.5rem;
     margin-bottom: 2rem;
     display: flex;
@@ -85,7 +85,7 @@
     flex: 1;
     padding: 0.75rem;
     border: 2px solid var(--gris-2);
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 1rem;
     transition: all 0.3s;
     background: white;
@@ -109,7 +109,7 @@
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 0;
     margin-bottom: 2rem;
     box-shadow: 0 4px 15px var(--shadow-primary-md);
 }
@@ -137,7 +137,7 @@
 .stat-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1rem;
     text-align: center;
     transition: transform 0.2s;
@@ -208,7 +208,7 @@
 /* Lista de Actividades */
 .activities-list {
     background: white;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -278,7 +278,7 @@
 .priority-badge, .state-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -362,7 +362,7 @@
 
 .modal-content {
     background: white;
-    border-radius: 12px;
+    border-radius: 0;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
@@ -378,7 +378,7 @@
     border-bottom: 2px solid var(--gris-2);
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
     color: white;
-    border-radius: 12px 12px 0 0;
+    border-radius: 0;
 }
 
 .modal-header h2 {
@@ -390,7 +390,7 @@
     font-size: 2rem;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -405,7 +405,7 @@
 .conflicts-alert {
     background: var(--naranja-icesi);
     border: 2px solid var(--naranja-icesi);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1rem;
     margin: 1.5rem;
     color: var(--naranja-icesi);
@@ -455,7 +455,7 @@ form {
 .form-group textarea {
     padding: 0.75rem;
     border: 2px solid var(--gris-2);
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 1rem;
     transition: all 0.3s;
     font-family: inherit;
@@ -482,7 +482,7 @@ form {
     padding: 1.5rem;
     border-top: 2px solid var(--gris-2);
     background: var(--blanco);
-    border-radius: 0 0 12px 12px;
+    border-radius: 0;
 }
 
 /* Loading */
