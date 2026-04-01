@@ -132,21 +132,20 @@
     background: var(--blanco);
     padding: var(--space-5);
     border: 1px solid var(--gris-2);
+    border-top: 5px solid var(--gris-2);
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     text-align: center;
-    border-top: 4px solid var(--azul-icesi);
     transition: box-shadow var(--tr-fast), transform var(--tr-fast);
 }
 
 .stat-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     transform: translateY(-2px);
 }
 
 .stat-card h3 {
     font-size: var(--fs-h1);
     font-weight: 700;
-    color: var(--azul-icesi);
     margin: 0 0 var(--space-1) 0;
 }
 
@@ -157,16 +156,28 @@
     font-weight: 500;
 }
 
-.stat-card.pending  { border-top-color: #c8940a; }
-.stat-card.pending h3 { color: #c8940a; }
+/* Monitorías — azul institucional */
+.stat-card.monitorias { background: #e8f0fe; border-top-color: var(--azul-icesi); }
+.stat-card.monitorias h3 { color: var(--azul-icesi); }
 
-.stat-card.in-progress { border-top-color: var(--azul-icesi); }
-.stat-card.in-progress h3 { color: var(--azul-icesi); }
+/* Total Actividades — gris oscuro neutro */
+.stat-card.total { background: #f3f4f6; border-top-color: #374151; }
+.stat-card.total h3 { color: #374151; }
 
-.stat-card.completed { border-top-color: #2d8a55; }
-.stat-card.completed h3 { color: #2d8a55; }
+/* Pendientes — ámbar */
+.stat-card.pending { background: #fffbeb; border-top-color: #d97706; }
+.stat-card.pending h3 { color: #d97706; }
 
-.stat-card.hours { border-top-color: var(--morado-icesi); }
+/* En progreso — azul medio (distinto del azul Icesi) */
+.stat-card.in-progress { background: #eff6ff; border-top-color: #2563eb; }
+.stat-card.in-progress h3 { color: #2563eb; }
+
+/* Completadas — verde */
+.stat-card.completed { background: #f0fdf4; border-top-color: #16a34a; }
+.stat-card.completed h3 { color: #16a34a; }
+
+/* Horas (si aplica) */
+.stat-card.hours { background: #faf5ff; border-top-color: var(--morado-icesi); }
 .stat-card.hours h3 { color: var(--morado-icesi); }
 
 /* ── Contenedor de actividades ── */

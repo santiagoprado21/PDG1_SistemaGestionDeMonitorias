@@ -986,11 +986,11 @@ function VistaMonitorActividades() {
                 {/* Estadísticas generales */}
                 {activityPlans.length > 0 && (
                     <div className="stats-section">
-                        <div className="stat-card">
+                        <div className="stat-card monitorias">
                             <h3>{activityPlans.length}</h3>
                             <p>Monitorías</p>
                         </div>
-                        <div className="stat-card">
+                        <div className="stat-card total">
                             <h3>{activityPlans.reduce((sum, p) => sum + (p.totalActivities || 0), 0)}</h3>
                             <p>Total Actividades</p>
                         </div>
