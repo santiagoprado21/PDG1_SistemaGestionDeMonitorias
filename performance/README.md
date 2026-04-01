@@ -109,7 +109,7 @@ Todos los scripts importan sus thresholds desde ese módulo.
 | Convocatorias           | 3 000 ms     | 0 %        | 100 %         | `tests/convocatorias.test.js` |
 | Plan de actividades     | 2 500 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
 | Reportes                | 5 000 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
-| Cierre de monitorías    | 3 000 ms     | 0 %        | 100 %         | `tests/cierre.test.js`        |
+| Cierre de monitorías    | 10 000 ms    | 0 %        | 100 %         | `tests/cierre.test.js`        |
 | Carga sostenida (mix)   | 3 000 ms     | < 1 %      | ≥ 99 %        | `scenarios/load.test.js`      |
 
 ### Thresholds etiquetados en el escenario de carga
@@ -123,7 +123,7 @@ para aplicar límites diferenciados dentro del mismo script:
 | `flow:convocatorias`       | 3 000 ms   |
 | `flow:actividades`         | 2 500 ms   |
 | `flow:reporte`             | 5 000 ms   |
-| `flow:cierre`              | 3 000 ms   |
+| `flow:cierre`              | 10 000 ms  |
 
 ### Justificación de valores
 
