@@ -8,7 +8,8 @@
 
 .ver-convocatorias-content {
     margin-left: 230px;
-    width: calc(100% - 230px);
+    flex: 1;
+    min-width: 0;
     padding: 0 0 var(--space-7) 0;
     box-sizing: border-box;
 }
