@@ -43,34 +43,46 @@
 
 /* === Elementos principales === */
 .panel-header {
-  margin-bottom: var(--space-6);
+  background: var(--azul-icesi);
+  border-left: 6px solid var(--amarillo-icesi);
+  padding: var(--space-5) var(--space-6);
+  margin: calc(-1 * var(--space-7)) calc(-1 * var(--space-7)) var(--space-6) calc(-1 * var(--space-7));
+  color: var(--blanco);
 }
 
 .panel-header h2 {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--blanco);
+  font-size: var(--fs-h2);
+  font-weight: 700;
 }
 
 .panel-description {
   margin: var(--space-2) 0 var(--space-4);
-  color: var(--color-text-secondary);
+  color: rgba(255,255,255,0.85);
 }
 
 .search-input {
   width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 0;
   padding: var(--space-3) var(--space-4);
   font-size: var(--fs-body);
-  background-color: var(--color-bg-alt);
+  background-color: rgba(255,255,255,0.15);
+  color: var(--blanco);
   transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+  margin-top: var(--space-3);
+}
+
+.search-input::placeholder {
+  color: rgba(255,255,255,0.6);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--shadow-primary-sm);
-  background-color: var(--color-bg-body);
+  border-color: var(--amarillo-icesi);
+  background-color: rgba(255,255,255,0.2);
+  box-shadow: none;
 }
 
 .assignments-group {
