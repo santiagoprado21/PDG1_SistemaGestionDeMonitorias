@@ -346,10 +346,12 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-6) var(--space-7);
   border-radius: 0;
   background: var(--azul-icesi);
+  border-left: 6px solid var(--amarillo-icesi);
   color: var(--blanco);
+  margin-bottom: var(--space-7);
 }
 
 .monitor-page-header-left {
