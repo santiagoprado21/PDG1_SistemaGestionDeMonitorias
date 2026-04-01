@@ -1,33 +1,38 @@
 .mis-postulaciones-container {
     display: flex;
     min-height: 100vh;
-    background-color: var(--color-bg-body);
+    background: #f5f6fa;
     font-family: var(--font-primary);
 }
 
 .mis-postulaciones-content {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-    padding: 2rem 2.5rem;
+    flex: 1;
+    margin-left: 230px;
+    padding: var(--space-8);
+    max-width: 1400px;
+    margin-right: auto;
     box-sizing: border-box;
 }
 
 /* ===== HEADER ===== */
 .mis-post-header {
-    margin-bottom: 1.5rem;
-    border-left: 4px solid var(--color-primary);
-    padding-left: 0.8rem;
+    background: var(--azul-icesi);
+    color: var(--blanco);
+    padding: var(--space-6) var(--space-7);
+    margin-bottom: var(--space-7);
+    border-left: 6px solid var(--amarillo-icesi);
 }
 
 .mis-post-header h1 {
-    font-size: 1.8rem;
-    color: var(--color-text-primary);
-    margin: 0 0 0.3rem 0;
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    color: var(--blanco);
+    margin: 0 0 var(--space-1) 0;
 }
 
 .mis-post-subtitle {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
+    color: rgba(255,255,255,0.85);
+    font-size: var(--fs-h4);
     margin: 0;
 }
 
@@ -123,7 +128,7 @@
 }
 
 .postulacion-card {
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border-radius: 0;
     padding: 1.3rem 1.3rem 2.2rem;
     box-shadow: var(--shadow-sm);
@@ -309,7 +314,7 @@
 .mis-post-empty {
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border-radius: 0;
     box-shadow: var(--shadow-sm);
     color: var(--color-text-secondary);
@@ -345,7 +350,7 @@
 }
 
 .modal-content {
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border-radius: 0;
     width: 100%;
     max-width: 580px;
@@ -360,18 +365,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.2rem 1.5rem;
-    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-5) var(--space-6);
+    border-left: 6px solid var(--amarillo-icesi);
+    background: var(--azul-icesi);
     position: sticky;
     top: 0;
-    background: var(--color-bg-body);
     z-index: 1;
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.1rem;
-    color: var(--color-text-primary);
+    font-size: var(--fs-h3);
+    color: var(--blanco);
 }
 
 .close-btn {
@@ -379,14 +384,14 @@
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
-    color: var(--color-gray-1);
+    color: var(--blanco);
     padding: 4px 8px;
     border-radius: 0;
     transition: background var(--tr-fast);
 }
 
 .close-btn:hover {
-    background: var(--color-bg-alt);
+    background: rgba(255,255,255,0.15);
 }
 
 .modal-body {

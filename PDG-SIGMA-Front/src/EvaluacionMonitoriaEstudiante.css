@@ -3,7 +3,7 @@
 .monitoria-eval-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--color-secondary-bg);
+  background: #f5f6fa;
 }
 
 .monitoria-eval-content {
@@ -12,16 +12,18 @@
   grid-template-columns: minmax(320px, 1.6fr) minmax(260px, 1fr);
   gap: var(--space-6);
   padding: var(--space-8);
-  margin-left: 14em;
-  width: calc(100% - 14em);
+  margin-left: 230px;
+  max-width: 1400px;
+  margin-right: auto;
 }
 
 .monitoria-form-panel,
 .monitoria-share-panel,
 .monitoria-dashboard-panel {
-  background-color: var(--color-bg-body);
+  background: var(--blanco);
+  border: 1px solid var(--gris-2);
   border-radius: 0;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   padding: var(--space-7);
   display: flex;
   flex-direction: column;
@@ -40,20 +42,25 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-6) var(--space-7);
   border-radius: 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  background: var(--azul-icesi);
+  border-left: 6px solid var(--amarillo-icesi);
   color: var(--blanco);
   text-align: left;
+  margin-bottom: var(--space-7);
 }
 
 .monitoria-header h2 {
   margin: 0 0 var(--space-2);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--blanco);
 }
 
 .monitoria-header p {
   margin: 0;
-  opacity: 0.85;
+  color: rgba(255,255,255,0.85);
 }
 
 .monitoria-instructions {
@@ -71,8 +78,8 @@
   min-width: 110px;
   padding: var(--space-3) var(--space-4);
   border-radius: 0;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 .monitoria-average strong {
