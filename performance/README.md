@@ -250,6 +250,31 @@ A diferencia de los tests de listado (alta carga, solo lectura), este test es **
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Resultados medidos — Ciclo completo (HU2-261)
+
+Ejecución con 1 VU, 3 iteraciones (3 ciclos completos del flujo HU-010).  
+Fecha: 2026-04-01. Ambiente: backend local + DB PostgreSQL en Neon (cloud).
+
+| Métrica                       | Valor medido |
+|-------------------------------|--------------|
+| Checks                        | 100 % (57/57) |
+| http_req_failed               | 0 %          |
+| p95 global                    | **1.91 s**   |
+| p95 `{step:crear_convocatoria}`   | **1.00 s** |
+| p95 `{step:aprobar_convocatoria}` | **929 ms** |
+| p95 `{step:postular_monitor}`     | **930 ms** |
+| p95 `{step:seleccionar_monitor}`  | **1.12 s** |
+| p95 `{step:cerrar_monitoria}`     | **11.7 ms** |
+| Duración promedio por ciclo   | 13.78 s      |
+| Total requests                | 27 (9 por ciclo × 3 iteraciones) |
+
+**Observaciones:**
+- Los 5 pasos del flujo pasaron en los 3 ciclos sin ningún error.
+- `seleccionar_monitor` es el paso más lento (p95 = 1.12 s) porque escribe la monitoría en la DB.
+- `cerrar_monitoria` es el más rápido (p95 = 11.7 ms) — el cierre en este estado de datos fue casi instantáneo.
+- Todos los pasos están muy por debajo del umbral de 5 000 ms, con margen mayor al 75 %.
+- **Conclusión:** el flujo completo HU-010 es estable y eficiente bajo carga secuencial.
+
 ### Datos académicos requeridos
 
 El test usa por defecto los datos del seed de la DB de prueba:
