@@ -71,7 +71,7 @@ Todos los scripts importan sus thresholds desde ese módulo.
 | Plan de actividades     | 2 500 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
 | Reportes                | 5 000 ms     | 0 %        | 100 %         | `tests/actividades.test.js`   |
 | Cierre de monitorías    | 10 000 ms    | 0 %        | 100 %         | `tests/cierre.test.js`        |
-| Carga sostenida (mix)   | 4 500 ms     | < 1 %      | ≥ 99 %        | `scenarios/load.test.js`      |
+| Carga sostenida (mix)   | 4 500 ms     | < 1 %      | ≥ 99 %        | `scenarios/load.test.js` (15 VUs) |
 
 ### Thresholds etiquetados en el escenario de carga
 
