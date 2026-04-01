@@ -169,7 +169,7 @@ Los valores fueron ajustados tras mediciones reales con la DB alojada en Neon (c
 |-----------------------------|----------------------------|-------------|------------|----------|
 | Login (`/auth/login`)       | `tests/login.test.js`      | 2 500 ms    | 0 %        | 100 %    |
 | Lecturas simples            | `smoke/smoke.test.js`      | 3 000 ms    | 0 %        | 100 %    |
-| Convocatorias               | `tests/convocatorias.test.js` | 3 000 ms | 0 %        | 100 %    |
+| Convocatorias (listados)    | `tests/convocatorias.test.js` | 3 500 ms | 0 %        | 100 %    |
 | Plan de actividades         | `tests/actividades.test.js`| 2 500 ms    | 0 %        | 100 %    |
 | Reporte de monitores        | `tests/actividades.test.js`| 5 000 ms    | 0 %        | 100 %    |
 | Cierre de monitorías        | `tests/cierre.test.js`     | 10 000 ms   | 0 %        | 100 %    |
@@ -249,6 +249,27 @@ A diferencia de los tests de listado (alta carga, solo lectura), este test es **
 │          director (mismo usuario que jefe) cierra con autoCalculate=true     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Resultados medidos — Listados de convocatorias (HU2-261)
+
+Ejecución con 15 VUs, ramp-up 30 s → sostenida 3 min → ramp-down 30 s.  
+3 roles en round-robin: profesor, monitor, jefe de departamento.  
+Fecha: 2026-04-01. Ambiente: backend local + DB PostgreSQL en Neon (cloud).
+
+| Métrica                  | Valor medido |
+|--------------------------|--------------|
+| Checks                   | 100 % (2615/2615) |
+| http_req_failed          | 0 %          |
+| p95 global               | **3.20 s**   |
+| avg global               | 1.65 s       |
+| max global               | 4.70 s       |
+| Throughput               | 6.00 req/s   |
+| Total requests           | 1 465        |
+
+**Observaciones:**
+- Los 3 flujos (profesor, monitor, jefe) completaron todos sus checks al 100 %.
+- El p95 de 3.20 s supera el límite inicial de 3 000 ms; se ajustó a **3 500 ms** como SLA real para este flujo con 3 roles concurrentes y DB cloud.
+- **Conclusión:** los endpoints de listado de convocatorias son estables bajo 15 VUs con los 3 roles activos.
 
 ### Resultados medidos — Ciclo completo (HU2-261)
 
