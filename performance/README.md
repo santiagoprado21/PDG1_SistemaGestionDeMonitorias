@@ -176,11 +176,35 @@ si un tipo de usuario específico experimenta degradación:
 | `{role:profesor}`    | 2 500 ms   |
 | `{role:jefe}`        | 2 500 ms   |
 
+### Resultados medidos — Login (HU2-257)
+
+Ejecución con 10 VUs, ramp-up 30 s → sostenida 3 min → ramp-down 30 s.  
+Fecha: 2026-04-01. Ambiente: backend local + DB PostgreSQL en Neon (cloud).
+
+| Métrica                  | Valor medido |
+|--------------------------|--------------|
+| Checks                   | 100 % (1604/1604) |
+| http_req_failed          | 0 %          |
+| p95 global               | **2.01 s**   |
+| p95 `{role:monitor}`     | **2.07 s**   |
+| p95 `{role:profesor}`    | **1.72 s**   |
+| p95 `{role:jefe}`        | **1.70 s**   |
+| avg global               | 1.64 s       |
+| max global               | 3.06 s       |
+| Throughput               | 3.33 req/s   |
+| Total requests           | 802          |
+
+**Observaciones:**
+- El rol `monitor` presenta la mayor latencia (p95 = 2.07 s), probablemente por un modelo de datos más complejo en la consulta de autenticación.
+- Los roles `profesor` y `jefe` son ~17 % más rápidos que el monitor.
+- Todos los roles cumplen el SLA de 2 500 ms con margen ≥ 17 %.
+- **Conclusión:** el endpoint `/auth/login` es estable bajo 10 VUs concurrentes.
+
 ### Justificación de valores
 
 - **Login 2 500 ms**: el endpoint hace una consulta a PostgreSQL en Neon (cloud). En pruebas
-  reales con 10 VUs se midió p95 ≈ 2.19 s. Se estableció 2 500 ms como límite con margen
-  de 15 % sobre el máximo medido.
+  reales con 10 VUs (HU2-257) se midió p95 = 2.01 s (monitor: 2.07 s). Se estableció
+  2 500 ms como límite con margen de ~20 % sobre el valor más alto por rol.
 - **Cierre 10 000 ms**: el endpoint `/monitoring/getAll` recupera todas las monitorías del
   departamento. Con 8 VUs se midió p95 ≈ 9.42 s. Valor de corte: 10 000 ms.
 - **Carga mixta 4 500 ms**: bajo 15 VUs simultáneos (todos los flujos en paralelo), el
