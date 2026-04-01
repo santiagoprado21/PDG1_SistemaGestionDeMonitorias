@@ -94,8 +94,7 @@ export const cicloThresholds = {
     'http_req_duration{step:crear_convocatoria}':   ['p(95)<5000'],
     'http_req_duration{step:aprobar_convocatoria}': ['p(95)<5000'],
     'http_req_duration{step:postular_monitor}':     ['p(95)<5000'],
-    'http_req_duration{step:seleccionar_monitor}':  ['p(95)<5000'],
-    'http_req_duration{step:aprobar_monitoria}':    ['p(95)<5000'],
+    'http_req_duration{step:seleccionar_monitor}':  ['p(95)<5000'],  // crea monitoría automáticamente
     'http_req_duration{step:cerrar_monitoria}':     ['p(95)<5000'],
     http_req_failed: ['rate==0'],
     checks:          ['rate==1.00'],

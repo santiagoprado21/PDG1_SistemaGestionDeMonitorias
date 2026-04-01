@@ -9,11 +9,9 @@
  *            POST /monitoring-request/{id}/approve-by-head
  *   Paso 3 — Monitor se postula
  *            POST /monitor-application/apply
- *   Paso 4 — Profesor elige al monitor (se crea la monitoría)
+ *   Paso 4 — Profesor elige al monitor → monitoría se crea automáticamente
  *            POST /monitor-application/select
- *   Paso 5 — Jefe aprueba la monitoría creada
- *            POST /monitoring/approve/{monitoringId}
- *   Paso 6 — Se cierra la monitoría
+ *   Paso 5 — Se cierra la monitoría
  *            POST /monitoring-closure/{id}/close
  *
  * ¿Por qué solo 1 VU?
@@ -207,24 +205,8 @@ export default function () {
 
     sleep(0.5);
 
-    // ── Paso 5: Jefe aprueba la monitoría ─────────────────────────────────────
-    group('Paso 5 — Jefe aprueba monitoría', () => {
-        const res = post(
-            `${BASE_URL}/monitoring/approve/${monitoringId}`,
-            { departmentHeadId: HEAD_ID, comment: 'Monitoría aprobada en prueba de rendimiento' },
-            headToken,
-            'aprobar_monitoria'
-        );
-
-        check(res, {
-            'aprobar monitoría: sin error de servidor': (r) => r.status < 500,
-        });
-    });
-
-    sleep(0.5);
-
-    // ── Paso 6: Cierre de la monitoría ────────────────────────────────────────
-    group('Paso 6 — Cierre de monitoría', () => {
+    // ── Paso 5: Cierre de la monitoría ────────────────────────────────────────
+    group('Paso 5 — Cierre de monitoría', () => {
         const dirToken = login(DIRECTOR_ID, DIRECTOR_PASS);
 
         const res = post(

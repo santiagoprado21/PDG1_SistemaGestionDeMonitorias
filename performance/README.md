@@ -243,12 +243,9 @@ A diferencia de los tests de listado (alta carga, solo lectura), este test es **
 │          retorna applicationId para el paso siguiente                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  Paso 4  Profesor selecciona monitor  POST /monitor-application/select       │
-│          crea la entidad Monitoring → retorna monitoringId                   │
+│          la monitoría se crea automáticamente → retorna monitoringId         │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  Paso 5  Jefe aprueba monitoría       POST /monitoring/approve/{id}          │
-│          monitoría pasa a estado ACTIVA                                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Paso 6  Cierre de monitoría          POST /monitoring-closure/{id}/close    │
+│  Paso 5  Cierre de monitoría          POST /monitoring-closure/{id}/close    │
 │          director (mismo usuario que jefe) cierra con autoCalculate=true     │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
