@@ -64,24 +64,23 @@
 
 .search-input {
   width: 100%;
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 2px solid rgba(255,255,255,0.5);
   border-radius: 0;
   padding: var(--space-3) var(--space-4);
   font-size: var(--fs-body);
-  background-color: rgba(255,255,255,0.15);
-  color: var(--blanco);
-  transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
+  background-color: var(--blanco);
+  color: var(--gris-1);
+  transition: border-color var(--tr-fast);
   margin-top: var(--space-3);
 }
 
 .search-input::placeholder {
-  color: rgba(255,255,255,0.6);
+  color: var(--gris-2);
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--amarillo-icesi);
-  background-color: rgba(255,255,255,0.2);
   box-shadow: none;
 }
 
