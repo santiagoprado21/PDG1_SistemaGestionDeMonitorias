@@ -21,7 +21,7 @@
 .monitoring-selector {
     background: white;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
     display: flex;
@@ -31,9 +31,9 @@
 
 /* Banner de advertencia */
 .warning-banner {
-    background: linear-gradient(135deg, var(--amarillo-icesi) 0%, var(--blanco) 100%);
+    background: #fffbeb;
     border-left: 4px solid var(--naranja-icesi);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1.5rem;
     margin-bottom: 2rem;
     display: flex;
@@ -85,7 +85,7 @@
     flex: 1;
     padding: 0.75rem;
     border: 2px solid var(--gris-2);
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 1rem;
     transition: all 0.3s;
     background: white;
@@ -106,24 +106,24 @@
 
 /* Header del Plan */
 .plan-header {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 15px var(--shadow-primary-md);
+    background: var(--azul-icesi);
+    color: var(--blanco);
+    padding: var(--space-6) var(--space-7);
+    margin-bottom: var(--space-7);
+    border-left: 6px solid var(--amarillo-icesi);
 }
 
 .plan-info h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
+    font-size: var(--fs-h2);
+    margin-bottom: var(--space-3);
+    font-weight: 700;
+    color: var(--blanco);
 }
 
 .plan-info p {
-    margin: 0.5rem 0;
-    font-size: 1rem;
-    opacity: 0.95;
+    margin: var(--space-1) 0;
+    font-size: var(--fs-h4);
+    color: rgba(255,255,255,0.9);
 }
 
 /* Estadísticas */
@@ -135,17 +135,18 @@
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
+    background: var(--blanco);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-top: 4px solid rgba(255,255,255,0.7);
+    border-radius: 0;
     padding: 1rem;
     text-align: center;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .stat-value {
@@ -153,29 +154,20 @@
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--color-primary);
+    color: var(--azul-icesi);
 }
 
 .stat-label {
     display: block;
     font-size: 0.875rem;
-    opacity: 1;
     color: var(--gris-1);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.stat-card.completed .stat-value {
-    color: var(--verde-icesi);
-}
-
-.stat-card.pending .stat-value {
-    color: var(--naranja-icesi);
-}
-
-.stat-card.hours .stat-value {
-    color: var(--azul-icesi);
-}
+.stat-card.completed .stat-value { color: #16a34a; }
+.stat-card.pending   .stat-value { color: #d97706; }
+.stat-card.hours     .stat-value { color: var(--azul-icesi); }
 
 /* Acciones del Plan */
 .plan-actions {
@@ -208,7 +200,7 @@
 /* Lista de Actividades */
 .activities-list {
     background: white;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -231,8 +223,8 @@
 }
 
 .activities-table thead {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-    color: white;
+    background: var(--azul-icesi);
+    color: var(--blanco);
 }
 
 .activities-table th {
@@ -278,7 +270,7 @@
 .priority-badge, .state-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -362,7 +354,7 @@
 
 .modal-content {
     background: white;
-    border-radius: 12px;
+    border-radius: 0;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
@@ -374,11 +366,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
-    border-bottom: 2px solid var(--gris-2);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-    color: white;
-    border-radius: 12px 12px 0 0;
+    padding: var(--space-5) var(--space-6);
+    background: var(--azul-icesi);
+    border-left: 6px solid var(--amarillo-icesi);
+    color: var(--blanco);
+    border-radius: 0;
 }
 
 .modal-header h2 {
@@ -390,7 +382,7 @@
     font-size: 2rem;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -405,7 +397,7 @@
 .conflicts-alert {
     background: var(--naranja-icesi);
     border: 2px solid var(--naranja-icesi);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1rem;
     margin: 1.5rem;
     color: var(--naranja-icesi);
@@ -455,7 +447,7 @@ form {
 .form-group textarea {
     padding: 0.75rem;
     border: 2px solid var(--gris-2);
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 1rem;
     transition: all 0.3s;
     font-family: inherit;
@@ -482,7 +474,7 @@ form {
     padding: 1.5rem;
     border-top: 2px solid var(--gris-2);
     background: var(--blanco);
-    border-radius: 0 0 12px 12px;
+    border-radius: 0;
 }
 
 /* Loading */

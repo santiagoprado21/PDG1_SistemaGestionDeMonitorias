@@ -59,7 +59,7 @@
     font-size: var(--fs-body);
     font-family: var(--font-primary);
     border: 1px solid var(--gris-2);
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--blanco);
     color: var(--negro);
     transition: border-color var(--tr-fast), box-shadow var(--tr-fast);
@@ -84,7 +84,7 @@
     font-size: var(--fs-body);
     font-family: var(--font-primary);
     border: 1px solid var(--gris-2);
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--blanco);
     color: var(--negro);
     cursor: pointer;
@@ -107,7 +107,7 @@
     font-family: var(--font-primary);
     font-weight: 600;
     border: 1px solid var(--azul-icesi);
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--blanco);
     color: var(--azul-icesi);
     cursor: pointer;
@@ -132,21 +132,20 @@
     background: var(--blanco);
     padding: var(--space-5);
     border: 1px solid var(--gris-2);
+    border-top-width: 5px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     text-align: center;
-    border-top: 4px solid var(--azul-icesi);
     transition: box-shadow var(--tr-fast), transform var(--tr-fast);
 }
 
 .stat-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     transform: translateY(-2px);
 }
 
 .stat-card h3 {
     font-size: var(--fs-h1);
     font-weight: 700;
-    color: var(--azul-icesi);
     margin: 0 0 var(--space-1) 0;
 }
 
@@ -157,16 +156,28 @@
     font-weight: 500;
 }
 
-.stat-card.pending  { border-top-color: #c8940a; }
-.stat-card.pending h3 { color: #c8940a; }
+/* Monitorías — azul institucional */
+.stat-card.monitorias { background: #e8f0fe; border-color: var(--azul-icesi); border-top-width: 5px; }
+.stat-card.monitorias h3 { color: var(--azul-icesi); }
 
-.stat-card.in-progress { border-top-color: var(--azul-icesi); }
-.stat-card.in-progress h3 { color: var(--azul-icesi); }
+/* Total Actividades — gris oscuro neutro */
+.stat-card.total { background: #f3f4f6; border-color: #374151; border-top-width: 5px; }
+.stat-card.total h3 { color: #374151; }
 
-.stat-card.completed { border-top-color: #2d8a55; }
-.stat-card.completed h3 { color: #2d8a55; }
+/* Pendientes — ámbar */
+.stat-card.pending { background: #fffbeb; border-color: #d97706; border-top-width: 5px; }
+.stat-card.pending h3 { color: #d97706; }
 
-.stat-card.hours { border-top-color: var(--morado-icesi); }
+/* En progreso — azul medio */
+.stat-card.in-progress { background: #eff6ff; border-color: #2563eb; border-top-width: 5px; }
+.stat-card.in-progress h3 { color: #2563eb; }
+
+/* Completadas — verde */
+.stat-card.completed { background: #f0fdf4; border-color: #16a34a; border-top-width: 5px; }
+.stat-card.completed h3 { color: #16a34a; }
+
+/* Horas (si aplica) */
+.stat-card.hours { background: #faf5ff; border-color: var(--morado-icesi); border-top-width: 5px; }
 .stat-card.hours h3 { color: var(--morado-icesi); }
 
 /* ── Contenedor de actividades ── */
@@ -211,7 +222,7 @@
     font-weight: 600;
     background: var(--azul-icesi);
     color: var(--blanco);
-    border-radius: 2px;
+    border-radius: 0;
 }
 
 .monitoring-info {
@@ -241,7 +252,7 @@
     padding: 3px var(--space-3);
     font-size: var(--fs-h4);
     font-weight: 600;
-    border-radius: 2px;
+    border-radius: 0;
     white-space: nowrap;
 }
 
@@ -322,7 +333,7 @@
     padding: 2px var(--space-3);
     font-size: var(--fs-h4);
     font-weight: 600;
-    border-radius: 2px;
+    border-radius: 0;
     white-space: nowrap;
 }
 
@@ -335,7 +346,7 @@
     padding: 2px var(--space-2);
     font-size: var(--fs-h4);
     font-weight: 600;
-    border-radius: 2px;
+    border-radius: 0;
 }
 
 .priority-high   { background: #f8d7da; color: #721c24; }
@@ -350,7 +361,7 @@
     color: var(--blanco);
     font-size: var(--fs-h4);
     font-weight: 700;
-    border-radius: 2px;
+    border-radius: 0;
     text-align: center;
     letter-spacing: 0.02em;
 }
@@ -378,14 +389,14 @@
     width: 100%;
     height: 6px;
     background: var(--gris-2);
-    border-radius: 3px;
+    border-radius: 0;
     overflow: hidden;
 }
 
 .activity-progress-indicator .progress-bar-fill {
     height: 100%;
     background: var(--azul-icesi);
-    border-radius: 3px;
+    border-radius: 0;
     transition: width 0.3s ease;
 }
 
@@ -405,7 +416,7 @@
     font-family: var(--font-primary);
     font-weight: 600;
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     cursor: pointer;
     transition: background-color var(--tr-fast), transform var(--tr-fast);
     white-space: nowrap;
@@ -452,7 +463,7 @@
 
 .modal-content {
     background: var(--blanco);
-    border-radius: 4px;
+    border-radius: 0;
     max-width: 700px;
     width: 100%;
     max-height: 90vh;
@@ -485,7 +496,7 @@
     background: rgba(255,255,255,0.2);
     color: var(--blanco);
     border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 2px;
+    border-radius: 0;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -540,7 +551,7 @@
     background: var(--azul-icesi);
     color: var(--blanco);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     cursor: pointer;
     transition: background-color var(--tr-fast);
     width: 100%;
@@ -559,7 +570,7 @@
     background: #2d8a55;
     color: var(--blanco);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     cursor: pointer;
     transition: background-color var(--tr-fast);
     width: 100%;
@@ -582,7 +593,7 @@
 /* ── Modal de confirmacion ── */
 .confirm-modal {
     background: var(--blanco);
-    border-radius: 4px;
+    border-radius: 0;
     width: 90%;
     max-width: 500px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -694,7 +705,7 @@
     min-height: 38px;
     font-family: var(--font-primary);
     font-weight: 600;
-    border-radius: 2px;
+    border-radius: 0;
     cursor: pointer;
     transition: background-color var(--tr-fast), color var(--tr-fast);
 }
@@ -735,7 +746,7 @@
     height: 44px;
     border: 4px solid var(--gris-2);
     border-top-color: var(--azul-icesi);
-    border-radius: 50%;
+    border-radius: 0;
     animation: spin 0.8s linear infinite;
 }
 
@@ -828,7 +839,7 @@
 .progress-form textarea {
     padding: var(--space-2) var(--space-3);
     border: 1px solid var(--gris-2);
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--blanco);
     color: var(--negro);
     width: 100%;
@@ -871,7 +882,7 @@
 .selected-evidence button {
     padding: var(--space-2) var(--space-3);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--naranja-icesi);
     color: var(--blanco);
     font-weight: 600;
@@ -895,7 +906,7 @@
 .progress-form-actions button {
     padding: var(--space-3) var(--space-6);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--azul-icesi);
     color: var(--blanco);
     font-size: var(--fs-body);
@@ -975,7 +986,7 @@
     align-self: flex-start;
     padding: var(--space-2) var(--space-4);
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     background: var(--azul-icesi);
     color: var(--blanco);
     font-size: var(--fs-h4);

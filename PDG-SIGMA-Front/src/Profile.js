@@ -122,15 +122,15 @@ useEffect(() => {
     setUserId(storedId || "");
   }, []);
 
-  const [semestreSeleccionado, setSemestreSeleccionado] = useState("Seleccionar semestre");
+  const [semestreSeleccionado, setSemestreSeleccionado] = useState("Seleccionar periodo");
 
   const semestresDisponibles = [
-    "Seleccionar semestre",
+    "Seleccionar periodo",
     ...new Set(cursosAsignados? cursosAsignados.map((curso) => curso.semester): []),
   ];
 
   const cursosFiltrados =
-    semestreSeleccionado === "Seleccionar semestre"
+    semestreSeleccionado === "Seleccionar periodo"
       ? cursosAsignados
       : cursosAsignados.filter((curso) => curso.semester === semestreSeleccionado);
 
@@ -143,86 +143,107 @@ useEffect(() => {
 
       {/* Contenedor de perfil */}
       <div className="profile-content">
-        <div className="profile-card">
-          <img src={profilePic} alt="Foto de perfil" className="profile-pic" />
-         {user ? (
-            <>
-              <h2>{user.name}</h2>
-              <p><strong>Facultad:</strong> {user.school}</p>
-              <p><strong>Programa:</strong> {user.program}</p>
-              <p><strong>Rol:</strong> {user.rol}</p>
-            </>
-          ) : (
-            <p>Cargando perfil...</p>
-          )}
+
+        {/* Encabezado institucional */}
+        <div className="profile-page-header">
+          <h1>Mi Perfil</h1>
+          <p>Información personal y cursos asignados</p>
         </div>
 
-        {/* Contenedor de cursos asignados */}
-        <div className="courses-container">
-          <h3>Cursos Asignados</h3>
-          
-          {/* Filtro de semestre */}
-          <div className="filter-container">
-            <select className="select-semester-filter"
-              id="semestre"
-              value={semestreSeleccionado}
-              onChange={(e) => setSemestreSeleccionado(e.target.value)}
-            >
-              {semestresDisponibles.map((semestre) => (
-                <option key={semestre} value={semestre}>{semestre}</option>
-              ))}
-            </select>
+        <div className="profile-main">
+          {/* Tarjeta de usuario */}
+          <div className="profile-card">
+            <div className="profile-card-header">
+              <img src={profilePic} alt="Foto de perfil" className="profile-pic" />
+              {user ? <h2>{user.name}</h2> : <h2>Cargando...</h2>}
+            </div>
+            {user && (
+              <div className="profile-card-body">
+                <div className="profile-info-row">
+                  <span className="profile-info-label">Facultad</span>
+                  <span className="profile-info-value">{user.school}</span>
+                </div>
+                <div className="profile-info-row">
+                  <span className="profile-info-label">Programa</span>
+                  <span className="profile-info-value">{user.program}</span>
+                </div>
+                <div className="profile-info-row">
+                  <span className="profile-info-label">Rol</span>
+                  <span className="profile-info-value">{user.rol}</span>
+                </div>
+              </div>
+            )}
           </div>
 
-          <table className="courses-table">
-            <thead>
-              <tr>
-                <th>Semestre</th>
-                <th>Curso</th>
-                {role === "professor" && <th>Monitor Asignado</th>}
-                {role === "monitor" && <th>Profesor Asignado</th>}
-                {role === "jfedpto" && (
-                  <>
-                    <th>Profesor Asignado</th>
-                    <th>Monitor Asignado</th>
-                  </>
-                )}
-                {role === "professor" && <th>Acciones</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {cursosFiltrados.map((curso) => (
-                <tr key={curso.id? curso.id:"N/A"}>
-                  <td>{curso.semester? curso.semester:"N/A"}</td>
-                  <td>{curso.courseName? curso.courseName:"N/A"}</td>
-                  {role === "professor" && <td>{curso.monitor? curso.monitor: "No hay monitores"}</td>}
-                  {/* En este caso monitor va tener el nombre del profesor */}
-                  {role === "monitor" && <td>{curso.monitor? curso.monitor:"N/A"}</td>}
-                  {role === "jfedpto" && (
-                    <>
-                      <td>{curso.professorName? curso.professorName:"N/A"}</td>
-                      <td>{curso.monitor? curso.monitor: "No hay monitores"}</td>
-                    </>
-                  )}
-                  {role === "professor" && (
-                    <td>
-                      {curso.id && curso.monitor !== "No hay monitores" ? (
-                        <button 
-                          className="btn-plan-actividades"
-                          onClick={() => navigate(`/plan-actividades/${curso.id}`)}
-                          title="Ver plan de actividades"
-                        >
-                          Plan
-                        </button>
-                      ) : (
-                        <span style={{color: '#88898c', fontSize: '0.9em'}}>-</span>
+          {/* Contenedor de cursos asignados */}
+          <div className="courses-container">
+            <div className="courses-container-header">
+              <h3>Cursos Asignados</h3>
+            </div>
+            <div className="courses-container-body">
+              {/* Filtro de semestre */}
+              <div className="filter-container">
+                <select className="select-semester-filter"
+                  id="semestre"
+                  value={semestreSeleccionado}
+                  onChange={(e) => setSemestreSeleccionado(e.target.value)}
+                >
+                  {semestresDisponibles.map((semestre) => (
+                    <option key={semestre} value={semestre}>{semestre}</option>
+                  ))}
+                </select>
+              </div>
+
+              <table className="courses-table">
+                <thead>
+                  <tr>
+                    <th>Periodo</th>
+                    <th>Curso</th>
+                    {role === "professor" && <th>Monitor Asignado</th>}
+                    {role === "monitor" && <th>Profesor Asignado</th>}
+                    {role === "jfedpto" && (
+                      <>
+                        <th>Profesor Asignado</th>
+                        <th>Monitor Asignado</th>
+                      </>
+                    )}
+                    {role === "professor" && <th>Acciones</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cursosFiltrados.map((curso) => (
+                    <tr key={curso.id? curso.id:"N/A"}>
+                      <td>{curso.semester? curso.semester:"N/A"}</td>
+                      <td>{curso.courseName? curso.courseName:"N/A"}</td>
+                      {role === "professor" && <td>{curso.monitor? curso.monitor: "No hay monitores"}</td>}
+                      {role === "monitor" && <td>{curso.monitor? curso.monitor:"N/A"}</td>}
+                      {role === "jfedpto" && (
+                        <>
+                          <td>{curso.professorName? curso.professorName:"N/A"}</td>
+                          <td>{curso.monitor? curso.monitor: "No hay monitores"}</td>
+                        </>
                       )}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {role === "professor" && (
+                        <td>
+                          {curso.id && curso.monitor !== "No hay monitores" ? (
+                            <button
+                              className="btn-plan-actividades"
+                              onClick={() => navigate(`/plan-actividades/${curso.id}`)}
+                              title="Ver plan de actividades"
+                            >
+                              Plan
+                            </button>
+                          ) : (
+                            <span style={{color: '#88898c', fontSize: '0.9em'}}>-</span>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

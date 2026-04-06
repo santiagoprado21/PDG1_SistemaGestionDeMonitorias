@@ -15,8 +15,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  margin-left: 14em;
-  width: calc(100% - 14em);
+  margin-left: 230px;
+  max-width: 1400px;
+  margin-right: auto;
 }
 
 /* ── Encabezado institucional ── */
@@ -138,7 +139,7 @@
   min-width: 110px;
   text-align: center;
   flex-shrink: 0;
-  border-radius: 2px;
+  border-radius: 0;
 }
 
 .impact-badge span {
@@ -236,7 +237,7 @@
 /* ── Badges de estado (pill de revisión) ── */
 .badge {
   padding: 4px var(--space-3);
-  border-radius: 999px;
+  border-radius: 0;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -256,7 +257,7 @@
 /* ── Botón marcar como revisada ── */
 .ack-button {
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   padding: var(--space-3) var(--space-5);
   background: var(--azul-icesi);
   color: var(--blanco);
