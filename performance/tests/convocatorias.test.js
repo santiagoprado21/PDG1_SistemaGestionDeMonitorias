@@ -1,14 +1,19 @@
 /**
- * SIGMA-PERF-004 — Flujo de convocatorias
+ * SIGMA-PERF-004 / HU2-261 — Carga en endpoints de listado de convocatorias
  *
- * Simula el flujo completo de gestión de convocatorias:
- *   1. Login como profesor
- *   2. Listar convocatorias abiertas
- *   3. Obtener convocatorias por profesor
- *   4. Consultar postulaciones recibidas (acepta 200 o 404 — lista vacía es válida)
- *   5. Login como monitor
- *   6. Listar convocatorias disponibles para el monitor
- *   7. Consultar sus propias postulaciones
+ * Simula el flujo de LECTURA de convocatorias para los tres roles:
+ *   Profesor:
+ *     1. Listar convocatorias abiertas
+ *     2. Mis convocatorias (por profesor)
+ *     3. Postulaciones recibidas
+ *   Monitor:
+ *     4. Convocatorias disponibles (abiertas)
+ *     5. Mis postulaciones
+ *   Jefe de departamento:
+ *     6. Convocatorias pendientes de aprobación
+ *
+ * Para el flujo de ESCRITURA (ciclo completo crear→aprobar→postular→seleccionar→cerrar)
+ * ver: performance/tests/convocatorias-ciclo.test.js
  *
  * Perfil de carga:
  *   0 → 15 VUs en 30 s  (ramp-up)
@@ -17,7 +22,7 @@
  *
  * Criterios de éxito (SIGMA-PERF-002):
  *   - p95 de duración HTTP < 3 000 ms
- *   - Tasa de errores HTTP = 0 %  (404 no se cuenta como error de infraestructura)
+ *   - Tasa de errores HTTP = 0 %
  *   - 100 % de checks de negocio pasan
  *
  * Uso:
@@ -32,6 +37,7 @@ import {
     BASE_URL,
     MONITOR_ID,   MONITOR_PASS,
     PROFESSOR_ID, PROFESSOR_PASS,
+    HEAD_ID,      HEAD_PASS,
 } from '../config/env.js';
 
 // ── Opciones ──────────────────────────────────────────────────────────────────
@@ -41,21 +47,15 @@ export const options = {
         { duration: '3m',  target: 15 },
         { duration: '30s', target: 0  },
     ],
-    thresholds: {
-        ...convocatoriasThresholds,
-        // 404 es respuesta válida (lista vacía). Solo 5xx son errores reales.
-        // k6 marca como "failed" los 4xx/5xx; excluimos 404 contando solo >= 500.
-        http_req_failed: ['rate==0'],
-    },
+    thresholds: convocatoriasThresholds,
 };
 
 // ── Escenario principal ───────────────────────────────────────────────────────
 export default function () {
-    if (__VU % 2 === 0) {
-        flujoProfesor();
-    } else {
-        flujoMonitor();
-    }
+    const vuMod = __VU % 3;
+    if (vuMod === 0)      flujoProfesor();
+    else if (vuMod === 1) flujoMonitor();
+    else                  flujoJefe();
 
     sleep(1);
 }
@@ -74,10 +74,10 @@ function flujoProfesor() {
     sleep(0.3);
 
     group('Profesor — Convocatorias abiertas', () => {
-        const res = http.get(
-            `${BASE_URL}/monitoring-request/open`,
-            authHeaders(token)
-        );
+        const res = http.get(`${BASE_URL}/monitoring-request/open`, {
+            ...authHeaders(token),
+            timeout: '20s',
+        });
         check(res, {
             'convocatorias abiertas: status 200': (r) => r.status === 200,
             'convocatorias abiertas: es array':   (r) => {
@@ -88,13 +88,13 @@ function flujoProfesor() {
 
     sleep(0.3);
 
-    group('Profesor — Convocatorias por profesor', () => {
+    group('Profesor — Mis convocatorias', () => {
         const res = http.get(
             `${BASE_URL}/monitoring-request/professor/${PROFESSOR_ID}`,
-            authHeaders(token)
+            { ...authHeaders(token), timeout: '20s' }
         );
         check(res, {
-            'convocatorias por profesor: status 200': (r) => r.status === 200,
+            'mis convocatorias: status 200': (r) => r.status === 200,
         });
     });
 
@@ -105,8 +105,8 @@ function flujoProfesor() {
             `${BASE_URL}/monitor-application/professor/${PROFESSOR_ID}`,
             {
                 ...authHeaders(token),
-                // Cualquier respuesta no-5xx es válida: 200 (hay datos),
-                // 404 (sin postulaciones), 403 (sin permiso en datos de prueba)
+                timeout: '20s',
+                // 404/403 son válidos: lista vacía o sin datos de prueba
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
@@ -129,11 +129,11 @@ function flujoMonitor() {
 
     sleep(0.3);
 
-    group('Monitor — Ver convocatorias disponibles', () => {
-        const res = http.get(
-            `${BASE_URL}/monitoring-request/open`,
-            authHeaders(token)
-        );
+    group('Monitor — Convocatorias disponibles', () => {
+        const res = http.get(`${BASE_URL}/monitoring-request/open`, {
+            ...authHeaders(token),
+            timeout: '20s',
+        });
         check(res, {
             'convocatorias disponibles: status 200': (r) => r.status === 200,
         });
@@ -144,10 +144,39 @@ function flujoMonitor() {
     group('Monitor — Mis postulaciones', () => {
         const res = http.get(
             `${BASE_URL}/monitor-application/monitor/${MONITOR_ID}`,
-            authHeaders(token)
+            { ...authHeaders(token), timeout: '20s' }
         );
         check(res, {
             'mis postulaciones: status 200': (r) => r.status === 200,
+        });
+    });
+}
+
+// ── Flujo jefe de departamento ────────────────────────────────────────────────
+function flujoJefe() {
+    let token;
+
+    group('Jefe — Login', () => {
+        token = login(HEAD_ID, HEAD_PASS);
+        check(token, { 'token de jefe obtenido': (t) => t !== null });
+    });
+
+    if (!token) return;
+
+    sleep(0.3);
+
+    group('Jefe — Convocatorias pendientes de aprobación', () => {
+        const res = http.get(
+            `${BASE_URL}/monitoring-request/pending-head-approval/${HEAD_ID}`,
+            {
+                ...authHeaders(token),
+                timeout: '20s',
+                // Lista puede estar vacía (404) o sin datos de prueba (403)
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
+            }
+        );
+        check(res, {
+            'pendientes aprobación: sin error de servidor': (r) => r.status < 500,
         });
     });
 }
