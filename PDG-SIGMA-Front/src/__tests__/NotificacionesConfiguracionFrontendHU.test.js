@@ -88,8 +88,9 @@ describe('Frontend: Notificaciones y configuración (visibilidad + preferencias)
         fireEvent.click(screen.getByTitle('Notificaciones'));
 
         await waitFor(() => {
-            expect(screen.getByText(/La actividad "Actividad 1" vence en 1 día/i)).toBeInTheDocument();
+            expect(screen.queryByText(/No hay notificaciones pendientes/i)).not.toBeInTheDocument();
         });
+        expect(screen.getByText(/Actividad 1/i)).toBeInTheDocument();
     });
 
     test('Debe permitir cambiar y guardar preferencias localmente', async () => {

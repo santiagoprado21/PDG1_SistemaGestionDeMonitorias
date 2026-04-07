@@ -21,7 +21,7 @@ describe('Frontend: Componentes compartidos y utilidades', () => {
         Object.defineProperty(window, 'localStorage', {
             value: {
                 getItem: jest.fn((key) => {
-                    if (key === 'role') return 'monitor';
+                    if (key === 'role') return 'student';
                     if (key === 'userId') return 'M-1';
                     if (key === 'token') return 'Bearer test-token';
                     return null;
@@ -57,7 +57,7 @@ describe('Frontend: Componentes compartidos y utilidades', () => {
         expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    test('VerticalNavbar debe mostrar accesos de monitor y notificaciones', async () => {
+    test('VerticalNavbar debe mostrar accesos base y notificaciones', async () => {
         render(
             <BrowserRouter>
                 <VerticalNavbar />
@@ -65,7 +65,7 @@ describe('Frontend: Componentes compartidos y utilidades', () => {
         );
 
         expect(await screen.findByText(/Convocatorias Abiertas/i)).toBeInTheDocument();
-        expect(screen.getByText(/Mis Postulaciones/i)).toBeInTheDocument();
+        expect(screen.getByText(/Evaluacion de monitoria/i)).toBeInTheDocument();
         expect(screen.getByTestId('notification-icon')).toBeInTheDocument();
     });
 

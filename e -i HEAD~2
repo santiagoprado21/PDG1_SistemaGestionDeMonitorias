@@ -1,0 +1,72 @@
+[33me6015d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/tests-frontend[m[33m, [m[1;31morigin/feature/tests-frontend[m[33m)[m agregar cobertura para ventanas emergentes, flujos de administración de monitoreo y componentes compartidos
+[33m46bf109[m test(front): add coverage for convocatorias closure and notification preferences
+[33m98f74c9[m Merge branch 'dev' into feature/tests-frontend-monitor
+[33mb2ea554[m[33m ([m[1;31morigin/feature/tests-backend[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mfeature/tests-backend[m[33m, [m[1;32mdev[m[33m)[m Merge pull request #54 from Cris2002-CAR/feature/bordes-cuadrados-monitor
+[33mc344d3f[m Merge pull request #53 from Cris2002-CAR/feature/HU2-261-convocatorias-carga
+[33m0b875cb[m Merge pull request #52 from Cris2002-CAR/feature/HU2-257-latencia-login-v2
+[33md126afe[m Merge pull request #51 from Cris2002-CAR/feature/HU2-253-thresholds-k6
+[33m257a613[m[33m ([m[1;31morigin/feature/bordes-cuadrados-monitor[m[33m)[m fix: cambiar 'Semestre' por 'Periodo' en perfil
+[33m62272ef[m style: rediseñar perfil con estilo institucional SIGMA+
+[33mf8e5e68[m fix: input de búsqueda visible con fondo blanco sobre header azul
+[33m7468dc8[m style: agregar encabezado azul+amarillo al panel-header de EvaluarSupervisor
+[33mf0747db[m fix: igualar padding de VerConvocatorias al patrón de las demás vistas monitor
+[33mc9f8c88[m fix: corregir ancho del contenido en VerConvocatorias usando flex:1
+[33m30ae776[m style: estandarizar VerConvocatorias al diseño institucional
+[33m5ba87cd[m style: estandarizar vistas faltantes del monitor al diseño institucional
+[33mc58d616[m style: estandariza todas las vistas del monitor al mismo diseño institucional
+[33mb42a91b[m fix: borde izquierdo de stat-cards ahora coincide con el color del borde superior
+[33m7a7c108[m style: corrige colores de tarjetas de estadísticas en Mis Actividades
+[33mb343c33[m style: bordes cuadrados en todas las vistas del monitor
+[33mc4bb277[m[33m ([m[1;31morigin/feature/HU2-261-convocatorias-carga[m[33m)[m fix+docs(HU2-261): ajusta threshold convocatorias a 3500ms y documenta resultados
+[33me38bc21[m docs(HU2-261): documenta resultados medidos del ciclo completo de convocatoria
+[33m78eff79[m fix(HU2-261): elimina paso de aprobacion de monitoria por jefe
+[33mb937f15[m feat(HU2-261): tests de carga para listados y ciclo completo de convocatorias
+[33mf3e0423[m[33m ([m[1;31morigin/feature/HU2-257-latencia-login-v2[m[33m)[m docs(HU2-257): documenta resultados medidos del test de login
+[33mad0e18f[m feat(HU2-257): mide latencia y tasa de éxito de /auth/login bajo carga
+[33m56bd0dd[m[33m ([m[1;31morigin/feature/HU2-253-thresholds-k6[m[33m)[m fix(load): agrega timeout y gracefulStop; reduce a 15 VUs
+[33mefc38be[m fix(load): corrige responseCallback y ajusta thresholds bajo 25 VUs
+[33mdd47916[m fix(cierre): acepta status < 500 en getAll y ajusta threshold a 10s
+[33m3bedce0[m fix(actividades): acepta status < 500 en monitorias del monitor de prueba
+[33m384f781[m fix(convocatorias): acepta cualquier status < 500 en postulaciones profesor
+[33m02e45c7[m fix(HU2-253): elimina timing checks redundantes y acepta 404 en postulaciones
+[33md68a0d3[m fix(HU2-253): ajusta threshold de login a 2500ms según medición real
+[33mc9a4e4f[m fix(smoke): ajusta threshold global a 3s y reporte a 5s
+[33mac01964[m feat(HU2-253): documenta SLAs y codifica thresholds k6 para SIGMA+
+[33me61b34c[m Configurando selenium
+[33m7318b7b[m Merge pull request #50 from Cris2002-CAR/feature/HU-394-Mis-Evaluaciones-Rol-Monitor
+[33mdf5f888[m[33m ([m[1;31morigin/feature/tests-frontend-jefe-departamento[m[33m, [m[1;32mfeature/tests-frontend-jefe-departamento[m[33m)[m Merge pull request #48 from Cris2002-CAR/feature/HU-392-Evaluacion-de-Monitorias-Rol-Monitor
+[33m58609ed[m Merge pull request #49 from Cris2002-CAR/feature/HU-393-Mis-Actividades-Rol-Monitor
+[33m3ab8fbf[m[33m ([m[1;31morigin/feature/HU-394-Mis-Evaluaciones-Rol-Monitor[m[33m)[m feat(HU-394): interfaz Mis Evaluaciones rol Monitor con MisEvaluaciones.css
+[33me6ae3c2[m[33m ([m[1;31morigin/feature/HU-393-Mis-Actividades-Rol-Monitor[m[33m)[m feat(HU-393): interfaz Mis Actividades rol Monitor con MisActividades.css
+[33m27da07d[m[33m ([m[1;31morigin/feature/HU-392-Evaluacion-de-Monitorias-Rol-Monitor[m[33m)[m feat(HU-392): interfaz evaluacion monitorias rol monitor y botones rectangulares
+[33m193a0d2[m Merge pull request #47 from Cris2002-CAR/feature/-Modificar-Historial-de-Evaluaciones
+[33m9431342[m Merge pull request #46 from Cris2002-CAR/feature/-Rediseño-de-Formularios-de-Evaluación
+[33m0668e28[m Merge pull request #45 from Cris2002-CAR/feature/Interfaz-del-Plan-de-Actividades
+[33m263ccbb[m test de login y autenticacion
+[33mf81768c[m[33m ([m[1;31morigin/feature/-Modificar-Historial-de-Evaluaciones[m[33m, [m[1;32mHU2-358-feature/Modificar-Vista-de-Supervisor[m[33m)[m Actualizando EvaluarSupervisorHU021
+[33m7e7afb3[m[33m ([m[1;31morigin/feature/-Rediseño-de-Formularios-de-Evaluación[m[33m, [m[1;32mHU2-354-feature/Rediseno-de-Formularios-de-Evaluación[m[33m)[m Actualizando EvaluacionMonitoriaEstudiante
+[33m747186d[m[33m ([m[1;31morigin/feature/Interfaz-del-Plan-de-Actividades[m[33m, [m[1;32mHU2-366-feature/Interfaz-del-Plan-de-Actividades[m[33m)[m Modificaciones en plan actividades frontend
+[33m44055ed[m[33m ([m[1;31morigin/feature/tests-frontend-profesor[m[33m, [m[1;32mfeature/tests-frontend-profesor[m[33m)[m Merge pull request #44 from Cris2002-CAR/feature/TT-Mejorar-Navbar
+[33m365778e[m Merge pull request #43 from Cris2002-CAR/feature/TT-Mejorar-Login
+[33m2c09a6e[m[33m ([m[1;31morigin/feature/TT-Mejorar-Navbar[m[33m)[m Improve nabvar UI
+[33m2df58ad[m[33m ([m[1;31morigin/feature/TT-Mejorar-Login[m[33m)[m Improve login UI
+[33md9688a3[m[33m ([m[1;31morigin/feature/TT-Implementar-variables-globales-Front[m[33m)[m Merge pull request #42 from Cris2002-CAR/feature/TT-Implementar-variables-globales-Front
+[33m072c7b8[m merge: resolve frontend conflicts after dev sync
+[33m3c8be6f[m Merge pull request #41 from Cris2002-CAR/feature/HU2-382-convocatorias-abiertas-monitor-front
+[33m48b9946[m Merge pull request #40 from Cris2002-CAR/feature/HU2-363-mis-postulaciones-front
+[33mfb79a35[m merge: resolve frontend conflicts after dev sync
+[33ma3bd671[m style(frontend): standardize logo usage across the UI
+[33meb2ef5f[m style(frontend): standardize button styles
+[33m5514929[m[33m ([m[1;31morigin/feature/HU2-363-mis-postulaciones-front[m[33m)[m Actualizacion frontend para colores y tamaño de la card
+[33m672d206[m[33m ([m[1;31morigin/feature/HU2-382-convocatorias-abiertas-monitor-front[m[33m)[m Actualizacion frontend convocatorias abiertas desde rol monitor
+[33m6c6c787[m Actualizacion pantalla mis postulaciones
+[33md9a49a5[m Merge pull request #39 from Cris2002-CAR/feature/paleta-institucional-2026
+[33m13ff5e9[m Merge pull request #38 from Cris2002-CAR/feature/k6-performance-tests
+[33mbffce58[m[33m ([m[1;31morigin/feature/paleta-institucional-2026[m[33m)[m Actualizacion paleta de colores icesi
+[33maf22c40[m Actualizacion colores principales y complementarios Icesi
+[33m593958c[m[33m ([m[1;31morigin/feature/k6-performance-tests[m[33m)[m Add performance tests first configuration
+[33m591f554[m Merge pull request #37 from Cris2002-CAR/feature/-FRONT-END]-Interfaz-de-Chat-y-Comunicación
+[33m33e84b3[m Merge pull request #36 from Cris2002-CAR/feature/-FRONT-END]-Rediseño-de-Alertas-y-Notificaciones
+[33m9b5fbed[m Merge pull request #35 from Cris2002-CAR/HU-023-Ayuda-contextual-en-reportes-para-jefe-de-departamento
+[33mae4ec63[m[33m ([m[1;31morigin/feature/-FRONT-END]-Interfaz-de-Chat-y-Comunicación[m[33m, [m[1;32mfeature/-FRONT-END]-Interfaz-de-Chat-y-Comunicación[m[33m)[m Ajustes el front chat
+[33mb9be289[m[33m ([m[1;31morigin/feature/-FRONT-END]-Rediseño-de-Alertas-y-Notificaciones[m[33m, [m[1;32mfeature/-FRONT-END]-Re
