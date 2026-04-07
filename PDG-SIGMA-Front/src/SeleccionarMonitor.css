@@ -171,7 +171,7 @@
     background: white;
     border: 2px solid var(--azul-icesi);
     color: var(--azul-icesi);
-    border-radius: 6px;
+    border-radius: 2px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;

@@ -107,7 +107,7 @@
   --focus-ring-soft: rgba(84, 84, 233, 0.2);
 
   /* Botones institucionales */
-  --btn-radius: 4px;
+  --btn-radius: 2px;
   --btn-font-size: 13px;
   --btn-padding-y: 6px;
   --btn-padding-x: 32px;
@@ -148,6 +148,7 @@ textarea {
 
 button {
   font-family: var(--font-primary);
+  border-radius: 2px;
 }
 
 .btn-primary,

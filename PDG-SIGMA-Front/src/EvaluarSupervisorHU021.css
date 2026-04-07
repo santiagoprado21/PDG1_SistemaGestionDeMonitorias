@@ -1,0 +1,165 @@
+.evaluar-supervisor-hu021 .evaluar-monitores-content {
+  padding: 2rem;
+}
+
+.evaluar-supervisor-hu021 .panel-header h2,
+.evaluar-supervisor-hu021 .assignments-group h3,
+.evaluar-supervisor-hu021 .placeholder-panel h3,
+.evaluar-supervisor-hu021 .form-header h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.125rem, 2vw, 24px);
+  line-height: 1.2;
+}
+
+.evaluar-supervisor-hu021 .scores-grid--single {
+  gap: 1rem;
+}
+
+.evaluar-supervisor-hu021 .form-header {
+  border-radius: 0;
+  box-shadow: none;
+  padding: 1.1rem 1.35rem;
+  gap: 1rem;
+}
+
+.evaluar-supervisor-hu021 .form-header p {
+  font-size: 1.03rem;
+  font-weight: 600;
+}
+
+.evaluar-supervisor-hu021 .form-meta {
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.evaluar-supervisor-hu021 .impact-badge {
+  background-color: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.52);
+  border-radius: 0;
+  min-width: 136px;
+  padding: 0.9rem 1.1rem;
+  gap: 0.25rem;
+}
+
+.evaluar-supervisor-hu021 .impact-badge span {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.evaluar-supervisor-hu021 .impact-badge strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.evaluar-supervisor-hu021 .score-question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--gris-2);
+  border-radius: 0;
+  background: var(--blanco);
+}
+
+.evaluar-supervisor-hu021 .question-text {
+  display: block;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.evaluar-supervisor-hu021 .score-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.evaluar-supervisor-hu021 .score-pill {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-body);
+  color: var(--color-text-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--tr-fast), box-shadow var(--tr-fast), background-color var(--tr-fast), border-color var(--tr-fast), color var(--tr-fast);
+}
+
+.evaluar-supervisor-hu021 .score-pill:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.evaluar-supervisor-hu021 .score-pill.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--blanco);
+  box-shadow: 0 8px 16px var(--shadow-primary-sm);
+}
+
+.evaluar-supervisor-hu021 .score-pill:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.evaluar-supervisor-hu021 .score-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.evaluar-supervisor-hu021 .submit-feedback {
+  margin: 0;
+  font-weight: 700;
+}
+
+.evaluar-supervisor-hu021 .submit-feedback--success {
+  color: var(--color-success);
+}
+
+@media (max-width: 768px) {
+  .evaluar-supervisor-hu021 .evaluar-monitores-content {
+    padding: 2rem;
+  }
+
+  .evaluar-supervisor-hu021 .score-question {
+    padding: 0.875rem;
+  }
+
+  .evaluar-supervisor-hu021 .form-header {
+    padding: 1rem 1.1rem;
+  }
+
+  .evaluar-supervisor-hu021 .impact-badge {
+    min-width: 124px;
+    padding: 0.8rem 0.95rem;
+  }
+
+  .evaluar-supervisor-hu021 .impact-badge strong {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .evaluar-supervisor-hu021 .evaluar-monitores-content {
+    padding: 2rem;
+  }
+
+  .evaluar-supervisor-hu021 .score-pill {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.85rem;
+  }
+
+  .evaluar-supervisor-hu021 .score-legend {
+    font-size: 0.85rem;
+  }
+}

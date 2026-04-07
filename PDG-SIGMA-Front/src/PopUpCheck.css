@@ -27,7 +27,7 @@
   
   .button {
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 2px;
     padding: var(--space-3) var(--space-5);
     margin: var(--space-1);
     cursor: pointer;

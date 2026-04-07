@@ -10,9 +10,13 @@ import { BASE_URL } from '../config/env.js';
  * @param {string} password - Contraseña del usuario
  * @returns {string|null}   - Token JWT o null si falla
  */
-export function login(userId, password) {
+export function login(userId, password, extraParams = {}) {
     const payload = JSON.stringify({ userId, password });
-    const params  = { headers: { 'Content-Type': 'application/json' } };
+    const params  = {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: '20s',
+        ...extraParams,
+    };
 
     const res = http.post(`${BASE_URL}/auth/login`, payload, params);
 
