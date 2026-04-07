@@ -201,6 +201,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     @Transactional
     public MonitorSurveyTemplateDTO createTemplate(MonitorSurveyTemplateCreateRequest request) throws Exception {
         String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
+        String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
         List<Long> questionIds = Optional.ofNullable(request.getQuestionIds()).orElse(Collections.emptyList());
 
         if (questionIds.isEmpty()) {
@@ -210,6 +211,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         MonitorSurveyTemplate template = new MonitorSurveyTemplate();
         template.setName(name);
         template.setDescription(request.getDescription());
+        template.setCreatedForSemester(createdForSemester);
         MonitorSurveyTemplate savedTemplate = templateRepository.save(template);
 
         int order = 1;
@@ -224,6 +226,57 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         }
 
         return toTemplateDTO(savedTemplate);
+    }
+
+    @Override
+    @Transactional
+    public MonitorSurveyTemplateDTO updateTemplate(Long templateId, MonitorSurveyTemplateUpdateRequest request) throws Exception {
+        MonitorSurveyTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new Exception("Plantilla no encontrada"));
+
+        String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
+        String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
+        List<Long> questionIds = Optional.ofNullable(request.getQuestionIds()).orElse(Collections.emptyList());
+
+        if (questionIds.isEmpty()) {
+            throw new Exception("Debe seleccionar al menos una pregunta para actualizar la plantilla");
+        }
+
+        template.setName(name);
+        template.setDescription(request.getDescription());
+        template.setCreatedForSemester(createdForSemester);
+        MonitorSurveyTemplate savedTemplate = templateRepository.save(template);
+
+        templateQuestionRepository.deleteByTemplateId(savedTemplate.getId());
+
+        int order = 1;
+        for (Long id : questionIds) {
+            MonitorSurveyQuestion question = questionRepository.findById(id)
+                    .orElseThrow(() -> new Exception("Pregunta no encontrada: " + id));
+            MonitorSurveyTemplateQuestion entry = new MonitorSurveyTemplateQuestion();
+            entry.setTemplate(savedTemplate);
+            entry.setQuestion(question);
+            entry.setDisplayOrder(order++);
+            templateQuestionRepository.save(entry);
+        }
+
+        return toTemplateDTO(savedTemplate);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTemplate(Long templateId) throws Exception {
+        MonitorSurveyTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new Exception("Plantilla no encontrada"));
+
+        List<MonitorSurveySemesterConfig> configs = semesterConfigRepository.findAllByTemplateId(templateId);
+        for (MonitorSurveySemesterConfig config : configs) {
+            config.setTemplate(null);
+            semesterConfigRepository.save(config);
+        }
+
+        templateQuestionRepository.deleteByTemplateId(templateId);
+        templateRepository.delete(template);
     }
 
     @Override
@@ -350,6 +403,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         dto.setId(template.getId());
         dto.setName(template.getName());
         dto.setDescription(template.getDescription());
+        dto.setCreatedForSemester(template.getCreatedForSemester());
 
         List<MonitorSurveyQuestionDTO> questions = templateQuestionRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId()).stream()
                 .filter(item -> item.getQuestion() != null)

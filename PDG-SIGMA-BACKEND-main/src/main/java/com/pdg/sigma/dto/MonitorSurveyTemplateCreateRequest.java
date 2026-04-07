@@ -8,5 +8,6 @@ import java.util.List;
 public class MonitorSurveyTemplateCreateRequest {
     private String name;
     private String description;
+    private String createdForSemester;
     private List<Long> questionIds;
 }

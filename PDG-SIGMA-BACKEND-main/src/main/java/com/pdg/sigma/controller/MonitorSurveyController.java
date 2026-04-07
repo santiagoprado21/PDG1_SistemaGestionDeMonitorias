@@ -129,6 +129,34 @@ public class MonitorSurveyController {
         }
     }
 
+    @PutMapping("/admin/templates/{templateId}")
+    public ResponseEntity<?> updateTemplate(@RequestAttribute("role") String role,
+                                            @PathVariable Long templateId,
+                                            @RequestBody MonitorSurveyTemplateUpdateRequest request) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            return ResponseEntity.ok(monitorSurveyService.updateTemplate(templateId, request));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @DeleteMapping("/admin/templates/{templateId}")
+    public ResponseEntity<?> deleteTemplate(@RequestAttribute("role") String role,
+                                            @PathVariable Long templateId) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            monitorSurveyService.deleteTemplate(templateId);
+            return ResponseEntity.ok(Map.of("message", "Plantilla eliminada"));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
     @PostMapping("/admin/apply-template")
     public ResponseEntity<?> applyTemplate(@RequestAttribute("role") String role,
                                            @RequestBody MonitorSurveyApplyTemplateRequest request) {

@@ -26,6 +26,9 @@ public class MonitorSurveyTemplate implements Serializable {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "created_for_semester", length = 20)
+    private String createdForSemester;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

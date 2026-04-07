@@ -9,19 +9,22 @@ function GestionEncuestaMonitoresHU026() {
   const token = localStorage.getItem('token');
   const [semester, setSemester] = useState('');
   const [loading, setLoading] = useState(true);
-  const [savingConfig, setSavingConfig] = useState(false);
   const [creatingQuestion, setCreatingQuestion] = useState(false);
   const [creatingTemplate, setCreatingTemplate] = useState(false);
+  const [savingTemplateEdit, setSavingTemplateEdit] = useState(false);
+  const [deletingTemplateId, setDeletingTemplateId] = useState(null);
 
   const [questions, setQuestions] = useState([]);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [editingTemplateId, setEditingTemplateId] = useState(null);
+  const [expandedTemplateIds, setExpandedTemplateIds] = useState([]);
 
   const [newQuestion, setNewQuestion] = useState({ statement: '', category: '' });
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [editingQuestion, setEditingQuestion] = useState({ statement: '', category: '' });
 
-  const [templateForm, setTemplateForm] = useState({ name: '', description: '' });
+  const [templateForm, setTemplateForm] = useState({ name: '', description: '', createdForSemester: '' });
 
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -69,6 +72,16 @@ function GestionEncuestaMonitoresHU026() {
       setQuestions(bank);
       setSelectedQuestionIds(selected);
       setTemplates(Array.isArray(templatesBody) ? templatesBody : []);
+
+      const effectiveSemester = (semesterParam || configBody.semester || '').trim();
+      if (effectiveSemester) {
+        setTemplateForm((prev) =>
+          prev.createdForSemester && prev.createdForSemester.trim() !== ''
+            ? prev
+            : { ...prev, createdForSemester: effectiveSemester }
+        );
+      }
+
       if (configBody.semester && !semesterParam) {
         setSemester(configBody.semester);
       }
@@ -88,6 +101,14 @@ function GestionEncuestaMonitoresHU026() {
     const map = new Map(questions.map((q) => [q.id, q]));
     return selectedQuestionIds.map((id, index) => ({ ...map.get(id), displayOrder: index + 1 })).filter(Boolean);
   }, [questions, selectedQuestionIds]);
+
+  const getTemplateQuestionIds = (template) => {
+    return (template.questions || [])
+      .slice()
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+      .map((question) => question.id)
+      .filter(Boolean);
+  };
 
   const toggleQuestionSelection = (questionId) => {
     setSelectedQuestionIds((prev) => {
@@ -187,39 +208,14 @@ function GestionEncuestaMonitoresHU026() {
     }
   };
 
-  const saveCurrentConfig = async () => {
-    if (!semester.trim()) {
-      openMessage('Debes definir el semestre actual.');
-      return;
-    }
-    if (selectedQuestionIds.length === 0) {
-      openMessage('Selecciona al menos una pregunta para la encuesta activa.');
-      return;
-    }
-
-    setSavingConfig(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/current-config`, {
-        method: 'PUT',
-        headers: authHeaders,
-        body: JSON.stringify({ semester, questionIds: selectedQuestionIds })
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || 'No se pudo guardar la configuración');
-
-      openMessage('Configuración de encuesta guardada.');
-      await loadAll(semester);
-    } catch (error) {
-      openMessage(error.message || 'No se pudo guardar la configuración');
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
   const createTemplate = async (event) => {
     event.preventDefault();
     if (!templateForm.name.trim()) {
       openMessage('Debes ingresar el nombre de la plantilla.');
+      return;
+    }
+    if (!templateForm.createdForSemester.trim()) {
+      openMessage('Debes indicar el periodo de creación de la plantilla.');
       return;
     }
     if (selectedQuestionIds.length === 0) {
@@ -235,13 +231,14 @@ function GestionEncuestaMonitoresHU026() {
         body: JSON.stringify({
           name: templateForm.name,
           description: templateForm.description,
+          createdForSemester: templateForm.createdForSemester,
           questionIds: selectedQuestionIds
         })
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'No se pudo crear la plantilla');
 
-      setTemplateForm({ name: '', description: '' });
+      setTemplateForm({ name: '', description: '', createdForSemester: semester || '' });
       openMessage('Plantilla guardada correctamente.');
       await loadAll(semester);
     } catch (error) {
@@ -251,9 +248,99 @@ function GestionEncuestaMonitoresHU026() {
     }
   };
 
+  const startEditingTemplate = (template) => {
+    const templateQuestionIds = getTemplateQuestionIds(template);
+    setEditingTemplateId(template.id);
+    setTemplateForm({
+      name: template.name || '',
+      description: template.description || '',
+      createdForSemester: template.createdForSemester || semester || ''
+    });
+    setSelectedQuestionIds(templateQuestionIds);
+  };
+
+  const cancelEditingTemplate = () => {
+    setEditingTemplateId(null);
+    setTemplateForm({ name: '', description: '', createdForSemester: semester || '' });
+  };
+
+  const saveTemplateEdit = async () => {
+    if (!editingTemplateId) return;
+
+    if (!templateForm.name.trim()) {
+      openMessage('Debes ingresar el nombre de la plantilla.');
+      return;
+    }
+    if (!templateForm.createdForSemester.trim()) {
+      openMessage('Debes indicar el periodo de creación de la plantilla.');
+      return;
+    }
+    if (selectedQuestionIds.length === 0) {
+      openMessage('Selecciona preguntas antes de actualizar la plantilla.');
+      return;
+    }
+
+    setSavingTemplateEdit(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/templates/${editingTemplateId}`, {
+        method: 'PUT',
+        headers: authHeaders,
+        body: JSON.stringify({
+          name: templateForm.name,
+          description: templateForm.description,
+          createdForSemester: templateForm.createdForSemester,
+          questionIds: selectedQuestionIds
+        })
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'No se pudo actualizar la plantilla');
+
+      openMessage('Plantilla actualizada correctamente.');
+      cancelEditingTemplate();
+      await loadAll(semester);
+    } catch (error) {
+      openMessage(error.message || 'No se pudo actualizar la plantilla');
+    } finally {
+      setSavingTemplateEdit(false);
+    }
+  };
+
+  const deleteTemplate = async (templateId) => {
+    const confirmed = window.confirm('¿Seguro que deseas eliminar esta plantilla?');
+    if (!confirmed) return;
+
+    setDeletingTemplateId(templateId);
+    try {
+      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/templates/${templateId}`, {
+        method: 'DELETE',
+        headers: authHeaders
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'No se pudo eliminar la plantilla');
+
+      if (editingTemplateId === templateId) {
+        cancelEditingTemplate();
+      }
+
+      openMessage('Plantilla eliminada correctamente.');
+      await loadAll(semester);
+    } catch (error) {
+      openMessage(error.message || 'No se pudo eliminar la plantilla');
+    } finally {
+      setDeletingTemplateId(null);
+    }
+  };
+
+  const toggleTemplateQuestions = (templateId) => {
+    setExpandedTemplateIds((prev) =>
+      prev.includes(templateId) ? prev.filter((id) => id !== templateId) : [...prev, templateId]
+    );
+  };
+
   const applyTemplate = async (templateId) => {
-    if (!semester.trim()) {
-      openMessage('Debes definir el semestre antes de aplicar una plantilla.');
+    const periodToApply = (semester || '').trim();
+    if (!periodToApply) {
+      openMessage('Debes definir el periodo antes de aplicar una plantilla.');
       return;
     }
 
@@ -261,13 +348,14 @@ function GestionEncuestaMonitoresHU026() {
       const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/apply-template`, {
         method: 'POST',
         headers: authHeaders,
-        body: JSON.stringify({ templateId, semester })
+        body: JSON.stringify({ templateId, semester: periodToApply })
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'No se pudo aplicar la plantilla');
 
-      openMessage('Plantilla aplicada a la encuesta activa.');
-      await loadAll(semester);
+      setSemester(periodToApply);
+      openMessage(`Plantilla aplicada al periodo ${periodToApply}.`);
+      await loadAll(periodToApply);
     } catch (error) {
       openMessage(error.message || 'No se pudo aplicar la plantilla');
     }
@@ -281,9 +369,9 @@ function GestionEncuestaMonitoresHU026() {
       <div className="hu026-content">
         <header className="hu026-header">
           <h2>Gestión de encuesta de evaluación de monitores</h2>
-          <p>Administra el banco de preguntas, define el formulario activo del semestre y guarda plantillas.</p>
+          <p>Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
           <div className="hu026-semester-row">
-            <label htmlFor="semesterInput">Semestre activo</label>
+            <label htmlFor="semesterInput">Periodo activo</label>
             <input
               id="semesterInput"
               type="text"
@@ -292,7 +380,7 @@ function GestionEncuestaMonitoresHU026() {
               placeholder="Ej: 2026-1"
             />
             <button type="button" onClick={() => loadAll(semester)}>
-              Cargar semestre
+              Cargar periodo
             </button>
           </div>
         </header>
@@ -305,6 +393,7 @@ function GestionEncuestaMonitoresHU026() {
           <div className="hu026-grid">
             <section className="hu026-card">
               <h3>Banco de preguntas</h3>
+              <p className="hu026-card-help">Crea, edita y selecciona preguntas para la configuración actual.</p>
               <form className="hu026-new-question" onSubmit={handleCreateQuestion}>
                 <textarea
                   value={newQuestion.statement}
@@ -357,7 +446,7 @@ function GestionEncuestaMonitoresHU026() {
                           <p>{question.statement}</p>
                           <div className="actions">
                             <button type="button" onClick={() => toggleQuestionSelection(question.id)} disabled={!question.bankActive && !isSelected}>
-                              {isSelected ? 'Quitar de encuesta' : 'Agregar a encuesta'}
+                              {isSelected ? 'Quitar de configuración' : 'Agregar a configuración'}
                             </button>
                             <button type="button" onClick={() => startEditing(question)}>Editar</button>
                             <button type="button" onClick={() => toggleBankStatus(question)}>
@@ -373,62 +462,124 @@ function GestionEncuestaMonitoresHU026() {
             </section>
 
             <section className="hu026-card">
-              <h3>Encuesta activa del semestre</h3>
-              {selectedQuestions.length === 0 ? (
-                <p className="empty">No hay preguntas seleccionadas.</p>
-              ) : (
-                <ol className="hu026-order-list">
-                  {selectedQuestions.map((question) => (
-                    <li key={question.id}>
-                      <div>
-                        <strong>{question.category}</strong>
-                        <p>{question.statement}</p>
-                      </div>
-                      <div className="actions vertical">
-                        <button type="button" onClick={() => moveSelectedQuestion(question.id, 'up')}>Subir</button>
-                        <button type="button" onClick={() => moveSelectedQuestion(question.id, 'down')}>Bajar</button>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
+              <h3>{editingTemplateId ? 'Editar plantilla' : 'Crear plantilla'}</h3>
+              <p className="hu026-card-help">Usa las preguntas seleccionadas del banco para guardar una plantilla con nombre y periodo.</p>
 
-              <button type="button" className="save-config" onClick={saveCurrentConfig} disabled={savingConfig}>
-                {savingConfig ? 'Guardando...' : 'Guardar encuesta activa'}
-              </button>
+              <form onSubmit={editingTemplateId ? (event) => { event.preventDefault(); saveTemplateEdit(); } : createTemplate} className="hu026-template-form">
+                <input
+                  value={templateForm.name}
+                  onChange={(event) => setTemplateForm((prev) => ({ ...prev, name: event.target.value }))}
+                  placeholder="Nombre de la plantilla"
+                />
+                <input
+                  value={templateForm.createdForSemester}
+                  onChange={(event) => setTemplateForm((prev) => ({ ...prev, createdForSemester: event.target.value }))}
+                  placeholder="Periodo de creación (Ej: 2026-1)"
+                />
+                <textarea
+                  value={templateForm.description}
+                  onChange={(event) => setTemplateForm((prev) => ({ ...prev, description: event.target.value }))}
+                  placeholder="Descripción (opcional)"
+                />
 
-              <div className="hu026-template-block">
-                <h4>Plantillas</h4>
-                <form onSubmit={createTemplate} className="hu026-template-form">
-                  <input
-                    value={templateForm.name}
-                    onChange={(event) => setTemplateForm((prev) => ({ ...prev, name: event.target.value }))}
-                    placeholder="Nombre de la plantilla"
-                  />
-                  <textarea
-                    value={templateForm.description}
-                    onChange={(event) => setTemplateForm((prev) => ({ ...prev, description: event.target.value }))}
-                    placeholder="Descripción (opcional)"
-                  />
-                  <button type="submit" disabled={creatingTemplate}>
-                    {creatingTemplate ? 'Guardando...' : 'Guardar plantilla desde selección actual'}
-                  </button>
-                </form>
-
-                <div className="hu026-templates-list">
-                  {templates.map((template) => (
-                    <article key={template.id}>
-                      <div>
-                        <strong>{template.name}</strong>
-                        <p>{template.description || 'Sin descripción'}</p>
-                        <small>{template.questions?.length || 0} preguntas</small>
-                      </div>
-                      <button type="button" onClick={() => applyTemplate(template.id)}>
-                        Aplicar al semestre
-                      </button>
-                    </article>
-                  ))}
+                <div className="hu026-selected-summary">
+                  <strong>{selectedQuestionIds.length}</strong> preguntas seleccionadas
                 </div>
+
+                {selectedQuestions.length === 0 ? (
+                  <p className="empty">No hay preguntas seleccionadas para la plantilla.</p>
+                ) : (
+                  <ol className="hu026-order-list">
+                    {selectedQuestions.map((question) => (
+                      <li key={question.id}>
+                        <div>
+                          <strong>{question.category}</strong>
+                          <p>{question.statement}</p>
+                        </div>
+                        <div className="actions vertical">
+                          <button type="button" onClick={() => moveSelectedQuestion(question.id, 'up')}>Subir</button>
+                          <button type="button" onClick={() => moveSelectedQuestion(question.id, 'down')}>Bajar</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+
+                <div className="actions">
+                  {editingTemplateId ? (
+                    <>
+                      <button type="submit" disabled={savingTemplateEdit}>
+                        {savingTemplateEdit ? 'Actualizando...' : 'Actualizar plantilla'}
+                      </button>
+                      <button type="button" onClick={cancelEditingTemplate}>Cancelar edición</button>
+                    </>
+                  ) : (
+                    <button type="submit" disabled={creatingTemplate}>
+                      {creatingTemplate ? 'Guardando plantilla...' : 'Guardar plantilla'}
+                    </button>
+                  )}
+                </div>
+              </form>
+            </section>
+
+            <section className="hu026-card">
+              <h3>Plantillas creadas</h3>
+              <p className="hu026-card-help">Visualiza preguntas, edita la plantilla, aplícala al periodo o elimínala.</p>
+
+              <div className="hu026-templates-list">
+                {templates.length === 0 ? (
+                  <p className="empty">No hay plantillas guardadas.</p>
+                ) : (
+                  templates.map((template) => {
+                    const isExpanded = expandedTemplateIds.includes(template.id);
+                    const questionItems = (template.questions || [])
+                      .slice()
+                      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+                    return (
+                      <article key={template.id}>
+                        <div className="hu026-template-main">
+                          <strong>{template.name}</strong>
+                          <p>{template.description || 'Sin descripción'}</p>
+                          <small>
+                            Periodo de creación: {template.createdForSemester || 'No definido'} | {template.questions?.length || 0} preguntas
+                          </small>
+                        </div>
+
+                        <div className="actions hu026-template-actions">
+                          <button type="button" onClick={() => toggleTemplateQuestions(template.id)}>
+                            {isExpanded ? 'Ocultar preguntas' : 'Ver preguntas'}
+                          </button>
+                          <button type="button" onClick={() => startEditingTemplate(template)}>
+                            Editar
+                          </button>
+                          <button type="button" onClick={() => applyTemplate(template.id)}>
+                            Aplicar al periodo
+                          </button>
+                          <button
+                            type="button"
+                            className="danger"
+                            onClick={() => deleteTemplate(template.id)}
+                            disabled={deletingTemplateId === template.id}
+                          >
+                            {deletingTemplateId === template.id ? 'Eliminando...' : 'Eliminar'}
+                          </button>
+                        </div>
+
+                        {isExpanded && (
+                          <ol className="hu026-template-questions">
+                            {questionItems.map((question) => (
+                              <li key={`${template.id}-${question.id}`}>
+                                <strong>{question.category}</strong>
+                                <p>{question.statement}</p>
+                              </li>
+                            ))}
+                          </ol>
+                        )}
+                      </article>
+                    );
+                  })
+                )}
               </div>
             </section>
           </div>

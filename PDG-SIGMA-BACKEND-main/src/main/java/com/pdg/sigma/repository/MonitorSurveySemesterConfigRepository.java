@@ -10,4 +10,5 @@ public interface MonitorSurveySemesterConfigRepository extends JpaRepository<Mon
     Optional<MonitorSurveySemesterConfig> findBySemester(String semester);
     Optional<MonitorSurveySemesterConfig> findFirstByActiveTrueOrderByUpdatedAtDesc();
     List<MonitorSurveySemesterConfig> findAllByOrderByUpdatedAtDesc();
+    List<MonitorSurveySemesterConfig> findAllByTemplateId(Long templateId);
 }

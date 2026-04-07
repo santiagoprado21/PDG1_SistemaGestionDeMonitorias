@@ -15,6 +15,8 @@ public interface MonitorSurveyService {
 
     List<MonitorSurveyTemplateDTO> listTemplates();
     MonitorSurveyTemplateDTO createTemplate(MonitorSurveyTemplateCreateRequest request) throws Exception;
+    MonitorSurveyTemplateDTO updateTemplate(Long templateId, MonitorSurveyTemplateUpdateRequest request) throws Exception;
+    void deleteTemplate(Long templateId) throws Exception;
     MonitorSurveyCurrentConfigDTO applyTemplate(MonitorSurveyApplyTemplateRequest request) throws Exception;
 
     List<MonitorSurveyPublicQuestionDTO> getPublicQuestions(String semester);
