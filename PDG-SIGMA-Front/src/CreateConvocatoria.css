@@ -7,10 +7,10 @@
 */
 
 .create-monitoria-container {
-  padding: var(--space-5);
-  margin-left: 200px;
+  padding: 0;
+  margin-left: 230px;
   min-height: 100vh;
-  background-color: var(--blanco);
+  background-color: #f5f6fa;
 }
 
 /* ============================TITLE================================= */
@@ -19,30 +19,30 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  margin-bottom: 2em;
-  padding: 2em 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  margin: 0 9em 2em 9em;
+  align-items: flex-start;
+  padding: var(--space-6) var(--space-7);
+  background: var(--azul-icesi);
+  border-left: 6px solid var(--amarillo-icesi);
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0 0 var(--space-7) 0;
 }
 
 .title-create-monitoria {
   font-family: var(--main-font-family);
-  font-size: 32px;
-  font-weight: bold;
-  color: white;
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--blanco);
   margin: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .subtitle-create-monitoria {
   font-family: var(--main-font-family);
-  font-size: 16px;
-  color: rgba(255,255,255,0.9);
-  margin-top: var(--space-2);
-  text-align: center;
+  font-size: var(--fs-body);
+  color: rgba(255,255,255,0.85);
+  margin-top: var(--space-1);
+  text-align: left;
 }
 
 /* ============================CONTENT================================= */
@@ -50,17 +50,18 @@
 .create-monitoria-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2em;
+  padding: 0 var(--space-7) var(--space-7);
 }
 
 /* ============================FORM SECTION================================= */
 
 .form-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--blanco);
+  border-radius: 0;
+  border: 1px solid var(--gris-2);
   padding: 2.5em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 3em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 2em;
 }
 
 .form-section h3 {
@@ -167,10 +168,12 @@
 /* ============================TABLE SECTION================================= */
 
 .table-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--blanco);
+  border-radius: 0;
+  border: 1px solid var(--gris-2);
   padding: 2.5em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 2em;
 }
 
 .table-section h3 {
@@ -187,13 +190,11 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 1em;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-radius: 0;
 }
 
 .monitorias-table thead {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
+  background: var(--azul-icesi);
 }
 
 .monitorias-table thead th {
@@ -232,7 +233,7 @@
   background-color: var(--info-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -261,7 +262,7 @@
   background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   font-family: var(--main-font-family);
   font-size: 14px;

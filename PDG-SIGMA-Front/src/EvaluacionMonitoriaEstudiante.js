@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link2, Copy, Check, ClipboardList, ShieldCheck, Share2 } from 'lucide-react';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
@@ -118,6 +119,7 @@ function EvaluacionMonitoriaEstudiante() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -127,13 +129,17 @@ function EvaluacionMonitoriaEstudiante() {
     const semesterParam = params.get('semester');
 
     if (monitoringParam) setMonitoringId(monitoringParam);
-    if (monitorCodeParam) setMonitorCode(monitorCodeParam);
+    if (monitorCodeParam) {
+      setMonitorCode(monitorCodeParam);
+    } else if (role === 'monitor') {
+      setMonitorCode(localStorage.getItem('userId') || '');
+    }
     if (monitorNameParam) setMonitorName(monitorNameParam);
     if (semesterParam) setSemester(semesterParam);
     if (monitoringParam || monitorCodeParam || monitorNameParam) {
       setLockIdentifiers(true);
     }
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     const loadSurveyQuestions = async () => {
@@ -350,7 +356,8 @@ function EvaluacionMonitoriaEstudiante() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareLink);
-      showMessage('Enlace copiado al portapapeles.');
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
     } catch (error) {
       showMessage('No se pudo copiar el enlace. Copialo manualmente.');
     }
@@ -496,56 +503,131 @@ function EvaluacionMonitoriaEstudiante() {
         )}
 
         {role === 'monitor' && (
-          <section className="monitoria-share-panel">
-            <h2>Compartir encuesta</h2>
-            <p>Completa los datos y genera un enlace para los estudiantes.</p>
-            <div className="monitoria-meta-grid">
-              <label>
-                Semestre
-                <input
-                  type="text"
-                  value={semester}
-                  onChange={(event) => setSemester(event.target.value)}
-                  placeholder="Ej: 2026-1"
-                />
-              </label>
-              <label>
-                Codigo de monitoria
-                <input
-                  type="text"
-                  value={monitoringId}
-                  onChange={(event) => setMonitoringId(event.target.value)}
-                  placeholder="Ej: 1024"
-                />
-              </label>
-              <label>
-                Codigo del monitor
-                <input
-                  type="text"
-                  value={monitorCode}
-                  onChange={(event) => setMonitorCode(event.target.value)}
-                  placeholder="Ej: M-045"
-                />
-              </label>
-              <label>
-                Nombre del monitor (opcional)
-                <input
-                  type="text"
-                  value={monitorName}
-                  onChange={(event) => setMonitorName(event.target.value)}
-                  placeholder="Nombre completo"
-                />
-              </label>
+          <section className="monitor-section">
+            <header className="monitor-page-header">
+              <div className="monitor-page-header-left">
+                <div className="monitor-page-header-icon">
+                  <ClipboardList size={28} />
+                </div>
+                <div>
+                  <h2>Evaluacion de mi Monitoria</h2>
+                  <p>Genera y comparte el enlace de evaluacion con tus estudiantes</p>
+                </div>
+              </div>
+              <div className="monitor-id-badge">
+                <span className="monitor-id-label">Monitor</span>
+                <span className="monitor-id-value">{localStorage.getItem('userId') || '—'}</span>
+              </div>
+            </header>
+
+            <div className="monitor-content-grid">
+              <div className="monitor-card monitor-share-card">
+                <div className="monitor-card-title-row">
+                  <div className="monitor-card-icon-wrap">
+                    <Share2 size={20} />
+                  </div>
+                  <div>
+                    <h3>Generar enlace de evaluacion</h3>
+                    <p>Completa los datos para personalizar el enlace</p>
+                  </div>
+                </div>
+
+                <div className="monitor-fields-grid">
+                  <label className="monitor-field">
+                    <span>Codigo de la monitoria <span className="monitor-req">*</span></span>
+                    <input
+                      type="text"
+                      value={monitoringId}
+                      onChange={(event) => setMonitoringId(event.target.value)}
+                      placeholder="Ej: 1024"
+                    />
+                  </label>
+                  <label className="monitor-field">
+                    <span>Codigo del monitor</span>
+                    <input
+                      type="text"
+                      value={monitorCode}
+                      onChange={(event) => setMonitorCode(event.target.value)}
+                      placeholder="Ej: 2220001"
+                    />
+                  </label>
+                  <label className="monitor-field monitor-field--full">
+                    <span>Tu nombre (opcional)</span>
+                    <input
+                      type="text"
+                      value={monitorName}
+                      onChange={(event) => setMonitorName(event.target.value)}
+                      placeholder="Nombre completo"
+                    />
+                  </label>
+                </div>
+
+                <div className="monitor-divider" />
+
+                <div className="monitor-link-group">
+                  <p className="monitor-link-label">
+                    <Link2 size={14} />
+                    Enlace generado para compartir
+                  </p>
+                  <div className="monitor-link-row">
+                    <div className="monitor-link-display">
+                      <span className="monitor-link-text">{shareLink}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className={`monitor-copy-btn ${linkCopied ? 'monitor-copy-btn--copied' : ''}`}
+                      onClick={handleCopyLink}
+                    >
+                      {linkCopied ? (
+                        <><Check size={15} /> Copiado</>
+                      ) : (
+                        <><Copy size={15} /> Copiar</>
+                      )}
+                    </button>
+                  </div>
+                  <p className="monitor-link-hint">
+                    El enlace pre-completa tus datos para que los estudiantes solo califiquen.
+                  </p>
+                </div>
+              </div>
+
+              <div className="monitor-right-col">
+                <div className="monitor-card monitor-steps-card">
+                  <h3 className="monitor-steps-title">Como funciona</h3>
+                  <ol className="monitor-steps-list">
+                    <li>
+                      <span className="monitor-step-num">1</span>
+                      <span>Ingresa el codigo de tu monitoria activa.</span>
+                    </li>
+                    <li>
+                      <span className="monitor-step-num">2</span>
+                      <span>Copia el enlace generado y envialo a tus estudiantes.</span>
+                    </li>
+                    <li>
+                      <span className="monitor-step-num">3</span>
+                      <span>Los estudiantes completan la encuesta de forma anonima.</span>
+                    </li>
+                    <li>
+                      <span className="monitor-step-num">4</span>
+                      <span>Los resultados son revisados por el jefe de departamento.</span>
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="monitor-card monitor-privacy-card">
+                  <div className="monitor-privacy-icon">
+                    <ShieldCheck size={22} />
+                  </div>
+                  <div className="monitor-privacy-body">
+                    <h4>Respuestas anonimas</h4>
+                    <p>
+                      Los estudiantes evaluan de forma completamente anonima.
+                      No podras identificar quien envio cada respuesta.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="monitoria-share-box">
-              <input type="text" value={shareLink} readOnly />
-              <button type="button" onClick={handleCopyLink}>
-                Copiar enlace
-              </button>
-            </div>
-            <p className="monitoria-share-note">
-              Comparte este enlace por correo para que los estudiantes respondan la encuesta.
-            </p>
           </section>
         )}
 

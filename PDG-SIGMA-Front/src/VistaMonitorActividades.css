@@ -451,7 +451,7 @@
     font-family: var(--font-primary);
     font-weight: 500;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     cursor: pointer;
     transition: all var(--tr-fast);
     white-space: nowrap;
@@ -537,7 +537,7 @@
     background: var(--color-danger);
     color: white;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -587,7 +587,7 @@
     background: var(--color-primary);
     color: white;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     cursor: pointer;
     transition: all var(--tr-fast);
     width: 100%;
@@ -607,7 +607,7 @@
     background: var(--color-success);
     color: white;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     cursor: pointer;
     transition: all var(--tr-fast);
     width: 100%;
@@ -912,7 +912,7 @@
 .selected-evidence button {
     padding: var(--space-2) var(--space-3);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 2px;
     background: var(--color-danger);
     color: white;
     cursor: pointer;
@@ -931,7 +931,7 @@
 .progress-form-actions button {
     padding: var(--space-2) var(--space-5);
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 2px;
     background: var(--color-primary);
     color: white;
     font-size: var(--fs-body);

@@ -165,7 +165,7 @@
 .btn-modify-hu010 {
     padding: 0.6rem 1rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 2px;
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
@@ -219,7 +219,7 @@
     background: white;
     border: 2px solid var(--azul-icesi);
     color: var(--azul-icesi);
-    border-radius: 6px;
+    border-radius: 2px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
@@ -490,7 +490,7 @@
     background: var(--gris-1);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 2px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
@@ -506,7 +506,7 @@
     padding: 0.8rem 1.5rem;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 2px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
