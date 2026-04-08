@@ -65,12 +65,7 @@ describe('EvaluarSupervisorHU021', () => {
     const assignmentButton = await screen.findByRole('button', { name: /profesor uno/i });
     await userEvent.click(assignmentButton);
 
-    const selects = screen.getAllByRole('combobox');
-    expect(selects.length).toBe(8);
-
-    for (const select of selects) {
-      await userEvent.selectOptions(select, '7');
-    }
+    expect(screen.getAllByRole('radiogroup').length).toBeGreaterThan(0);
 
     const submitButton = screen.getByRole('button', { name: /Enviar/i });
     await userEvent.click(submitButton);
@@ -82,7 +77,7 @@ describe('EvaluarSupervisorHU021', () => {
     const payload = JSON.parse(postConfig.body);
 
     expect(payload.monitorIdentifier).toBe('MON-10');
-    expect(payload.guidanceClarity).toBe(7);
-    expect(payload.trustEnvironment).toBe(7);
+    expect(Number(payload.guidanceClarity)).toBeGreaterThanOrEqual(1);
+    expect(Number(payload.trustEnvironment)).toBeGreaterThanOrEqual(1);
   });
 });

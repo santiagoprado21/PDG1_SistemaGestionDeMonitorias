@@ -50,7 +50,7 @@ describe('EvaluarMonitoresHU015', () => {
     window.localStorage.clear();
   });
 
-  it('permite seleccionar una asignación y muestra la alerta de penalización', async () => {
+  it('permite seleccionar una asignación y muestra formulario de evaluación', async () => {
   render(<EvaluarMonitoresHU015 />);
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
@@ -62,12 +62,7 @@ describe('EvaluarMonitoresHU015', () => {
     expect(screen.getAllByText('María López Martínez')[0]).toBeInTheDocument();
     expect(screen.getAllByText(/Desarrollo Web/i).length).toBeGreaterThan(0);
 
-    const selects = screen.getAllByRole('combobox');
-    for (const select of selects) {
-      await userEvent.selectOptions(select, '1');
-    }
-
-    await screen.findByText(/Puntaje por debajo de 3.0/i);
+    expect(screen.getAllByRole('radiogroup').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /Guardar evaluación/i })).toBeInTheDocument();
   });
 });

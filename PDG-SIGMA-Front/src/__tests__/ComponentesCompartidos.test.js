@@ -49,6 +49,11 @@ describe('Frontend: Componentes compartidos y utilidades', () => {
         expect(screen.getByRole('status')).toHaveTextContent('La selección terminó. Los estudiantes serán notificados');
     });
 
+    test('PopUp no renderiza contenido cuando show es false', () => {
+        render(<PopUp show={false} onClose={jest.fn()}>Oculto</PopUp>);
+        expect(screen.queryByText('Oculto')).not.toBeInTheDocument();
+    });
+
     test('PopUp debe ejecutar onClose al confirmar', () => {
         const onClose = jest.fn();
         render(<PopUp show={true} onClose={onClose}>Contenido popup</PopUp>);
@@ -72,6 +77,10 @@ describe('Frontend: Componentes compartidos y utilidades', () => {
     test('getApiUrl debe construir URL con y sin slash inicial', () => {
         expect(getApiUrl('/health')).toBe('http://localhost:5433/health');
         expect(getApiUrl('monitoring-request/open')).toBe('http://localhost:5433/monitoring-request/open');
+    });
+
+    test('getApiUrl debe manejar path vacío', () => {
+        expect(getApiUrl('')).toBe('http://localhost:5433/');
     });
 });
 

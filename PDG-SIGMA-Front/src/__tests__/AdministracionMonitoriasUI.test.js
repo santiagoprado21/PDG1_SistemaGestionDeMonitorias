@@ -160,5 +160,110 @@ describe('Frontend: Administración de monitorías', () => {
             );
         });
     });
+
+    test('Debe rechazar convocatoria y llamar endpoint de rechazo', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/pending-head-approval/')) {
+                return {
+                    ok: true,
+                    json: async () => ([
+                        {
+                            id: 88,
+                            courseName: 'Arquitectura',
+                            programName: 'Ing. Sistemas',
+                            professorName: 'Profesor Dos',
+                            requestedHours: 12,
+                            startDate: '2026-01-10',
+                            finishDate: '2026-05-20',
+                            justification: 'Alta demanda de monitorias'
+                        }
+                    ])
+                };
+            }
+            if (url.includes('/monitoring-request/88/reject-by-head')) {
+                return { ok: true, json: async () => ({ message: 'Rechazada correctamente' }) };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(
+            <BrowserRouter>
+                <AprobarMonitoriasHU010 />
+            </BrowserRouter>
+        );
+
+        const table = await screen.findByRole('table');
+        fireEvent.click(within(table).getByRole('button', { name: /Rechazar/i }));
+
+        const rejectButton = await screen.findByRole('button', { name: /Confirmar Rechazo/i });
+        expect(rejectButton).toBeDisabled();
+
+        fireEvent.change(screen.getByPlaceholderText(/Ingrese el motivo del rechazo/i), {
+            target: { value: 'No cumple criterios de apertura' }
+        });
+
+        fireEvent.click(rejectButton);
+
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledWith(
+                'http://localhost:5435/monitoring-request/88/reject-by-head',
+                expect.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    test('Debe modificar y aprobar convocatoria llamando endpoint PUT', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/pending-head-approval/')) {
+                return {
+                    ok: true,
+                    json: async () => ([
+                        {
+                            id: 99,
+                            courseName: 'Redes',
+                            programName: 'Ing. Telematica',
+                            professorName: 'Profesor Tres',
+                            requestedHours: 14,
+                            startDate: '2026-02-01',
+                            finishDate: '2026-06-01',
+                            requiredAverageGrade: 3.2,
+                            requiredCourseGrade: 3.4,
+                            hourlyRate: 25000,
+                            justification: 'Soporte practicas de laboratorio'
+                        }
+                    ])
+                };
+            }
+            if (url.includes('/monitoring-request/99/modify-by-head')) {
+                return { ok: true, json: async () => ({ message: 'Modificada y aprobada' }) };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(
+            <BrowserRouter>
+                <AprobarMonitoriasHU010 />
+            </BrowserRouter>
+        );
+
+        const table = await screen.findByRole('table');
+        fireEvent.click(within(table).getByRole('button', { name: /Modificar/i }));
+
+        const hoursInput = await screen.findByDisplayValue('14');
+        fireEvent.change(hoursInput, { target: { value: '16' } });
+
+        fireEvent.change(screen.getByPlaceholderText(/Ingrese comentario explicando las modificaciones realizadas/i), {
+            target: { value: 'Se ajustan horas por carga academica' }
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: /Modificar y Aprobar/i }));
+
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledWith(
+                'http://localhost:5435/monitoring-request/99/modify-by-head',
+                expect.objectContaining({ method: 'PUT' })
+            );
+        });
+    });
 });
 
