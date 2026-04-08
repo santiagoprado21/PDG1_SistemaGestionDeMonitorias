@@ -7,6 +7,12 @@ import './EvaluarMonitoresHU015.css';
 import './EvaluarSupervisorHU021.css';
 
 const SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
+const PERIOD_REGEX = /^\d{4}-[12]$/;
+
+const normalizeValidPeriod = (value) => {
+  const normalized = (value || '').trim();
+  return PERIOD_REGEX.test(normalized) ? normalized : '';
+};
 
 const PERFORMANCE_LABELS = {
   EXCELENTE: 'Excelente',
@@ -22,40 +28,13 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
-const EVALUATION_QUESTIONS = [
-  {
-    field: 'guidanceClarity',
-    text: 'El profesor proporciono instrucciones y objetivos claros para el desarrollo de mis actividades.'
-  },
-  {
-    field: 'roleExpectations',
-    text: 'Las expectativas del profesor sobre mi rol y responsabilidades estuvieron bien definidas desde el inicio.'
-  },
-  {
-    field: 'availabilityDisposition',
-    text: 'El profesor mostro una disposicion constante para atenderme cuando necesite resolver dudas o problemas.'
-  },
-  {
-    field: 'supportTimeliness',
-    text: 'El acompanamiento brindado por el profesor fue suficiente y oportuno durante todo el semestre.'
-  },
-  {
-    field: 'feedbackConstructive',
-    text: 'La retroalimentacion que recibi sobre mi trabajo fue constructiva y me ayudo a mejorar.'
-  },
-  {
-    field: 'feedbackFairness',
-    text: 'El profesor evaluo mi desempeno de manera justa y basada en los criterios acordados.'
-  },
-  {
-    field: 'respectfulTreatment',
-    text: 'El trato del profesor hacia mi fue siempre respetuoso, profesional y cordial.'
-  },
-  {
-    field: 'trustEnvironment',
-    text: 'El profesor fomento un ambiente de confianza que me permitio expresar mis ideas o dificultades.'
-  }
-];
+const buildDefaultScores = (questions) => {
+  const defaults = {};
+  questions.forEach((question) => {
+    defaults[question.id] = 4;
+  });
+  return defaults;
+};
 
 function EvaluarSupervisorHU021() {
   const monitorIdentifier = localStorage.getItem('userId');
@@ -65,21 +44,13 @@ function EvaluarSupervisorHU021() {
   const [loadingAssignments, setLoadingAssignments] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [surveyQuestions, setSurveyQuestions] = useState([]);
+  const [loadingSurveyQuestions, setLoadingSurveyQuestions] = useState(false);
+  const [questionScores, setQuestionScores] = useState({});
+  const [strengthsComments, setStrengthsComments] = useState('');
+  const [improvementComments, setImprovementComments] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState('');
-
-  const [formValues, setFormValues] = useState({
-    guidanceClarity: 4,
-    roleExpectations: 4,
-    availabilityDisposition: 4,
-    supportTimeliness: 4,
-    feedbackConstructive: 4,
-    feedbackFairness: 4,
-    respectfulTreatment: 4,
-    trustEnvironment: 4,
-    strengthsComments: '',
-    improvementComments: ''
-  });
 
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -128,6 +99,44 @@ function EvaluarSupervisorHU021() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const fetchSurveyQuestions = async (semester) => {
+    const validSemester = normalizeValidPeriod(semester);
+    const semesterQuery = validSemester ? `?semester=${encodeURIComponent(validSemester)}` : '';
+    setLoadingSurveyQuestions(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/professor-survey/current-config${semesterQuery}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token
+        }
+      });
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(body.error || 'No fue posible cargar las preguntas de evaluación.');
+      }
+
+      const questions = Array.isArray(body.questions)
+        ? body.questions.slice().sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+        : [];
+
+      setSurveyQuestions(questions);
+      setQuestionScores(buildDefaultScores(questions));
+
+      if (questions.length === 0) {
+        showMessage('No hay preguntas activas configuradas para este periodo.');
+      }
+    } catch (error) {
+      setSurveyQuestions([]);
+      setQuestionScores({});
+      console.error('Error cargando preguntas HU027:', error);
+      showMessage(error.message);
+    } finally {
+      setLoadingSurveyQuestions(false);
+    }
+  };
+
   const filteredAssignments = useMemo(() => {
     if (!searchTerm.trim()) {
       return assignments;
@@ -157,44 +166,31 @@ function EvaluarSupervisorHU021() {
   const handleSelectAssignment = (assignment) => {
     setSelectedAssignment(assignment);
     setSaveFeedback('');
-    setFormValues({
-      guidanceClarity: 4,
-      roleExpectations: 4,
-      availabilityDisposition: 4,
-      supportTimeliness: 4,
-      feedbackConstructive: 4,
-      feedbackFairness: 4,
-      respectfulTreatment: 4,
-      trustEnvironment: 4,
-      strengthsComments: '',
-      improvementComments: ''
-    });
+    setStrengthsComments('');
+    setImprovementComments('');
+    fetchSurveyQuestions(assignment?.semester);
   };
 
-  const updateScore = (field, value) => {
-    setFormValues((prev) => ({
+  const updateScore = (questionId, value) => {
+    setQuestionScores((prev) => ({
       ...prev,
-      [field]: Number(value)
+      [questionId]: Number(value)
     }));
   };
 
   const formattedAverage = useMemo(() => {
-    const {
-      guidanceClarity,
-      roleExpectations,
-      availabilityDisposition,
-      supportTimeliness,
-      feedbackConstructive,
-      feedbackFairness,
-      respectfulTreatment,
-      trustEnvironment
-    } = formValues;
-    const average = (
-      guidanceClarity + roleExpectations + availabilityDisposition + supportTimeliness +
-      feedbackConstructive + feedbackFairness + respectfulTreatment + trustEnvironment
-    ) / 8;
+    if (surveyQuestions.length === 0) {
+      return '0.00';
+    }
+
+    const total = surveyQuestions.reduce((sum, question) => {
+      const score = Number(questionScores[question.id] || 4);
+      return sum + score;
+    }, 0);
+
+    const average = total / surveyQuestions.length;
     return average.toFixed(2);
-  }, [formValues]);
+  }, [surveyQuestions, questionScores]);
 
   const performanceLevel = useMemo(() => {
     const total = parseFloat(formattedAverage);
@@ -204,22 +200,7 @@ function EvaluarSupervisorHU021() {
     return 'EN_RIESGO';
   }, [formattedAverage]);
 
-  const resetForm = () => {
-    setSelectedAssignment(null);
-    setSaveFeedback('');
-    setFormValues({
-      guidanceClarity: 4,
-      roleExpectations: 4,
-      availabilityDisposition: 4,
-      supportTimeliness: 4,
-      feedbackConstructive: 4,
-      feedbackFairness: 4,
-      respectfulTreatment: 4,
-      trustEnvironment: 4,
-      strengthsComments: '',
-      improvementComments: ''
-    });
-  };
+  const selectedAssignmentPeriod = normalizeValidPeriod(selectedAssignment?.semester) || 'Periodo sin registrar';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -233,19 +214,22 @@ function EvaluarSupervisorHU021() {
       return;
     }
 
+    if (surveyQuestions.length === 0) {
+      showMessage('No hay preguntas activas para evaluar este periodo.');
+      return;
+    }
+
+    const answers = surveyQuestions.map((question) => ({
+      questionId: question.id,
+      score: Number(questionScores[question.id] || 4)
+    }));
+
     const payload = {
       monitorIdentifier,
       monitoringId: selectedAssignment.monitoringId,
-      guidanceClarity: formValues.guidanceClarity,
-      roleExpectations: formValues.roleExpectations,
-      availabilityDisposition: formValues.availabilityDisposition,
-      supportTimeliness: formValues.supportTimeliness,
-      feedbackConstructive: formValues.feedbackConstructive,
-      feedbackFairness: formValues.feedbackFairness,
-      respectfulTreatment: formValues.respectfulTreatment,
-      trustEnvironment: formValues.trustEnvironment,
-      strengthsComments: formValues.strengthsComments,
-      improvementComments: formValues.improvementComments
+      strengthsComments,
+      improvementComments,
+      answers
     };
 
     setSaving(true);
@@ -283,6 +267,8 @@ function EvaluarSupervisorHU021() {
 
   const renderAssignmentItem = (assignment) => {
     const isSelected = selectedAssignment && selectedAssignment.monitoringId === assignment.monitoringId;
+    const period = normalizeValidPeriod(assignment.semester);
+
     return (
       <button
         key={`${assignment.monitoringId}`}
@@ -296,7 +282,7 @@ function EvaluarSupervisorHU021() {
           </span>
         </div>
         <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
-        <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {assignment.semester || 'Semestre sin registrar'}</p>
+        <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {period || 'Periodo sin registrar'}</p>
         {assignment.evaluated && assignment.submittedAt && (
           <div className="assignment-score">
             <strong>Enviada</strong>
@@ -307,8 +293,8 @@ function EvaluarSupervisorHU021() {
     );
   };
 
-  const renderScoreQuestion = ({ field, text }) => {
-    const selectedValue = formValues[field];
+  const renderScoreQuestion = (question) => {
+    const selectedValue = Number(questionScores[question.id] || 4);
 
     const handleScoreKeyDown = (event, currentIndex) => {
       if (selectedAssignment.evaluated) {
@@ -330,16 +316,16 @@ function EvaluarSupervisorHU021() {
       }
 
       event.preventDefault();
-      updateScore(field, SCORE_OPTIONS[nextIndex]);
+      updateScore(question.id, SCORE_OPTIONS[nextIndex]);
     };
 
     const selectedIndex = Math.max(0, SCORE_OPTIONS.indexOf(selectedValue));
-    const labelId = `${field}-label`;
+    const labelId = `question-${question.id}-label`;
 
     return (
-      <div className="score-question" key={field}>
+      <div className="score-question" key={question.id}>
         <span className="question-text" id={labelId}>
-          {text}
+          {question.statement}
           <span className="required-asterisk">*</span>
         </span>
 
@@ -347,9 +333,9 @@ function EvaluarSupervisorHU021() {
           {SCORE_OPTIONS.map((option, index) => (
             <button
               type="button"
-              key={`${field}-${option}`}
+              key={`${question.id}-${option}`}
               className={`score-pill ${selectedValue === option ? 'active' : ''}`}
-              onClick={() => updateScore(field, option)}
+              onClick={() => updateScore(question.id, option)}
               onKeyDown={(event) => handleScoreKeyDown(event, index)}
               disabled={selectedAssignment.evaluated}
               role="radio"
@@ -434,7 +420,7 @@ function EvaluarSupervisorHU021() {
                 <div>
                   <h3>{selectedAssignment.professorName || 'Profesor supervisor'}</h3>
                   <p>{selectedAssignment.monitoringName}</p>
-                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignment.semester}</span>
+                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignmentPeriod}</span>
                 </div>
                 <div className={`impact-badge ${PERFORMANCE_CLASSES[performanceLevel]}`}>
                   <span>{PERFORMANCE_LABELS[performanceLevel]}</span>
@@ -442,15 +428,23 @@ function EvaluarSupervisorHU021() {
                 </div>
               </header>
 
-              <div className="scores-grid scores-grid--single">
-                {EVALUATION_QUESTIONS.map(renderScoreQuestion)}
-              </div>
+              {loadingSurveyQuestions ? (
+                <div className="loading-wrapper">
+                  <LoadingSpinner message="Cargando preguntas activas" />
+                </div>
+              ) : surveyQuestions.length === 0 ? (
+                <p className="empty-state">No hay preguntas configuradas para este periodo.</p>
+              ) : (
+                <div className="scores-grid scores-grid--single">
+                  {surveyQuestions.map(renderScoreQuestion)}
+                </div>
+              )}
 
               <label className="comments-field">
                 Que aspectos destacaria de la supervision del profesor? (Opcional)
                 <textarea
-                  value={formValues.strengthsComments}
-                  onChange={(event) => setFormValues((prev) => ({ ...prev, strengthsComments: event.target.value }))}
+                  value={strengthsComments}
+                  onChange={(event) => setStrengthsComments(event.target.value)}
                   placeholder="Ej: claridad en los objetivos, seguimiento oportuno, apoyo constante."
                   disabled={selectedAssignment.evaluated}
                 />
@@ -459,8 +453,8 @@ function EvaluarSupervisorHU021() {
               <label className="comments-field">
                 Que sugerencias le darias al profesor para mejorar la experiencia de futuros monitores? (Opcional)
                 <textarea
-                  value={formValues.improvementComments}
-                  onChange={(event) => setFormValues((prev) => ({ ...prev, improvementComments: event.target.value }))}
+                  value={improvementComments}
+                  onChange={(event) => setImprovementComments(event.target.value)}
                   placeholder="Ej: mas espacios de retroalimentacion o reuniones periodicas."
                   disabled={selectedAssignment.evaluated}
                 />
@@ -474,7 +468,11 @@ function EvaluarSupervisorHU021() {
 
               {saveFeedback && <p className="submit-feedback submit-feedback--success">{saveFeedback}</p>}
 
-              <button type="submit" className="submit-button" disabled={saving || selectedAssignment.evaluated}>
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={saving || selectedAssignment.evaluated || loadingSurveyQuestions || surveyQuestions.length === 0}
+              >
                 {saving ? 'Enviando…' : 'Enviar evaluación'}
               </button>
             </form>

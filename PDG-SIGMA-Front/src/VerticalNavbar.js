@@ -437,6 +437,15 @@ function VerticalNavbar() {
               <ClipboardCheck {...navIconProps} />
               <span className="nav-label">Gestion encuesta monitores</span>
             </NavLink>
+
+            <NavLink
+              to="/gestion-encuesta-profesores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <ClipboardList {...navIconProps} />
+              <span className="nav-label">Gestion encuesta profesores</span>
+            </NavLink>
           </>
         )}
 

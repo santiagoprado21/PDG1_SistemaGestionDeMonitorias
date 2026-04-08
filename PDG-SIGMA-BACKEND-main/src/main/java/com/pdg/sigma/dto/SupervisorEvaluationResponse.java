@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -40,6 +41,7 @@ public class SupervisorEvaluationResponse {
     private String strengthsComments;
     private String improvementComments;
     private String submittedBy;
+    private List<SupervisorEvaluationAnswerResponseDTO> answers;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

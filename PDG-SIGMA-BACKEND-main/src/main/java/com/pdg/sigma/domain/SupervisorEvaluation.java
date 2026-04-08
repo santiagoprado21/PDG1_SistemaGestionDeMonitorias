@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -39,6 +41,9 @@ public class SupervisorEvaluation implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "monitoring_monitor_id")
     private MonitoringMonitor monitoringMonitor;
+
+    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupervisorEvaluationAnswer> answers = new ArrayList<>();
 
     @Column(name = "guidance_clarity", nullable = false)
     private int guidanceClarity;
