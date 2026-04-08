@@ -16,8 +16,7 @@ function GestionEncuestaMonitoresHU026() {
   const [deletingTemplateId, setDeletingTemplateId] = useState(null);
 
   const [questions, setQuestions] = useState([]);
-  const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
-  const [currentConfigQuestionIds, setCurrentConfigQuestionIds] = useState([]);
+  const [templateQuestionIds, setTemplateQuestionIds] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [expandedTemplateIds, setExpandedTemplateIds] = useState([]);
@@ -72,8 +71,6 @@ function GestionEncuestaMonitoresHU026() {
         : [];
 
       setQuestions(bank);
-      setCurrentConfigQuestionIds(selected);
-      setSelectedQuestionIds(selected);
       setTemplates(Array.isArray(templatesBody) ? templatesBody : []);
 
       const effectiveSemester = (semesterParam || configBody.semester || '').trim();
@@ -102,8 +99,8 @@ function GestionEncuestaMonitoresHU026() {
 
   const selectedQuestions = useMemo(() => {
     const map = new Map(questions.map((q) => [q.id, q]));
-    return selectedQuestionIds.map((id, index) => ({ ...map.get(id), displayOrder: index + 1 })).filter(Boolean);
-  }, [questions, selectedQuestionIds]);
+    return templateQuestionIds.map((id, index) => ({ ...map.get(id), displayOrder: index + 1 })).filter(Boolean);
+  }, [questions, templateQuestionIds]);
 
   const templatePeriodOptions = useMemo(() => {
     return Array.from(
@@ -138,17 +135,12 @@ function GestionEncuestaMonitoresHU026() {
       .filter(Boolean);
   };
 
-  const toggleQuestionSelection = (questionId) => {
-    setSelectedQuestionIds((prev) => {
-      if (prev.includes(questionId)) {
-        return prev.filter((id) => id !== questionId);
-      }
-      return [...prev, questionId];
-    });
+  const addTemplateQuestion = (questionId) => {
+    setTemplateQuestionIds((prev) => (prev.includes(questionId) ? prev : [...prev, questionId]));
   };
 
-  const moveSelectedQuestion = (questionId, direction) => {
-    setSelectedQuestionIds((prev) => {
+  const moveTemplateQuestion = (questionId, direction) => {
+    setTemplateQuestionIds((prev) => {
       const idx = prev.indexOf(questionId);
       if (idx === -1) return prev;
       const nextIdx = direction === 'up' ? idx - 1 : idx + 1;
@@ -236,6 +228,12 @@ function GestionEncuestaMonitoresHU026() {
     }
   };
 
+  const resetTemplateDraft = () => {
+    setEditingTemplateId(null);
+    setTemplateForm({ name: '', description: '', createdForSemester: '' });
+    setTemplateQuestionIds([]);
+  };
+
   const createTemplate = async (event) => {
     event.preventDefault();
     if (!templateForm.name.trim()) {
@@ -246,7 +244,7 @@ function GestionEncuestaMonitoresHU026() {
       openMessage('Debes indicar el periodo de creación de la plantilla.');
       return;
     }
-    if (selectedQuestionIds.length === 0) {
+    if (templateQuestionIds.length === 0) {
       openMessage('Selecciona preguntas antes de crear la plantilla.');
       return;
     }
@@ -260,13 +258,13 @@ function GestionEncuestaMonitoresHU026() {
           name: templateForm.name,
           description: templateForm.description,
           createdForSemester: templateForm.createdForSemester,
-          questionIds: selectedQuestionIds
+          questionIds: templateQuestionIds
         })
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'No se pudo crear la plantilla');
 
-      setTemplateForm({ name: '', description: '', createdForSemester: semester || '' });
+      resetTemplateDraft();
       openMessage('Plantilla guardada correctamente.');
       await loadAll(semester);
     } catch (error) {
@@ -284,13 +282,11 @@ function GestionEncuestaMonitoresHU026() {
       description: template.description || '',
       createdForSemester: template.createdForSemester || semester || ''
     });
-    setSelectedQuestionIds(templateQuestionIds);
+    setTemplateQuestionIds(templateQuestionIds);
   };
 
   const cancelEditingTemplate = () => {
-    setEditingTemplateId(null);
-    setTemplateForm({ name: '', description: '', createdForSemester: semester || '' });
-    setSelectedQuestionIds(currentConfigQuestionIds);
+    resetTemplateDraft();
   };
 
   const saveTemplateEdit = async () => {
@@ -304,7 +300,7 @@ function GestionEncuestaMonitoresHU026() {
       openMessage('Debes indicar el periodo de creación de la plantilla.');
       return;
     }
-    if (selectedQuestionIds.length === 0) {
+    if (templateQuestionIds.length === 0) {
       openMessage('Selecciona preguntas antes de actualizar la plantilla.');
       return;
     }
@@ -318,14 +314,14 @@ function GestionEncuestaMonitoresHU026() {
           name: templateForm.name,
           description: templateForm.description,
           createdForSemester: templateForm.createdForSemester,
-          questionIds: selectedQuestionIds
+          questionIds: templateQuestionIds
         })
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || 'No se pudo actualizar la plantilla');
 
+      resetTemplateDraft();
       openMessage('Plantilla actualizada correctamente.');
-      cancelEditingTemplate();
       await loadAll(semester);
     } catch (error) {
       openMessage(error.message || 'No se pudo actualizar la plantilla');
@@ -456,8 +452,8 @@ function GestionEncuestaMonitoresHU026() {
 
               <div className="hu026-question-list">
                 {questions.map((question) => {
-                  const isSelected = selectedQuestionIds.includes(question.id);
-                  const order = selectedQuestionIds.indexOf(question.id) + 1;
+                  const isSelected = templateQuestionIds.includes(question.id);
+                  const order = templateQuestionIds.indexOf(question.id) + 1;
                   const isEditing = editingQuestionId === question.id;
 
                   return (
@@ -489,8 +485,8 @@ function GestionEncuestaMonitoresHU026() {
                         <>
                           <p>{question.statement}</p>
                           <div className="actions">
-                            <button type="button" onClick={() => toggleQuestionSelection(question.id)} disabled={!question.bankActive && !isSelected}>
-                              {isSelected ? 'Quitar de configuración' : 'Agregar a configuración'}
+                            <button type="button" onClick={() => addTemplateQuestion(question.id)} disabled={!question.bankActive || isSelected}>
+                              {isSelected ? 'Ya agregada' : 'Agregar a configuración'}
                             </button>
                             <button type="button" onClick={() => startEditing(question)}>Editar</button>
                             <button type="button" onClick={() => toggleBankStatus(question)}>
@@ -527,7 +523,7 @@ function GestionEncuestaMonitoresHU026() {
                 />
 
                 <div className="hu026-selected-summary">
-                  <strong>{selectedQuestionIds.length}</strong> preguntas seleccionadas
+                  <strong>{templateQuestionIds.length}</strong> preguntas seleccionadas
                 </div>
 
                 {selectedQuestions.length === 0 ? (
@@ -541,8 +537,8 @@ function GestionEncuestaMonitoresHU026() {
                           <p>{question.statement}</p>
                         </div>
                         <div className="actions vertical">
-                          <button type="button" onClick={() => moveSelectedQuestion(question.id, 'up')}>Subir</button>
-                          <button type="button" onClick={() => moveSelectedQuestion(question.id, 'down')}>Bajar</button>
+                          <button type="button" onClick={() => moveTemplateQuestion(question.id, 'up')}>Subir</button>
+                          <button type="button" onClick={() => moveTemplateQuestion(question.id, 'down')}>Bajar</button>
                         </div>
                       </li>
                     ))}
@@ -558,9 +554,12 @@ function GestionEncuestaMonitoresHU026() {
                       <button type="button" onClick={cancelEditingTemplate}>Cancelar edición</button>
                     </>
                   ) : (
-                    <button type="submit" disabled={creatingTemplate}>
-                      {creatingTemplate ? 'Guardando plantilla...' : 'Guardar plantilla'}
-                    </button>
+                    <>
+                      <button type="submit" disabled={creatingTemplate}>
+                        {creatingTemplate ? 'Guardando plantilla...' : 'Guardar plantilla'}
+                      </button>
+                      <button type="button" onClick={resetTemplateDraft}>Cancelar</button>
+                    </>
                   )}
                 </div>
               </form>
