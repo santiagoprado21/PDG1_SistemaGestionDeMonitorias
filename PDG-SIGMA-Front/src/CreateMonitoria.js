@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './CreateMonitoria.css'; 
 // import './Task.css';
-import { Link } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import {PopUp, PopUpUpdateBudget} from "./PopUp";
 import { useNavigate } from "react-router-dom";
@@ -478,307 +477,291 @@ function CreateMonitoria() {
     };
 
     return (
-        <div className="create-monitoria-container">
+        <div className="create-monitoria-page">
             <VerticalNavbar />
             
             {isOpen && <PopUp message={message} onClose={() => handleClose()} />}
-
-            <div className="title-container-create-monitoria">
-                <div className="title-create-monitoria">Crear/Cargar Monitorías</div>
-                <div className="subtitle-create-monitoria">Carga individual o masiva con CSV/Excel</div>
-            </div>
-
-            <div className="create-monitoria-content">
-                {/* Botón de carga CSV */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                    <button className="btn-upload-csv" onClick={handleUpload}>
-                        Cargar Datos (CSV/Excel)
-                    </button>
+            <div className="create-monitoria-main">
+                <div className="title-container-create-monitoria">
+                    <div className="title-create-monitoria">Crear/Cargar Monitorías</div>
+                    <div className="subtitle-create-monitoria">Carga individual o masiva con CSV/Excel</div>
                 </div>
 
-                {/* Formulario de creación */}
-                <div className="form-section">
-                    <h3>Nueva Monitoría</h3>
-                    <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
-                        {/* Selección de profesor visible solo para Jefe de Departamento */}
-                        {role === 'jfedpto' && (
+                <div className="create-monitoria-content">
+                    {/* Botón de carga CSV */}
+                    <div className="csv-actions-row">
+                        <button className="btn-upload-csv" onClick={handleUpload}>
+                            Cargar Datos (CSV/Excel)
+                        </button>
+                    </div>
+
+                    {/* Formulario de creación */}
+                    <div className="form-section">
+                        <h3>Nueva Monitoría</h3>
+                        <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
+                            {/* Selección de profesor visible solo para Jefe de Departamento */}
+                            {role === 'jfedpto' && (
+                                <div className="form-row">
+                                    <div className="form-group full-width">
+                                        <label>Profesor responsable *</label>
+                                        <select 
+                                            value={selectedProfessorId}
+                                            onChange={(e) => setSelectedProfessorId(e.target.value)}
+                                            required
+                                        >
+                                            <option value="">Seleccione un profesor</option>
+                                            {professors.map(p => (
+                                                <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="form-row">
-                                <div className="form-group full-width">
-                                    <label>Profesor responsable *</label>
+                                <div className="form-group">
+                                    <label>Facultad *</label>
                                     <select 
-                                        value={selectedProfessorId}
-                                        onChange={(e) => setSelectedProfessorId(e.target.value)}
+                                        value={selectedFaculty} 
+                                        onChange={handleFacultyChange}
                                         required
                                     >
-                                        <option value="">Seleccione un profesor</option>
-                                        {professors.map(p => (
-                                            <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                                        <option value="">Seleccione una facultad</option>
+                                        {faculties.map(faculty => (
+                                            <option key={faculty.name} value={faculty.name}>
+                                                {faculty.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Programa *</label>
+                                    <select 
+                                        value={selectedProgram} 
+                                        onChange={handleProgramChange}
+                                        required
+                                        disabled={!selectedFaculty}
+                                    >
+                                        <option value="">Seleccione un programa</option>
+                                        {programs.map(program => (
+                                            <option key={program.name} value={program.name}>
+                                                {program.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Curso *</label>
+                                    <select 
+                                        value={selectedSubject} 
+                                        onChange={handleSubjectChange}
+                                        required
+                                        disabled={!selectedProgram}
+                                    >
+                                        <option value="">Seleccione un curso</option>
+                                        {subject.map(subj => (
+                                            <option key={subj.name} value={subj.name}>
+                                                {subj.name}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
-                        )}
 
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Facultad *</label>
-                                <select 
-                                    value={selectedFaculty} 
-                                    onChange={handleFacultyChange}
-                                    required
-                                >
-                                    <option value="">Seleccione una facultad</option>
-                                    {faculties.map(faculty => (
-                                        <option key={faculty.name} value={faculty.name}>
-                                            {faculty.name}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Semestre *</label>
+                                    <input 
+                                        type="text" 
+                                        value={selectedSemester}
+                                        onChange={handleSemesterChange}
+                                        placeholder="ej: 2025-1"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Horas Solicitadas *</label>
+                                    <input 
+                                        type="number" 
+                                        value={requestedHours}
+                                        onChange={(e) => setRequestedHours(e.target.value)}
+                                        min="1"
+                                        max="200"
+                                        placeholder="Ej: 80"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Valor por Hora *</label>
+                                    <input 
+                                        type="number" 
+                                        value={hourlyRate}
+                                        onChange={(e) => setHourlyRate(e.target.value)}
+                                        min="1000"
+                                        step="1000"
+                                        placeholder="Ej: 15000"
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Programa *</label>
-                                <select 
-                                    value={selectedProgram} 
-                                    onChange={handleProgramChange}
-                                    required
-                                    disabled={!selectedFaculty}
-                                >
-                                    <option value="">Seleccione un programa</option>
-                                    {programs.map(program => (
-                                        <option key={program.name} value={program.name}>
-                                            {program.name}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Fecha Inicio *</label>
+                                    <input 
+                                        type="date" 
+                                        value={selectedStartDate}
+                                        onChange={handleStartDateChange}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Fecha Fin *</label>
+                                    <input 
+                                        type="date" 
+                                        value={selectedFinishDate}
+                                        onChange={handleFinishDateChange}
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Curso *</label>
-                                <select 
-                                    value={selectedSubject} 
-                                    onChange={handleSubjectChange}
-                                    required
-                                    disabled={!selectedProgram}
-                                >
-                                    <option value="">Seleccione un curso</option>
-                                    {subject.map(subj => (
-                                        <option key={subj.name} value={subj.name}>
-                                            {subj.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Promedio Requerido *</label>
+                                    <input 
+                                        type="number" 
+                                        value={requiredAverageGrade}
+                                        onChange={(e) => setRequiredAverageGrade(e.target.value)}
+                                        min="0"
+                                        max="5"
+                                        step="0.1"
+                                        placeholder="Ej: 4.0"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Semestre *</label>
-                                <input 
-                                    type="text" 
-                                    value={selectedSemester}
-                                    onChange={handleSemesterChange}
-                                    placeholder="ej: 2025-1"
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Horas Solicitadas *</label>
-                                <input 
-                                    type="number" 
-                                    value={requestedHours}
-                                    onChange={(e) => setRequestedHours(e.target.value)}
-                                    min="1"
-                                    max="200"
-                                    placeholder="Ej: 80"
-                                    required
-                                />
+                                <div className="form-group">
+                                    <label>Nota Curso Requerida *</label>
+                                    <input 
+                                        type="number" 
+                                        value={requiredCourseGrade}
+                                        onChange={(e) => setRequiredCourseGrade(e.target.value)}
+                                        min="0"
+                                        max="5"
+                                        step="0.1"
+                                        placeholder="Ej: 4.0"
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className="form-group">
-                                <label>Valor por Hora *</label>
-                                <input 
-                                    type="number" 
-                                    value={hourlyRate}
-                                    onChange={(e) => setHourlyRate(e.target.value)}
-                                    min="1000"
-                                    step="1000"
-                                    placeholder="Ej: 15000"
-                                    required
-                                />
-                            </div>
-                        </div>
+                            <button type="submit" className="btn-create-monitoria">
+                                Crear Monitoría
+                            </button>
+                        </form>
+                    </div>
 
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Fecha Inicio *</label>
-                                <input 
-                                    type="date" 
-                                    value={selectedStartDate}
-                                    onChange={handleStartDateChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Fecha Fin *</label>
-                                <input 
-                                    type="date" 
-                                    value={selectedFinishDate}
-                                    onChange={handleFinishDateChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Promedio Requerido *</label>
-                                <input 
-                                    type="number" 
-                                    value={requiredAverageGrade}
-                                    onChange={(e) => setRequiredAverageGrade(e.target.value)}
-                                    min="0"
-                                    max="5"
-                                    step="0.1"
-                                    placeholder="Ej: 4.0"
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Nota Curso Requerida *</label>
-                                <input 
-                                    type="number" 
-                                    value={requiredCourseGrade}
-                                    onChange={(e) => setRequiredCourseGrade(e.target.value)}
-                                    min="0"
-                                    max="5"
-                                    step="0.1"
-                                    placeholder="Ej: 4.0"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <button type="submit" className="btn-create-monitoria">
-                            Crear Monitoría
-                        </button>
-                    </form>
-                </div>
-
-                {/* Tabla de monitorías */}
-                <div className="table-section" style={{ marginTop: '40px' }}>
-                    <h3>Mis Monitorías ({records.length})</h3>
-                    
-                    {currentRecords.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#88898c', padding: '20px' }}>
-                            No tienes monitorías creadas aún
-                        </p>
-                    ) : (
-                        <>
-                            <table className="monitorias-table">
-                                <thead>
-                                    <tr>
-                                        <th>Facultad</th>
-                                        <th>Programa</th>
-                                        <th>Curso</th>
-                                        <th>Semestre</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Fin</th>
-                                        <th>Horas</th>
-                                        <th>Valor Hora</th>
-                                        <th>Costo Total</th>
-                                        <th>Acciones</th>
-                                        {role === 'jfedpto' && <th>Presupuesto</th>}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {processedRecords.map((record, i) => (
-                                        <tr key={i}>
-                                            <td>{record.school.name}</td>
-                                            <td>{record.program.name}</td>
-                                            <td>{record.course.name}</td>
-                                            <td>{record.semester}</td>
-                                            <td>{record.startFormatted}</td>
-                                            <td>{record.endFormatted}</td>
-                                            <td>{record.estimatedHours}h</td>
-                                            <td>{formatCurrency(record.hourlyRate)}</td>
-                                            <td>{formatCurrency(record.totalCost)}</td>
-                                            <td>
-                                                <button 
-                                                    onClick={() => handleDelete(record.id)}
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        backgroundColor: '#e9683b',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '4px',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                >
-                                                    Eliminar
-                                                </button>
-                                            </td>
-                                            {role === 'jfedpto' && (
+                    {/* Tabla de monitorías */}
+                    <div className="table-section table-section-spaced">
+                        <h3>Mis Monitorías ({records.length})</h3>
+                        
+                        {currentRecords.length === 0 ? (
+                            <p className="empty-monitorias-message">
+                                No tienes monitorías creadas aún
+                            </p>
+                        ) : (
+                            <>
+                                <table className="monitorias-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Facultad</th>
+                                            <th>Programa</th>
+                                            <th>Curso</th>
+                                            <th>Semestre</th>
+                                            <th>Fecha Inicio</th>
+                                            <th>Fecha Fin</th>
+                                            <th>Horas</th>
+                                            <th>Valor Hora</th>
+                                            <th>Costo Total</th>
+                                            <th>Acciones</th>
+                                            {role === 'jfedpto' && <th>Presupuesto</th>}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {processedRecords.map((record, i) => (
+                                            <tr key={i}>
+                                                <td>{record.school.name}</td>
+                                                <td>{record.program.name}</td>
+                                                <td>{record.course.name}</td>
+                                                <td>{record.semester}</td>
+                                                <td>{record.startFormatted}</td>
+                                                <td>{record.endFormatted}</td>
+                                                <td>{record.estimatedHours}h</td>
+                                                <td>{formatCurrency(record.hourlyRate)}</td>
+                                                <td>{formatCurrency(record.totalCost)}</td>
                                                 <td>
                                                     <button 
-                                                        onClick={() => openBudgetPopup(record)}
-                                                        style={{
-                                                            padding: '6px 12px',
-                                                            backgroundColor: '#5454e9',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '4px',
-                                                            cursor: 'pointer'
-                                                        }}
+                                                        className="btn-delete-monitoria"
+                                                        onClick={() => handleDelete(record.id)}
                                                     >
-                                                        Editar
+                                                        Eliminar
                                                     </button>
                                                 </td>
-                                            )}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                {role === 'jfedpto' && (
+                                                    <td>
+                                                        <button 
+                                                            className="btn-edit-budget"
+                                                            onClick={() => openBudgetPopup(record)}
+                                                        >
+                                                            Editar
+                                                        </button>
+                                                    </td>
+                                                )}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
-                            {/* Paginación */}
-                            {totalPages > 1 && (
-                                <div className="pagination" style={{ marginTop: '20px', textAlign: 'center' }}>
-                                    <button 
-                                        onClick={prevPage}
-                                        disabled={currentPage === 1}
-                                        style={{ margin: '0 5px', padding: '8px 12px', cursor: 'pointer' }}
-                                    >
-                                        Anterior
-                                    </button>
-                                    <span style={{ margin: '0 15px' }}>
-                                        Página {currentPage} de {totalPages}
-                                    </span>
-                                    <button 
-                                        onClick={nextPage}
-                                        disabled={currentPage === totalPages}
-                                        style={{ margin: '0 5px', padding: '8px 12px', cursor: 'pointer' }}
-                                    >
-                                        Siguiente
-                                    </button>
-                                </div>
-                            )}
-                        </>
-                    )}
+                                {/* Paginación */}
+                                {totalPages > 1 && (
+                                    <div className="pagination">
+                                        <button 
+                                            onClick={prevPage}
+                                            disabled={currentPage === 1}
+                                        >
+                                            Anterior
+                                        </button>
+                                        <span className="pagination-info">
+                                            Página {currentPage} de {totalPages}
+                                        </span>
+                                        <button 
+                                            onClick={nextPage}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    <PopUpUpdateBudget
+                        show={showBudgetPopup}
+                        onClose={() => { setShowBudgetPopup(false); setBudgetRecord(null); }}
+                        onSubmit={submitBudgetUpdate}
+                        initialHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+                        initialRate={budgetRecord ? (budgetRecord.hourlyRate || 0) : 0}
+                        remainingHours={budgetInfo.remainingHours}
+                        currentHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
+                    />
                 </div>
-
-            <PopUpUpdateBudget
-                show={showBudgetPopup}
-                onClose={() => { setShowBudgetPopup(false); setBudgetRecord(null); }}
-                onSubmit={submitBudgetUpdate}
-                initialHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
-                initialRate={budgetRecord ? (budgetRecord.hourlyRate || 0) : 0}
-                remainingHours={budgetInfo.remainingHours}
-                currentHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
-            />
-
             </div>
         </div>
     );

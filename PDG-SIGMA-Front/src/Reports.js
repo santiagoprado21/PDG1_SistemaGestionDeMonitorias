@@ -775,7 +775,7 @@ useEffect(() => {
 
 
   return (
-    <div className="main">
+    <div className="reports-page">
       <PopUp
         show={isOpen}
         onClose={() => handleClose()}
