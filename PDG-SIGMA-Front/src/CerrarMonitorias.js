@@ -186,8 +186,10 @@ function CerrarMonitorias() {
         <div className="cerrar-monitorias-container">
             <VerticalNavbar />
             <div className="main-content">
-                <h1>Cierre de Monitorías</h1>
-                <p className="subtitle">Cierre de monitorías al final del semestre</p>
+                <div className="cerrar-monitorias-header">
+                    <h1>Cierre de Monitorías</h1>
+                    <p className="subtitle">Cierre de monitorías al final del semestre</p>
+                </div>
 
                 {/* Selector de semestre */}
                 <div className="filters-section">
@@ -226,16 +228,21 @@ function CerrarMonitorias() {
                                 {/* Acciones de cierre */}
                                 {monitorings.length > 0 && (
                                     <div className="actions-bar">
-                                        <label className="checkbox-container">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={selectedMonitorings.length === monitorings.length && monitorings.length > 0}
-                                                onChange={handleSelectAll}
-                                            />
-                                            <span>Seleccionar todas</span>
-                                        </label>
+                                        <div className="actions-left">
+                                            <label className="checkbox-container">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={selectedMonitorings.length === monitorings.length && monitorings.length > 0}
+                                                    onChange={handleSelectAll}
+                                                />
+                                                <span>Seleccionar todas</span>
+                                            </label>
+                                            <span className="actions-selection-hint">
+                                                {selectedMonitorings.length} seleccionada{selectedMonitorings.length === 1 ? '' : 's'}
+                                            </span>
+                                        </div>
                                         <button 
-                                            className="btn-primary"
+                                            className="btn-primary actions-close-btn"
                                             onClick={handleOpenCloseModal}
                                             disabled={selectedMonitorings.length === 0}
                                         >

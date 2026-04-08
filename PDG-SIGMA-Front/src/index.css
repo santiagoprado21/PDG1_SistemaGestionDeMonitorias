@@ -57,6 +57,15 @@
   --color-black: var(--negro);
   --color-gray-1: var(--gris-1);
   --color-gray-2: var(--gris-2);
+  --surface-page: #f5f6fa;
+  --surface-card-soft: #fcfcff;
+  --surface-card-muted: #f6f7fc;
+  --surface-card-subtle: #fafbff;
+  --border-tint-primary: #d9dbff;
+  --border-tint-soft: #d2d6f8;
+  --bg-tint-soft: #eef0ff;
+  --text-tint-strong: #2f2f45;
+  --text-tint-soft: #4a4a67;
 
   /* Tipografía */
   --font-primary: 'Plus Jakarta Sans', sans-serif;
