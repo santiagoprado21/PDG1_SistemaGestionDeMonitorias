@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Reports from '../Reports';
 
 jest.mock('../VerticalNavbar', () => () => <nav data-testid="navbar" />);
@@ -116,22 +115,47 @@ describe('Reports contextual help', () => {
     render(<Reports />);
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    await screen.findByText('Monitor Uno');
 
     const monitorHelpButton = screen.getByRole('button', { name: /Ayuda de Rendimiento de monitores/i });
     const professorHelpButton = screen.getByRole('button', { name: /Ayuda de Rendimiento de profesores/i });
 
-    await userEvent.hover(monitorHelpButton);
+    fireEvent.mouseEnter(monitorHelpButton);
     expect(await screen.findByText(/Muestra el avance de actividades por monitor/i)).toBeInTheDocument();
 
-    await userEvent.hover(professorHelpButton);
+    fireEvent.mouseEnter(professorHelpButton);
     expect(await screen.findByText(/Mide el avance de actividades asociadas a cada profesor/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByText(/Muestra el avance de actividades por monitor/i)).not.toBeInTheDocument();
     });
 
-    await userEvent.unhover(professorHelpButton);
+    fireEvent.mouseLeave(professorHelpButton);
     await waitFor(() => {
       expect(screen.queryByText(/Mide el avance de actividades asociadas a cada profesor/i)).not.toBeInTheDocument();
     });
+  });
+
+  it('abre ayuda por foco y la cierra con Escape', async () => {
+    render(<Reports />);
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    await screen.findByText('Monitor Uno');
+
+    const monitorHelpButton = screen.getByRole('button', { name: /Ayuda de Rendimiento de monitores/i });
+
+    fireEvent.focus(monitorHelpButton);
+    expect(await screen.findByText(/Muestra el avance de actividades por monitor/i)).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Muestra el avance de actividades por monitor/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it('muestra el popup inicial de ayuda de filtros', async () => {
+    render(<Reports />);
+
+    expect(await screen.findByTestId('popup')).toHaveTextContent(/Puedes usar los filtros para refinar la informacion de los reportes|Puedes usar los filtros para refinar la información de los reportes/i);
   });
 });
