@@ -24,6 +24,12 @@
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:all:coverage": "react-scripts test --watchAll=false --coverage --coverageReporters=text --coverageReporters=text-summary --ci",
+    "test:auth:coverage": "react-scripts test --watchAll=false --runTestsByPath src/__tests__/LoginHU212.monitor.test.js src/__tests__/LoginHU212.professor.test.js src/__tests__/LoginHU212.jefe.test.js --coverage --coverageReporters=text --coverageReporters=text-summary --collectCoverageFrom=src/Login.js --ci",
+    "test:monitor:login": "react-scripts test --watchAll=false --runTestsByPath src/__tests__/LoginHU212.monitor.test.js --coverage --coverageReporters=text --coverageReporters=text-summary --collectCoverageFrom=src/Login.js --ci",
+    "test:professor:login": "react-scripts test --watchAll=false --runTestsByPath src/__tests__/LoginHU212.professor.test.js --coverage --coverageReporters=text --coverageReporters=text-summary --collectCoverageFrom=src/Login.js --ci",
+    "test:jefe:login": "react-scripts test --watchAll=false --runTestsByPath src/__tests__/LoginHU212.jefe.test.js --coverage --coverageReporters=text --coverageReporters=text-summary --collectCoverageFrom=src/Login.js --ci",
+    "test:roles:login": "react-scripts test --watchAll=false --runTestsByPath src/__tests__/LoginHU212.monitor.test.js src/__tests__/LoginHU212.professor.test.js src/__tests__/LoginHU212.jefe.test.js --coverage --coverageReporters=text --coverageReporters=text-summary --collectCoverageFrom=src/Login.js --ci",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
