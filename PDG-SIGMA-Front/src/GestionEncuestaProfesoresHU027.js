@@ -3,9 +3,16 @@ import VerticalNavbar from './VerticalNavbar';
 import LoadingSpinner from './LoadingSpinner';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
-import './GestionEncuestaMonitoresHU026.css';
+import './GestionEncuestaProfesoresHU027.css';
 
-function GestionEncuestaMonitoresHU026() {
+const PERIOD_REGEX = /^\d{4}-[12]$/;
+
+const normalizeValidPeriod = (value) => {
+  const normalized = (value || '').trim();
+  return PERIOD_REGEX.test(normalized) ? normalized : '';
+};
+
+function GestionEncuestaProfesoresHU027() {
   const token = localStorage.getItem('token');
   const [semester, setSemester] = useState('');
   const [templatePeriodFilter, setTemplatePeriodFilter] = useState('');
@@ -47,9 +54,9 @@ function GestionEncuestaMonitoresHU026() {
     setLoading(true);
     try {
       const [bankRes, configRes, templatesRes] = await Promise.all([
-        fetch(`${BACKEND_URL}/monitor-survey/admin/questions${query}`, { headers: authHeaders }),
-        fetch(`${BACKEND_URL}/monitor-survey/admin/current-config${query}`, { headers: authHeaders }),
-        fetch(`${BACKEND_URL}/monitor-survey/admin/templates`, { headers: authHeaders })
+        fetch(`${BACKEND_URL}/professor-survey/admin/questions${query}`, { headers: authHeaders }),
+        fetch(`${BACKEND_URL}/professor-survey/admin/current-config${query}`, { headers: authHeaders }),
+        fetch(`${BACKEND_URL}/professor-survey/admin/templates`, { headers: authHeaders })
       ]);
 
       const [bankBody, configBody, templatesBody] = await Promise.all([
@@ -63,11 +70,15 @@ function GestionEncuestaMonitoresHU026() {
       if (!templatesRes.ok) throw new Error(templatesBody.error || 'No se pudieron cargar las plantillas');
 
       const bank = Array.isArray(bankBody) ? bankBody : [];
+      const normalizedTemplates = (Array.isArray(templatesBody) ? templatesBody : []).map((template) => ({
+        ...template,
+        createdForSemester: normalizeValidPeriod(template.createdForSemester)
+      }));
 
       setQuestions(bank);
-      setTemplates(Array.isArray(templatesBody) ? templatesBody : []);
+      setTemplates(normalizedTemplates);
 
-      const effectiveSemester = (semesterParam || configBody.semester || '').trim();
+      const effectiveSemester = normalizeValidPeriod(semesterParam) || normalizeValidPeriod(configBody.semester);
       if (effectiveSemester) {
         setTemplateForm((prev) =>
           prev.createdForSemester && prev.createdForSemester.trim() !== ''
@@ -76,8 +87,8 @@ function GestionEncuestaMonitoresHU026() {
         );
       }
 
-      if (configBody.semester && !semesterParam) {
-        setSemester(configBody.semester);
+      if (effectiveSemester && !normalizeValidPeriod(semesterParam)) {
+        setSemester(effectiveSemester);
       }
     } catch (error) {
       openMessage(error.message || 'Error cargando la información');
@@ -154,7 +165,7 @@ function GestionEncuestaMonitoresHU026() {
 
     setCreatingQuestion(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/questions`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/questions`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify(newQuestion)
@@ -190,7 +201,7 @@ function GestionEncuestaMonitoresHU026() {
 
     try {
       const semesterQuery = semester ? `?semester=${encodeURIComponent(semester)}` : '';
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/questions/${questionId}${semesterQuery}`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/questions/${questionId}${semesterQuery}`, {
         method: 'PUT',
         headers: authHeaders,
         body: JSON.stringify(editingQuestion)
@@ -208,7 +219,7 @@ function GestionEncuestaMonitoresHU026() {
 
   const toggleBankStatus = async (question) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/questions/${question.id}/status`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/questions/${question.id}/status`, {
         method: 'PATCH',
         headers: authHeaders,
         body: JSON.stringify({ bankActive: !question.bankActive })
@@ -230,12 +241,14 @@ function GestionEncuestaMonitoresHU026() {
 
   const createTemplate = async (event) => {
     event.preventDefault();
+    const normalizedTemplatePeriod = normalizeValidPeriod(templateForm.createdForSemester);
+
     if (!templateForm.name.trim()) {
       openMessage('Debes ingresar el nombre de la plantilla.');
       return;
     }
-    if (!templateForm.createdForSemester.trim()) {
-      openMessage('Debes indicar el periodo de creación de la plantilla.');
+    if (!normalizedTemplatePeriod) {
+      openMessage('El periodo debe tener formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
       return;
     }
     if (templateQuestionIds.length === 0) {
@@ -245,13 +258,13 @@ function GestionEncuestaMonitoresHU026() {
 
     setCreatingTemplate(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/templates`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/templates`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
           name: templateForm.name,
           description: templateForm.description,
-          createdForSemester: templateForm.createdForSemester,
+          createdForSemester: normalizedTemplatePeriod,
           questionIds: templateQuestionIds
         })
       });
@@ -285,13 +298,14 @@ function GestionEncuestaMonitoresHU026() {
 
   const saveTemplateEdit = async () => {
     if (!editingTemplateId) return;
+    const normalizedTemplatePeriod = normalizeValidPeriod(templateForm.createdForSemester);
 
     if (!templateForm.name.trim()) {
       openMessage('Debes ingresar el nombre de la plantilla.');
       return;
     }
-    if (!templateForm.createdForSemester.trim()) {
-      openMessage('Debes indicar el periodo de creación de la plantilla.');
+    if (!normalizedTemplatePeriod) {
+      openMessage('El periodo debe tener formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
       return;
     }
     if (templateQuestionIds.length === 0) {
@@ -301,13 +315,13 @@ function GestionEncuestaMonitoresHU026() {
 
     setSavingTemplateEdit(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/templates/${editingTemplateId}`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/templates/${editingTemplateId}`, {
         method: 'PUT',
         headers: authHeaders,
         body: JSON.stringify({
           name: templateForm.name,
           description: templateForm.description,
-          createdForSemester: templateForm.createdForSemester,
+          createdForSemester: normalizedTemplatePeriod,
           questionIds: templateQuestionIds
         })
       });
@@ -330,7 +344,7 @@ function GestionEncuestaMonitoresHU026() {
 
     setDeletingTemplateId(templateId);
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/templates/${templateId}`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/templates/${templateId}`, {
         method: 'DELETE',
         headers: authHeaders
       });
@@ -357,14 +371,14 @@ function GestionEncuestaMonitoresHU026() {
   };
 
   const applyTemplate = async (templateId) => {
-    const periodToApply = (semester || '').trim();
+    const periodToApply = normalizeValidPeriod(semester);
     if (!periodToApply) {
-      openMessage('Debes definir el periodo antes de aplicar una plantilla.');
+      openMessage('Debes definir un periodo válido con formato AAAA-1 o AAAA-2 antes de aplicar una plantilla.');
       return;
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/monitor-survey/admin/apply-template`, {
+      const res = await fetch(`${BACKEND_URL}/professor-survey/admin/apply-template`, {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({ templateId, semester: periodToApply })
@@ -381,11 +395,12 @@ function GestionEncuestaMonitoresHU026() {
   };
 
   const handleSemesterCommit = () => {
-    const normalizedSemester = (semester || '').trim();
+    const normalizedSemester = normalizeValidPeriod(semester);
     if (!normalizedSemester) {
-      openMessage('Debes definir un periodo para cargar la configuración.');
+      openMessage('Debes definir un periodo válido con formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
       return;
     }
+    setSemester(normalizedSemester);
     loadAll(normalizedSemester);
   };
 
@@ -397,15 +412,15 @@ function GestionEncuestaMonitoresHU026() {
   };
 
   return (
-    <div className="hu026-layout">
+    <div className="hu027-layout">
       <VerticalNavbar />
       <PopUp show={isOpen} onClose={closePopup}>{message}</PopUp>
 
-      <div className="hu026-content">
-        <header className="hu026-header">
-          <h2>Gestión de encuesta de evaluación de monitores</h2>
+      <div className="hu027-content">
+        <header className="hu027-header">
+          <h2>Gestión de encuesta de evaluación de profesores</h2>
           <p>Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
-          <div className="hu026-semester-row">
+          <div className="hu027-semester-row">
             <label htmlFor="semesterInput">Periodo activo</label>
             <input
               id="semesterInput"
@@ -420,15 +435,15 @@ function GestionEncuestaMonitoresHU026() {
         </header>
 
         {loading ? (
-          <div className="hu026-loading">
+          <div className="hu027-loading">
             <LoadingSpinner message="Cargando configuración de encuesta" />
           </div>
         ) : (
-          <div className="hu026-grid">
-            <section className="hu026-card">
+          <div className="hu027-grid">
+            <section className="hu027-card">
               <h3>Banco de preguntas</h3>
-              <p className="hu026-card-help">Crea, edita y selecciona preguntas para la configuración actual.</p>
-              <form className="hu026-new-question" onSubmit={handleCreateQuestion}>
+              <p className="hu027-card-help">Crea, edita y selecciona preguntas para la configuración actual.</p>
+              <form className="hu027-new-question" onSubmit={handleCreateQuestion}>
                 <textarea
                   value={newQuestion.statement}
                   onChange={(event) => setNewQuestion((prev) => ({ ...prev, statement: event.target.value }))}
@@ -444,15 +459,15 @@ function GestionEncuestaMonitoresHU026() {
                 </button>
               </form>
 
-              <div className="hu026-question-list">
+              <div className="hu027-question-list">
                 {questions.map((question) => {
                   const isSelected = templateQuestionIds.includes(question.id);
                   const order = templateQuestionIds.indexOf(question.id) + 1;
                   const isEditing = editingQuestionId === question.id;
 
                   return (
-                    <article key={question.id} className={`hu026-question-item ${isSelected ? 'selected' : ''}`}>
-                      <div className="hu026-question-meta">
+                    <article key={question.id} className={`hu027-question-item ${isSelected ? 'selected' : ''}`}>
+                      <div className="hu027-question-meta">
                         <span className={`status ${question.bankActive ? 'active' : 'inactive'}`}>
                           {question.bankActive ? 'Activa' : 'Inactiva'}
                         </span>
@@ -461,7 +476,7 @@ function GestionEncuestaMonitoresHU026() {
                       </div>
 
                       {isEditing ? (
-                        <div className="hu026-edit-block">
+                        <div className="hu027-edit-block">
                           <textarea
                             value={editingQuestion.statement}
                             onChange={(event) => setEditingQuestion((prev) => ({ ...prev, statement: event.target.value }))}
@@ -495,11 +510,11 @@ function GestionEncuestaMonitoresHU026() {
               </div>
             </section>
 
-            <section className="hu026-card">
+            <section className="hu027-card">
               <h3>{editingTemplateId ? 'Editar plantilla' : 'Crear plantilla'}</h3>
-              <p className="hu026-card-help">Usa las preguntas seleccionadas del banco para guardar una plantilla con nombre y periodo.</p>
+              <p className="hu027-card-help">Usa las preguntas seleccionadas del banco para guardar una plantilla con nombre y periodo.</p>
 
-              <form onSubmit={editingTemplateId ? (event) => { event.preventDefault(); saveTemplateEdit(); } : createTemplate} className="hu026-template-form">
+              <form onSubmit={editingTemplateId ? (event) => { event.preventDefault(); saveTemplateEdit(); } : createTemplate} className="hu027-template-form">
                 <input
                   value={templateForm.name}
                   onChange={(event) => setTemplateForm((prev) => ({ ...prev, name: event.target.value }))}
@@ -516,14 +531,14 @@ function GestionEncuestaMonitoresHU026() {
                   placeholder="Descripción (opcional)"
                 />
 
-                <div className="hu026-selected-summary">
+                <div className="hu027-selected-summary">
                   <strong>{templateQuestionIds.length}</strong> preguntas seleccionadas
                 </div>
 
                 {selectedQuestions.length === 0 ? (
                   <p className="empty">No hay preguntas seleccionadas para la plantilla.</p>
                 ) : (
-                  <ol className="hu026-order-list">
+                  <ol className="hu027-order-list">
                     {selectedQuestions.map((question) => (
                       <li key={question.id}>
                         <div>
@@ -559,11 +574,11 @@ function GestionEncuestaMonitoresHU026() {
               </form>
             </section>
 
-            <section className="hu026-card">
+            <section className="hu027-card">
               <h3>Plantillas creadas</h3>
-              <p className="hu026-card-help">Visualiza preguntas, edita la plantilla, aplícala al periodo o elimínala.</p>
+              <p className="hu027-card-help">Visualiza preguntas, edita la plantilla, aplícala al periodo o elimínala.</p>
 
-              <div className="hu026-template-filter-row">
+              <div className="hu027-template-filter-row">
                 <label htmlFor="templatePeriodFilter">Filtrar por periodo</label>
                 <select
                   id="templatePeriodFilter"
@@ -577,7 +592,7 @@ function GestionEncuestaMonitoresHU026() {
                 </select>
               </div>
 
-              <div className="hu026-templates-list">
+              <div className="hu027-templates-list">
                 {templates.length === 0 ? (
                   <p className="empty">No hay plantillas guardadas.</p>
                 ) : filteredTemplates.length === 0 ? (
@@ -591,7 +606,7 @@ function GestionEncuestaMonitoresHU026() {
 
                     return (
                       <article key={template.id}>
-                        <div className="hu026-template-main">
+                        <div className="hu027-template-main">
                           <strong>{template.name}</strong>
                           <p>{template.description || 'Sin descripción'}</p>
                           <small>
@@ -599,7 +614,7 @@ function GestionEncuestaMonitoresHU026() {
                           </small>
                         </div>
 
-                        <div className="actions hu026-template-actions">
+                        <div className="actions hu027-template-actions">
                           <button type="button" onClick={() => toggleTemplateQuestions(template.id)}>
                             {isExpanded ? 'Ocultar preguntas' : 'Ver preguntas'}
                           </button>
@@ -620,7 +635,7 @@ function GestionEncuestaMonitoresHU026() {
                         </div>
 
                         {isExpanded && (
-                          <ol className="hu026-template-questions">
+                          <ol className="hu027-template-questions">
                             {questionItems.map((question) => (
                               <li key={`${template.id}-${question.id}`}>
                                 <strong>{question.category}</strong>
@@ -642,4 +657,5 @@ function GestionEncuestaMonitoresHU026() {
   );
 }
 
-export default GestionEncuestaMonitoresHU026;
+export default GestionEncuestaProfesoresHU027;
+

@@ -13,6 +13,7 @@ import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
 import MisEvaluacionesHU015 from './MisEvaluacionesHU015';
 import EvaluacionMonitoriaEstudiante from './EvaluacionMonitoriaEstudiante';
 import GestionEncuestaMonitoresHU026 from './GestionEncuestaMonitoresHU026';
+import GestionEncuestaProfesoresHU027 from './GestionEncuestaProfesoresHU027';
 import Chat from './Chat';
 
 
@@ -80,6 +81,9 @@ function App() {
 
          {/* HU-026: Gestion banco de preguntas de encuesta a estudiantes */}
          <Route path="/gestion-encuesta-monitores" element={<GestionEncuestaMonitoresHU026 />} />
+
+         {/* HU-027: Gestion banco de preguntas de encuesta a profesores */}
+         <Route path="/gestion-encuesta-profesores" element={<GestionEncuestaProfesoresHU027 />} />
 
          {/* Notificaciones - Preferencias */}
          <Route path="/notification-settings" element={<NotificationSettings />} />
