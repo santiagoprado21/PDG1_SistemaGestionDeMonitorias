@@ -8,6 +8,7 @@ import './GestionEncuestaMonitoresHU026.css';
 function GestionEncuestaMonitoresHU026() {
   const token = localStorage.getItem('token');
   const [semester, setSemester] = useState('');
+  const [templatePeriodFilter, setTemplatePeriodFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [creatingQuestion, setCreatingQuestion] = useState(false);
   const [creatingTemplate, setCreatingTemplate] = useState(false);
@@ -16,6 +17,7 @@ function GestionEncuestaMonitoresHU026() {
 
   const [questions, setQuestions] = useState([]);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
+  const [currentConfigQuestionIds, setCurrentConfigQuestionIds] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [expandedTemplateIds, setExpandedTemplateIds] = useState([]);
@@ -70,6 +72,7 @@ function GestionEncuestaMonitoresHU026() {
         : [];
 
       setQuestions(bank);
+      setCurrentConfigQuestionIds(selected);
       setSelectedQuestionIds(selected);
       setTemplates(Array.isArray(templatesBody) ? templatesBody : []);
 
@@ -101,6 +104,31 @@ function GestionEncuestaMonitoresHU026() {
     const map = new Map(questions.map((q) => [q.id, q]));
     return selectedQuestionIds.map((id, index) => ({ ...map.get(id), displayOrder: index + 1 })).filter(Boolean);
   }, [questions, selectedQuestionIds]);
+
+  const templatePeriodOptions = useMemo(() => {
+    return Array.from(
+      new Set(
+        templates
+          .map((template) => (template.createdForSemester || '').trim())
+          .filter((period) => period !== '')
+      )
+    ).sort((a, b) => b.localeCompare(a));
+  }, [templates]);
+
+  const filteredTemplates = useMemo(() => {
+    if (!templatePeriodFilter) {
+      return templates;
+    }
+    return templates.filter(
+      (template) => (template.createdForSemester || '').trim() === templatePeriodFilter
+    );
+  }, [templates, templatePeriodFilter]);
+
+  useEffect(() => {
+    if (templatePeriodFilter && !templatePeriodOptions.includes(templatePeriodFilter)) {
+      setTemplatePeriodFilter('');
+    }
+  }, [templatePeriodFilter, templatePeriodOptions]);
 
   const getTemplateQuestionIds = (template) => {
     return (template.questions || [])
@@ -262,6 +290,7 @@ function GestionEncuestaMonitoresHU026() {
   const cancelEditingTemplate = () => {
     setEditingTemplateId(null);
     setTemplateForm({ name: '', description: '', createdForSemester: semester || '' });
+    setSelectedQuestionIds(currentConfigQuestionIds);
   };
 
   const saveTemplateEdit = async () => {
@@ -361,6 +390,22 @@ function GestionEncuestaMonitoresHU026() {
     }
   };
 
+  const handleSemesterCommit = () => {
+    const normalizedSemester = (semester || '').trim();
+    if (!normalizedSemester) {
+      openMessage('Debes definir un periodo para cargar la configuración.');
+      return;
+    }
+    loadAll(normalizedSemester);
+  };
+
+  const handleSemesterKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSemesterCommit();
+    }
+  };
+
   return (
     <div className="hu026-layout">
       <VerticalNavbar />
@@ -377,11 +422,10 @@ function GestionEncuestaMonitoresHU026() {
               type="text"
               value={semester}
               onChange={(event) => setSemester(event.target.value)}
+              onBlur={handleSemesterCommit}
+              onKeyDown={handleSemesterKeyDown}
               placeholder="Ej: 2026-1"
             />
-            <button type="button" onClick={() => loadAll(semester)}>
-              Cargar periodo
-            </button>
           </div>
         </header>
 
@@ -526,11 +570,27 @@ function GestionEncuestaMonitoresHU026() {
               <h3>Plantillas creadas</h3>
               <p className="hu026-card-help">Visualiza preguntas, edita la plantilla, aplícala al periodo o elimínala.</p>
 
+              <div className="hu026-template-filter-row">
+                <label htmlFor="templatePeriodFilter">Filtrar por periodo</label>
+                <select
+                  id="templatePeriodFilter"
+                  value={templatePeriodFilter}
+                  onChange={(event) => setTemplatePeriodFilter(event.target.value)}
+                >
+                  <option value="">Todos los periodos</option>
+                  {templatePeriodOptions.map((period) => (
+                    <option key={period} value={period}>{period}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="hu026-templates-list">
                 {templates.length === 0 ? (
                   <p className="empty">No hay plantillas guardadas.</p>
+                ) : filteredTemplates.length === 0 ? (
+                  <p className="empty">No hay plantillas para el periodo seleccionado.</p>
                 ) : (
-                  templates.map((template) => {
+                  filteredTemplates.map((template) => {
                     const isExpanded = expandedTemplateIds.includes(template.id);
                     const questionItems = (template.questions || [])
                       .slice()

@@ -146,7 +146,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     @Transactional
     public MonitorSurveyCurrentConfigDTO saveCurrentConfig(MonitorSurveyCurrentConfigRequest request) throws Exception {
         String semester = normalizeRequired(request.getSemester(), "El semestre es obligatorio");
-        List<Long> questionIds = Optional.ofNullable(request.getQuestionIds()).orElse(Collections.emptyList());
+        List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
             throw new Exception("Debe seleccionar al menos una pregunta para la encuesta activa");
@@ -175,6 +175,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         MonitorSurveySemesterConfig savedConfig = semesterConfigRepository.save(config);
 
         semesterQuestionRepository.deleteBySemesterConfigId(savedConfig.getId());
+        semesterQuestionRepository.flush();
 
         int order = 1;
         for (MonitorSurveyQuestion question : selectedQuestions) {
@@ -202,7 +203,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     public MonitorSurveyTemplateDTO createTemplate(MonitorSurveyTemplateCreateRequest request) throws Exception {
         String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
         String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
-        List<Long> questionIds = Optional.ofNullable(request.getQuestionIds()).orElse(Collections.emptyList());
+        List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
             throw new Exception("Debe seleccionar preguntas para crear la plantilla");
@@ -236,7 +237,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
 
         String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
         String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
-        List<Long> questionIds = Optional.ofNullable(request.getQuestionIds()).orElse(Collections.emptyList());
+        List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
             throw new Exception("Debe seleccionar al menos una pregunta para actualizar la plantilla");
@@ -248,6 +249,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         MonitorSurveyTemplate savedTemplate = templateRepository.save(template);
 
         templateQuestionRepository.deleteByTemplateId(savedTemplate.getId());
+        templateQuestionRepository.flush();
 
         int order = 1;
         for (Long id : questionIds) {
@@ -290,9 +292,11 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         MonitorSurveyTemplate template = templateRepository.findById(request.getTemplateId())
                 .orElseThrow(() -> new Exception("Plantilla no encontrada"));
 
-        List<Long> questionIds = templateQuestionRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId()).stream()
+        List<Long> questionIds = normalizeQuestionIds(
+            templateQuestionRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId()).stream()
                 .map(item -> item.getQuestion().getId())
-                .collect(Collectors.toList());
+            .collect(Collectors.toList())
+        );
 
         if (questionIds.isEmpty()) {
             throw new Exception("La plantilla seleccionada no tiene preguntas");
@@ -384,6 +388,13 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         return semesterConfigRepository.findFirstByActiveTrueOrderByUpdatedAtDesc()
                 .map(MonitorSurveySemesterConfig::getSemester)
                 .orElse(null);
+    }
+
+    private List<Long> normalizeQuestionIds(List<Long> rawQuestionIds) {
+        return Optional.ofNullable(rawQuestionIds).orElse(Collections.emptyList()).stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private MonitorSurveyQuestionDTO toQuestionDTO(MonitorSurveyQuestion question, Integer displayOrder) {

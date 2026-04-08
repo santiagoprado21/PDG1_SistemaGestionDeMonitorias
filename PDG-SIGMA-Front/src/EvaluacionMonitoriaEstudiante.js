@@ -109,6 +109,7 @@ function EvaluacionMonitoriaEstudiante() {
   const [monitorCode, setMonitorCode] = useState('');
   const [monitorName, setMonitorName] = useState('');
   const [semester, setSemester] = useState(getDefaultSemester());
+  const [hasExplicitSemester, setHasExplicitSemester] = useState(false);
   const [lockIdentifiers, setLockIdentifiers] = useState(false);
   const [surveyQuestions, setSurveyQuestions] = useState(FALLBACK_QUESTIONS);
   const [questionScores, setQuestionScores] = useState(buildInitialScores(FALLBACK_QUESTIONS));
@@ -116,6 +117,7 @@ function EvaluacionMonitoriaEstudiante() {
   const [improvementFeedback, setImprovementFeedback] = useState('');
   const [saving, setSaving] = useState(false);
   const [usingFallbackQuestions, setUsingFallbackQuestions] = useState(false);
+  const [surveyLoadMessage, setSurveyLoadMessage] = useState('');
 
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -135,7 +137,10 @@ function EvaluacionMonitoriaEstudiante() {
       setMonitorCode(localStorage.getItem('userId') || '');
     }
     if (monitorNameParam) setMonitorName(monitorNameParam);
-    if (semesterParam) setSemester(semesterParam);
+    if (semesterParam) {
+      setSemester(semesterParam);
+      setHasExplicitSemester(true);
+    }
     if (monitoringParam || monitorCodeParam || monitorNameParam) {
       setLockIdentifiers(true);
     }
@@ -144,35 +149,44 @@ function EvaluacionMonitoriaEstudiante() {
   useEffect(() => {
     const loadSurveyQuestions = async () => {
       try {
-        const query = semester ? `?semester=${encodeURIComponent(semester)}` : '';
-        const response = await fetch(`${BACKEND_URL}/monitor-survey/public/questions${query}`);
-        const body = await response.json().catch(() => []);
+        const response = await fetch(`${BACKEND_URL}/monitor-survey/public/current-config`, {
+          cache: 'no-store'
+        });
+        const body = await response.json().catch(() => ({}));
         if (!response.ok) {
           throw new Error(body.error || 'No se pudo cargar la encuesta activa');
         }
 
-        if (!Array.isArray(body) || body.length === 0) {
+        const activeQuestions = Array.isArray(body.questions) ? body.questions : [];
+        if (body.semester) {
+          setSemester(body.semester);
+        }
+
+        if (activeQuestions.length === 0) {
           setSurveyQuestions(FALLBACK_QUESTIONS);
           setQuestionScores(buildInitialScores(FALLBACK_QUESTIONS));
           setUsingFallbackQuestions(true);
+          setSurveyLoadMessage('No se encontró una configuración activa; se usa la plantilla base.');
           return;
         }
 
-        const sortedQuestions = body
+        const sortedQuestions = activeQuestions
           .slice()
           .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
         setSurveyQuestions(sortedQuestions);
         setQuestionScores(buildInitialScores(sortedQuestions));
         setUsingFallbackQuestions(false);
+        setSurveyLoadMessage('');
       } catch (error) {
         setSurveyQuestions(FALLBACK_QUESTIONS);
         setQuestionScores(buildInitialScores(FALLBACK_QUESTIONS));
         setUsingFallbackQuestions(true);
+        setSurveyLoadMessage(`No se pudo cargar la configuración activa (${error.message || 'sin detalle'}); se usa la plantilla base.`);
       }
     };
 
     loadSurveyQuestions();
-  }, [semester]);
+  }, [semester, hasExplicitSemester]);
 
   const showMessage = (text) => {
     setMessage(text);
@@ -181,6 +195,11 @@ function EvaluacionMonitoriaEstudiante() {
 
   const closePopup = () => {
     setIsOpen(false);
+  };
+
+  const handleSemesterChange = (event) => {
+    setSemester(event.target.value);
+    setHasExplicitSemester(true);
   };
 
   const handleScoreChange = (questionId, value) => {
@@ -343,13 +362,13 @@ function EvaluacionMonitoriaEstudiante() {
   const shareLink = useMemo(() => {
     const baseUrl = `${window.location.origin}/evaluacion-monitoria`;
     const params = new URLSearchParams();
-    if (semester.trim()) params.set('semester', semester.trim());
+    if (hasExplicitSemester && semester.trim()) params.set('semester', semester.trim());
     if (monitoringId.trim()) params.set('monitoringId', monitoringId.trim());
     if (monitorCode.trim()) params.set('monitorCode', monitorCode.trim());
     if (monitorName.trim()) params.set('monitorName', monitorName.trim());
     const query = params.toString();
     return query ? `${baseUrl}?${query}` : baseUrl;
-  }, [semester, monitoringId, monitorCode, monitorName]);
+  }, [semester, hasExplicitSemester, monitoringId, monitorCode, monitorName]);
 
   const showForm = role === 'student' || !role;
 
@@ -377,7 +396,7 @@ function EvaluacionMonitoriaEstudiante() {
                 <h2>Encuesta de experiencia con monitores</h2>
                 <p>Califica tu experiencia y comparte comentarios anonimos.</p>
                 {usingFallbackQuestions && (
-                  <p className="monitoria-instructions">No se encontro una configuracion activa, se usa la plantilla base.</p>
+                  <p className="monitoria-instructions">{surveyLoadMessage || 'No se encontró una configuración activa; se usa la plantilla base.'}</p>
                 )}
                 <p className="monitoria-instructions">
                   Instrucciones: Califique de 1 a 7 las siguientes afirmaciones, donde 1 es "Totalmente en desacuerdo" y 7 es "Totalmente de acuerdo".
@@ -396,10 +415,10 @@ function EvaluacionMonitoriaEstudiante() {
                   <input
                     type="text"
                     value={semester}
-                    onChange={(event) => setSemester(event.target.value)}
+                    onChange={handleSemesterChange}
                     placeholder="Ej: 2026-1"
                     required
-                    readOnly={lockIdentifiers}
+                    readOnly={lockIdentifiers && hasExplicitSemester}
                   />
                 </label>
                 <label>

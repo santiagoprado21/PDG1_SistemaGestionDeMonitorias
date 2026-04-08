@@ -179,6 +179,15 @@ public class MonitorSurveyController {
         }
     }
 
+    @GetMapping("/public/current-config")
+    public ResponseEntity<?> getPublicCurrentConfig(@RequestParam(required = false) String semester) {
+        try {
+            return ResponseEntity.ok(monitorSurveyService.getCurrentConfig(semester));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
     @PostMapping("/public/responses")
     public ResponseEntity<?> storePublicResponse(@RequestBody MonitorSurveyPublicResponseRequest request) {
         try {
