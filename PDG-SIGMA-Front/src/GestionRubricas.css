@@ -18,7 +18,7 @@
     align-items: flex-start;
     padding: var(--space-6) var(--space-7);
     background: var(--azul-icesi);
-    border-left: 6px solid var(--verde-icesi);
+    border-left: 6px solid var(--amarillo-icesi);
     margin: 0 0 var(--space-7) 0;
 }
 
@@ -42,7 +42,7 @@
 .info-banner {
     background: linear-gradient(135deg, rgba(84, 84, 233, 0.1) 0%, rgba(134, 92, 240, 0.08) 100%);
     border-left: 4px solid var(--color-primary);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     padding: 1rem 1.5rem;
     margin-bottom: 2rem;
     display: flex;
@@ -131,7 +131,7 @@
     background: var(--color-bg-body);
     border: 1px solid var(--color-border);
     border-top: 4px solid var(--color-primary);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
     transition: all 0.3s ease;
@@ -204,7 +204,7 @@
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-icesi-purple) 100%);
     color: var(--blanco);
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     min-width: 60px;
     box-shadow: 0 10px 20px rgba(84, 84, 233, 0.22);
 }
@@ -264,7 +264,7 @@
     border-left: 3px solid var(--color-primary);
     padding: 0.75rem;
     margin-bottom: 0.5rem;
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     transition: transform var(--tr-fast), box-shadow var(--tr-fast);
 }
 
@@ -299,7 +299,7 @@
     background: var(--color-primary);
     color: var(--blanco);
     padding: 0.125rem 0.5rem;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.2px;
@@ -366,7 +366,7 @@
 
 .modal-content {
     background: var(--color-bg-body);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
@@ -387,7 +387,7 @@
     border-bottom: 1px solid var(--color-border);
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-icesi-purple) 100%);
     color: var(--blanco);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 0;
 }
 
 .modal-header h2 {
@@ -399,7 +399,7 @@
     font-size: 2rem;
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -445,7 +445,7 @@ form {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     font-size: 1rem;
     transition: all 0.3s;
     font-family: inherit;
@@ -473,7 +473,7 @@ form {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-icesi-purple) 100%);
     color: var(--blanco);
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
+    border-radius: 0;
     font-size: 0.95rem;
 }
 
@@ -485,7 +485,7 @@ form {
 .criterion-item {
     background: var(--color-bg-body);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 0;
     padding: 1rem;
     margin-bottom: 1rem;
     transition: box-shadow var(--tr-fast), border-color var(--tr-fast);
@@ -594,7 +594,7 @@ form {
     padding: 1.5rem;
     border-top: 1px solid var(--color-border);
     background: var(--color-bg-body);
-    border-radius: 0 0 12px 12px;
+    border-radius: 0;
 }
 
 /* Loading */
