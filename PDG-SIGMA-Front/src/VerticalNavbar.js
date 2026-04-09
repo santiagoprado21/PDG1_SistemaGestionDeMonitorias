@@ -377,6 +377,15 @@ function VerticalNavbar() {
               <span className="nav-label">Plan de Actividades</span>
             </NavLink>
 
+            <NavLink
+              to="/mis-evaluaciones"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <Star {...navIconProps} />
+              <span className="nav-label">Mis evaluaciones</span>
+            </NavLink>
+
           </>
         )}
 
