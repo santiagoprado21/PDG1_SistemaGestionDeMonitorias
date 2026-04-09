@@ -149,9 +149,11 @@ function MisConvocatorias() {
             
             <div className="create-monitoria-main">
                 <div className="title-container-create-monitoria">
-                    <div className="title-create-monitoria">Mis Convocatorias</div>
-                    <div className="subtitle-create-monitoria">
-                        Gestiona y da seguimiento a todas tus convocatorias de monitoría
+                    <div className="title-content-create-monitoria">
+                        <div className="title-create-monitoria">Mis Convocatorias</div>
+                        <div className="subtitle-create-monitoria">
+                            Gestiona y da seguimiento a todas tus convocatorias de monitoría
+                        </div>
                     </div>
                 </div>
 

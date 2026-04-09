@@ -250,8 +250,10 @@ function CreateConvocatoria() {
             </PopUp>
 
             <div className="title-container-create-monitoria">
-                <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
-                <div className="subtitle-create-monitoria">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
+                <div className="title-content-create-monitoria">
+                    <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
+                    <div className="subtitle-create-monitoria">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
+                </div>
             </div>
 
             <div className="create-monitoria-content">
@@ -400,7 +402,7 @@ function CreateConvocatoria() {
                                 placeholder="Explica por qué se requiere un monitor para este curso..."
                                 rows="5"
                                 required
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cecfd4' }}
+                                style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cecfd4' }}
                             />
                             <small style={{ color: justification.length < 50 ? 'red' : 'green' }}>
                                 {justification.length} / 50 caracteres mínimos

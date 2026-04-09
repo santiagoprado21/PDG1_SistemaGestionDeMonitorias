@@ -77,4 +77,46 @@ describe('MisEvaluacionesHU015', () => {
     expect(screen.getByText('Retroalimentación revisada')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Marcar como revisada/i })).not.toBeInTheDocument();
   });
+
+  it('muestra historial para profesor con el mismo estilo de tarjetas', async () => {
+    window.localStorage.setItem('userId', 'PROF-10');
+    window.localStorage.setItem('role', 'professor');
+
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([
+        {
+          monitoringId: 1,
+          monitorCode: 'A001',
+          monitorFullName: 'Laura Ruiz',
+          monitoringName: 'Calculo I - 2026-1',
+          courseName: 'Calculo I',
+          semester: '2026-1',
+          evaluated: true,
+          totalScore: 4.25,
+          performanceLevel: 'DESTACADO',
+          taskCompliance: 4,
+          timelyCommunication: 4,
+          planFulfillment: 5,
+          attitude: 4,
+          comments: 'Buen avance y participacion constante.',
+          visibleToMonitor: true
+        },
+        {
+          monitoringId: 2,
+          monitorCode: 'A002',
+          monitorFullName: 'Juan Peña',
+          evaluated: false
+        }
+      ])
+    });
+
+    render(<MisEvaluacionesHU015 />);
+
+    expect(await screen.findByText('Historial de evaluaciones registradas')).toBeInTheDocument();
+    expect(await screen.findByText(/Monitor evaluado: Laura Ruiz/i)).toBeInTheDocument();
+    expect(await screen.findByText('Visible para monitor')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Marcar como revisada/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Juan Peña/i)).not.toBeInTheDocument();
+  });
 });

@@ -29,6 +29,7 @@ function PlanActividades() {
     const [activityPlan, setActivityPlan] = useState(null);
     const [activities, setActivities] = useState([]);
     const [rubrics, setRubrics] = useState([]);
+    const [isLoadingMonitorings, setIsLoadingMonitorings] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
     // Estado del modal de creación/edición
@@ -91,6 +92,7 @@ function PlanActividades() {
     }, [selectedMonitoringId]);
 
     const loadMonitorings = async () => {
+        setIsLoadingMonitorings(true);
         try {
             const response = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${user}`, {
                 headers: {
@@ -156,6 +158,8 @@ function PlanActividades() {
             console.error('Error al cargar monitorías:', error);
             setMessage('Error al cargar monitorías: ' + error.message);
             setIsOpen(true);
+        } finally {
+            setIsLoadingMonitorings(false);
         }
     };
 
@@ -441,7 +445,10 @@ function PlanActividades() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content plan-actividades-content">
-                <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
+                <div className="title-container-plan-actividades">
+                    <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
+                    <p className="subtitle-plan-actividades">Gestiona y da seguimiento al plan de actividades de tus monitorías</p>
+                </div>
 
                 {/* Selector de Monitoría */}
                 <div className="monitoring-selector">
@@ -450,9 +457,11 @@ function PlanActividades() {
                         id="monitoring-select"
                         value={selectedMonitoringId}
                         onChange={(e) => setSelectedMonitoringId(e.target.value)}
-                        disabled={monitorings.length === 0}
+                        disabled={isLoadingMonitorings || monitorings.length === 0}
                     >
-                        {monitorings.length === 0 ? (
+                        {isLoadingMonitorings ? (
+                            <option value="">Cargando monitorías...</option>
+                        ) : monitorings.length === 0 ? (
                             <option value="">No hay monitorías con monitor asignado</option>
                         ) : (
                             monitorings.map(monitoring => (
@@ -465,7 +474,7 @@ function PlanActividades() {
                 </div>
 
                 {/* Mensaje informativo cuando no hay monitorías */}
-                {monitorings.length === 0 && (
+                {!isLoadingMonitorings && monitorings.length === 0 && (
                     <div className="warning-banner">
                         <span className="warning-icon"><AlertTriangle {...iconProps} /></span>
                         <div className="warning-text">
@@ -530,7 +539,11 @@ function PlanActividades() {
                 </div>
 
                 <div className="activities-list">
-                    {!selectedMonitoringId ? (
+                    {isLoadingMonitorings ? (
+                        <div className="no-activities">
+                            <p>Cargando monitorías y plan de actividades...</p>
+                        </div>
+                    ) : !selectedMonitoringId ? (
                         <div className="no-activities">
                             <p>Selecciona una monitoría para ver su plan de actividades.</p>
                         </div>
