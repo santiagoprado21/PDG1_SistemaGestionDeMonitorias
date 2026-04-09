@@ -29,6 +29,7 @@ function PlanActividades() {
     const [activityPlan, setActivityPlan] = useState(null);
     const [activities, setActivities] = useState([]);
     const [rubrics, setRubrics] = useState([]);
+    const [isLoadingMonitorings, setIsLoadingMonitorings] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
     // Estado del modal de creación/edición
@@ -91,6 +92,7 @@ function PlanActividades() {
     }, [selectedMonitoringId]);
 
     const loadMonitorings = async () => {
+        setIsLoadingMonitorings(true);
         try {
             const response = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${user}`, {
                 headers: {
@@ -156,6 +158,8 @@ function PlanActividades() {
             console.error('Error al cargar monitorías:', error);
             setMessage('Error al cargar monitorías: ' + error.message);
             setIsOpen(true);
+        } finally {
+            setIsLoadingMonitorings(false);
         }
     };
 
@@ -450,9 +454,11 @@ function PlanActividades() {
                         id="monitoring-select"
                         value={selectedMonitoringId}
                         onChange={(e) => setSelectedMonitoringId(e.target.value)}
-                        disabled={monitorings.length === 0}
+                        disabled={isLoadingMonitorings || monitorings.length === 0}
                     >
-                        {monitorings.length === 0 ? (
+                        {isLoadingMonitorings ? (
+                            <option value="">Cargando monitorías...</option>
+                        ) : monitorings.length === 0 ? (
                             <option value="">No hay monitorías con monitor asignado</option>
                         ) : (
                             monitorings.map(monitoring => (
@@ -465,7 +471,7 @@ function PlanActividades() {
                 </div>
 
                 {/* Mensaje informativo cuando no hay monitorías */}
-                {monitorings.length === 0 && (
+                {!isLoadingMonitorings && monitorings.length === 0 && (
                     <div className="warning-banner">
                         <span className="warning-icon"><AlertTriangle {...iconProps} /></span>
                         <div className="warning-text">
@@ -530,7 +536,11 @@ function PlanActividades() {
                 </div>
 
                 <div className="activities-list">
-                    {!selectedMonitoringId ? (
+                    {isLoadingMonitorings ? (
+                        <div className="no-activities">
+                            <p>Cargando monitorías y plan de actividades...</p>
+                        </div>
+                    ) : !selectedMonitoringId ? (
                         <div className="no-activities">
                             <p>Selecciona una monitoría para ver su plan de actividades.</p>
                         </div>
