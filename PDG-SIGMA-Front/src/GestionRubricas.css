@@ -12,8 +12,18 @@
         radial-gradient(circle at 5% 90%, rgba(134, 92, 240, 0.08), transparent 30%);
 }
 
+.title-container-gestion-rubricas {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-6) var(--space-7);
+    background: var(--azul-icesi);
+    border-left: 6px solid var(--verde-icesi);
+    margin: 0 0 var(--space-7) 0;
+}
+
 .gestion-rubricas-content h1 {
-    color: var(--color-primary);
+    color: var(--blanco);
     font-size: var(--fs-h1);
     margin-bottom: 0.5rem;
     font-weight: 700;
@@ -22,9 +32,9 @@
 }
 
 .subtitle {
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     max-width: 760px;
 }
 
@@ -599,6 +609,10 @@ form {
 @media (max-width: 768px) {
     .gestion-rubricas-content {
         padding: 1rem;
+    }
+
+    .title-container-gestion-rubricas {
+        padding: var(--space-5);
     }
 
     .rubricas-grid {

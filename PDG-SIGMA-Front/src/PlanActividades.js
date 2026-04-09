@@ -445,7 +445,10 @@ function PlanActividades() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content plan-actividades-content">
-                <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
+                <div className="title-container-plan-actividades">
+                    <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
+                    <p className="subtitle-plan-actividades">Gestiona y da seguimiento al plan de actividades de tus monitorías</p>
+                </div>
 
                 {/* Selector de Monitoría */}
                 <div className="monitoring-selector">

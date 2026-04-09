@@ -255,8 +255,10 @@ function GestionRubricas() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content gestion-rubricas-content">
-                <h1><BarChart3 {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Gestión de Rúbricas</h1>
-                <p className="subtitle">Crea y gestiona rúbricas para evaluar las actividades de tus monitores</p>
+                <div className="title-container-gestion-rubricas">
+                    <h1><BarChart3 {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Gestión de Rúbricas</h1>
+                    <p className="subtitle">Crea y gestiona rúbricas para evaluar las actividades de tus monitores</p>
+                </div>
                 <div className="info-banner">
                     <span className="info-icon"><Info {...iconProps} /></span>
                     <div className="info-text">
