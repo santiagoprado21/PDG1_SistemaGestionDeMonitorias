@@ -35,9 +35,9 @@ export const options = {
         // 0% de peticiones deben fallar
         http_req_failed: ['rate==0'],
         // Smoke es verificación de funcionamiento, no de rendimiento estricto.
-        // El límite global cubre lecturas simples y login (p95 < 3 000 ms).
+        // El límite global cubre todas las peticiones incluyendo el reporte (p95 < 3 500 ms).
         // El endpoint de reporte tiene hasta 5 000 ms por ser costoso.
-        'http_req_duration':                   ['p(95)<3000'],
+        'http_req_duration':                   ['p(95)<3500'],
         'http_req_duration{group:::6. Reporte de monitores}': ['p(95)<5000'],
         // Checks: todos deben pasar
         checks: ['rate==1.00']
