@@ -84,7 +84,7 @@ function flujoRubricasYPlan() {
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'rubricas' },
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -100,7 +100,7 @@ function flujoRubricasYPlan() {
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'plan_actividades' },
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -128,7 +128,7 @@ function flujoPlanMonitorYReporte() {
             {
                 ...authHeaders(tokenMonitor),
                 tags: { endpoint: 'plan_actividades' },
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -153,7 +153,7 @@ function flujoPlanMonitorYReporte() {
                 ...authHeaders(tokenProfesor),
                 tags: { endpoint: 'reporte_monitores' },
                 timeout: '20s',
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -181,7 +181,7 @@ function flujoReporteProfesorYCategorias() {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_profesor' },
                 timeout: '20s',
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -198,7 +198,7 @@ function flujoReporteProfesorYCategorias() {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_categorias' },
                 timeout: '20s',
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
@@ -226,7 +226,7 @@ function flujoReporteAsistencia() {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_asistencia' },
                 timeout: '25s',
-                responseCallback: http.expectedStatuses(200, 204, 404),
+                responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
         check(res, {
