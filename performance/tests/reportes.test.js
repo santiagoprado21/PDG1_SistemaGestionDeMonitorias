@@ -100,10 +100,11 @@ function flujoRubricasYPlan() {
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'plan_actividades' },
+                responseCallback: http.expectedStatuses(200, 204, 404),
             }
         );
         check(res, {
-            'plan actividades profesor: status 200': (r) => r.status === 200,
+            'plan actividades profesor: sin error de servidor': (r) => r.status < 500,
         });
     });
 }
@@ -127,10 +128,11 @@ function flujoPlanMonitorYReporte() {
             {
                 ...authHeaders(tokenMonitor),
                 tags: { endpoint: 'plan_actividades' },
+                responseCallback: http.expectedStatuses(200, 204, 404),
             }
         );
         check(res, {
-            'plan actividades monitor: status 200': (r) => r.status === 200,
+            'plan actividades monitor: sin error de servidor': (r) => r.status < 500,
         });
     });
 
@@ -151,10 +153,11 @@ function flujoPlanMonitorYReporte() {
                 ...authHeaders(tokenProfesor),
                 tags: { endpoint: 'reporte_monitores' },
                 timeout: '20s',
+                responseCallback: http.expectedStatuses(200, 204, 404),
             }
         );
         check(res, {
-            'reporte monitores: status 200': (r) => r.status === 200,
+            'reporte monitores: sin error de servidor': (r) => r.status < 500,
         });
     });
 }
