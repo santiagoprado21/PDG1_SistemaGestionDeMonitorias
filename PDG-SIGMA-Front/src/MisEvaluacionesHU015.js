@@ -239,7 +239,7 @@ function MisEvaluacionesHU015() {
       </PopUp>
       <div className="mis-evaluaciones-content">
         <header className="mis-evaluaciones-header">
-          <h2>{isProfessor ? 'Historial de evaluaciones registradas' : 'Mis evaluaciones de desempeño'}</h2>
+          <h2 className="page-main-title">{isProfessor ? 'Historial de evaluaciones registradas' : 'Mis evaluaciones de desempeño'}</h2>
           <p>
             {isProfessor
               ? 'Consulta las evaluaciones que has registrado a tus monitores. Esta vista mantiene el mismo diseño para facilitar la consulta histórica.'

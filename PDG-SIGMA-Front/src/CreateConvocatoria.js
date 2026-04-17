@@ -215,7 +215,7 @@ function CreateConvocatoria() {
         return (
             <span style={{
                 padding: '4px 12px',
-                borderRadius: '12px',
+                borderRadius: '0',
                 backgroundColor: statusInfo.color,
                 color: 'white',
                 fontSize: '12px',
@@ -251,7 +251,7 @@ function CreateConvocatoria() {
 
             <div className="title-container-create-monitoria">
                 <div className="title-content-create-monitoria">
-                    <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
+                    <div className="title-create-monitoria page-main-title">Crear Convocatoria de Monitoría</div>
                     <div className="subtitle-create-monitoria">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
                 </div>
             </div>

@@ -51,6 +51,7 @@
   font-family: var(--main-font-family);
   font-size: var(--fs-h1);
   font-weight: 700;
+  line-height: 1.2;
   color: var(--blanco);
   margin: 0;
   text-align: left;

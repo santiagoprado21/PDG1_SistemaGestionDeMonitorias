@@ -118,7 +118,7 @@ function MisConvocatorias() {
                 padding: '4px 12px',
                 backgroundColor: config.color,
                 color: 'white',
-                borderRadius: '12px',
+                borderRadius: '0',
                 fontSize: '0.85rem',
                 fontWeight: '600',
                 display: 'inline-flex',
@@ -150,7 +150,7 @@ function MisConvocatorias() {
             <div className="create-monitoria-main">
                 <div className="title-container-create-monitoria">
                     <div className="title-content-create-monitoria">
-                        <div className="title-create-monitoria">Mis Convocatorias</div>
+                        <div className="title-create-monitoria page-main-title">Mis Convocatorias</div>
                         <div className="subtitle-create-monitoria">
                             Gestiona y da seguimiento a todas tus convocatorias de monitoría
                         </div>
@@ -168,7 +168,7 @@ function MisConvocatorias() {
                                 style={{
                                     padding: '8px 12px',
                                     border: '2px solid #cecfd4',
-                                    borderRadius: '8px',
+                                    borderRadius: '0',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
                                     minWidth: '180px'
@@ -189,7 +189,7 @@ function MisConvocatorias() {
                                 style={{
                                     padding: '8px 12px',
                                     border: '2px solid #cecfd4',
-                                    borderRadius: '8px',
+                                    borderRadius: '0',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
                                     minWidth: '200px'
@@ -268,7 +268,7 @@ function MisConvocatorias() {
                                                         <span style={{
                                                             padding: '6px 12px',
                                                             background: conv.applicationCount > 0 ? '#cecfd4' : '#ffffff',
-                                                            borderRadius: '12px',
+                                                            borderRadius: '0',
                                                             fontWeight: '700',
                                                             fontSize: '1rem',
                                                             color: conv.applicationCount > 0 ? '#5454e9' : '#88898c'
@@ -349,7 +349,7 @@ function MisConvocatorias() {
                                                 backgroundColor: currentPage === 1 ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
-                                                borderRadius: '6px',
+                                                borderRadius: '0',
                                                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                                                 fontWeight: '600'
                                             }}
@@ -368,7 +368,7 @@ function MisConvocatorias() {
                                                 backgroundColor: currentPage === totalPages ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
-                                                borderRadius: '6px',
+                                                borderRadius: '0',
                                                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                                                 fontWeight: '600'
                                             }}

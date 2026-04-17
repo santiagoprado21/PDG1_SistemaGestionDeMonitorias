@@ -41,10 +41,7 @@
 
 .gestion-rubricas-content h1 {
     color: var(--blanco);
-    font-size: var(--fs-h1);
     margin-bottom: 0.5rem;
-    font-weight: 700;
-    font-family: var(--font-primary);
     letter-spacing: 0.2px;
 }
 

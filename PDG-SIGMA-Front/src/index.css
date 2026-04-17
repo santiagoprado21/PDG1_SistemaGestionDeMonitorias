@@ -347,6 +347,26 @@ h1 {
   font-weight: var(--font-weight-title);
 }
 
+.page-main-title {
+  margin: 0;
+  font-family: var(--main-font-family);
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .page-main-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 430px) {
+  .page-main-title {
+    font-size: 20px;
+  }
+}
+
 h2 {
   font-size: var(--fs-h2);
   font-weight: var(--font-weight-subtitle);

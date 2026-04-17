@@ -34,10 +34,7 @@ body.sidebar-expanded .mis-evaluaciones-content {
 
 .mis-evaluaciones-header h2 {
   margin: 0 0 var(--space-1) 0;
-  font-size: var(--fs-h1);
-  font-weight: 700;
   color: var(--blanco);
-  font-family: var(--font-primary);
 }
 
 .mis-evaluaciones-header p {
