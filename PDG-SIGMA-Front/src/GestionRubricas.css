@@ -5,11 +5,28 @@
 
 .gestion-rubricas-content {
     padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin-left: 76px;
+    min-height: 100vh;
     background:
         radial-gradient(circle at 95% 5%, rgba(84, 84, 233, 0.08), transparent 28%),
         radial-gradient(circle at 5% 90%, rgba(134, 92, 240, 0.08), transparent 30%);
+}
+
+.vertical-navbar.expanded + .gestion-rubricas-content {
+    margin-left: 250px;
+}
+
+.vertical-navbar.collapsed + .gestion-rubricas-content {
+    margin-left: 76px;
+}
+
+.title-container-gestion-rubricas,
+.info-banner,
+.rubricas-actions,
+.rubricas-grid {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .title-container-gestion-rubricas {
@@ -608,9 +625,12 @@ form {
 /* Responsive */
 @media (max-width: 768px) {
     .gestion-rubricas-content {
-        padding: 1rem;
+        margin-left: 0;
+        padding: 1.5rem;
     }
+}
 
+@media (max-width: 768px) {
     .title-container-gestion-rubricas {
         padding: var(--space-5);
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { setSidebarBodyClass } from "./sidebarState";
 import { NavLink } from "react-router-dom";
 import logo from "../src/img/logo2.png";
 import {PopUp} from "./PopUp";
@@ -45,6 +46,10 @@ function VerticalNavbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const isExpanded = isMobileView ? isMobileOpen : isHoverExpanded;
+
+  useEffect(() => {
+    setSidebarBodyClass(isExpanded);
+  }, [isExpanded]);
 
   const handleClose = () =>{
       setIsOpen(!isOpen)

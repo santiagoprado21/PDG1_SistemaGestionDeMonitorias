@@ -244,7 +244,7 @@ function GestionRubricas() {
         return (
             <div className="monitoring-container">
                 <VerticalNavbar />
-                <div className="main-content">
+                <div className="main-content gestion-rubricas-content">
                     <div className="loading">Cargando rúbricas...</div>
                 </div>
             </div>

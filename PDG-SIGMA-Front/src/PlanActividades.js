@@ -434,7 +434,7 @@ function PlanActividades() {
         return (
             <div className="monitoring-container">
                 <VerticalNavbar />
-                <div className="main-content">
+                <div className="main-content plan-actividades-content">
                     <div className="loading">Cargando plan de actividades...</div>
                 </div>
             </div>

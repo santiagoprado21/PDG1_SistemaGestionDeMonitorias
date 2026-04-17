@@ -5,8 +5,16 @@
 
 .plan-actividades-content {
     padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+    min-height: 100vh;
+    transition: margin-left 0.2s;
+}
+
+body .plan-actividades-content {
+    margin-left: 76px;
+}
+
+body.sidebar-expanded .plan-actividades-content {
+    margin-left: 250px;
 }
 
 .plan-actividades-content h1 {
@@ -509,6 +517,7 @@ form {
 /* Responsive */
 @media (max-width: 768px) {
     .plan-actividades-content {
+        margin-left: 0 !important;
         padding: 1rem;
     }
 

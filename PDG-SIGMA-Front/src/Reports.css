@@ -2,7 +2,8 @@
   --main-color: var(--azul-icesi);
   --hover-color: var(--morado-icesi);
   --main-font-family: var(--font-primary);
-  --sidebar-width: 250px;
+  --sidebar-width: 76px;
+  --sidebar-width-expanded: 250px;
 }
 
 .reports-page {
@@ -74,6 +75,11 @@
 .reports-page .reports-container {
   margin-left: var(--sidebar-width);
   padding: 0 40px 32px;
+}
+
+body.sidebar-expanded .reports-page .reports-top-bar,
+body.sidebar-expanded .reports-page .reports-container {
+  margin-left: var(--sidebar-width-expanded);
 }
 
 .reports-page .reports-content {
@@ -338,7 +344,7 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .reports-page .reports-top-bar,
   .reports-page .reports-container {
     margin-left: 0;
@@ -369,6 +375,7 @@
 @media (max-width: 768px) {
   .reports-page .reports-top-bar,
   .reports-page .reports-container {
+    margin-left: 0 !important;
     padding-left: 16px;
     padding-right: 16px;
   }

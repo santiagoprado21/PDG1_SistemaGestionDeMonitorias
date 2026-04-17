@@ -13,6 +13,15 @@
   background-color: #f5f6fa;
 }
 
+.vertical-navbar.expanded ~ .title-container-create-monitoria,
+.vertical-navbar.expanded ~ .create-monitoria-content {
+  margin-left: 174px;
+}
+
+.vertical-navbar.expanded ~ .create-monitoria-main {
+  margin-left: 174px;
+}
+
 /* ============================TITLE================================= */
 
 .title-container-create-monitoria {
@@ -303,6 +312,15 @@
   .create-monitoria-container {
     margin-left: 0;
     padding: 1.5rem;
+  }
+
+  .vertical-navbar.expanded ~ .title-container-create-monitoria,
+  .vertical-navbar.expanded ~ .create-monitoria-content {
+    margin-left: auto;
+  }
+
+  .vertical-navbar.expanded ~ .create-monitoria-main {
+    margin-left: 0;
   }
   
   .title-container-create-monitoria,
