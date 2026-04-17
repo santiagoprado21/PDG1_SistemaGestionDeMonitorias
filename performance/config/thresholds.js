@@ -104,6 +104,28 @@ export const cicloThresholds = {
 };
 
 /**
+ * SIGMA-PERF-010 / HU2-265
+ * Plan de actividades por rol, rúbricas y reportes pesados.
+ *
+ * Umbrales diferenciados por tipo de endpoint:
+ *   - Rúbricas y plan de actividades  → p95 < 3 000 ms  (lecturas moderadas)
+ *   - Reportes de monitorías/profesor → p95 < 5 000 ms  (consultas agregadas)
+ *   - Reportes de asistencia          → p95 < 6 000 ms  (consultas con joins masivos)
+ *   - Reporte de categorías           → p95 < 5 000 ms
+ */
+export const reportesThresholds = {
+    'http_req_duration':                              ['p(95)<3000'],
+    'http_req_duration{endpoint:rubricas}':           ['p(95)<3000'],
+    'http_req_duration{endpoint:plan_actividades}':   ['p(95)<3000'],
+    'http_req_duration{endpoint:reporte_monitores}':  ['p(95)<5000'],
+    'http_req_duration{endpoint:reporte_profesor}':   ['p(95)<5000'],
+    'http_req_duration{endpoint:reporte_categorias}': ['p(95)<5000'],
+    'http_req_duration{endpoint:reporte_asistencia}': ['p(95)<6000'],
+    http_req_failed: ['rate==0'],
+    checks:          ['rate==1.00'],
+};
+
+/**
  * SIGMA-PERF-008
  * Escenario de carga sostenida con mezcla de todos los flujos (25 VUs).
  * Los thresholds son más holgados que los tests individuales porque bajo

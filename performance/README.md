@@ -20,7 +20,8 @@ performance/
 │   ├── login.test.js                # SIGMA-PERF-003 / HU2-257: carga en /auth/login
 │   ├── convocatorias.test.js        # SIGMA-PERF-004 / HU2-261: listados de convocatorias (15 VUs)
 │   ├── convocatorias-ciclo.test.js  # SIGMA-PERF-009 / HU2-261: ciclo completo creación (1 VU)
-│   ├── actividades.test.js          # SIGMA-PERF-005: plan de actividades y reportes
+│   ├── actividades.test.js          # SIGMA-PERF-005: plan de actividades y reportes básicos
+│   ├── reportes.test.js             # SIGMA-PERF-010 / HU2-265: rúbricas, plan y reportes pesados
 │   └── cierre.test.js               # SIGMA-PERF-006: cierre de monitorías
 ├── scenarios/
 │   └── load.test.js                 # SIGMA-PERF-008: carga sostenida (mezcla de flujos, 15 VUs)
@@ -141,8 +142,11 @@ k6 run tests/convocatorias.test.js
 # Convocatorias — ciclo completo escritura: crear→aprobar→postular→seleccionar→cerrar (SIGMA-PERF-009 / HU2-261)
 k6 run tests/convocatorias-ciclo.test.js
 
-# Plan de actividades y reportes (SIGMA-PERF-005)
+# Plan de actividades y reportes básicos (SIGMA-PERF-005)
 k6 run tests/actividades.test.js
+
+# Rúbricas, plan detallado y reportes pesados (SIGMA-PERF-010 / HU2-265)
+k6 run tests/reportes.test.js
 
 # Cierre de monitorías (SIGMA-PERF-006)
 k6 run tests/cierre.test.js
@@ -165,16 +169,21 @@ k6 run --out json=results/smoke-$(date +%Y%m%d-%H%M%S).json smoke/smoke.test.js
 Los tests fallan automáticamente si no se cumplen estos criterios.  
 Los valores fueron ajustados tras mediciones reales con la DB alojada en Neon (cloud).
 
-| Flujo / Endpoint            | Script                     | p95 máximo  | Error rate | Checks   |
-|-----------------------------|----------------------------|-------------|------------|----------|
-| Login (`/auth/login`)       | `tests/login.test.js`      | 2 500 ms    | 0 %        | 100 %    |
-| Lecturas simples            | `smoke/smoke.test.js`      | 3 000 ms    | 0 %        | 100 %    |
-| Convocatorias (listados)    | `tests/convocatorias.test.js` | 3 500 ms | 0 %        | 100 %    |
-| Plan de actividades         | `tests/actividades.test.js`| 2 500 ms    | 0 %        | 100 %    |
-| Reporte de monitores        | `tests/actividades.test.js`| 5 000 ms    | 0 %        | 100 %    |
-| Cierre de monitorías        | `tests/cierre.test.js`     | 10 000 ms   | 0 %        | 100 %    |
-| Ciclo creación convocatoria | `tests/convocatorias-ciclo.test.js` | 5 000 ms por paso | 0 % | 100 % |
-| Carga sostenida (15 VUs)    | `scenarios/load.test.js`   | 4 500 ms    | < 1 %      | ≥ 99 %   |
+| Flujo / Endpoint                  | Script                              | p95 máximo          | Error rate | Checks   |
+|-----------------------------------|-------------------------------------|---------------------|------------|----------|
+| Login (`/auth/login`)             | `tests/login.test.js`               | 2 500 ms            | 0 %        | 100 %    |
+| Lecturas simples                  | `smoke/smoke.test.js`               | 3 500 ms            | 0 %        | 100 %    |
+| Convocatorias (listados)          | `tests/convocatorias.test.js`       | 3 500 ms            | 0 %        | 100 %    |
+| Plan de actividades               | `tests/actividades.test.js`         | 2 500 ms            | 0 %        | 100 %    |
+| Rúbricas por profesor             | `tests/reportes.test.js`            | 3 000 ms            | 0 %        | 100 %    |
+| Plan actividades detallado        | `tests/reportes.test.js`            | 3 000 ms            | 0 %        | 100 %    |
+| Reporte de monitores              | `tests/reportes.test.js`            | 5 000 ms            | 0 %        | 100 %    |
+| Reporte de profesor               | `tests/reportes.test.js`            | 5 000 ms            | 0 %        | 100 %    |
+| Reporte de categorías             | `tests/reportes.test.js`            | 5 000 ms            | 0 %        | 100 %    |
+| Reporte de asistencia             | `tests/reportes.test.js`            | 6 000 ms            | 0 %        | 100 %    |
+| Cierre de monitorías              | `tests/cierre.test.js`              | 10 000 ms           | 0 %        | 100 %    |
+| Ciclo creación convocatoria       | `tests/convocatorias-ciclo.test.js` | 5 000 ms por paso   | 0 %        | 100 %    |
+| Carga sostenida (15 VUs)          | `scenarios/load.test.js`            | 4 500 ms            | < 1 %      | ≥ 99 %   |
 
 ### Thresholds por rol — Login (HU2-257)
 
@@ -389,6 +398,39 @@ Agregar las credenciales como **Secrets** del repositorio y pasarlas como variab
    ```bash
    k6 run performance/smoke/smoke.test.js
    ```
+
+---
+
+## Rúbricas, plan y reportes pesados (HU2-265)
+
+### Endpoints cubiertos — `tests/reportes.test.js`
+
+```
+GET /rubric/professor/{professorId}                         → Rúbricas asignadas al profesor
+GET /activity/findAll/{userId}/professor                    → Plan de actividades (rol profesor)
+GET /activity/findAll/{userId}/monitor                      → Plan de actividades (rol monitor)
+GET /monitoring/getMonitorsReport/{professorId}/professor   → Reporte de monitores
+GET /monitoring/getProfessorReport/{professorId}            → Reporte del profesor
+GET /monitoring/getCategoriesReport/professor/{professorId} → Reporte de categorías por materia
+GET /monitoring/getAttendanceReport/professor/{professorId} → Reporte de asistencia (join masivo)
+```
+
+### Umbrales diferenciados (SIGMA-PERF-010)
+
+| Endpoint (tag)              | p95 máximo | Justificación                                     |
+|-----------------------------|------------|---------------------------------------------------|
+| `endpoint:rubricas`         | 3 000 ms   | Consulta indexada por professorId                 |
+| `endpoint:plan_actividades` | 3 000 ms   | Listado de actividades por rol                    |
+| `endpoint:reporte_monitores`| 5 000 ms   | Agrega evaluaciones y actividades por monitor     |
+| `endpoint:reporte_profesor` | 5 000 ms   | Resumen agregado de todas las monitorías          |
+| `endpoint:reporte_categorias`| 5 000 ms  | Agrupa por categoría con conteos                  |
+| `endpoint:reporte_asistencia`| 6 000 ms  | Join entre actividades, asistencia y monitorías   |
+
+### Perfil de carga
+
+- **10 VUs** en round-robin entre los 4 flujos
+- Ramp-up 30 s → sostenida 3 min → ramp-down 30 s
+- Los reportes pesados llevan `timeout: '20s'`–`'25s'` para no bloquear la suite
 
 ---
 
