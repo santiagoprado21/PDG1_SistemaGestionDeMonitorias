@@ -29,7 +29,7 @@ const setAuth = (role) => {
 
 const renderNavbar = () => render(<BrowserRouter><VerticalNavbar /></BrowserRouter>);
 
-describe('VerticalNavbar simple coverage', () => {
+describe('VerticalNavbarSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         window.innerWidth = 1200;

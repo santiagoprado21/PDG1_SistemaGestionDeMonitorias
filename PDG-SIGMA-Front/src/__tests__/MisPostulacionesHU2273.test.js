@@ -73,7 +73,7 @@ const renderComponent = () =>
     );
 
 // ===== TESTS =====
-describe('HU2-273: Mis Postulaciones - Vista del Monitor', () => {
+describe('MisPostulacionesHU2273', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();

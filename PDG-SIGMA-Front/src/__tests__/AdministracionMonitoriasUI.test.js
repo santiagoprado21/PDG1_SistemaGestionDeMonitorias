@@ -22,7 +22,7 @@ jest.mock('react-router-dom', () => ({
     useParams: () => ({ requestId: '501' })
 }));
 
-describe('Frontend: Administración de monitorías', () => {
+describe('AdministracionMonitoriasUI', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         Object.defineProperty(window, 'localStorage', {

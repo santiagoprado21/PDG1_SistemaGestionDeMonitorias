@@ -26,7 +26,7 @@ jest.mock('../GestionRubricas', () => () => <div />);
 jest.mock('../MisPostulaciones', () => () => <div />);
 jest.mock('../CerrarMonitorias', () => () => <div />);
 
-describe('Frontend: Infraestructura y Arranque de la Aplicación', () => {
+describe('InfraestructuraArranqueApp', () => {
     beforeEach(() => {
         window.history.pushState({}, '', '/');
     });

@@ -50,7 +50,7 @@ const renderComponent = () =>
         </BrowserRouter>
     );
 
-describe('HU-010 Frontend: Convocatorias (caducidad/cierre y casos extremos)', () => {
+describe('ConvocatoriasCaducidadGestionHU010', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         fetch.mockImplementation(async () => ({

@@ -24,7 +24,7 @@ jest.mock('react-router-dom', () => ({
     useParams: () => mockedParams
 }));
 
-describe('Frontend: Registro, Planificación y Vista de Actividades', () => {
+describe('ActividadesRegistroPlanVista', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockedParams = { monitoringId: null };

@@ -18,7 +18,7 @@ jest.mock('../config/ApiBackend', () => ({
   BACKEND_URL: 'http://localhost:5435'
 }));
 
-describe('HU2-212 Login professor flow', () => {
+describe('LoginHU212.professor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
