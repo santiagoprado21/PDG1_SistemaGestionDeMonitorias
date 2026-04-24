@@ -417,9 +417,9 @@ function GestionEncuestaProfesoresHU027() {
       <PopUp show={isOpen} onClose={closePopup}>{message}</PopUp>
 
       <div className="hu027-content">
-        <header className="hu027-header">
-          <h2>Gestión de encuesta de evaluación de profesores</h2>
-          <p>Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
+        <header className="hu027-header app-page-header">
+          <h2 className="app-page-title">Gestión de encuesta de evaluación de profesores</h2>
+          <p className="app-page-subtitle">Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
           <div className="hu027-semester-row">
             <label htmlFor="semesterInput">Periodo activo</label>
             <input

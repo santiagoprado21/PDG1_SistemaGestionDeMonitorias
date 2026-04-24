@@ -919,9 +919,9 @@ function VistaMonitorActividades() {
         <div className="vista-monitor-container">
             <VerticalNavbar />
             <div className="vista-monitor-content">
-                <div className="page-header">
-                    <h1>Mis Actividades</h1>
-                    <p className="subtitle">Revisa y gestiona las actividades asignadas por tus profesores</p>
+                <div className="page-header app-page-header">
+                    <h1 className="app-page-title">Mis Actividades</h1>
+                    <p className="subtitle app-page-subtitle">Revisa y gestiona las actividades asignadas por tus profesores</p>
                 </div>
 
                 {/* Barra de búsqueda y filtros */}

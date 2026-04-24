@@ -186,15 +186,15 @@ function CerrarMonitorias() {
         <div className="cerrar-monitorias-container">
             <VerticalNavbar />
             <div className="main-content">
-                <div className="cerrar-monitorias-header">
-                    <h1>Cierre de Monitorías</h1>
-                    <p className="subtitle">Cierre de monitorías al final del semestre</p>
+                <div className="cerrar-monitorias-header app-page-header">
+                    <h1 className="app-page-title">Cierre de Monitorías</h1>
+                    <p className="subtitle app-page-subtitle">Cierre de monitorías al final del periodo</p>
                 </div>
 
-                {/* Selector de semestre */}
+                {/* Selector de periodo */}
                 <div className="filters-section">
                     <div className="filter-group">
-                        <label>Semestre:</label>
+                        <label>Periodo:</label>
                         <select value={semester} onChange={(e) => setSemester(e.target.value)}>
                             <option value="2026-1">2026-1</option>
                             <option value="2025-2">2025-2</option>
@@ -254,7 +254,7 @@ function CerrarMonitorias() {
                                 {/* Lista de monitorías listas para cerrar */}
                                 {monitorings.length === 0 ? (
                                     <div className="empty-state">
-                                        <p>No hay monitorías listas para cerrar en este semestre</p>
+                                        <p>No hay monitorías listas para cerrar en este periodo</p>
                                         <small>Solo se pueden cerrar monitorías en estado "APROBADA"</small>
                                     </div>
                                 ) : (
@@ -274,7 +274,7 @@ function CerrarMonitorias() {
                                                     <p><strong>Profesor:</strong> {monitoring.professor?.name || 'N/A'}</p>
                                                     <p><strong>Monitor:</strong> {monitoring.assignedMonitor?.name || 'Sin asignar'}</p>
                                                     <p><strong>Horas contratadas:</strong> {monitoring.estimatedHours || 0}h</p>
-                                                    <p><strong>Semestre:</strong> {monitoring.semester}</p>
+                                                    <p><strong>Periodo:</strong> {monitoring.semester}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -286,7 +286,7 @@ function CerrarMonitorias() {
                                 {/* Lista de monitorías cerradas */}
                                 {closedMonitorings.length === 0 ? (
                                     <div className="empty-state">
-                                        <p>No hay monitorías cerradas en este semestre</p>
+                                        <p>No hay monitorías cerradas en este periodo</p>
                                     </div>
                                 ) : (
                                     <div className="monitorings-grid">
@@ -396,7 +396,7 @@ function CerrarMonitorias() {
                                     <p><strong>Programa:</strong> {selectedReport.programName}</p>
                                     <p><strong>Profesor:</strong> {selectedReport.professorName}</p>
                                     <p><strong>Monitor:</strong> {selectedReport.monitorName}</p>
-                                    <p><strong>Semestre:</strong> {selectedReport.semester}</p>
+                                    <p><strong>Periodo:</strong> {selectedReport.semester}</p>
                                 </div>
 
                                 <div className="report-section">

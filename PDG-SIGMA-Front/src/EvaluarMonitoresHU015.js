@@ -245,7 +245,7 @@ function EvaluarMonitoresHU015() {
           </span>
         </div>
         <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
-        <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {assignment.semester || 'Semestre sin registrar'}</p>
+        <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {assignment.semester || 'Periodo sin registrar'}</p>
         {assignment.evaluated && (
           <div className="assignment-score">
             <strong>{assignment.totalScore.toFixed(2)}</strong>

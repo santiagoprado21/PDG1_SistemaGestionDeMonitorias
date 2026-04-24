@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link2, Copy, Check, ClipboardList, ShieldCheck, Share2 } from 'lucide-react';
+import { Link2, Copy, Check, ShieldCheck, Share2 } from 'lucide-react';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
@@ -70,7 +70,7 @@ const FALLBACK_QUESTIONS = [
   {
     id: 9,
     questionKey: 'recommendation',
-    statement: 'Recomendaria a este monitor para futuros semestres.',
+    statement: 'Recomendaria a este monitor para futuros periodos.',
     category: 'Percepcion de Valor',
     displayOrder: 9
   }
@@ -251,7 +251,7 @@ function EvaluacionMonitoriaEstudiante() {
 
   const validateForm = () => {
     if (!semester.trim()) {
-      return 'Debes indicar el semestre de la evaluación.';
+      return 'Debes indicar el periodo de la evaluación.';
     }
     if (!monitoringId.trim()) {
       return 'Debes ingresar el codigo de la monitoria.';
@@ -322,7 +322,7 @@ function EvaluacionMonitoriaEstudiante() {
 
     setSaving(true);
     try {
-      // Persistencia en backend para habilitar reglas de edición del banco por semestre.
+      // Persistencia en backend para habilitar reglas de edición del banco por periodo.
       await fetch(`${BACKEND_URL}/monitor-survey/public/responses`, {
         method: 'POST',
         headers: {
@@ -411,7 +411,7 @@ function EvaluacionMonitoriaEstudiante() {
             <form className="monitoria-form" onSubmit={handleSubmit}>
               <div className="monitoria-meta-grid">
                 <label>
-                  Semestre
+                  Periodo
                   <input
                     type="text"
                     value={semester}
@@ -523,14 +523,11 @@ function EvaluacionMonitoriaEstudiante() {
 
         {role === 'monitor' && (
           <section className="monitor-section">
-            <header className="monitor-page-header">
+            <header className="monitor-page-header app-page-header">
               <div className="monitor-page-header-left">
-                <div className="monitor-page-header-icon">
-                  <ClipboardList size={28} />
-                </div>
                 <div>
-                  <h2>Evaluacion de mi Monitoria</h2>
-                  <p>Genera y comparte el enlace de evaluacion con tus estudiantes</p>
+                  <h2 className="app-page-title">Evaluacion de mi Monitoria</h2>
+                  <p className="app-page-subtitle">Genera y comparte el enlace de evaluacion con tus estudiantes</p>
                 </div>
               </div>
               <div className="monitor-id-badge">

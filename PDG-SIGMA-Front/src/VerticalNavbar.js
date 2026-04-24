@@ -476,9 +476,11 @@ function VerticalNavbar() {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              isActive ? "logout-button active" : "logout-button"
+              isActive ? "logout-button btn-danger active" : "logout-button btn-danger"
             }
             onClick={handleCloseLogout}
+            aria-label="Cerrar sesion"
+            title="Cerrar sesion"
           >
             <LogOut {...navIconProps} />
             <span className="nav-label">Cerrar sesion</span>

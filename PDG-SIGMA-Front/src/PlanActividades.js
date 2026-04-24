@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
-import { ClipboardList, AlertTriangle, Plus, BarChart3, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, Plus, BarChart3, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * HU-011: Creación de plan de actividades para monitores (Como profesor)
@@ -445,9 +445,9 @@ function PlanActividades() {
         <div className="monitoring-container">
             <VerticalNavbar />
             <div className="main-content plan-actividades-content">
-                <div className="title-container-plan-actividades">
-                    <h1><ClipboardList {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Plan de Actividades</h1>
-                    <p className="subtitle-plan-actividades">Gestiona y da seguimiento al plan de actividades de tus monitorías</p>
+                <div className="title-container-plan-actividades prof-page-header">
+                    <h1 className="prof-page-title">Plan de Actividades</h1>
+                    <p className="subtitle-plan-actividades prof-page-subtitle">Gestiona y da seguimiento al plan de actividades de tus monitorías</p>
                 </div>
 
                 {/* Selector de Monitoría */}
@@ -496,7 +496,7 @@ function PlanActividades() {
                             <h2>{activityPlan.courseName} - {activityPlan.programName}</h2>
                             <p><strong>Profesor:</strong> {activityPlan.professorName}</p>
                             <p><strong>Monitor:</strong> {activityPlan.monitorName}</p>
-                            <p><strong>Semestre:</strong> {activityPlan.semester}</p>
+                            <p><strong>Periodo:</strong> {activityPlan.semester}</p>
                         </div>
                         <div className="plan-stats">
                             <div className="stat-card">

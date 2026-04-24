@@ -139,7 +139,7 @@ function GenerateSimonFile() {
             <VerticalNavbar />
             
             <div className="generate-simon-content">
-                <h1 className="generate-simon-title">Generar Archivo SIMON</h1>
+                <h1 className="generate-simon-title app-page-header app-page-title">Generar Archivo SIMON</h1>
 
                 {isLoading && <LoadingSpinner />}
 
@@ -153,7 +153,7 @@ function GenerateSimonFile() {
                                 <span className="summary-value">{previewData.totalMonitorings}</span>
                             </div>
                             <div className="summary-item">
-                                <span className="summary-label">Semestre:</span>
+                                <span className="summary-label">Periodo:</span>
                                 <input 
                                     type="text" 
                                     value={semester}
@@ -255,7 +255,7 @@ function GenerateSimonFile() {
                                         <tr>
                                             <th>Fecha y Hora</th>
                                             <th>Generado Por</th>
-                                            <th>Semestre</th>
+                                            <th>Periodo</th>
                                             <th>Total Monitorías</th>
                                             <th>Nombre Archivo</th>
                                         </tr>

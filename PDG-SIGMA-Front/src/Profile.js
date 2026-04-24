@@ -145,9 +145,9 @@ useEffect(() => {
       <div className="profile-content">
 
         {/* Encabezado institucional */}
-        <div className="profile-page-header">
-          <h1>Mi Perfil</h1>
-          <p>Información personal y cursos asignados</p>
+        <div className="profile-page-header app-page-header">
+          <h1 className="app-page-title">Mi Perfil</h1>
+          <p className="app-page-subtitle">Información personal y cursos asignados</p>
         </div>
 
         <div className="profile-main">
@@ -181,7 +181,7 @@ useEffect(() => {
               <h3>Cursos Asignados</h3>
             </div>
             <div className="courses-container-body">
-              {/* Filtro de semestre */}
+              {/* Filtro de periodo */}
               <div className="filter-container">
                 <select className="select-semester-filter"
                   id="semestre"

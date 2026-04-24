@@ -402,9 +402,9 @@ function GestionEncuestaMonitoresHU026() {
       <PopUp show={isOpen} onClose={closePopup}>{message}</PopUp>
 
       <div className="hu026-content">
-        <header className="hu026-header">
-          <h2>Gestión de encuesta de evaluación de monitores</h2>
-          <p>Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
+        <header className="hu026-header app-page-header">
+          <h2 className="app-page-title">Gestión de encuesta de evaluación de monitores</h2>
+          <p className="app-page-subtitle">Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
           <div className="hu026-semester-row">
             <label htmlFor="semesterInput">Periodo activo</label>
             <input

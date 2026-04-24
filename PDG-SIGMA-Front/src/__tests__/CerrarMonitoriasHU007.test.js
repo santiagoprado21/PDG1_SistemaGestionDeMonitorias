@@ -68,7 +68,7 @@ describe('HU-007: Cierre de Monitorías - Tests', () => {
         );
 
         expect(screen.getByText('Cierre de Monitorías')).toBeInTheDocument();
-        expect(screen.getByText('Cierre de monitorías al final del semestre')).toBeInTheDocument();
+        expect(screen.getByText('Cierre de monitorías al final del periodo')).toBeInTheDocument();
     });
 
     test('Debe cargar y mostrar monitorías listas para cerrar', async () => {
