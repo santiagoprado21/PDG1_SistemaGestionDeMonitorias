@@ -128,7 +128,7 @@ function App() {
          <Route path="/mis-postulaciones" element={<MisPostulaciones />} />
 
          {/* ========== HU-007: Cierre de Monitorías ========== */}
-         {/* Jefe de Departamento: Cerrar monitorías al final del semestre */}
+         {/* Jefe de Departamento: Cerrar monitorías al final del periodo */}
          <Route path="/cerrar-monitorias" element={<CerrarMonitorias />} />
       </Routes>
     </div>

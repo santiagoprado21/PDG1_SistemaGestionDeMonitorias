@@ -3,10 +3,23 @@
 /* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
 /* Colores institucionales ya definidos en index.css */
 
-.plan-actividades-content {
-    padding: 2rem;
+.monitoring-container {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f6fa;
+}
+
+.monitoring-container .main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: var(--space-8);
     max-width: 1400px;
-    margin: 0 auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.plan-actividades-content {
+    width: 100%;
 }
 
 .plan-actividades-content h1 {
@@ -507,6 +520,13 @@ form {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .monitoring-container .main-content {
+        margin-left: 0;
+        padding: var(--space-6);
+    }
+}
+
 @media (max-width: 768px) {
     .plan-actividades-content {
         padding: 1rem;

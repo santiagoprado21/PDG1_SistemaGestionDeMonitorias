@@ -19,9 +19,9 @@ const REPORT_HELP_CONTENT = {
     ]
   },
   semesterComparison: {
-    summary: 'Compara el desempeno del semestre actual frente al semestre anterior disponible.',
+    summary: 'Compara el desempeno del periodo actual frente al periodo anterior disponible.',
     bullets: [
-      'Se requiere al menos dos semestres con datos para ver la comparacion.',
+      'Se requiere al menos dos periodos con datos para ver la comparacion.',
       'Cada barra representa actividades completadas, pendientes y tardias.',
       'Si cambias filtros, la comparacion se recalcula automaticamente.'
     ]
@@ -37,7 +37,7 @@ const REPORT_HELP_CONTENT = {
   categoryUsage: {
     summary: 'Presenta las categorias mas usadas en las actividades del curso filtrado.',
     bullets: [
-      'Solo aparece cuando seleccionas curso, programa y semestre.',
+      'Solo aparece cuando seleccionas curso, programa y periodo.',
       'Cada porcion del pastel indica la proporcion de uso por categoria.',
       'Se muestran las 5 categorias con mayor cantidad de registros.'
     ]
@@ -254,7 +254,7 @@ function Reports() {
   };
 
   // const monitorPerformanceDataOriginal = [
-  //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, semestre: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
+  //   { name: 'Monitor A', Completadas: 12, Tardias: 3, Pendientes: 2, periodo: '2024-1', programa: 'Ingenieria de Sistemas', curso: 'POO', profesor: 'Claudia' },
   // ];
 
   const COLORS = ['#5454e9', '#4cb979', '#e4eb60', '#e9683b'];
@@ -330,7 +330,7 @@ function Reports() {
 
     // Filtros con etiquetas
     csvRows.push('Filtro,Valor');
-    csvRows.push(`Semestre,${filters.semester}`);
+    csvRows.push(`Periodo,${filters.semester}`);
     csvRows.push(`Programa,${filters.program}`);
     csvRows.push(`Curso,${filters.course}`);
 
@@ -376,7 +376,7 @@ function Reports() {
       .join('');
 
     const filtersRows = [
-      ['Semestre', filters.semester],
+      ['Periodo', filters.semester],
       ['Programa', filters.program],
       ['Curso', filters.course],
       ['Profesor', filters.professor],
@@ -520,24 +520,24 @@ function Reports() {
       {
         indicador: 'Completadas',
         [currentSemester]: currentTotals.completed,
-        [previousSemester || 'Semestre anterior']: previousTotals.completed,
+        [previousSemester || 'Periodo anterior']: previousTotals.completed,
       },
       {
         indicador: 'Pendientes',
         [currentSemester]: currentTotals.pending,
-        [previousSemester || 'Semestre anterior']: previousTotals.pending,
+        [previousSemester || 'Periodo anterior']: previousTotals.pending,
       },
       {
         indicador: 'Tardías',
         [currentSemester]: currentTotals.late,
-        [previousSemester || 'Semestre anterior']: previousTotals.late,
+        [previousSemester || 'Periodo anterior']: previousTotals.late,
       },
     ];
 
     const exportData = chartData.map(row => ({
       Indicador: row.indicador,
       [currentSemester]: row[currentSemester],
-      [previousSemester || 'Semestre anterior']: row[previousSemester || 'Semestre anterior'],
+      [previousSemester || 'Periodo anterior']: row[previousSemester || 'Periodo anterior'],
     }));
 
     return {
@@ -782,11 +782,11 @@ useEffect(() => {
       >{message}
       </PopUp>
       <div className="reports-top-bar">
-        <h2 className="reports-title">Reportes</h2>
+        <h2 className="reports-title prof-page-header prof-page-title">Reportes</h2>
         <div className="filters-container">
           <div className="filter-group">
             <select onChange={(e) => setSemester(e.target.value)}>
-                  <option value="">Semestre*</option>
+                  <option value="">Periodo*</option>
               {sortedSemestersToShow.map((semester, index) => (
                       <option key={index} value={semester}>
                       {semester}
@@ -973,8 +973,8 @@ useEffect(() => {
         <div className="chart-card">
           {renderCardTitle(
             semesterComparison.previousSemester
-              ? `Comparativo por semestre (${semesterComparison.previousSemester} vs ${semesterComparison.currentSemester})`
-              : 'Comparativo por semestre',
+              ? `Comparativo por periodo (${semesterComparison.previousSemester} vs ${semesterComparison.currentSemester})`
+              : 'Comparativo por periodo',
             'semesterComparison'
           )}
 
@@ -991,7 +991,7 @@ useEffect(() => {
               </BarChart>
 
               <div className="chart-download-container">
-                <button className="chart-download-button" onClick={() => exportToCSV(semesterComparison.exportData, 'Comparativo_Semestres', {
+                <button className="chart-download-button" onClick={() => exportToCSV(semesterComparison.exportData, 'Comparativo_Periodos', {
                       semester,
                       program,
                       course,
@@ -999,7 +999,7 @@ useEffect(() => {
                       monitor
                     })
                   }>CSV</button>
-                <button className="chart-download-button" onClick={() => exportToPDF(semesterComparison.exportData, 'Comparativo_Semestres', {
+                <button className="chart-download-button" onClick={() => exportToPDF(semesterComparison.exportData, 'Comparativo_Periodos', {
                       semester,
                       program,
                       course,
@@ -1010,7 +1010,7 @@ useEffect(() => {
               </div>
             </>
           ) : (
-            <p>No hay suficientes semestres con datos para comparar.</p>
+            <p>No hay suficientes periodos con datos para comparar.</p>
           )}
         </div>
 

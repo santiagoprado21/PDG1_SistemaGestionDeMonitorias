@@ -3,13 +3,24 @@
 /* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
 /* Colores institucionales ya definidos en index.css */
 
-.gestion-rubricas-content {
-    padding: 2rem;
+.monitoring-container {
+    display: flex;
+    min-height: 100vh;
+    background: var(--blanco);
+}
+
+.monitoring-container .main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: var(--space-8);
     max-width: 1400px;
-    margin: 0 auto;
-    background:
-        radial-gradient(circle at 95% 5%, rgba(84, 84, 233, 0.08), transparent 28%),
-        radial-gradient(circle at 5% 90%, rgba(134, 92, 240, 0.08), transparent 30%);
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.gestion-rubricas-content {
+    width: 100%;
+    background: var(--blanco);
 }
 
 .title-container-gestion-rubricas {
@@ -40,7 +51,7 @@
 
 /* Banner informativo */
 .info-banner {
-    background: linear-gradient(135deg, rgba(84, 84, 233, 0.1) 0%, rgba(134, 92, 240, 0.08) 100%);
+    background: var(--blanco);
     border-left: 4px solid var(--color-primary);
     border-radius: 0;
     padding: 1rem 1.5rem;
@@ -48,9 +59,9 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
     border: 1px solid rgba(84, 84, 233, 0.16);
-    backdrop-filter: blur(2px);
+    backdrop-filter: none;
 }
 
 .info-icon {
@@ -79,16 +90,16 @@
 .rubricas-actions .btn-secondary {
     min-height: 40px;
     font-weight: 700;
-    transition: transform var(--tr-fast), box-shadow var(--tr-fast), background-color var(--tr-fast), color var(--tr-fast), border-color var(--tr-fast);
+    transition: transform var(--tr-fast), background-color var(--tr-fast), color var(--tr-fast), border-color var(--tr-fast);
 }
 
 .rubricas-actions .btn-primary {
-    box-shadow: 0 8px 20px rgba(84, 84, 233, 0.22);
+    box-shadow: none;
 }
 
 .rubricas-actions .btn-secondary {
     background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 6px 14px rgba(84, 84, 233, 0.12);
+    box-shadow: none;
 }
 
 .rubricas-actions .btn-primary:hover,
@@ -128,12 +139,12 @@
 .rubrica-card {
     position: relative;
     overflow: hidden;
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border: 1px solid var(--color-border);
     border-top: 4px solid var(--color-primary);
     border-radius: 0;
     padding: 1.5rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: none;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -178,7 +189,7 @@
 
 .rubrica-card:hover {
     transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
 }
 
 .rubrica-header {
@@ -206,17 +217,17 @@
     padding: 0.5rem 1rem;
     border-radius: 0;
     min-width: 60px;
-    box-shadow: 0 10px 20px rgba(84, 84, 233, 0.22);
+    box-shadow: none;
 }
 
 .rubrica-card:nth-child(3n+2) .rubrica-score {
     background: linear-gradient(135deg, var(--color-success) 0%, #2d8f60 100%);
-    box-shadow: 0 10px 20px rgba(76, 185, 121, 0.22);
+    box-shadow: none;
 }
 
 .rubrica-card:nth-child(3n+3) .rubrica-score {
     background: linear-gradient(135deg, var(--color-icesi-purple) 0%, var(--color-primary) 100%);
-    box-shadow: 0 10px 20px rgba(134, 92, 240, 0.22);
+    box-shadow: none;
 }
 
 .score-value {
@@ -265,22 +276,22 @@
     padding: 0.75rem;
     margin-bottom: 0.5rem;
     border-radius: 0;
-    transition: transform var(--tr-fast), box-shadow var(--tr-fast);
+    transition: transform var(--tr-fast);
 }
 
 .rubrica-criteria li:hover {
     transform: translateX(2px);
-    box-shadow: 0 4px 10px rgba(84, 84, 233, 0.12);
+    box-shadow: none;
 }
 
 .rubrica-card:nth-child(3n+2) .rubrica-criteria li {
     border-left-color: var(--color-success);
-    background: rgba(76, 185, 121, 0.12);
+    background: var(--blanco);
 }
 
 .rubrica-card:nth-child(3n+3) .rubrica-criteria li {
     border-left-color: var(--color-icesi-purple);
-    background: rgba(134, 92, 240, 0.1);
+    background: var(--blanco);
 }
 
 .criterion-info {
@@ -365,13 +376,13 @@
 }
 
 .modal-content {
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border-radius: 0;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 50px rgba(10, 14, 34, 0.28);
+    box-shadow: none;
     border: 1px solid rgba(84, 84, 233, 0.16);
 }
 
@@ -483,12 +494,12 @@ form {
 }
 
 .criterion-item {
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border: 1px solid var(--color-border);
     border-radius: 0;
     padding: 1rem;
     margin-bottom: 1rem;
-    transition: box-shadow var(--tr-fast), border-color var(--tr-fast);
+    transition: border-color var(--tr-fast);
 }
 
 .criterion-number {
@@ -500,12 +511,12 @@ form {
 }
 
 .criterion-item {
-    box-shadow: inset 0 0 0 1px rgba(84, 84, 233, 0.08);
+    box-shadow: none;
 }
 
 .criterion-item:hover {
     border-color: rgba(84, 84, 233, 0.35);
-    box-shadow: inset 0 0 0 1px rgba(84, 84, 233, 0.14), 0 8px 16px rgba(84, 84, 233, 0.08);
+    box-shadow: none;
 }
 
 .criterion-fields {
@@ -593,7 +604,7 @@ form {
     gap: 1rem;
     padding: 1.5rem;
     border-top: 1px solid var(--color-border);
-    background: var(--color-bg-body);
+    background: var(--blanco);
     border-radius: 0;
 }
 
@@ -606,6 +617,13 @@ form {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .monitoring-container .main-content {
+        margin-left: 0;
+        padding: var(--space-6);
+    }
+}
+
 @media (max-width: 768px) {
     .gestion-rubricas-content {
         padding: 1rem;
@@ -636,5 +654,25 @@ form {
         width: 95%;
         max-height: 95vh;
     }
+}
+
+/* Garantiza estilo plano en esta vista aunque existan clases globales compartidas */
+.gestion-rubricas-page .info-banner,
+.gestion-rubricas-page .rubricas-actions .btn-primary,
+.gestion-rubricas-page .rubricas-actions .btn-secondary,
+.gestion-rubricas-page .rubrica-card,
+.gestion-rubricas-page .rubrica-card:hover,
+.gestion-rubricas-page .rubrica-score,
+.gestion-rubricas-page .rubrica-card:nth-child(3n+2) .rubrica-score,
+.gestion-rubricas-page .rubrica-card:nth-child(3n+3) .rubrica-score,
+.gestion-rubricas-page .rubrica-criteria li:hover,
+.gestion-rubricas-page .criterion-item,
+.gestion-rubricas-page .criterion-item:hover,
+.gestion-rubricas-page .modal-content {
+    box-shadow: none !important;
+}
+
+.gestion-rubricas-page .rubrica-card::before {
+    display: none;
 }
 

@@ -157,9 +157,9 @@ function VerConvocatorias() {
             <div className="ver-convocatorias-content">
 
                 {/* Header */}
-                <div className="ver-conv-header">
-                    <h1>Convocatorias de Monitoría Abiertas</h1>
-                    <p className="ver-conv-subtitle">Postúlate a las convocatorias disponibles</p>
+                <div className="ver-conv-header app-page-header">
+                    <h1 className="app-page-title">Convocatorias de Monitoría Abiertas</h1>
+                    <p className="ver-conv-subtitle app-page-subtitle">Postúlate a las convocatorias disponibles</p>
                 </div>
 
                 {/* Filtros */}

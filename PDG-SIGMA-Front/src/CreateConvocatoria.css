@@ -7,10 +7,18 @@
 */
 
 .create-monitoria-container {
-  padding: 2rem;
-  margin-left: 76px;
+  display: flex;
   min-height: 100vh;
   background-color: #f5f6fa;
+}
+
+.create-monitoria-main {
+  flex: 1;
+  margin-left: 250px;
+  padding: var(--space-8);
+  max-width: 1400px;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 /* ============================TITLE================================= */
@@ -53,6 +61,17 @@
   color: rgba(255,255,255,0.85);
   margin-top: var(--space-1);
   text-align: left;
+}
+
+.title-container-create-monitoria.prof-page-header {
+  display: block;
+  justify-content: flex-start;
+}
+
+.title-container-create-monitoria.prof-page-header .title-content-create-monitoria {
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* ============================CONTENT================================= */
@@ -300,7 +319,7 @@
 /* ============================RESPONSIVE================================= */
 
 @media (max-width: 1200px) {
-  .create-monitoria-container {
+  .create-monitoria-main {
     margin-left: 0;
     padding: 1.5rem;
   }
@@ -332,7 +351,7 @@
 }
 
 @media (max-width: 430px) {
-  .create-monitoria-container {
+  .create-monitoria-main {
     padding: 1rem;
   }
 

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
-import { BarChart3, Info, Plus, ClipboardList, Pencil, Trash2 } from 'lucide-react';
+import { Info, Plus, ClipboardList, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * HU-011: Componente para gestionar rúbricas de evaluación
@@ -242,7 +242,7 @@ function GestionRubricas() {
 
     if (isLoading) {
         return (
-            <div className="monitoring-container">
+            <div className="monitoring-container gestion-rubricas-page">
                 <VerticalNavbar />
                 <div className="main-content">
                     <div className="loading">Cargando rúbricas...</div>
@@ -252,12 +252,12 @@ function GestionRubricas() {
     }
 
     return (
-        <div className="monitoring-container">
+        <div className="monitoring-container gestion-rubricas-page">
             <VerticalNavbar />
             <div className="main-content gestion-rubricas-content">
-                <div className="title-container-gestion-rubricas">
-                    <h1><BarChart3 {...iconProps} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />Gestión de Rúbricas</h1>
-                    <p className="subtitle">Crea y gestiona rúbricas para evaluar las actividades de tus monitores</p>
+                <div className="title-container-gestion-rubricas prof-page-header">
+                    <h1 className="prof-page-title">Gestión de Rúbricas</h1>
+                    <p className="subtitle prof-page-subtitle">Crea y gestiona rúbricas para evaluar las actividades de tus monitores</p>
                 </div>
                 <div className="info-banner">
                     <span className="info-icon"><Info {...iconProps} /></span>

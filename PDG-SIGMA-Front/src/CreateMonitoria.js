@@ -106,7 +106,7 @@ function CreateMonitoria() {
 
     const openBudgetPopup = async (record) => {
         try {
-            // Obtener presupuesto restante del programa/semestre
+            // Obtener presupuesto restante del programa/periodo
             const res = await fetch(`${BACKEND_URL}/budget/${encodeURIComponent(record.program.name)}/${encodeURIComponent(record.semester)}`);
             let remaining = 0;
             if (res.ok) {
@@ -482,9 +482,9 @@ function CreateMonitoria() {
             
             {isOpen && <PopUp message={message} onClose={() => handleClose()} />}
             <div className="create-monitoria-main">
-                <div className="title-container-create-monitoria">
-                    <div className="title-create-monitoria">Crear/Cargar Monitorías</div>
-                    <div className="subtitle-create-monitoria">Carga individual o masiva con CSV/Excel</div>
+                <div className="title-container-create-monitoria app-page-header">
+                    <div className="title-create-monitoria app-page-title">Crear/Cargar Monitorías</div>
+                    <div className="subtitle-create-monitoria app-page-subtitle">Carga individual o masiva con CSV/Excel</div>
                 </div>
 
                 <div className="create-monitoria-content">
@@ -572,7 +572,7 @@ function CreateMonitoria() {
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>Semestre *</label>
+                                    <label>Periodo *</label>
                                     <input 
                                         type="text" 
                                         value={selectedSemester}
@@ -683,7 +683,7 @@ function CreateMonitoria() {
                                             <th>Facultad</th>
                                             <th>Programa</th>
                                             <th>Curso</th>
-                                            <th>Semestre</th>
+                                            <th>Periodo</th>
                                             <th>Fecha Inicio</th>
                                             <th>Fecha Fin</th>
                                             <th>Horas</th>

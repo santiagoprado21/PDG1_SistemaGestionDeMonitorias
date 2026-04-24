@@ -118,7 +118,7 @@ function MisConvocatorias() {
                 padding: '4px 12px',
                 backgroundColor: config.color,
                 color: 'white',
-                borderRadius: '12px',
+                borderRadius: '0',
                 fontSize: '0.85rem',
                 fontWeight: '600',
                 display: 'inline-flex',
@@ -148,10 +148,10 @@ function MisConvocatorias() {
             <VerticalNavbar />
             
             <div className="create-monitoria-main">
-                <div className="title-container-create-monitoria">
+                <div className="title-container-create-monitoria prof-page-header">
                     <div className="title-content-create-monitoria">
-                        <div className="title-create-monitoria">Mis Convocatorias</div>
-                        <div className="subtitle-create-monitoria">
+                        <div className="title-create-monitoria prof-page-title">Mis Convocatorias</div>
+                        <div className="subtitle-create-monitoria prof-page-subtitle">
                             Gestiona y da seguimiento a todas tus convocatorias de monitoría
                         </div>
                     </div>
@@ -168,7 +168,7 @@ function MisConvocatorias() {
                                 style={{
                                     padding: '8px 12px',
                                     border: '2px solid #cecfd4',
-                                    borderRadius: '8px',
+                                    borderRadius: '0',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
                                     minWidth: '180px'
@@ -189,7 +189,7 @@ function MisConvocatorias() {
                                 style={{
                                     padding: '8px 12px',
                                     border: '2px solid #cecfd4',
-                                    borderRadius: '8px',
+                                    borderRadius: '0',
                                     fontSize: '1rem',
                                     cursor: 'pointer',
                                     minWidth: '200px'
@@ -216,7 +216,7 @@ function MisConvocatorias() {
                                 textAlign: 'center', 
                                 padding: '40px', 
                                 background: 'white',
-                                borderRadius: '12px',
+                                borderRadius: '0',
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                             }}>
                                 <p style={{ color: '#88898c', fontSize: '1.1rem' }}>
@@ -232,7 +232,7 @@ function MisConvocatorias() {
                                         <tr>
                                             <th style={{ width: '5%' }}>ID</th>
                                             <th style={{ width: '20%' }}>Curso</th>
-                                            <th style={{ width: '12%' }}>Semestre</th>
+                                            <th style={{ width: '12%' }}>Periodo</th>
                                             <th style={{ width: '8%' }}>Horas</th>
                                             <th style={{ width: '15%' }}>Estado</th>
                                             <th style={{ width: '10%' }}>Postulantes</th>
@@ -268,7 +268,7 @@ function MisConvocatorias() {
                                                         <span style={{
                                                             padding: '6px 12px',
                                                             background: conv.applicationCount > 0 ? '#cecfd4' : '#ffffff',
-                                                            borderRadius: '12px',
+                                                            borderRadius: '0',
                                                             fontWeight: '700',
                                                             fontSize: '1rem',
                                                             color: conv.applicationCount > 0 ? '#5454e9' : '#88898c'
@@ -291,7 +291,7 @@ function MisConvocatorias() {
                                                                 backgroundColor: '#5454e9',
                                                                 color: 'white',
                                                                 border: 'none',
-                                                                borderRadius: '6px',
+                                                                borderRadius: '0',
                                                                 cursor: 'pointer',
                                                                 fontWeight: '600',
                                                                 fontSize: '0.9rem',
@@ -349,7 +349,7 @@ function MisConvocatorias() {
                                                 backgroundColor: currentPage === 1 ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
-                                                borderRadius: '6px',
+                                                borderRadius: '0',
                                                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                                                 fontWeight: '600'
                                             }}
@@ -368,7 +368,7 @@ function MisConvocatorias() {
                                                 backgroundColor: currentPage === totalPages ? '#cecfd4' : '#5454e9',
                                                 color: 'white',
                                                 border: 'none',
-                                                borderRadius: '6px',
+                                                borderRadius: '0',
                                                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                                                 fontWeight: '600'
                                             }}

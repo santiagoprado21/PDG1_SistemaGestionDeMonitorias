@@ -88,7 +88,7 @@ const UpdateButton = ({ role, userId }) => {
                 checked={updateType === "sameSemester"}
                 onChange={() => handleUpdateTypeChange("sameSemester")}
               />
-              Actualizar en el mismo semestre
+              Actualizar en el mismo periodo
             </label>
 
             {role === "jfedpto" && (
@@ -99,7 +99,7 @@ const UpdateButton = ({ role, userId }) => {
                   checked={updateType === "newSemester"}
                   onChange={() => handleUpdateTypeChange("newSemester")}
                 />
-                Reiniciar para nuevo semestre
+                Reiniciar para nuevo periodo
               </label>
             )}
           </div>

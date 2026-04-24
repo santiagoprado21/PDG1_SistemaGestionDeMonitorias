@@ -53,7 +53,7 @@
 .panel-header h2 {
   margin: 0;
   color: var(--blanco);
-  font-size: var(--fs-h2);
+  font-size: clamp(1.125rem, 2vw, 24px);
   font-weight: 700;
 }
 

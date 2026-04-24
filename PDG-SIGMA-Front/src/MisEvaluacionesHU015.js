@@ -158,7 +158,7 @@ function MisEvaluacionesHU015() {
         <header className="evaluation-card__header">
           <div>
             <h3>{evaluation.monitoringName || 'Monitoría sin nombre'}</h3>
-            <p>{evaluation.courseName || 'Curso no asignado'} · {evaluation.semester || 'Semestre sin registrar'}</p>
+            <p>{evaluation.courseName || 'Curso no asignado'} · {evaluation.semester || 'Periodo sin registrar'}</p>
             {isProfessor ? (
               <span className="evaluation-card__meta">
                 Monitor evaluado: {evaluation.monitorFullName || 'Sin nombre'} {evaluation.monitorCode ? `(${evaluation.monitorCode})` : ''}
@@ -238,9 +238,9 @@ function MisEvaluacionesHU015() {
         {message}
       </PopUp>
       <div className="mis-evaluaciones-content">
-        <header className="mis-evaluaciones-header">
-          <h2>{isProfessor ? 'Historial de evaluaciones registradas' : 'Mis evaluaciones de desempeño'}</h2>
-          <p>
+        <header className="mis-evaluaciones-header prof-page-header">
+          <h2 className="prof-page-title">{isProfessor ? 'Historial de evaluaciones registradas' : 'Mis evaluaciones de desempeño'}</h2>
+          <p className="prof-page-subtitle">
             {isProfessor
               ? 'Consulta las evaluaciones que has registrado a tus monitores. Esta vista mantiene el mismo diseño para facilitar la consulta histórica.'
               : 'Consulta la retroalimentación que han registrado tus profesores. Estas evaluaciones refuerzan la transparencia y te ayudarán a seguir creciendo.'}

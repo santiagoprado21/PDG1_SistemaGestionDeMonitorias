@@ -80,7 +80,7 @@ describe('Profile', () => {
     localStorage.clear();
   });
 
-  it('renderiza perfil de profesor, muestra update button y filtra cursos por semestre', async () => {
+  it('renderiza perfil de profesor, muestra update button y filtra cursos por periodo', async () => {
     localStorage.setItem('role', 'professor');
     localStorage.setItem('userId', 'PROF-1');
 

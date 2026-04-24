@@ -20,6 +20,10 @@
 }
 
 .create-monitoria-page .title-container-create-monitoria {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   background: var(--azul-icesi);
   border: 1px solid var(--azul-icesi);
   border-left: 8px solid var(--amarillo-icesi);
