@@ -34,7 +34,7 @@ describe('LoginHU212.jefe', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'HEAD001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'pass123' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {
@@ -54,7 +54,7 @@ describe('LoginHU212.jefe', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'HEAD001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'pass123' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {
