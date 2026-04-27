@@ -3,6 +3,8 @@ package com.pdg.sigma.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class SupervisorEvaluationRequest {
@@ -19,4 +21,5 @@ public class SupervisorEvaluationRequest {
     private Integer trustEnvironment;
     private String strengthsComments;
     private String improvementComments;
+    private List<SupervisorEvaluationAnswerRequestDTO> answers;
 }

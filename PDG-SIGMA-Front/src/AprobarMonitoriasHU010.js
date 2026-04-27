@@ -220,9 +220,9 @@ function AprobarMonitoriasHU010() {
             <VerticalNavbar />
             
             <div className="main-content-aprobar-hu010">
-                <div className="title-container-aprobar-hu010">
-                    <div className="title-aprobar-hu010">Gestión de Convocatorias</div>
-                    <div className="subtitle-aprobar-hu010">
+                <div className="title-container-aprobar-hu010 app-page-header">
+                    <div className="title-aprobar-hu010 app-page-title">Gestión de Convocatorias</div>
+                    <div className="subtitle-aprobar-hu010 app-page-subtitle">
                         Revisar, modificar y aprobar las convocatorias creadas por profesores
                     </div>
                 </div>

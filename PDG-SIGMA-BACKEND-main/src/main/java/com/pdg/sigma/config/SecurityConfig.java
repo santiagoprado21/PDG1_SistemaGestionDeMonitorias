@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/login",
+                            "/monitor-survey/public/**",
                                 "/monitoring-monitor/**",
                                 "/monitoring/getA",
                                 "/monitoring/findByFaculty",

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link2, Copy, Check, ClipboardList, ShieldCheck, Share2 } from 'lucide-react';
+import { Link2, Copy, Check, ShieldCheck, Share2 } from 'lucide-react';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
+import { BACKEND_URL } from './config/ApiBackend';
 import './EvaluacionMonitoriaEstudiante.css';
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZ6-xGZk9S0pQ-RjxTWShR362EGiI_l4TqeXGUt1F_ZjoPfgJe0vD9DGQCV69I9Rh_Bg/exec';
@@ -9,50 +10,97 @@ const DASHBOARD_URL = 'https://docs.google.com/spreadsheets/d/1xMZBNO-msHyZUHAy2
 
 const SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
 
-const QUESTION_GROUPS = [
+const FALLBACK_QUESTIONS = [
   {
-    title: 'Efectividad del apoyo pedagogico',
-    items: [
-      { key: 'topicMastery', label: 'El monitor demostro dominio de los temas tratados.' },
-      { key: 'explanationClarity', label: 'Las explicaciones del monitor fueron claras y utiles.' },
-      { key: 'doubtResolution', label: 'El monitor resolvio mis dudas de manera efectiva.' }
-    ]
+    id: 1,
+    questionKey: 'topic_mastery',
+    statement: 'El monitor demostro dominio de los temas tratados.',
+    category: 'Apoyo Pedagogico',
+    displayOrder: 1
   },
   {
-    title: 'Disponibilidad y puntualidad',
-    items: [
-      { key: 'scheduleCompliance', label: 'El monitor cumplio con los horarios establecidos.' },
-      { key: 'availability', label: 'Fue facil contactar al monitor y asistir a sus sesiones.' }
-    ]
+    id: 2,
+    questionKey: 'explanation_clarity',
+    statement: 'Las explicaciones del monitor fueron claras y utiles.',
+    category: 'Apoyo Pedagogico',
+    displayOrder: 2
   },
   {
-    title: 'Actitud y metodologia',
-    items: [
-      { key: 'respectfulAttitude', label: 'El monitor tuvo una actitud respetuosa y paciente.' },
-      { key: 'learningResources', label: 'El monitor uso recursos o ejemplos utiles.' }
-    ]
+    id: 3,
+    questionKey: 'doubt_resolution',
+    statement: 'El monitor resolvio mis dudas de manera efectiva.',
+    category: 'Apoyo Pedagogico',
+    displayOrder: 3
   },
   {
-    title: 'Percepcion de valor',
-    items: [
-      { key: 'perceivedValue', label: 'El apoyo del monitor fue fundamental para mi desempeno.' },
-      { key: 'recommendation', label: 'Recomendaria a este monitor para futuros semestres.' }
-    ]
+    id: 4,
+    questionKey: 'schedule_compliance',
+    statement: 'El monitor cumplio con los horarios establecidos.',
+    category: 'Disponibilidad y Puntualidad',
+    displayOrder: 4
+  },
+  {
+    id: 5,
+    questionKey: 'availability',
+    statement: 'Fue facil contactar al monitor y asistir a sus sesiones.',
+    category: 'Disponibilidad y Puntualidad',
+    displayOrder: 5
+  },
+  {
+    id: 6,
+    questionKey: 'respectful_attitude',
+    statement: 'El monitor tuvo una actitud respetuosa y paciente.',
+    category: 'Actitud y Metodologia',
+    displayOrder: 6
+  },
+  {
+    id: 7,
+    questionKey: 'learning_resources',
+    statement: 'El monitor uso recursos o ejemplos utiles.',
+    category: 'Actitud y Metodologia',
+    displayOrder: 7
+  },
+  {
+    id: 8,
+    questionKey: 'perceived_value',
+    statement: 'El apoyo del monitor fue fundamental para mi desempeno.',
+    category: 'Percepcion de Valor',
+    displayOrder: 8
+  },
+  {
+    id: 9,
+    questionKey: 'recommendation',
+    statement: 'Recomendaria a este monitor para futuros periodos.',
+    category: 'Percepcion de Valor',
+    displayOrder: 9
   }
 ];
 
-const INITIAL_FORM = {
-  topicMastery: 4,
-  explanationClarity: 4,
-  doubtResolution: 4,
-  scheduleCompliance: 4,
-  availability: 4,
-  respectfulAttitude: 4,
-  learningResources: 4,
-  perceivedValue: 4,
-  recommendation: 4,
-  positiveFeedback: '',
-  improvementFeedback: ''
+const LEGACY_APPS_SCRIPT_MAP = {
+  topic_mastery: 'topicMastery',
+  explanation_clarity: 'explanationClarity',
+  doubt_resolution: 'doubtResolution',
+  schedule_compliance: 'scheduleCompliance',
+  availability: 'availability',
+  respectful_attitude: 'respectfulAttitude',
+  learning_resources: 'learningResources',
+  perceived_value: 'perceivedValue',
+  recommendation: 'recommendation'
+};
+
+const buildInitialScores = (questions) => {
+  const scores = {};
+  questions.forEach((question) => {
+    scores[String(question.id)] = 4;
+  });
+  return scores;
+};
+
+const getDefaultSemester = () => {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const period = month <= 6 ? 1 : 2;
+  return `${now.getFullYear()}-${period}`;
 };
 
 function EvaluacionMonitoriaEstudiante() {
@@ -60,9 +108,16 @@ function EvaluacionMonitoriaEstudiante() {
   const [monitoringId, setMonitoringId] = useState('');
   const [monitorCode, setMonitorCode] = useState('');
   const [monitorName, setMonitorName] = useState('');
+  const [semester, setSemester] = useState(getDefaultSemester());
+  const [hasExplicitSemester, setHasExplicitSemester] = useState(false);
   const [lockIdentifiers, setLockIdentifiers] = useState(false);
-  const [formValues, setFormValues] = useState(INITIAL_FORM);
+  const [surveyQuestions, setSurveyQuestions] = useState(FALLBACK_QUESTIONS);
+  const [questionScores, setQuestionScores] = useState(buildInitialScores(FALLBACK_QUESTIONS));
+  const [positiveFeedback, setPositiveFeedback] = useState('');
+  const [improvementFeedback, setImprovementFeedback] = useState('');
   const [saving, setSaving] = useState(false);
+  const [usingFallbackQuestions, setUsingFallbackQuestions] = useState(false);
+  const [surveyLoadMessage, setSurveyLoadMessage] = useState('');
 
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -73,6 +128,7 @@ function EvaluacionMonitoriaEstudiante() {
     const monitoringParam = params.get('monitoringId');
     const monitorCodeParam = params.get('monitorCode');
     const monitorNameParam = params.get('monitorName');
+    const semesterParam = params.get('semester');
 
     if (monitoringParam) setMonitoringId(monitoringParam);
     if (monitorCodeParam) {
@@ -81,10 +137,56 @@ function EvaluacionMonitoriaEstudiante() {
       setMonitorCode(localStorage.getItem('userId') || '');
     }
     if (monitorNameParam) setMonitorName(monitorNameParam);
+    if (semesterParam) {
+      setSemester(semesterParam);
+      setHasExplicitSemester(true);
+    }
     if (monitoringParam || monitorCodeParam || monitorNameParam) {
       setLockIdentifiers(true);
     }
   }, [role]);
+
+  useEffect(() => {
+    const loadSurveyQuestions = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/monitor-survey/public/current-config`, {
+          cache: 'no-store'
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(body.error || 'No se pudo cargar la encuesta activa');
+        }
+
+        const activeQuestions = Array.isArray(body.questions) ? body.questions : [];
+        if (body.semester) {
+          setSemester(body.semester);
+        }
+
+        if (activeQuestions.length === 0) {
+          setSurveyQuestions(FALLBACK_QUESTIONS);
+          setQuestionScores(buildInitialScores(FALLBACK_QUESTIONS));
+          setUsingFallbackQuestions(true);
+          setSurveyLoadMessage('No se encontró una configuración activa; se usa la plantilla base.');
+          return;
+        }
+
+        const sortedQuestions = activeQuestions
+          .slice()
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        setSurveyQuestions(sortedQuestions);
+        setQuestionScores(buildInitialScores(sortedQuestions));
+        setUsingFallbackQuestions(false);
+        setSurveyLoadMessage('');
+      } catch (error) {
+        setSurveyQuestions(FALLBACK_QUESTIONS);
+        setQuestionScores(buildInitialScores(FALLBACK_QUESTIONS));
+        setUsingFallbackQuestions(true);
+        setSurveyLoadMessage(`No se pudo cargar la configuración activa (${error.message || 'sin detalle'}); se usa la plantilla base.`);
+      }
+    };
+
+    loadSurveyQuestions();
+  }, [semester, hasExplicitSemester]);
 
   const showMessage = (text) => {
     setMessage(text);
@@ -95,72 +197,84 @@ function EvaluacionMonitoriaEstudiante() {
     setIsOpen(false);
   };
 
-  const handleScoreChange = (field, value) => {
-    setFormValues((prev) => ({
+  const handleSemesterChange = (event) => {
+    setSemester(event.target.value);
+    setHasExplicitSemester(true);
+  };
+
+  const handleScoreChange = (questionId, value) => {
+    setQuestionScores((prev) => ({
       ...prev,
-      [field]: Number(value)
+      [String(questionId)]: Number(value)
     }));
   };
 
-  const handleScoreKeyDown = (event, field, currentValue) => {
+  const handleScoreKeyDown = (event, questionId, currentValue) => {
     const currentIndex = SCORE_OPTIONS.indexOf(Number(currentValue));
     if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
       event.preventDefault();
       const nextIndex = Math.min(SCORE_OPTIONS.length - 1, currentIndex + 1);
-      handleScoreChange(field, SCORE_OPTIONS[nextIndex]);
+      handleScoreChange(questionId, SCORE_OPTIONS[nextIndex]);
     }
     if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
       event.preventDefault();
       const prevIndex = Math.max(0, currentIndex - 1);
-      handleScoreChange(field, SCORE_OPTIONS[prevIndex]);
+      handleScoreChange(questionId, SCORE_OPTIONS[prevIndex]);
     }
     if (event.key === 'Home') {
       event.preventDefault();
-      handleScoreChange(field, SCORE_OPTIONS[0]);
+      handleScoreChange(questionId, SCORE_OPTIONS[0]);
     }
     if (event.key === 'End') {
       event.preventDefault();
-      handleScoreChange(field, SCORE_OPTIONS[SCORE_OPTIONS.length - 1]);
+      handleScoreChange(questionId, SCORE_OPTIONS[SCORE_OPTIONS.length - 1]);
     }
   };
 
-  const handleCommentChange = (field, value) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const groupedQuestions = useMemo(() => {
+    return surveyQuestions.reduce((acc, question) => {
+      const category = question.category || 'General';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(question);
+      return acc;
+    }, {});
+  }, [surveyQuestions]);
 
   const averageScore = useMemo(() => {
-    const values = QUESTION_GROUPS.flatMap((group) => group.items.map((item) => formValues[item.key]));
+    const values = surveyQuestions.map((question) => Number(questionScores[String(question.id)]) || 0);
     if (values.length === 0) return '0.00';
     const total = values.reduce((sum, value) => sum + (Number(value) || 0), 0);
     return (total / values.length).toFixed(2);
-  }, [formValues]);
+  }, [surveyQuestions, questionScores]);
 
   const validateForm = () => {
+    if (!semester.trim()) {
+      return 'Debes indicar el periodo de la evaluación.';
+    }
     if (!monitoringId.trim()) {
       return 'Debes ingresar el codigo de la monitoria.';
     }
     if (!monitorCode.trim()) {
       return 'Debes ingresar el codigo del monitor.';
     }
-    for (const group of QUESTION_GROUPS) {
-      for (const item of group.items) {
-        const value = formValues[item.key];
-        if (value === null || value === undefined) {
-          return `Debes calificar: ${item.label}`;
-        }
-        if (Number(value) < 1 || Number(value) > 7) {
-          return `La calificacion para "${item.label}" debe estar entre 1 y 7.`;
-        }
+    for (const question of surveyQuestions) {
+      const score = Number(questionScores[String(question.id)]);
+      if (!score) {
+        return `Debes calificar: ${question.statement}`;
+      }
+      if (score < 1 || score > 7) {
+        return `La calificacion para "${question.statement}" debe estar entre 1 y 7.`;
       }
     }
     return null;
   };
 
   const resetForm = () => {
-    setFormValues(INITIAL_FORM);
+    setQuestionScores(buildInitialScores(surveyQuestions));
+    setPositiveFeedback('');
+    setImprovementFeedback('');
   };
 
   const handleSubmit = async (event) => {
@@ -177,27 +291,55 @@ function EvaluacionMonitoriaEstudiante() {
       return;
     }
 
+    const answers = surveyQuestions.map((question) => ({
+      questionId: question.id,
+      questionKey: question.questionKey,
+      statement: question.statement,
+      category: question.category,
+      score: Number(questionScores[String(question.id)])
+    }));
+
+    const legacyPayload = {};
+    answers.forEach((answer) => {
+      const legacyKey = LEGACY_APPS_SCRIPT_MAP[answer.questionKey];
+      if (legacyKey) {
+        legacyPayload[legacyKey] = answer.score;
+      }
+    });
+
     const payload = {
+      semester: semester.trim(),
       monitoringId: monitoringId.trim(),
       monitorCode: monitorCode.trim(),
       monitorName: monitorName.trim(),
-      topicMastery: formValues.topicMastery,
-      explanationClarity: formValues.explanationClarity,
-      doubtResolution: formValues.doubtResolution,
-      scheduleCompliance: formValues.scheduleCompliance,
-      availability: formValues.availability,
-      respectfulAttitude: formValues.respectfulAttitude,
-      learningResources: formValues.learningResources,
-      perceivedValue: formValues.perceivedValue,
-      recommendation: formValues.recommendation,
-      positiveFeedback: formValues.positiveFeedback,
-      improvementFeedback: formValues.improvementFeedback,
+      answers,
+      positiveFeedback,
+      improvementFeedback,
       averageScore,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      ...legacyPayload
     };
 
     setSaving(true);
     try {
+      // Persistencia en backend para habilitar reglas de edición del banco por periodo.
+      await fetch(`${BACKEND_URL}/monitor-survey/public/responses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          semester: payload.semester,
+          monitoringId: payload.monitoringId,
+          monitorCode: payload.monitorCode,
+          monitorName: payload.monitorName,
+          answers: answers.map((item) => ({ questionId: item.questionId, score: item.score })),
+          positiveFeedback: payload.positiveFeedback,
+          improvementFeedback: payload.improvementFeedback,
+          averageScore: Number(payload.averageScore)
+        })
+      });
+
       await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -220,12 +362,13 @@ function EvaluacionMonitoriaEstudiante() {
   const shareLink = useMemo(() => {
     const baseUrl = `${window.location.origin}/evaluacion-monitoria`;
     const params = new URLSearchParams();
+    if (hasExplicitSemester && semester.trim()) params.set('semester', semester.trim());
     if (monitoringId.trim()) params.set('monitoringId', monitoringId.trim());
     if (monitorCode.trim()) params.set('monitorCode', monitorCode.trim());
     if (monitorName.trim()) params.set('monitorName', monitorName.trim());
     const query = params.toString();
     return query ? `${baseUrl}?${query}` : baseUrl;
-  }, [monitoringId, monitorCode, monitorName]);
+  }, [semester, hasExplicitSemester, monitoringId, monitorCode, monitorName]);
 
   const showForm = role === 'student' || !role;
 
@@ -252,6 +395,9 @@ function EvaluacionMonitoriaEstudiante() {
               <div>
                 <h2>Encuesta de experiencia con monitores</h2>
                 <p>Califica tu experiencia y comparte comentarios anonimos.</p>
+                {usingFallbackQuestions && (
+                  <p className="monitoria-instructions">{surveyLoadMessage || 'No se encontró una configuración activa; se usa la plantilla base.'}</p>
+                )}
                 <p className="monitoria-instructions">
                   Instrucciones: Califique de 1 a 7 las siguientes afirmaciones, donde 1 es "Totalmente en desacuerdo" y 7 es "Totalmente de acuerdo".
                 </p>
@@ -264,6 +410,17 @@ function EvaluacionMonitoriaEstudiante() {
 
             <form className="monitoria-form" onSubmit={handleSubmit}>
               <div className="monitoria-meta-grid">
+                <label>
+                  Periodo
+                  <input
+                    type="text"
+                    value={semester}
+                    onChange={handleSemesterChange}
+                    placeholder="Ej: 2026-1"
+                    required
+                    readOnly={lockIdentifiers && hasExplicitSemester}
+                  />
+                </label>
                 <label>
                   Codigo de monitoria
                   <input
@@ -298,25 +455,24 @@ function EvaluacionMonitoriaEstudiante() {
                 </label>
               </div>
 
-              {QUESTION_GROUPS.map((group) => (
-                <div key={group.title} className="monitoria-section">
-                  <h3>{group.title}</h3>
-                  {group.items.map((item) => (
-                    <div key={item.key} className="monitoria-question">
-                      <label>{item.label}</label>
-                      <div className="monitoria-scale" role="radiogroup" aria-label={item.label}>
+              {Object.entries(groupedQuestions).map(([category, questions]) => (
+                <div key={category} className="monitoria-section">
+                  <h3>{category}</h3>
+                  {questions.map((question) => (
+                    <div key={question.id} className="monitoria-question">
+                      <label>{question.statement}</label>
+                      <div className="monitoria-scale" role="radiogroup" aria-label={question.statement}>
                         {SCORE_OPTIONS.map((value) => (
                           <button
                             key={value}
                             type="button"
-                            className={`monitoria-scale-chip ${Number(formValues[item.key]) === value ? 'is-selected' : ''}`}
-                            onClick={() => handleScoreChange(item.key, value)}
-                            onKeyDown={(event) => handleScoreKeyDown(event, item.key, formValues[item.key])}
+                            className={`monitoria-scale-chip ${Number(questionScores[String(question.id)]) === value ? 'is-selected' : ''}`}
+                            onClick={() => handleScoreChange(question.id, value)}
+                            onKeyDown={(event) => handleScoreKeyDown(event, question.id, questionScores[String(question.id)])}
                             disabled={saving}
                             role="radio"
-                            tabIndex={Number(formValues[item.key]) === value ? 0 : -1}
-                            aria-checked={Number(formValues[item.key]) === value}
-                            aria-pressed={Number(formValues[item.key]) === value}
+                            tabIndex={Number(questionScores[String(question.id)]) === value ? 0 : -1}
+                            aria-checked={Number(questionScores[String(question.id)]) === value}
                           >
                             {value}
                           </button>
@@ -336,8 +492,8 @@ function EvaluacionMonitoriaEstudiante() {
                 <label className="monitoria-text-label">
                   Que fue lo que mas te gusto de las monitorias recibidas?
                   <textarea
-                    value={formValues.positiveFeedback}
-                    onChange={(event) => handleCommentChange('positiveFeedback', event.target.value)}
+                    value={positiveFeedback}
+                    onChange={(event) => setPositiveFeedback(event.target.value)}
                     placeholder="Escribe tu comentario..."
                     disabled={saving}
                   />
@@ -345,8 +501,8 @@ function EvaluacionMonitoriaEstudiante() {
                 <label className="monitoria-text-label">
                   Que aspectos consideras que el monitor deberia mejorar?
                   <textarea
-                    value={formValues.improvementFeedback}
-                    onChange={(event) => handleCommentChange('improvementFeedback', event.target.value)}
+                    value={improvementFeedback}
+                    onChange={(event) => setImprovementFeedback(event.target.value)}
                     placeholder="Escribe tu comentario..."
                     disabled={saving}
                   />
@@ -367,14 +523,11 @@ function EvaluacionMonitoriaEstudiante() {
 
         {role === 'monitor' && (
           <section className="monitor-section">
-            <header className="monitor-page-header">
+            <header className="monitor-page-header app-page-header">
               <div className="monitor-page-header-left">
-                <div className="monitor-page-header-icon">
-                  <ClipboardList size={28} />
-                </div>
                 <div>
-                  <h2>Evaluacion de mi Monitoria</h2>
-                  <p>Genera y comparte el enlace de evaluacion con tus estudiantes</p>
+                  <h2 className="app-page-title">Evaluacion de mi Monitoria</h2>
+                  <p className="app-page-subtitle">Genera y comparte el enlace de evaluacion con tus estudiantes</p>
                 </div>
               </div>
               <div className="monitor-id-badge">

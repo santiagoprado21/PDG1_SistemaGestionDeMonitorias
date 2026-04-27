@@ -205,10 +205,10 @@ function SeleccionarMonitor() {
                     >
                          Volver a Mis Convocatorias
                     </button>
-                    <div className="title-container-seleccionar">
-                        <div className="title-seleccionar">Seleccionar Monitor</div>
+                    <div className="title-container-seleccionar prof-page-header">
+                        <div className="title-seleccionar prof-page-title">Seleccionar Monitor</div>
                         {convocatoria && (
-                            <div className="subtitle-seleccionar">
+                            <div className="subtitle-seleccionar prof-page-subtitle">
                                 {convocatoria.courseName} - {convocatoria.semester}
                             </div>
                         )}

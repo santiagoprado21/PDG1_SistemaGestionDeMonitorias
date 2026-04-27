@@ -25,7 +25,7 @@ describe('UpdateButton', () => {
     localStorage.clear();
   });
 
-  it('envia actualizacion para profesor en el mismo semestre', async () => {
+  it('envia actualizacion para profesor en el mismo periodo', async () => {
     render(<UpdateButton role="professor" userId="PROF-1" />);
 
     fireEvent.click(screen.getByRole('button', { name: /actualizar/i }));
@@ -46,13 +46,13 @@ describe('UpdateButton', () => {
     expect(await screen.findByTestId('popup')).toHaveTextContent(/estado : ok/i);
   });
 
-  it('permite nuevo semestre para jefe cuando confirma y envia removeMonitors=true', async () => {
+  it('permite nuevo periodo para jefe cuando confirma y envia removeMonitors=true', async () => {
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(<UpdateButton role="jfedpto" userId="JFE-1" />);
 
     fireEvent.click(screen.getByRole('button', { name: /actualizar/i }));
-    fireEvent.click(screen.getByRole('radio', { name: /reiniciar para nuevo semestre/i }));
+    fireEvent.click(screen.getByRole('radio', { name: /reiniciar para nuevo periodo/i }));
     fireEvent.click(screen.getByRole('button', { name: /confirmar actualizaci[oó]n/i }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
@@ -76,7 +76,7 @@ describe('UpdateButton', () => {
     render(<UpdateButton role="jfedpto" userId="JFE-1" />);
 
     fireEvent.click(screen.getByRole('button', { name: /actualizar/i }));
-    fireEvent.click(screen.getByRole('radio', { name: /reiniciar para nuevo semestre/i }));
+    fireEvent.click(screen.getByRole('radio', { name: /reiniciar para nuevo periodo/i }));
     fireEvent.click(screen.getByRole('button', { name: /confirmar actualizaci[oó]n/i }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));

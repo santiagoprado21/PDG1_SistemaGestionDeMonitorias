@@ -1,30 +1,14 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.Monitor;
-import com.pdg.sigma.domain.Monitoring;
-import com.pdg.sigma.domain.MonitoringMonitor;
-import com.pdg.sigma.domain.Professor;
-import com.pdg.sigma.domain.SupervisorEvaluation;
-import com.pdg.sigma.dto.SupervisorEvaluationRequest;
-import com.pdg.sigma.dto.SupervisorEvaluationResponse;
-import com.pdg.sigma.dto.SupervisorEvaluationStatusDTO;
-import com.pdg.sigma.repository.MonitorRepository;
-import com.pdg.sigma.repository.MonitoringMonitorRepository;
-import com.pdg.sigma.repository.MonitoringRepository;
-import com.pdg.sigma.repository.ProfessorRepository;
-import com.pdg.sigma.repository.SupervisorEvaluationRepository;
+import com.pdg.sigma.domain.*;
+import com.pdg.sigma.dto.*;
+import com.pdg.sigma.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +16,7 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
 
     private static final int MIN_SCORE = 1;
     private static final int MAX_SCORE = 7;
+    private static final String PERIOD_REGEX = "^\\d{4}-[12]$";
 
     @Autowired
     private SupervisorEvaluationRepository supervisorEvaluationRepository;
@@ -47,6 +32,15 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
 
     @Autowired
     private ProfessorRepository professorRepository;
+
+    @Autowired
+    private ProfessorSurveySemesterConfigRepository professorSurveySemesterConfigRepository;
+
+    @Autowired
+    private ProfessorSurveySemesterQuestionRepository professorSurveySemesterQuestionRepository;
+
+    @Autowired
+    private SupervisorEvaluationAnswerRepository supervisorEvaluationAnswerRepository;
 
     @Override
     @Transactional
@@ -72,27 +66,68 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
                 .findByMonitoringIdAndMonitorCode(monitoring.getId(), monitor.getCode())
                 .orElse(null);
 
+        String semester = normalizePeriod(monitoring.getSemester());
+        if (semester == null) {
+            semester = resolveCurrentPeriod();
+        }
+        EvaluationAnswersContext dynamicAnswers = resolveDynamicAnswers(request, semester);
+
         SupervisorEvaluation evaluation = new SupervisorEvaluation();
         evaluation.setMonitoring(monitoring);
         evaluation.setMonitor(monitor);
         evaluation.setProfessor(professor);
         evaluation.setMonitoringMonitor(monitoringMonitor);
-        evaluation.setSemester(monitoring.getSemester());
+        evaluation.setSemester(semester);
         evaluation.setSubmittedBy(resolveSubmittedBy(monitor));
-        evaluation.applyScores(
-            request.getGuidanceClarity(),
-            request.getRoleExpectations(),
-            request.getAvailabilityDisposition(),
-            request.getSupportTimeliness(),
-            request.getFeedbackConstructive(),
-            request.getFeedbackFairness(),
-            request.getRespectfulTreatment(),
-            request.getTrustEnvironment(),
-            request.getStrengthsComments(),
-            request.getImprovementComments()
-        );
+
+        if (dynamicAnswers != null) {
+            int[] legacyScores = dynamicAnswers.getLegacyScores();
+            evaluation.applyScores(
+                    legacyScores[0],
+                    legacyScores[1],
+                    legacyScores[2],
+                    legacyScores[3],
+                    legacyScores[4],
+                    legacyScores[5],
+                    legacyScores[6],
+                    legacyScores[7],
+                    request.getStrengthsComments(),
+                    request.getImprovementComments()
+            );
+            evaluation.setTotalScore(dynamicAnswers.getAverageScore());
+            evaluation.setPerformanceLevel(resolvePerformanceLevel(dynamicAnswers.getAverageScore()));
+        } else {
+            validateLegacyScores(request);
+            evaluation.applyScores(
+                    request.getGuidanceClarity(),
+                    request.getRoleExpectations(),
+                    request.getAvailabilityDisposition(),
+                    request.getSupportTimeliness(),
+                    request.getFeedbackConstructive(),
+                    request.getFeedbackFairness(),
+                    request.getRespectfulTreatment(),
+                    request.getTrustEnvironment(),
+                    request.getStrengthsComments(),
+                    request.getImprovementComments()
+            );
+        }
 
         SupervisorEvaluation saved = supervisorEvaluationRepository.save(evaluation);
+
+        if (dynamicAnswers != null) {
+            List<SupervisorEvaluationAnswer> answerRows = new ArrayList<>();
+            for (ResolvedAnswer answer : dynamicAnswers.getOrderedAnswers()) {
+                SupervisorEvaluationAnswer row = new SupervisorEvaluationAnswer();
+                row.setEvaluation(saved);
+                row.setQuestion(answer.getQuestion());
+                row.setDisplayOrder(answer.getDisplayOrder());
+                row.setScore(answer.getScore());
+                answerRows.add(row);
+            }
+            supervisorEvaluationAnswerRepository.saveAll(answerRows);
+            saved.setAnswers(answerRows);
+        }
+
         return toResponse(saved);
     }
 
@@ -199,10 +234,9 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         if (request.getMonitoringId() == null) {
             throw new Exception("Debe especificar la monitoría a evaluar");
         }
-        validateScores(request);
     }
 
-    private void validateScores(SupervisorEvaluationRequest request) throws Exception {
+    private void validateLegacyScores(SupervisorEvaluationRequest request) throws Exception {
         ensureScoreInRange("Claridad de la orientación", request.getGuidanceClarity());
         ensureScoreInRange("Expectativas del rol", request.getRoleExpectations());
         ensureScoreInRange("Disponibilidad para atender dudas", request.getAvailabilityDisposition());
@@ -213,6 +247,94 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         ensureScoreInRange("Ambiente de confianza", request.getTrustEnvironment());
     }
 
+    private EvaluationAnswersContext resolveDynamicAnswers(SupervisorEvaluationRequest request, String semester) throws Exception {
+        List<SupervisorEvaluationAnswerRequestDTO> rawAnswers = Optional.ofNullable(request.getAnswers())
+                .orElse(List.of())
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (rawAnswers.isEmpty()) {
+            return null;
+        }
+
+        Optional<ProfessorSurveySemesterConfig> configOpt = Optional.empty();
+        if (semester != null && !semester.isBlank()) {
+            configOpt = professorSurveySemesterConfigRepository.findBySemester(semester.trim());
+        }
+        if (configOpt.isEmpty()) {
+            configOpt = professorSurveySemesterConfigRepository.findFirstByActiveTrueOrderByUpdatedAtDesc();
+        }
+
+        ProfessorSurveySemesterConfig config = configOpt
+                .orElseThrow(() -> new Exception("No existe una configuración activa para la encuesta de profesores"));
+
+        List<ProfessorSurveySemesterQuestion> configuredQuestions = professorSurveySemesterQuestionRepository
+                .findBySemesterConfigIdAndActiveTrueOrderByDisplayOrderAsc(config.getId())
+                .stream()
+                .filter(entry -> entry.getQuestion() != null && entry.getQuestion().getId() != null)
+                .collect(Collectors.toList());
+
+        if (configuredQuestions.isEmpty()) {
+            throw new Exception("No hay preguntas activas configuradas para el periodo " + config.getSemester());
+        }
+
+        Map<Long, ProfessorSurveySemesterQuestion> configuredById = configuredQuestions.stream()
+                .collect(Collectors.toMap(entry -> entry.getQuestion().getId(), entry -> entry));
+
+        Map<Long, Integer> scoresByQuestionId = new HashMap<>();
+        for (SupervisorEvaluationAnswerRequestDTO answer : rawAnswers) {
+            if (answer.getQuestionId() == null) {
+                throw new Exception("Cada respuesta debe indicar la pregunta");
+            }
+            if (scoresByQuestionId.containsKey(answer.getQuestionId())) {
+                throw new Exception("No se permiten respuestas duplicadas para la misma pregunta");
+            }
+            ensureScoreInRange("Pregunta " + answer.getQuestionId(), answer.getScore());
+            if (!configuredById.containsKey(answer.getQuestionId())) {
+                throw new Exception("La pregunta " + answer.getQuestionId() + " no hace parte de la configuración activa");
+            }
+            scoresByQuestionId.put(answer.getQuestionId(), answer.getScore());
+        }
+
+        if (scoresByQuestionId.size() != configuredQuestions.size()) {
+            throw new Exception("Debes responder todas las preguntas activas del periodo");
+        }
+
+        List<ResolvedAnswer> orderedAnswers = new ArrayList<>();
+        for (ProfessorSurveySemesterQuestion configured : configuredQuestions) {
+            Long questionId = configured.getQuestion().getId();
+            Integer score = scoresByQuestionId.get(questionId);
+            if (score == null) {
+                throw new Exception("Falta la respuesta para la pregunta " + questionId);
+            }
+            orderedAnswers.add(new ResolvedAnswer(configured.getQuestion(), configured.getDisplayOrder(), score));
+        }
+
+        double averageScore = orderedAnswers.stream()
+                .mapToInt(ResolvedAnswer::getScore)
+                .average()
+                .orElse(0.0);
+        averageScore = Math.round(averageScore * 100.0) / 100.0;
+
+        int roundedAverage = (int) Math.round(averageScore);
+        if (roundedAverage < MIN_SCORE) {
+            roundedAverage = MIN_SCORE;
+        }
+        if (roundedAverage > MAX_SCORE) {
+            roundedAverage = MAX_SCORE;
+        }
+
+        int[] legacyScores = new int[]{roundedAverage, roundedAverage, roundedAverage, roundedAverage,
+                roundedAverage, roundedAverage, roundedAverage, roundedAverage};
+
+        for (int i = 0; i < Math.min(8, orderedAnswers.size()); i++) {
+            legacyScores[i] = orderedAnswers.get(i).getScore();
+        }
+
+        return new EvaluationAnswersContext(orderedAnswers, averageScore, legacyScores);
+    }
+
     private void ensureScoreInRange(String label, Integer value) throws Exception {
         if (value == null) {
             throw new Exception("Debe proporcionar una calificación para " + label);
@@ -220,6 +342,19 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         if (value < MIN_SCORE || value > MAX_SCORE) {
             throw new Exception(label + " debe estar entre " + MIN_SCORE + " y " + MAX_SCORE);
         }
+    }
+
+    private String resolvePerformanceLevel(double score) {
+        if (score >= 6.0) {
+            return "EXCELENTE";
+        }
+        if (score >= 5.0) {
+            return "DESTACADO";
+        }
+        if (score >= 4.0) {
+            return "ADECUADO";
+        }
+        return "EN_RIESGO";
     }
 
     private String resolveMonitorIdentifier(String explicit, SupervisorEvaluationRequest request) {
@@ -290,7 +425,7 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
 
         String courseName = monitoring.getCourse() != null ? monitoring.getCourse().getName() : null;
         String programName = monitoring.getProgram() != null ? monitoring.getProgram().getName() : null;
-        String semester = monitoring.getSemester();
+        String semester = normalizePeriod(monitoring.getSemester());
         String monitoringName = buildMonitoringName(courseName, semester);
 
         dto.setMonitoringName(monitoringName);
@@ -323,10 +458,11 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         if (monitoring != null) {
             String courseName = monitoring.getCourse() != null ? monitoring.getCourse().getName() : null;
             String programName = monitoring.getProgram() != null ? monitoring.getProgram().getName() : null;
-            response.setMonitoringName(buildMonitoringName(courseName, monitoring.getSemester()));
+            String normalizedPeriod = normalizePeriod(monitoring.getSemester());
+            response.setMonitoringName(buildMonitoringName(courseName, normalizedPeriod));
             response.setCourseName(courseName);
             response.setProgramName(programName);
-            response.setSemester(monitoring.getSemester());
+            response.setSemester(normalizedPeriod);
             response.setProfessorId(monitoring.getProfessor() != null ? monitoring.getProfessor().getId() : null);
             response.setProfessorName(monitoring.getProfessor() != null ? monitoring.getProfessor().getName() : null);
         }
@@ -354,9 +490,28 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         response.setImprovementComments(evaluation.getImprovementComments());
         response.setSubmittedBy(evaluation.getSubmittedBy());
 
+        List<SupervisorEvaluationAnswerResponseDTO> answers = Optional.ofNullable(evaluation.getAnswers())
+            .orElse(List.of())
+            .stream()
+            .sorted(Comparator.comparingInt(SupervisorEvaluationAnswer::getDisplayOrder))
+                .map(this::toAnswerResponse)
+                .collect(Collectors.toList());
+        response.setAnswers(answers);
+
         response.setCreatedAt(evaluation.getCreatedAt());
         response.setUpdatedAt(evaluation.getUpdatedAt());
         return response;
+    }
+
+    private SupervisorEvaluationAnswerResponseDTO toAnswerResponse(SupervisorEvaluationAnswer answer) {
+        SupervisorEvaluationAnswerResponseDTO dto = new SupervisorEvaluationAnswerResponseDTO();
+        dto.setQuestionId(answer.getQuestion() != null ? answer.getQuestion().getId() : null);
+        dto.setQuestionKey(answer.getQuestion() != null ? answer.getQuestion().getQuestionKey() : null);
+        dto.setStatement(answer.getQuestion() != null ? answer.getQuestion().getStatement() : null);
+        dto.setCategory(answer.getQuestion() != null ? answer.getQuestion().getCategory() : null);
+        dto.setDisplayOrder(answer.getDisplayOrder());
+        dto.setScore(answer.getScore());
+        return dto;
     }
 
     private String resolveSubmittedBy(Monitor monitor) {
@@ -390,5 +545,67 @@ public class SupervisorEvaluationServiceImpl implements SupervisorEvaluationServ
         String first = Optional.ofNullable(monitor.getName()).orElse("");
         String last = Optional.ofNullable(monitor.getLastName()).orElse("");
         return (first + " " + last).trim();
+    }
+
+    private String resolveCurrentPeriod() {
+        LocalDate now = LocalDate.now();
+        int period = now.getMonthValue() <= 6 ? 1 : 2;
+        return String.format(Locale.ROOT, "%04d-%d", now.getYear(), period);
+    }
+
+    private String normalizePeriod(String rawPeriod) {
+        if (rawPeriod == null) {
+            return null;
+        }
+        String normalized = rawPeriod.trim();
+        return normalized.matches(PERIOD_REGEX) ? normalized : null;
+    }
+
+    private static class ResolvedAnswer {
+        private final ProfessorSurveyQuestion question;
+        private final int displayOrder;
+        private final int score;
+
+        private ResolvedAnswer(ProfessorSurveyQuestion question, int displayOrder, int score) {
+            this.question = question;
+            this.displayOrder = displayOrder;
+            this.score = score;
+        }
+
+        private ProfessorSurveyQuestion getQuestion() {
+            return question;
+        }
+
+        private int getDisplayOrder() {
+            return displayOrder;
+        }
+
+        private int getScore() {
+            return score;
+        }
+    }
+
+    private static class EvaluationAnswersContext {
+        private final List<ResolvedAnswer> orderedAnswers;
+        private final double averageScore;
+        private final int[] legacyScores;
+
+        private EvaluationAnswersContext(List<ResolvedAnswer> orderedAnswers, double averageScore, int[] legacyScores) {
+            this.orderedAnswers = orderedAnswers;
+            this.averageScore = averageScore;
+            this.legacyScores = legacyScores;
+        }
+
+        private List<ResolvedAnswer> getOrderedAnswers() {
+            return orderedAnswers;
+        }
+
+        private double getAverageScore() {
+            return averageScore;
+        }
+
+        private int[] getLegacyScores() {
+            return legacyScores;
+        }
     }
 }

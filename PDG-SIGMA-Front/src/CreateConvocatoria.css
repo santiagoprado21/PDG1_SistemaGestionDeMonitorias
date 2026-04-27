@@ -7,25 +7,43 @@
 */
 
 .create-monitoria-container {
-  padding: 0;
-  margin-left: 230px;
+  display: flex;
   min-height: 100vh;
   background-color: #f5f6fa;
+}
+
+.create-monitoria-main {
+  flex: 1;
+  margin-left: 250px;
+  padding: var(--space-8);
+  max-width: 1400px;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 /* ============================TITLE================================= */
 
 .title-container-create-monitoria {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
-  padding: var(--space-6) var(--space-7);
   background: var(--azul-icesi);
   border-left: 6px solid var(--amarillo-icesi);
   border-radius: 0;
   box-shadow: none;
-  margin: 0 0 var(--space-7) 0;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto var(--space-7) auto;
+}
+
+.title-content-create-monitoria {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .title-create-monitoria {
@@ -45,12 +63,23 @@
   text-align: left;
 }
 
+.title-container-create-monitoria.prof-page-header {
+  display: block;
+  justify-content: flex-start;
+}
+
+.title-container-create-monitoria.prof-page-header .title-content-create-monitoria {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* ============================CONTENT================================= */
 
 .create-monitoria-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 var(--space-7) var(--space-7);
+  padding: 0 0 var(--space-7);
 }
 
 /* ============================FORM SECTION================================= */
@@ -102,7 +131,7 @@
 .form-group textarea {
   padding: var(--space-3) var(--space-4);
   border: 2px solid var(--gris-2);
-  border-radius: 8px;
+  border-radius: 0;
   font-family: var(--font-primary);
   font-size: 14px;
   transition: all 0.3s ease;
@@ -290,14 +319,15 @@
 /* ============================RESPONSIVE================================= */
 
 @media (max-width: 1200px) {
-  .create-monitoria-container {
+  .create-monitoria-main {
     margin-left: 0;
+    padding: 1.5rem;
   }
   
   .title-container-create-monitoria,
   .create-monitoria-content {
-    margin-left: 2em;
-    margin-right: 2em;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -321,6 +351,10 @@
 }
 
 @media (max-width: 430px) {
+  .create-monitoria-main {
+    padding: 1rem;
+  }
+
   .title-create-monitoria {
     font-size: 20px;
   }

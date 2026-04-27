@@ -377,6 +377,15 @@ function VerticalNavbar() {
               <span className="nav-label">Plan de Actividades</span>
             </NavLink>
 
+            <NavLink
+              to="/mis-evaluaciones"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <Star {...navIconProps} />
+              <span className="nav-label">Mis evaluaciones</span>
+            </NavLink>
+
           </>
         )}
 
@@ -428,6 +437,24 @@ function VerticalNavbar() {
               <BarChart3 {...navIconProps} />
               <span className="nav-label">Resultados monitoria</span>
             </NavLink>
+
+            <NavLink
+              to="/gestion-encuesta-monitores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <ClipboardCheck {...navIconProps} />
+              <span className="nav-label">Gestion encuesta monitores</span>
+            </NavLink>
+
+            <NavLink
+              to="/gestion-encuesta-profesores"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={handleNavItemClick}
+            >
+              <ClipboardList {...navIconProps} />
+              <span className="nav-label">Gestion encuesta profesores</span>
+            </NavLink>
           </>
         )}
 
@@ -449,9 +476,11 @@ function VerticalNavbar() {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              isActive ? "logout-button active" : "logout-button"
+              isActive ? "logout-button btn-danger active" : "logout-button btn-danger"
             }
             onClick={handleCloseLogout}
+            aria-label="Cerrar sesion"
+            title="Cerrar sesion"
           >
             <LogOut {...navIconProps} />
             <span className="nav-label">Cerrar sesion</span>

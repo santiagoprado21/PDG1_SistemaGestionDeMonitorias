@@ -1,347 +1,292 @@
-/* Usando variables CSS globales de CONVENCIONES_FRONTEND.md */
-/* Colores institucionales ya definidos en index.css */
-
-.create-monitoria-container {
-  padding: var(--space-5);
-  margin-left: 200px;
+.create-monitoria-page {
+  display: flex;
   min-height: 100vh;
-  background-color: var(--blanco);
+  background-color: #f5f6fa;
 }
 
-/* ============================TITLE================================= */
-
-.title-container-create-monitoria {
+.create-monitoria-page .create-monitoria-main {
+  flex: 1;
+  margin-left: 250px;
+  padding: 32px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2em;
-  padding: 2em 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  margin: 0 9em 2em 9em;
+  align-items: flex-start;
 }
 
-.title-create-monitoria {
-  font-family: var(--main-font-family);
-  font-size: 32px;
-  font-weight: bold;
-  color: white;
+.create-monitoria-page .title-container-create-monitoria,
+.create-monitoria-page .create-monitoria-content {
+  width: 100%;
+  max-width: none;
+}
+
+.create-monitoria-page .title-container-create-monitoria {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: var(--azul-icesi);
+  border: 1px solid var(--azul-icesi);
+  border-left: 8px solid var(--amarillo-icesi);
+  border-radius: 0;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.create-monitoria-page .title-create-monitoria {
   margin: 0;
-  text-align: center;
+  color: var(--blanco);
+  font-size: 30px;
+  font-weight: 700;
 }
 
-.subtitle-create-monitoria {
-  font-family: var(--main-font-family);
-  font-size: 16px;
-  color: rgba(255,255,255,0.9);
-  margin-top: var(--space-2);
-  text-align: center;
+.create-monitoria-page .subtitle-create-monitoria {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
 }
 
-/* ============================CONTENT================================= */
-
-.create-monitoria-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2em;
+.create-monitoria-page .create-monitoria-content {
+  margin: 0;
 }
 
-/* ============================FORM SECTION================================= */
-
-.form-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 3em;
+.create-monitoria-page .csv-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
 }
 
-.form-section h3 {
-  font-family: var(--main-font-family);
-  font-size: 24px;
+.create-monitoria-page .form-section,
+.create-monitoria-page .table-section {
+  background: var(--blanco);
+  border: 1px solid var(--gris-2);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+  width: 100%;
+}
+
+.create-monitoria-page .form-section {
+  width: 100%;
+}
+
+.create-monitoria-page .table-section {
+  overflow-x: auto;
+}
+
+.create-monitoria-page .table-section-spaced {
+  margin-top: 20px;
+}
+
+.create-monitoria-page .form-section h3,
+.create-monitoria-page .table-section h3 {
+  margin: 0 0 16px;
   color: var(--negro);
-  margin: 0 0 1.5em 0;
-  padding-bottom: 0.5em;
-  border-bottom: 3px solid var(--color-primary);
+  font-size: 22px;
+  font-weight: 700;
 }
 
-.form-row {
+.create-monitoria-page .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.form-group {
+.create-monitoria-page .form-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-group.full-width {
+.create-monitoria-page .form-group.full-width {
   grid-column: 1 / -1;
 }
 
-.form-group label {
-  font-family: var(--main-font-family);
-  font-weight: 600;
+.create-monitoria-page .form-group label {
+  margin-bottom: 8px;
   color: var(--gris-1);
-  margin-bottom: var(--space-2);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--gris-2);
-  border-radius: 8px;
-  font-family: var(--font-primary);
-  font-size: 14px;
-  transition: all 0.3s ease;
-  background-color: var(--blanco);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  background-color: white;
-  box-shadow: 0 0 0 3px var(--shadow-primary-xs);
-}
-
-.form-group input:disabled,
-.form-group select:disabled {
-  background-color: var(--gris-2);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 120px;
-  line-height: 1.6;
-}
-
-.form-group small {
-  margin-top: var(--space-2);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* ============================BUTTON================================= */
-
-.btn-create-monitoria {
-  min-height: 35px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  margin-top: 1em;
+.create-monitoria-page .form-group input,
+.create-monitoria-page .form-group select,
+.create-monitoria-page .form-group textarea {
   width: 100%;
-  max-width: 300px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.btn-create-monitoria:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.btn-create-monitoria:active {
-  transform: translateY(0);
-}
-
-.btn-create-monitoria:disabled {
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-upload-csv {
-  min-height: 35px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.btn-upload-csv:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.btn-upload-csv:active {
-  transform: translateY(0);
-}
-
-/* ============================TABLE SECTION================================= */
-
-.table-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.table-section h3 {
-  font-family: var(--main-font-family);
-  font-size: 24px;
+  min-height: 38px;
+  border: 2px solid #b9bcc4;
+  border-radius: 0 !important;
+  padding: 8px 10px;
   color: var(--negro);
-  margin: 0 0 1.5em 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  background: var(--blanco);
 }
 
-.monitorias-table {
+.create-monitoria-page .form-group textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.create-monitoria-page .form-group input:focus,
+.create-monitoria-page .form-group select:focus,
+.create-monitoria-page .form-group textarea:focus {
+  outline: none;
+  border-color: var(--azul-icesi);
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);
+}
+
+.create-monitoria-page .form-group input:disabled,
+.create-monitoria-page .form-group select:disabled {
+  background: #f1f2f5;
+  cursor: not-allowed;
+  border-color: #d2d5dc;
+}
+
+.create-monitoria-page .btn-create-monitoria {
+  min-height: 35px;
+  min-width: 220px;
+  margin-left: auto;
+  display: block;
+}
+
+.create-monitoria-page .btn-upload-csv {
+  min-height: 35px;
+}
+
+.create-monitoria-page .monitorias-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1em;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid var(--gris-2);
+  min-width: 980px;
 }
 
-.monitorias-table thead {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--azul-icesi) 100%);
+.create-monitoria-page .monitorias-table thead {
+  background-color: var(--azul-icesi);
 }
 
-.monitorias-table thead th {
-  padding: 16px 12px;
+.create-monitoria-page .monitorias-table thead th {
+  color: var(--blanco);
   text-align: left;
-  color: white;
-  font-family: var(--main-font-family);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  padding: 12px 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.monitorias-table tbody tr {
+.create-monitoria-page .monitorias-table thead th:last-child {
+  border-right: 0;
+}
+
+.create-monitoria-page .monitorias-table tbody td {
+  padding: 11px 10px;
   border-bottom: 1px solid var(--gris-2);
-  transition: background-color 0.2s ease;
-}
-
-.monitorias-table tbody tr:hover {
-  background-color: var(--blanco);
-}
-
-.monitorias-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.monitorias-table tbody td {
-  padding: 14px 12px;
-  color: var(--gris-1);
-  font-size: 14px;
+  color: var(--negro);
+  font-size: 13px;
   vertical-align: middle;
 }
 
-.monitorias-table button {
-  padding: 8px 16px;
-  background-color: var(--info-color);
-  color: white;
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-  font-size: 13px;
+.create-monitoria-page .monitorias-table tbody tr:nth-child(even) {
+  background: #fbfcff;
+}
+
+.create-monitoria-page .monitorias-table tbody tr:hover {
+  background: #eef1ff;
+}
+
+.create-monitoria-page .empty-monitorias-message {
+  margin: 6px 0 0;
+  text-align: center;
+  color: var(--gris-1);
+  padding: 20px 0;
+}
+
+.create-monitoria-page .btn-delete-monitoria,
+.create-monitoria-page .btn-edit-budget {
+  border: 0;
+  border-radius: 0;
+  color: var(--blanco);
+  padding: 6px 10px;
+  min-height: 32px;
+  font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.monitorias-table button:hover {
-  background-color: var(--azul-icesi);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-/* ============================PAGINATION================================= */
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 30px;
-  gap: 10px;
-}
-
-.pagination button {
-  padding: 10px 20px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 2px;
   cursor: pointer;
-  font-family: var(--main-font-family);
-  font-size: 14px;
-  transition: all 0.2s ease;
+  transition: filter var(--tr-fast);
 }
 
-.pagination button:hover:not(:disabled) {
-  background-color: var(--hover-color);
-  transform: translateY(-1px);
+.create-monitoria-page .btn-delete-monitoria {
+  background: var(--naranja-icesi);
 }
 
-.pagination button:disabled {
-  background-color: var(--gris-2);
-  cursor: not-allowed;
-  opacity: 0.6;
+.create-monitoria-page .btn-edit-budget {
+  background: var(--azul-icesi);
 }
 
-.pagination span {
-  font-family: var(--main-font-family);
-  font-size: 16px;
+.create-monitoria-page .btn-delete-monitoria:hover,
+.create-monitoria-page .btn-edit-budget:hover {
+  filter: brightness(0.92);
+}
+
+.create-monitoria-page .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.create-monitoria-page .pagination button {
+  min-height: 34px;
+  min-width: 105px;
+}
+
+.create-monitoria-page .pagination-info {
   color: var(--gris-1);
   font-weight: 600;
+  font-size: 13px;
 }
 
-/* ============================RESPONSIVE================================= */
-
 @media (max-width: 1200px) {
-  .create-monitoria-container {
+  .create-monitoria-page .create-monitoria-main {
     margin-left: 0;
+    padding: 24px;
   }
-  
-  .title-container-create-monitoria,
-  .create-monitoria-content {
-    margin-left: 2em;
-    margin-right: 2em;
+
+  .create-monitoria-page .form-row {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
-  .title-create-monitoria {
+  .create-monitoria-page .create-monitoria-main {
+    padding: 16px;
+  }
+
+  .create-monitoria-page .title-create-monitoria {
     font-size: 24px;
   }
 
-  .form-row {
+  .create-monitoria-page .form-row {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
   }
 
-  .monitorias-table {
-    font-size: 12px;
+  .create-monitoria-page .form-section,
+  .create-monitoria-page .table-section {
+    padding: 16px;
   }
 
-  .monitorias-table thead th,
-  .monitorias-table tbody td {
-    padding: 10px 8px;
-  }
-}
-
-@media (max-width: 430px) {
-  .title-create-monitoria {
-    font-size: 20px;
+  .create-monitoria-page .btn-create-monitoria,
+  .create-monitoria-page .btn-upload-csv {
+    width: 100%;
   }
 
-  .form-section,
-  .table-section {
-    padding: 1.5em;
+  .create-monitoria-page .pagination {
+    flex-wrap: wrap;
   }
 
-  .btn-create-monitoria,
-  .btn-upload-csv {
-    font-size: 16px;
-    padding: 12px 30px;
+  .create-monitoria-page .pagination button {
+    width: 100%;
   }
 }

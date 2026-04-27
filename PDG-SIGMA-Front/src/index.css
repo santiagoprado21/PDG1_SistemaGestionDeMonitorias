@@ -57,6 +57,15 @@
   --color-black: var(--negro);
   --color-gray-1: var(--gris-1);
   --color-gray-2: var(--gris-2);
+  --surface-page: #f5f6fa;
+  --surface-card-soft: #fcfcff;
+  --surface-card-muted: #f6f7fc;
+  --surface-card-subtle: #fafbff;
+  --border-tint-primary: #d9dbff;
+  --border-tint-soft: #d2d6f8;
+  --bg-tint-soft: #eef0ff;
+  --text-tint-strong: #2f2f45;
+  --text-tint-soft: #4a4a67;
 
   /* Tipografía */
   --font-primary: 'Plus Jakarta Sans', sans-serif;
@@ -112,6 +121,26 @@
   --btn-padding-y: 6px;
   --btn-padding-x: 32px;
 
+  /* Header institucional global de páginas */
+  --page-header-bg: var(--azul-icesi);
+  --page-header-text: var(--blanco);
+  --page-header-subtext: rgba(255, 255, 255, 0.92);
+  --page-header-border-color: var(--azul-icesi);
+  --page-header-border-left-color: var(--amarillo-icesi);
+  --page-header-border-left-size: 8px;
+  --page-header-padding-y: 20px;
+  --page-header-padding-x: 24px;
+  --page-header-margin-bottom: 20px;
+  --page-title-size: 30px;
+  --page-subtitle-size: 14px;
+
+  /* Variante de header para vistas profesor (basada en monitor) */
+  --prof-page-header-padding-y: var(--space-6);
+  --prof-page-header-padding-x: var(--space-7);
+  --prof-page-header-margin-bottom: var(--space-7);
+  --prof-page-title-size: var(--fs-h1);
+  --prof-page-subtitle-size: var(--fs-body);
+
   /*  Transiciones */
   --tr-fast: 0.15s ease-in-out;
 }
@@ -131,6 +160,67 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.app-page-header {
+  width: 100%;
+  background: var(--page-header-bg) !important;
+  color: var(--page-header-text) !important;
+  border: 1px solid var(--page-header-border-color) !important;
+  border-left: var(--page-header-border-left-size) solid var(--page-header-border-left-color) !important;
+  border-radius: 0 !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: var(--page-header-padding-y) var(--page-header-padding-x) !important;
+  margin-bottom: var(--page-header-margin-bottom) !important;
+  text-align: left !important;
+}
+
+.app-page-title {
+  margin: 0 !important;
+  color: var(--page-header-text) !important;
+  font-size: var(--page-title-size) !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.app-page-subtitle {
+  margin: 8px 0 0 !important;
+  color: var(--page-header-subtext) !important;
+  font-size: var(--page-subtitle-size) !important;
+  line-height: 1.4 !important;
+}
+
+.app-page-title svg,
+.app-page-title .lucide {
+  display: none !important;
+}
+
+.prof-page-header {
+  width: 100%;
+  background: var(--azul-icesi) !important;
+  color: var(--blanco) !important;
+  border: 0 !important;
+  border-left: 6px solid var(--amarillo-icesi) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: var(--prof-page-header-padding-y) var(--prof-page-header-padding-x) !important;
+  margin-bottom: var(--prof-page-header-margin-bottom) !important;
+  text-align: left !important;
+}
+
+.prof-page-title {
+  margin: 0 !important;
+  color: var(--blanco) !important;
+  font-size: var(--prof-page-title-size) !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.prof-page-subtitle {
+  margin: var(--space-1) 0 0 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: var(--prof-page-subtitle-size) !important;
+  line-height: 1.4 !important;
+}
+
 .text-secondary {
   color: var(--gris-1);
 }
@@ -144,6 +234,14 @@ select,
 textarea {
   font-family: var(--font-primary);
   text-align: left;
+}
+
+form input[type="number"],
+form input[inputmode="numeric"],
+form input[inputmode="decimal"] {
+  text-align: right;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
 }
 
 button {

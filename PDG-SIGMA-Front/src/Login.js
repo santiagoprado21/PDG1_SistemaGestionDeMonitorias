@@ -11,21 +11,21 @@ function Login() {
     const [userId, setUserId] = useState('')
     const [errorMessage, setErrorMessage] = useState('');
     const [showLoginAlert, setShowLoginAlert] = useState(false);
-    const [loginAlertMessage, setLoginAlertMessage] = useState('Iniciaste sesion como estudiante');
+    const [loginAlertMessage, setLoginAlertMessage] = useState('Iniciaste sesión como estudiante');
     const [isCapsLockOn, setIsCapsLockOn] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const getLoginMessageByRole = (role) => {
       if (role === 'professor') {
-        return 'Iniciaste sesion como profesor';
+        return 'Iniciaste sesión como profesor';
       }
       if (role === 'jfedpto') {
-        return 'Iniciaste sesion como jefe de departamento';
+        return 'Iniciaste sesión como jefe de departamento';
       }
       if (role === 'monitor' || role === 'student') {
-        return 'Iniciaste sesion como estudiante';
+        return 'Iniciaste sesión como estudiante';
       }
-      return 'Iniciaste sesion';
+      return 'Iniciaste sesión';
     };
 
     const handleChangeUser = (event) => {
@@ -139,7 +139,7 @@ function Login() {
           </div>
 
           <div className="main-login">
-            <h2>Inicia sesion</h2>
+            <h2>Inicia sesión</h2>
 
             <form className="login-form" onSubmit={handleLoginClick}>
               <div className="field-group">
@@ -157,7 +157,7 @@ function Login() {
               </div>
 
               <div className="field-group">
-                <label htmlFor="pswd">Contrasena</label>
+                <label htmlFor="pswd">Contraseña</label>
                 <div className="password-wrapper">
                   <input
                     id="pswd"

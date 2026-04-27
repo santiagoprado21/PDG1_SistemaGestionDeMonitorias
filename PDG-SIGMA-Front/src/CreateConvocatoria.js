@@ -249,16 +249,19 @@ function CreateConvocatoria() {
                 </div>
             </PopUp>
 
-            <div className="title-container-create-monitoria">
-                <div className="title-create-monitoria">Crear Convocatoria de Monitoría</div>
-                <div className="subtitle-create-monitoria">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
-            </div>
+            <div className="create-monitoria-main">
+                <div className="title-container-create-monitoria prof-page-header">
+                    <div className="title-content-create-monitoria">
+                        <div className="title-create-monitoria prof-page-title">Crear Convocatoria de Monitoría</div>
+                        <div className="subtitle-create-monitoria prof-page-subtitle">Crea una convocatoria para tu curso y recibe postulaciones de estudiantes</div>
+                    </div>
+                </div>
 
-            <div className="create-monitoria-content">
-                {/* Formulario de creación */}
-                <div className="form-section">
-                    <h3>Nueva Convocatoria</h3>
-                    <form onSubmit={handleCreateConvocatoria}>
+                <div className="create-monitoria-content">
+                    {/* Formulario de creación */}
+                    <div className="form-section">
+                        <h3>Nueva Convocatoria</h3>
+                        <form onSubmit={handleCreateConvocatoria}>
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Facultad *</label>
@@ -307,7 +310,7 @@ function CreateConvocatoria() {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Semestre *</label>
+                                <label>Periodo *</label>
                                 <input 
                                     type="text" 
                                     value={semester}
@@ -400,22 +403,22 @@ function CreateConvocatoria() {
                                 placeholder="Explica por qué se requiere un monitor para este curso..."
                                 rows="5"
                                 required
-                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cecfd4' }}
+                                style={{ width: '100%', padding: '10px', borderRadius: '0px', border: '1px solid #cecfd4' }}
                             />
                             <small style={{ color: justification.length < 50 ? 'red' : 'green' }}>
                                 {justification.length} / 50 caracteres mínimos
                             </small>
                         </div>
 
-                        <button type="submit" className="btn-create-monitoria" disabled={isLoading}>
-                            {isLoading ? 'Creando...' : 'Crear Convocatoria'}
-                        </button>
-                    </form>
-                </div>
+                            <button type="submit" className="btn-create-monitoria" disabled={isLoading}>
+                                {isLoading ? 'Creando...' : 'Crear Convocatoria'}
+                            </button>
+                        </form>
+                    </div>
 
-                {/* Tabla de mis convocatorias */}
-                <div className="table-section" style={{ marginTop: '40px' }}>
-                    <h3>Mis Convocatorias ({myConvocatorias.length})</h3>
+                    {/* Tabla de mis convocatorias */}
+                    <div className="table-section" style={{ marginTop: '40px' }}>
+                        <h3>Mis Convocatorias ({myConvocatorias.length})</h3>
                     
                     {currentRecords.length === 0 ? (
                         <p style={{ textAlign: 'center', color: '#88898c', padding: '20px' }}>
@@ -428,7 +431,7 @@ function CreateConvocatoria() {
                                     <tr>
                                         <th>ID</th>
                                         <th>Curso</th>
-                                        <th>Semestre</th>
+                                        <th>Periodo</th>
                                         <th>Horas</th>
                                         <th>Estado</th>
                                         <th>Fecha Creación</th>
@@ -491,6 +494,7 @@ function CreateConvocatoria() {
                             )}
                         </>
                     )}
+                    </div>
                 </div>
             </div>
         </div>

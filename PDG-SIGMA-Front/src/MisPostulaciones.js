@@ -153,9 +153,9 @@ function MisPostulaciones() {
             </PopUp>
 
             <div className="mis-postulaciones-content">
-                <div className="mis-post-header">
-                    <h1>Mis Postulaciones</h1>
-                    <p className="mis-post-subtitle">
+                <div className="mis-post-header app-page-header">
+                    <h1 className="app-page-title">Mis Postulaciones</h1>
+                    <p className="mis-post-subtitle app-page-subtitle">
                         Consulta el estado de las convocatorias en las que has participado
                     </p>
                 </div>
