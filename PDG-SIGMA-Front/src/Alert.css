@@ -16,6 +16,12 @@
     text-align: center;
     z-index: 1000;
     transition: opacity 0.25s ease, transform 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-right: 2.5rem;
+    position: fixed;
   }
 
   .alert-info {
@@ -24,6 +30,24 @@
 
   .alert-success {
     border-color: #2f8f5b;
+  }
+
+  .alert-error {
+    border-color: #c2410c;
+  }
+
+  .alert-close {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
   }
   
   .alert-show {
