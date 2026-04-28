@@ -24,7 +24,7 @@ const renderComponent = () =>
         </BrowserRouter>
     );
 
-describe('Frontend: Notificaciones y configuración (visibilidad + preferencias)', () => {
+describe('NotificacionesConfiguracionFrontendHU', () => {
     beforeEach(() => {
         jest.clearAllMocks();
 

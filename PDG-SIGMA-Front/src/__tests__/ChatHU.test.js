@@ -6,7 +6,7 @@ import Chat from '../Chat';
 jest.mock('../VerticalNavbar', () => () => <nav data-testid="navbar" />);
 jest.mock('../config/ApiBackend', () => ({ BACKEND_URL: 'http://localhost:5435' }));
 
-describe('Chat HU tests', () => {
+describe('ChatHU', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     window.localStorage.clear();

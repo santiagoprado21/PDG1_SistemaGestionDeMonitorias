@@ -13,7 +13,7 @@ jest.mock('../VerticalNavbar', () => {
     };
 });
 
-describe('HU-007: Cierre de Monitorías - Tests', () => {
+describe('CerrarMonitoriasHU007', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         

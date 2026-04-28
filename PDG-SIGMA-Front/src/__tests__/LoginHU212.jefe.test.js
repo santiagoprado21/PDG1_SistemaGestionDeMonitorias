@@ -18,7 +18,7 @@ jest.mock('../config/ApiBackend', () => ({
   BACKEND_URL: 'http://localhost:5435'
 }));
 
-describe('HU2-212 Login jfedpto flow', () => {
+describe('LoginHU212.jefe', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
@@ -34,7 +34,7 @@ describe('HU2-212 Login jfedpto flow', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'HEAD001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'pass123' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {
@@ -54,7 +54,7 @@ describe('HU2-212 Login jfedpto flow', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'HEAD001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'pass123' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {

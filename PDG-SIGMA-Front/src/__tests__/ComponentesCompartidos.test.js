@@ -12,7 +12,7 @@ global.fetch = jest.fn();
 jest.mock('../NotificationIcon', () => () => <div data-testid="notification-icon">Notifs</div>);
 jest.mock('../img/logo2.png', () => 'logo-mock');
 
-describe('Frontend: Componentes compartidos y utilidades', () => {
+describe('ComponentesCompartidos', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         fetch.mockImplementation(() =>

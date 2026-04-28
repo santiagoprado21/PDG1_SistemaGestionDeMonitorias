@@ -21,7 +21,7 @@ function ChainedPopupsHarness() {
     );
 }
 
-describe('Frontend: Popups y confirmación', () => {
+describe('PopupsConfirmacionFrontend', () => {
     test('Debe permitir cancelar acción crítica en PopupDelete', () => {
         const onClose = jest.fn();
         const onApply = jest.fn();

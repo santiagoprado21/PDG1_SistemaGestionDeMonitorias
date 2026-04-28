@@ -35,7 +35,7 @@ const setRole = (role) => {
     });
 };
 
-describe('EvaluacionMonitoriaEstudiante simple coverage', () => {
+describe('EvaluacionMonitoriaEstudianteSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         global.fetch = jest.fn().mockResolvedValue({ ok: true });

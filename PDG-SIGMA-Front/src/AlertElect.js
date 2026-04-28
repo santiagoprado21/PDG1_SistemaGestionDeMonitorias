@@ -1,23 +1,51 @@
-import React, {useEffect } from "react";
-import "./Alert.css"; // Archivo de estilos separado
+import React, { useEffect } from "react";
+import "./Alert.css";
 
-const AlertElect = ({ show, onClose }) => {
+const ALLOWED_TYPES = ["info", "success", "error"];
+
+const AlertElect = ({
+  show,
+  onClose,
+  message = "La seleccion termino. Los estudiantes seran notificados",
+  type = "success",
+  autoCloseMs = 3000,
+  closable = true,
+}) => {
+  const safeType = ALLOWED_TYPES.includes(type) ? type : "success";
+
   useEffect(() => {
-    if (show) {
-      const timer = setTimeout(() => {
-        onClose(); // Llama a la función onClose después de 3 segundos
-      }, 3000);
-      return () => clearTimeout(timer); // Limpia el temporizador al desmontar
+    if (!show || typeof onClose !== "function" || autoCloseMs <= 0) {
+      return undefined;
     }
-  }, [show, onClose]);
+
+    const timer = setTimeout(() => {
+      onClose();
+    }, autoCloseMs);
+
+    return () => clearTimeout(timer);
+  }, [show, onClose, autoCloseMs]);
+
+  if (!show) {
+    return null;
+  }
 
   return (
     <div
-      className={`alert alert-success ${show ? "alert-show" : ""}`}
+      className={`alert alert-${safeType} alert-show`}
       role="status"
       aria-live="polite"
     >
-      La selección terminó. Los estudiantes serán notificados
+      <span>{message}</span>
+      {closable && (
+        <button
+          type="button"
+          className="alert-close"
+          aria-label="Cerrar alerta"
+          onClick={onClose}
+        >
+          x
+        </button>
+      )}
     </div>
   );
 };

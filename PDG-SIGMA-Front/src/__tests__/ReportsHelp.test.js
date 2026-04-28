@@ -30,7 +30,7 @@ jest.mock('recharts', () => {
   };
 });
 
-describe('Reports contextual help', () => {
+describe('ReportsHelp', () => {
   beforeEach(() => {
     window.localStorage.setItem('userId', 'USR-1');
     window.localStorage.setItem('role', 'admin');

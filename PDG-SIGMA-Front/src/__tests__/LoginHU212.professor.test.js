@@ -18,7 +18,7 @@ jest.mock('../config/ApiBackend', () => ({
   BACKEND_URL: 'http://localhost:5435'
 }));
 
-describe('HU2-212 Login professor flow', () => {
+describe('LoginHU212.professor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
@@ -34,7 +34,7 @@ describe('HU2-212 Login professor flow', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'PROF001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'pass123' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {
@@ -44,7 +44,7 @@ describe('HU2-212 Login professor flow', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/mis-convocatorias');
     });
 
-    expect(await screen.findByTestId('login-alert')).toHaveTextContent(/iniciaste sesion como profesor/i);
+    expect(await screen.findByTestId('login-alert')).toHaveTextContent(/iniciaste sesi.n como profesor/i);
   });
 
   test('shows invalid credentials for professor login failure', async () => {
@@ -53,7 +53,7 @@ describe('HU2-212 Login professor flow', () => {
     render(<Login />);
 
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: 'PROF001' } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: 'wrong-pass' } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: 'wrong-pass' } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
 
     await waitFor(() => {

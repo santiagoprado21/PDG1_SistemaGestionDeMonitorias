@@ -62,7 +62,7 @@ const setupLocalStorage = ({ role = 'professor', userId = 'PROF-1', token = 'Bea
     });
 };
 
-describe('Simple tests for uncovered admin components', () => {
+describe('CreateMonitoriaGestionRubricasSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         global.fetch = jest.fn();
@@ -122,31 +122,34 @@ describe('Simple tests for uncovered admin components', () => {
         expect(await screen.findByText(/Por favor completa todos los campos requeridos/i)).toBeInTheDocument();
     });
 
-    test('GestionRubricas renderiza estado vacío cuando no hay rúbricas', async () => {
-        fetch.mockResolvedValue({ ok: true, json: async () => [] });
+    describe('GestionRubricas', () => {
 
-        renderWithRouter(<GestionRubricas />);
+        test('renderiza estado vacío cuando no hay rúbricas', async () => {
+            fetch.mockResolvedValue({ ok: true, json: async () => [] });
 
-        expect(await screen.findByText(/Gestión de Rúbricas/i)).toBeInTheDocument();
-        expect(await screen.findByText(/No hay rúbricas creadas/i)).toBeInTheDocument();
-        expect(fetch).toHaveBeenCalledWith(
-            'http://localhost:5435/api/rubric/professor/PROF-1',
-            expect.any(Object)
-        );
-    });
+            renderWithRouter(<GestionRubricas />);
 
-    test('GestionRubricas abre modal y valida criterios incompletos al guardar', async () => {
-        fetch.mockResolvedValue({ ok: true, json: async () => [] });
+            expect(await screen.findByText(/Gestión de Rúbricas/i)).toBeInTheDocument();
+            expect(await screen.findByText(/No hay rúbricas creadas/i)).toBeInTheDocument();
+            expect(fetch).toHaveBeenCalledWith(
+                'http://localhost:5435/api/rubric/professor/PROF-1',
+                expect.any(Object)
+            );
+        });
 
-        renderWithRouter(<GestionRubricas />);
+        test('GestionRubricas abre modal y valida criterios incompletos al guardar', async () => {
+            fetch.mockResolvedValue({ ok: true, json: async () => [] });
 
-        fireEvent.click(await screen.findByRole('button', { name: /Crear Nueva Rúbrica/i }));
-        expect(await screen.findByRole('heading', { name: /Nueva Rúbrica/i })).toBeInTheDocument();
+            renderWithRouter(<GestionRubricas />);
 
-        const createButton = screen.getByRole('button', { name: /Crear Rúbrica/i });
-        const form = createButton.closest('form');
-        fireEvent.submit(form);
+            fireEvent.click(await screen.findByRole('button', { name: /Crear Nueva Rúbrica/i }));
+            expect(await screen.findByRole('heading', { name: /Nueva Rúbrica/i })).toBeInTheDocument();
 
-        expect(await screen.findByText(/Todos los criterios deben tener nombre/i)).toBeInTheDocument();
+            const createButton = screen.getByRole('button', { name: /Crear Rúbrica/i });
+            const form = createButton.closest('form');
+            fireEvent.submit(form);
+
+            expect(await screen.findByText(/Todos los criterios deben tener nombre/i)).toBeInTheDocument();
+        });
     });
 });

@@ -48,7 +48,7 @@ const setLocalStorage = ({ role = 'monitor', userId = 'USR-001', token = 'Bearer
 
 const renderWithRouter = (component) => render(<BrowserRouter>{component}</BrowserRouter>);
 
-describe('Simple coverage boosters for convocatorias and SIMON', () => {
+describe('ConvocatoriasSimonSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         global.fetch = jest.fn();

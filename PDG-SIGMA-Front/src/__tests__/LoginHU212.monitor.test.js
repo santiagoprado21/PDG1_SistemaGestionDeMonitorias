@@ -18,7 +18,7 @@ jest.mock('../config/ApiBackend', () => ({
   BACKEND_URL: 'http://localhost:5435'
 }));
 
-describe('HU2-212 Login monitor flow', () => {
+describe('LoginHU212.monitor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
@@ -31,7 +31,7 @@ describe('HU2-212 Login monitor flow', () => {
 
   const fillCredentialsAndSubmit = async (userId = 'MON001', password = 'pass123') => {
     fireEvent.change(screen.getByLabelText(/usuario/i), { target: { value: userId } });
-    fireEvent.change(screen.getByLabelText(/contrasena/i), { target: { value: password } });
+    fireEvent.change(screen.getByLabelText(/^Contraseña$/i), { target: { value: password } });
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesi.n/i }));
   };
 
@@ -56,7 +56,7 @@ describe('HU2-212 Login monitor flow', () => {
       expect(localStorage.getItem('token')).toBe('Bearer token-monitor');
     });
 
-    expect(await screen.findByTestId('login-alert')).toHaveTextContent(/iniciaste sesion como estudiante/i);
+    expect(await screen.findByTestId('login-alert')).toHaveTextContent(/iniciaste sesi.n como estudiante/i);
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/ver-convocatorias');
     });
@@ -90,7 +90,7 @@ describe('HU2-212 Login monitor flow', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/mis-convocatorias');
     });
 
-    expect(screen.getByTestId('login-alert')).toHaveTextContent(/iniciaste sesion como profesor/i);
+    expect(screen.getByTestId('login-alert')).toHaveTextContent(/iniciaste sesi.n como profesor/i);
   });
 
   test('logs in as head department and redirects to approvals', async () => {
@@ -126,7 +126,7 @@ describe('HU2-212 Login monitor flow', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/ver-convocatorias');
     });
 
-    expect(screen.getByTestId('login-alert')).toHaveTextContent(/iniciaste sesion como estudiante/i);
+    expect(screen.getByTestId('login-alert')).toHaveTextContent(/iniciaste sesi.n como estudiante/i);
   });
 
   test('uses generic message for unknown roles', async () => {
@@ -143,13 +143,13 @@ describe('HU2-212 Login monitor flow', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/ver-convocatorias');
     });
 
-    expect(screen.getByTestId('login-alert')).toHaveTextContent(/^iniciaste sesion$/i);
+    expect(screen.getByTestId('login-alert')).toHaveTextContent(/^iniciaste sesi.n$/i);
   });
 
   test('toggles password visibility and caps lock warning', async () => {
     render(<Login />);
 
-    const passwordInput = screen.getByLabelText(/contrasena/i);
+    const passwordInput = screen.getByLabelText(/^Contraseña$/i);
     expect(passwordInput).toHaveAttribute('type', 'password');
 
     fireEvent.click(screen.getByRole('button', { name: /mostrar contraseña/i }));

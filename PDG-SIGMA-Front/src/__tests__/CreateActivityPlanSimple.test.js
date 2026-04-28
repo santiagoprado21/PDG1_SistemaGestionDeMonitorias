@@ -32,7 +32,7 @@ const setUserContext = () => {
     });
 };
 
-describe('CreateActivity and PlanActividades simple coverage', () => {
+describe('CreateActivityPlanSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         setUserContext();
