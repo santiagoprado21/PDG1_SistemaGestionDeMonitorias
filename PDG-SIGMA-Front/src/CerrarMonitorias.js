@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './CerrarMonitorias.css';
 import VerticalNavbar from './VerticalNavbar';
 import { BACKEND_URL } from './config/ApiBackend';
 import { PopUp } from './PopUp';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod } from './globalFix';
 
 function CerrarMonitorias() {
     const userId = localStorage.getItem('userId');
+    const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+    const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
     const [monitorings, setMonitorings] = useState([]);
     const [closedMonitorings, setClosedMonitorings] = useState([]);
     const [selectedMonitorings, setSelectedMonitorings] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('pendientes'); // 'pendientes' o 'cerradas'
-    const [semester, setSemester] = useState('2026-1');
+    const [semester, setSemester] = useState(currentAcademicPeriod);
     
     // Modal de cierre
     const [showCloseModal, setShowCloseModal] = useState(false);
@@ -196,9 +199,9 @@ function CerrarMonitorias() {
                     <div className="filter-group">
                         <label>Periodo:</label>
                         <select value={semester} onChange={(e) => setSemester(e.target.value)}>
-                            <option value="2026-1">2026-1</option>
-                            <option value="2025-2">2025-2</option>
-                            <option value="2025-1">2025-1</option>
+                            {academicPeriodOptions.map((period) => (
+                                <option key={period} value={period}>{period}</option>
+                            ))}
                         </select>
                     </div>
                 </div>

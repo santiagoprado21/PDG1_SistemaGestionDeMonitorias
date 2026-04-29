@@ -430,6 +430,9 @@ public class ProfessorSurveyServiceImpl implements ProfessorSurveyService {
         if (!isValidPeriod(normalized)) {
             throw new Exception("El periodo debe tener formato AAAA-1 o AAAA-2");
         }
+        if (Integer.parseInt(normalized.substring(0, 4)) != LocalDate.now().getYear()) {
+            throw new Exception("El año del periodo debe corresponder al año actual");
+        }
         return normalized;
     }
 
