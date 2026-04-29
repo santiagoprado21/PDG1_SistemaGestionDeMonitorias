@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './CreateConvocatoria.css'; 
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
 import LoadingSpinner from './LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod } from './globalFix';
 
 function CreateConvocatoria() {
     const navigate = useNavigate();
+
+    const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+    const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
     
     const [faculties, setFaculties] = useState([]);
     const [programs, setPrograms] = useState([]);
@@ -17,7 +21,7 @@ function CreateConvocatoria() {
     const [selectedFaculty, setSelectedFaculty] = useState("");
     const [selectedProgram, setSelectedProgram] = useState("");
     const [selectedCourse, setSelectedCourse] = useState("");
-    const [semester, setSemester] = useState("");
+    const [semester, setSemester] = useState(currentAcademicPeriod);
     const [startDate, setStartDate] = useState("");
     const [finishDate, setFinishDate] = useState("");
     const [requestedHours, setRequestedHours] = useState("");
@@ -187,7 +191,7 @@ function CreateConvocatoria() {
         setSelectedFaculty("");
         setSelectedProgram("");
         setSelectedCourse("");
-        setSemester("");
+        setSemester(currentAcademicPeriod);
         setStartDate("");
         setFinishDate("");
         setRequestedHours("");
@@ -311,13 +315,15 @@ function CreateConvocatoria() {
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Periodo *</label>
-                                <input 
-                                    type="text" 
+                                <select
                                     value={semester}
                                     onChange={(e) => setSemester(e.target.value)}
-                                    placeholder="ej: 2025-1"
                                     required
-                                />
+                                >
+                                    {academicPeriodOptions.map((period) => (
+                                        <option key={period} value={period}>{period}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="form-group">

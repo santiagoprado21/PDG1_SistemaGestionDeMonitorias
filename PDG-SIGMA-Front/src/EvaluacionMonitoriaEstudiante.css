@@ -106,7 +106,8 @@
   color: var(--color-text-primary);
 }
 
-.monitoria-meta-grid input {
+.monitoria-meta-grid input,
+.monitoria-meta-grid select {
   border: 1px solid var(--color-border);
   border-radius: 0;
   padding: var(--space-3);

@@ -3,6 +3,7 @@ import { Link2, Copy, Check, ShieldCheck, Share2 } from 'lucide-react';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod, isSelectableAcademicPeriod } from './globalFix';
 import './EvaluacionMonitoriaEstudiante.css';
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZ6-xGZk9S0pQ-RjxTWShR362EGiI_l4TqeXGUt1F_ZjoPfgJe0vD9DGQCV69I9Rh_Bg/exec';
@@ -96,19 +97,14 @@ const buildInitialScores = (questions) => {
   return scores;
 };
 
-const getDefaultSemester = () => {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const period = month <= 6 ? 1 : 2;
-  return `${now.getFullYear()}-${period}`;
-};
-
 function EvaluacionMonitoriaEstudiante() {
   const role = localStorage.getItem('role');
+  const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+  const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
   const [monitoringId, setMonitoringId] = useState('');
   const [monitorCode, setMonitorCode] = useState('');
   const [monitorName, setMonitorName] = useState('');
-  const [semester, setSemester] = useState(getDefaultSemester());
+  const [semester, setSemester] = useState(currentAcademicPeriod);
   const [hasExplicitSemester, setHasExplicitSemester] = useState(false);
   const [lockIdentifiers, setLockIdentifiers] = useState(false);
   const [surveyQuestions, setSurveyQuestions] = useState(FALLBACK_QUESTIONS);
@@ -137,7 +133,7 @@ function EvaluacionMonitoriaEstudiante() {
       setMonitorCode(localStorage.getItem('userId') || '');
     }
     if (monitorNameParam) setMonitorName(monitorNameParam);
-    if (semesterParam) {
+    if (semesterParam && isSelectableAcademicPeriod(semesterParam)) {
       setSemester(semesterParam);
       setHasExplicitSemester(true);
     }
@@ -158,7 +154,7 @@ function EvaluacionMonitoriaEstudiante() {
         }
 
         const activeQuestions = Array.isArray(body.questions) ? body.questions : [];
-        if (body.semester) {
+        if (body.semester && isSelectableAcademicPeriod(body.semester)) {
           setSemester(body.semester);
         }
 
@@ -412,14 +408,16 @@ function EvaluacionMonitoriaEstudiante() {
               <div className="monitoria-meta-grid">
                 <label>
                   Periodo
-                  <input
-                    type="text"
+                  <select
                     value={semester}
                     onChange={handleSemesterChange}
-                    placeholder="Ej: 2026-1"
                     required
-                    readOnly={lockIdentifiers && hasExplicitSemester}
-                  />
+                    disabled={lockIdentifiers && hasExplicitSemester}
+                  >
+                    {academicPeriodOptions.map((period) => (
+                      <option key={period} value={period}>{period}</option>
+                    ))}
+                  </select>
                 </label>
                 <label>
                   Codigo de monitoria

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -145,7 +146,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     @Override
     @Transactional
     public MonitorSurveyCurrentConfigDTO saveCurrentConfig(MonitorSurveyCurrentConfigRequest request) throws Exception {
-        String semester = normalizeRequired(request.getSemester(), "El semestre es obligatorio");
+        String semester = normalizeRequiredPeriod(request.getSemester(), "El semestre es obligatorio");
         List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
@@ -202,7 +203,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     @Transactional
     public MonitorSurveyTemplateDTO createTemplate(MonitorSurveyTemplateCreateRequest request) throws Exception {
         String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
-        String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
+        String createdForSemester = normalizeRequiredPeriod(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
         List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
@@ -236,7 +237,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
                 .orElseThrow(() -> new Exception("Plantilla no encontrada"));
 
         String name = normalizeRequired(request.getName(), "El nombre de la plantilla es obligatorio");
-        String createdForSemester = normalizeRequired(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
+        String createdForSemester = normalizeRequiredPeriod(request.getCreatedForSemester(), "El periodo de creación de la plantilla es obligatorio");
         List<Long> questionIds = normalizeQuestionIds(request.getQuestionIds());
 
         if (questionIds.isEmpty()) {
@@ -284,7 +285,7 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
     @Override
     @Transactional
     public MonitorSurveyCurrentConfigDTO applyTemplate(MonitorSurveyApplyTemplateRequest request) throws Exception {
-        String semester = normalizeRequired(request.getSemester(), "El semestre es obligatorio");
+        String semester = normalizeRequiredPeriod(request.getSemester(), "El semestre es obligatorio");
         if (request.getTemplateId() == null) {
             throw new Exception("Debe indicar la plantilla");
         }
@@ -438,6 +439,17 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         String normalized = trimToNull(value);
         if (normalized == null) {
             throw new Exception(errorMessage);
+        }
+        return normalized;
+    }
+
+    private String normalizeRequiredPeriod(String value, String errorMessage) throws Exception {
+        String normalized = normalizeRequired(value, errorMessage);
+        if (!normalized.matches("^\\d{4}-[12]$")) {
+            throw new Exception("El periodo debe tener formato AAAA-1 o AAAA-2");
+        }
+        if (Integer.parseInt(normalized.substring(0, 4)) != LocalDate.now().getYear()) {
+            throw new Exception("El año del periodo debe corresponder al año actual");
         }
         return normalized;
     }

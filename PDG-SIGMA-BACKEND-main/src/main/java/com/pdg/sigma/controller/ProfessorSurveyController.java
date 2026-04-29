@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,19 @@ public class ProfessorSurveyController {
         }
         try {
             return ResponseEntity.ok(professorSurveyService.getCurrentConfig(semester));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @GetMapping("/admin/validate-period")
+    public ResponseEntity<?> validatePeriod(@RequestAttribute("role") String role,
+                                            @RequestParam String semester) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            return ResponseEntity.ok(Map.of("valid", true, "semester", normalizeAllowedPeriod(semester)));
         } catch (Exception e) {
             return badRequest(e);
         }
@@ -190,6 +204,23 @@ public class ProfessorSurveyController {
     private ResponseEntity<Map<String, String>> badRequest(Exception exception) {
         String message = exception.getMessage() == null ? "No se pudo completar la operación" : exception.getMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", message));
+    }
+
+    private String normalizeAllowedPeriod(String semester) throws Exception {
+        if (semester == null || semester.trim().isEmpty()) {
+            throw new Exception("El periodo es obligatorio");
+        }
+
+        String normalized = semester.trim();
+        if (!normalized.matches("^\\d{4}-[12]$")) {
+            throw new Exception("El periodo debe tener formato AAAA-1 o AAAA-2");
+        }
+
+        if (Integer.parseInt(normalized.substring(0, 4)) != LocalDate.now().getYear()) {
+            throw new Exception("El año del periodo debe corresponder al año actual");
+        }
+
+        return normalized;
     }
 }
 

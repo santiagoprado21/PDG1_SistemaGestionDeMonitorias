@@ -3,6 +3,7 @@ import VerticalNavbar from './VerticalNavbar';
 import LoadingSpinner from './LoadingSpinner';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod, isSelectableAcademicPeriod } from './globalFix';
 import './GestionEncuestaProfesoresHU027.css';
 
 const PERIOD_REGEX = /^\d{4}-[12]$/;
@@ -14,7 +15,9 @@ const normalizeValidPeriod = (value) => {
 
 function GestionEncuestaProfesoresHU027() {
   const token = localStorage.getItem('token');
-  const [semester, setSemester] = useState('');
+  const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+  const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
+  const [semester, setSemester] = useState(currentAcademicPeriod);
   const [templatePeriodFilter, setTemplatePeriodFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [creatingQuestion, setCreatingQuestion] = useState(false);
@@ -79,7 +82,8 @@ function GestionEncuestaProfesoresHU027() {
       setTemplates(normalizedTemplates);
 
       const effectiveSemester = normalizeValidPeriod(semesterParam) || normalizeValidPeriod(configBody.semester);
-      if (effectiveSemester) {
+      if (effectiveSemester && academicPeriodOptions.includes(effectiveSemester)) {
+        setSemester(effectiveSemester);
         setTemplateForm((prev) =>
           prev.createdForSemester && prev.createdForSemester.trim() !== ''
             ? prev
@@ -87,8 +91,13 @@ function GestionEncuestaProfesoresHU027() {
         );
       }
 
-      if (effectiveSemester && !normalizeValidPeriod(semesterParam)) {
-        setSemester(effectiveSemester);
+      if (!effectiveSemester && !semesterParam) {
+        setSemester(currentAcademicPeriod);
+        setTemplateForm((prev) =>
+          prev.createdForSemester && prev.createdForSemester.trim() !== ''
+            ? prev
+            : { ...prev, createdForSemester: currentAcademicPeriod }
+        );
       }
     } catch (error) {
       openMessage(error.message || 'Error cargando la información');
@@ -235,20 +244,20 @@ function GestionEncuestaProfesoresHU027() {
 
   const resetTemplateDraft = () => {
     setEditingTemplateId(null);
-    setTemplateForm({ name: '', description: '', createdForSemester: '' });
+    setTemplateForm({ name: '', description: '', createdForSemester: currentAcademicPeriod });
     setTemplateQuestionIds([]);
   };
 
   const createTemplate = async (event) => {
     event.preventDefault();
-    const normalizedTemplatePeriod = normalizeValidPeriod(templateForm.createdForSemester);
+    const normalizedTemplatePeriod = (templateForm.createdForSemester || '').trim();
 
     if (!templateForm.name.trim()) {
       openMessage('Debes ingresar el nombre de la plantilla.');
       return;
     }
-    if (!normalizedTemplatePeriod) {
-      openMessage('El periodo debe tener formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
+    if (!isSelectableAcademicPeriod(normalizedTemplatePeriod)) {
+      openMessage('Selecciona un periodo válido desde la lista disponible.');
       return;
     }
     if (templateQuestionIds.length === 0) {
@@ -287,7 +296,7 @@ function GestionEncuestaProfesoresHU027() {
     setTemplateForm({
       name: template.name || '',
       description: template.description || '',
-      createdForSemester: template.createdForSemester || semester || ''
+      createdForSemester: template.createdForSemester || semester || currentAcademicPeriod
     });
     setTemplateQuestionIds(templateQuestionIds);
   };
@@ -298,14 +307,14 @@ function GestionEncuestaProfesoresHU027() {
 
   const saveTemplateEdit = async () => {
     if (!editingTemplateId) return;
-    const normalizedTemplatePeriod = normalizeValidPeriod(templateForm.createdForSemester);
+    const normalizedTemplatePeriod = (templateForm.createdForSemester || '').trim();
 
     if (!templateForm.name.trim()) {
       openMessage('Debes ingresar el nombre de la plantilla.');
       return;
     }
-    if (!normalizedTemplatePeriod) {
-      openMessage('El periodo debe tener formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
+    if (!isSelectableAcademicPeriod(normalizedTemplatePeriod)) {
+      openMessage('Selecciona un periodo válido desde la lista disponible.');
       return;
     }
     if (templateQuestionIds.length === 0) {
@@ -371,9 +380,9 @@ function GestionEncuestaProfesoresHU027() {
   };
 
   const applyTemplate = async (templateId) => {
-    const periodToApply = normalizeValidPeriod(semester);
-    if (!periodToApply) {
-      openMessage('Debes definir un periodo válido con formato AAAA-1 o AAAA-2 antes de aplicar una plantilla.');
+    const periodToApply = (semester || '').trim();
+    if (!isSelectableAcademicPeriod(periodToApply)) {
+      openMessage('Debes seleccionar un periodo válido desde la lista disponible antes de aplicar una plantilla.');
       return;
     }
 
@@ -394,21 +403,10 @@ function GestionEncuestaProfesoresHU027() {
     }
   };
 
-  const handleSemesterCommit = () => {
-    const normalizedSemester = normalizeValidPeriod(semester);
-    if (!normalizedSemester) {
-      openMessage('Debes definir un periodo válido con formato AAAA-1 o AAAA-2. Ejemplo: 2026-1');
-      return;
-    }
-    setSemester(normalizedSemester);
-    loadAll(normalizedSemester);
-  };
-
-  const handleSemesterKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSemesterCommit();
-    }
+  const handleSemesterChange = (event) => {
+    const nextSemester = event.target.value;
+    setSemester(nextSemester);
+    loadAll(nextSemester);
   };
 
   return (
@@ -422,15 +420,15 @@ function GestionEncuestaProfesoresHU027() {
           <p className="app-page-subtitle">Selecciona el periodo de trabajo, administra el banco de preguntas y gestiona plantillas.</p>
           <div className="hu027-semester-row">
             <label htmlFor="semesterInput">Periodo activo</label>
-            <input
+            <select
               id="semesterInput"
-              type="text"
               value={semester}
-              onChange={(event) => setSemester(event.target.value)}
-              onBlur={handleSemesterCommit}
-              onKeyDown={handleSemesterKeyDown}
-              placeholder="Ej: 2026-1"
-            />
+              onChange={handleSemesterChange}
+            >
+              {academicPeriodOptions.map((period) => (
+                <option key={period} value={period}>{period}</option>
+              ))}
+            </select>
           </div>
         </header>
 
@@ -520,11 +518,14 @@ function GestionEncuestaProfesoresHU027() {
                   onChange={(event) => setTemplateForm((prev) => ({ ...prev, name: event.target.value }))}
                   placeholder="Nombre de la plantilla"
                 />
-                <input
+                <select
                   value={templateForm.createdForSemester}
                   onChange={(event) => setTemplateForm((prev) => ({ ...prev, createdForSemester: event.target.value }))}
-                  placeholder="Periodo de creación (Ej: 2026-1)"
-                />
+                >
+                  {academicPeriodOptions.map((period) => (
+                    <option key={period} value={period}>{period}</option>
+                  ))}
+                </select>
                 <textarea
                   value={templateForm.description}
                   onChange={(event) => setTemplateForm((prev) => ({ ...prev, description: event.target.value }))}

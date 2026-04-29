@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './CreateMonitoria.css'; 
 // import './Task.css';
 import VerticalNavbar from './VerticalNavbar';
 import {PopUp, PopUpUpdateBudget} from "./PopUp";
 import { useNavigate } from "react-router-dom";
-import { useMemo } from 'react';
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod } from './globalFix';
 
 function CreateMonitoria() {
 
@@ -15,6 +15,9 @@ function CreateMonitoria() {
     const recordsPerPage = 5;
     const navigate = useNavigate();
 
+    const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+    const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
+
     const [monitories, setMonitories] = useState([]); // State for Monitories list
     const [faculties, setFaculties] = useState([]); // State for Faculty options
     const [programs, setPrograms] = useState([]); // State for Program options
@@ -22,7 +25,7 @@ function CreateMonitoria() {
     const [selectedFaculty, setSelectedFaculty] = useState(""); // Selected Faculty
     const [selectedProgram, setSelectedProgram] = useState(""); // Selected Program
     const [selectedSubject, setSelectedSubject] = useState(""); // Selected Subject
-    const [selectedSemester, setSelectedSemester] = useState(""); // Selected Semester
+    const [selectedSemester, setSelectedSemester] = useState(currentAcademicPeriod); // Selected Semester
     const [selectedStartDate, setSelectedStartDate] = useState(""); // Selected StartDate
     const [selectedFinishDate, setSelectedFinishDate] = useState(""); // Selected FinishDate
     const [requestedHours, setRequestedHours] = useState(""); // Horas solicitadas
@@ -406,7 +409,7 @@ function CreateMonitoria() {
                 setSelectedFaculty("");
                 setSelectedProgram("");
                 setSelectedSubject("");
-                setSelectedSemester("");
+                setSelectedSemester(currentAcademicPeriod);
                 setSelectedStartDate("");
                 setSelectedFinishDate("");
                 setRequestedHours("");
@@ -573,13 +576,15 @@ function CreateMonitoria() {
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Periodo *</label>
-                                    <input 
-                                        type="text" 
+                                    <select
                                         value={selectedSemester}
                                         onChange={handleSemesterChange}
-                                        placeholder="ej: 2025-1"
                                         required
-                                    />
+                                    >
+                                        {academicPeriodOptions.map((period) => (
+                                            <option key={period} value={period}>{period}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="form-group">

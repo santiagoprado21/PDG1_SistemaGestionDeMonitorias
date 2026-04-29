@@ -49,7 +49,8 @@
   font-size: 13px;
 }
 
-.hu026-layout .hu026-semester-row input {
+.hu026-layout .hu026-semester-row input,
+.hu026-layout .hu026-semester-row select {
   min-height: 36px;
   min-width: 180px;
   border: 1px solid var(--border-tint-primary);
@@ -111,6 +112,7 @@
 .hu026-layout .hu026-new-question input,
 .hu026-layout .hu026-edit-block input,
 .hu026-layout .hu026-template-form input,
+.hu026-layout .hu026-template-form select,
 .hu026-layout .hu026-template-filter-row select {
   min-height: 36px;
   border: 1px solid var(--gris-2);
@@ -125,8 +127,10 @@
 .hu026-layout .hu026-new-question input:focus,
 .hu026-layout .hu026-edit-block input:focus,
 .hu026-layout .hu026-template-form input:focus,
+.hu026-layout .hu026-template-form select:focus,
 .hu026-layout .hu026-template-filter-row select:focus,
-.hu026-layout .hu026-semester-row input:focus {
+.hu026-layout .hu026-semester-row input:focus,
+.hu026-layout .hu026-semester-row select:focus {
   outline: none;
   border-color: var(--azul-icesi);
   box-shadow: 0 0 0 2px var(--focus-ring-soft);

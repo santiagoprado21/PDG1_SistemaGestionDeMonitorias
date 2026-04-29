@@ -1,17 +1,20 @@
 import './GenerateSimonFile.css';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from "./PopUp";
 import { BACKEND_URL } from './config/ApiBackend';
 import LoadingSpinner from './LoadingSpinner';
+import { generateAcademicPeriodOptions, getCurrentAcademicPeriod } from './globalFix';
 
 function GenerateSimonFile() {
+    const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
+    const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
     const [previewData, setPreviewData] = useState(null);
     const [history, setHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState("");
-    const [semester, setSemester] = useState("2024-2");
+    const [semester, setSemester] = useState(currentAcademicPeriod);
     const [showHistory, setShowHistory] = useState(false);
 
     const coordinatorId = localStorage.getItem('userId');
@@ -154,13 +157,15 @@ function GenerateSimonFile() {
                             </div>
                             <div className="summary-item">
                                 <span className="summary-label">Periodo:</span>
-                                <input 
-                                    type="text" 
+                                <select
                                     value={semester}
                                     onChange={(e) => setSemester(e.target.value)}
                                     className="semester-input"
-                                    placeholder="Ej: 2024-2"
-                                />
+                                >
+                                    {academicPeriodOptions.map((period) => (
+                                        <option key={period} value={period}>{period}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="summary-item">
                                 <span className="summary-label">Estado:</span>
