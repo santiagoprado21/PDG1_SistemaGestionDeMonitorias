@@ -1,0 +1,12 @@
+{
+  "buildCommand": "CI=false react-scripts build",
+  "outputDirectory": "build",
+  "installCommand": "npm install",
+  "framework": "create-react-app",
+  "env": {
+    "NPM_CONFIG_REGISTRY": "https://registry.npmjs.org",
+    "NPM_CONFIG_ALWAYS_AUTH": "false",
+    "SKIP_PREFLIGHT_CHECK": "true",
+    "CI": "false"
+  }
+}

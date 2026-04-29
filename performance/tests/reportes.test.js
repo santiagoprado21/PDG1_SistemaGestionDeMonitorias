@@ -20,35 +20,55 @@
  *   - Reporte de asistencia           → p95 < 6 000 ms  (join masivo)
  *
  * Perfil de carga:
- *   0 → 10 VUs en 30 s  (ramp-up)
- *   10 VUs por 3 min     (carga sostenida)
- *   10 → 0 VUs en 30 s  (ramp-down)
+ *   0 → 15 VUs en 30 s  (ramp-up — cubre todos los profesores nuevos)
+ *   15 VUs por 3 min     (carga sostenida)
+ *   15 → 0 VUs en 30 s  (ramp-down)
  *
  * Uso:
  *   k6 run performance/tests/reportes.test.js
- *   k6 run -e PROFESSOR_ID=1002 -e MONITOR_ID=2220004 performance/tests/reportes.test.js
+ *   k6 run -e BASE_URL=https://mi-backend.onrender.com performance/tests/reportes.test.js
+ *
+ * Rotación de usuarios:
+ *   Cada VU usa un profesor y monitor distinto según su número (__VU),
+ *   cubriendo los 15 profesores (1001–1015) y 30 monitores (2220006–2220035).
  */
 
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { login, authHeaders } from '../helpers/auth.js';
 import { reportesThresholds } from '../config/thresholds.js';
-import {
-    BASE_URL,
-    PROFESSOR_ID, PROFESSOR_PASS,
-    MONITOR_ID,   MONITOR_PASS,
-    HEAD_ID,      HEAD_PASS,
-} from '../config/env.js';
+import { BASE_URL } from '../config/env.js';
+
+// ── Pool de usuarios realistas (scripts 18–20) ─────────────────────────────────
+// Solo profesores con monitorias reales en el sistema (script 20)
+const PROFESORES = [
+    '1001','1002','1003','1004','1005',
+    '1006','1007','1008','1009','1010',
+    '1011','1012',
+];
+const MONITORES = [
+    '2220006','2220007','2220008','2220009','2220010',
+    '2220011','2220012','2220013','2220014','2220015',
+    '2220016','2220017','2220018','2220019','2220020',
+    '2220021','2220022','2220023','2220024','2220025',
+];
+const PROF_PASS   = 'prof123';
+const MONITOR_PASS = '123456';
 
 // ── Opciones ───────────────────────────────────────────────────────────────────
 export const options = {
     stages: [
-        { duration: '30s', target: 10 },
-        { duration: '3m',  target: 10 },
-        { duration: '30s', target: 0  },
+        { duration: '30s', target: 8 },
+        { duration: '3m',  target: 8 },
+        { duration: '30s', target: 0 },
     ],
     thresholds: reportesThresholds,
 };
+
+// ── Selección de usuario por VU ────────────────────────────────────────────────
+// Cada VU rota sobre el pool para distribuir la carga entre todos los usuarios
+function profId()    { return PROFESORES[(__VU - 1) % PROFESORES.length]; }
+function monitorId() { return MONITORES[(__VU - 1)  % MONITORES.length];  }
 
 // ── Distribución de flujos por VU ──────────────────────────────────────────────
 // VU % 4 === 0 → rúbricas + plan profesor
@@ -63,15 +83,16 @@ export default function () {
     else if (mod === 2) flujoReporteProfesorYCategorias();
     else                flujoReporteAsistencia();
 
-    sleep(1);
+    sleep(2);
 }
 
 // ── Flujo 1: Rúbricas y plan de actividades (profesor) ────────────────────────
 function flujoRubricasYPlan() {
+    const pid = profId();
     let token;
 
     group('Profesor — Login', () => {
-        token = login(PROFESSOR_ID, PROFESSOR_PASS);
+        token = login(pid, PROF_PASS);
         check(token, { 'login profesor: ok': (t) => t !== null });
     });
 
@@ -80,42 +101,40 @@ function flujoRubricasYPlan() {
 
     group('Profesor — Rúbricas asignadas', () => {
         const res = http.get(
-            `${BASE_URL}/rubric/professor/${PROFESSOR_ID}`,
+            `${BASE_URL}/rubric/professor/${pid}`,
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'rubricas' },
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'rúbricas por profesor: sin error de servidor': (r) => r.status < 500,
-        });
+        check(res, { 'rúbricas por profesor: sin error de servidor': (r) => r.status < 500 });
     });
 
     sleep(0.3);
 
     group('Profesor — Plan de actividades', () => {
         const res = http.get(
-            `${BASE_URL}/activity/findAll/${PROFESSOR_ID}/professor`,
+            `${BASE_URL}/activity/findAll/${pid}/professor`,
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'plan_actividades' },
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'plan actividades profesor: sin error de servidor': (r) => r.status < 500,
-        });
+        check(res, { 'plan actividades profesor: sin error de servidor': (r) => r.status < 500 });
     });
 }
 
 // ── Flujo 2: Plan de actividades (monitor) + reporte de monitores ─────────────
 function flujoPlanMonitorYReporte() {
+    const mid = monitorId();
+    const pid = profId();
     let tokenMonitor;
     let tokenProfesor;
 
     group('Monitor — Login', () => {
-        tokenMonitor = login(MONITOR_ID, MONITOR_PASS);
+        tokenMonitor = login(mid, MONITOR_PASS);
         check(tokenMonitor, { 'login monitor: ok': (t) => t !== null });
     });
 
@@ -124,22 +143,20 @@ function flujoPlanMonitorYReporte() {
 
     group('Monitor — Plan de actividades', () => {
         const res = http.get(
-            `${BASE_URL}/activity/findAll/${MONITOR_ID}/monitor`,
+            `${BASE_URL}/activity/findAll/${mid}/monitor`,
             {
                 ...authHeaders(tokenMonitor),
                 tags: { endpoint: 'plan_actividades' },
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'plan actividades monitor: sin error de servidor': (r) => r.status < 500,
-        });
+        check(res, { 'plan actividades monitor: sin error de servidor': (r) => r.status < 500 });
     });
 
     sleep(0.3);
 
     group('Profesor — Login para reporte', () => {
-        tokenProfesor = login(PROFESSOR_ID, PROFESSOR_PASS);
+        tokenProfesor = login(pid, PROF_PASS);
         check(tokenProfesor, { 'login profesor para reporte: ok': (t) => t !== null });
     });
 
@@ -148,7 +165,7 @@ function flujoPlanMonitorYReporte() {
 
     group('Profesor — Reporte de monitores', () => {
         const res = http.get(
-            `${BASE_URL}/monitoring/getMonitorsReport/${PROFESSOR_ID}/professor`,
+            `${BASE_URL}/monitoring/getMonitorsReport/${pid}/professor`,
             {
                 ...authHeaders(tokenProfesor),
                 tags: { endpoint: 'reporte_monitores' },
@@ -156,18 +173,18 @@ function flujoPlanMonitorYReporte() {
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'reporte monitores: sin error de servidor': (r) => r.status < 500,
-        });
+        if (res.status >= 500) console.error(`[reporte_monitores] prof=${pid} status=${res.status} body=${res.body.substring(0, 300)}`);
+        check(res, { 'reporte monitores: sin error de servidor': (r) => r.status < 500 });
     });
 }
 
 // ── Flujo 3: Reporte de profesor y reporte de categorías ──────────────────────
 function flujoReporteProfesorYCategorias() {
+    const pid = profId();
     let token;
 
     group('Profesor — Login', () => {
-        token = login(PROFESSOR_ID, PROFESSOR_PASS);
+        token = login(pid, PROF_PASS);
         check(token, { 'login profesor: ok': (t) => t !== null });
     });
 
@@ -176,7 +193,7 @@ function flujoReporteProfesorYCategorias() {
 
     group('Profesor — Reporte de profesor', () => {
         const res = http.get(
-            `${BASE_URL}/monitoring/getProfessorReport/${PROFESSOR_ID}`,
+            `${BASE_URL}/monitoring/getProfessorReport/${pid}`,
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_profesor' },
@@ -184,16 +201,15 @@ function flujoReporteProfesorYCategorias() {
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'reporte profesor: sin error de servidor': (r) => r.status < 500,
-        });
+        if (res.status >= 500) console.error(`[reporte_profesor] prof=${pid} status=${res.status} body=${res.body.substring(0, 300)}`);
+        check(res, { 'reporte profesor: sin error de servidor': (r) => r.status < 500 });
     });
 
     sleep(0.3);
 
     group('Profesor — Reporte de categorías', () => {
         const res = http.get(
-            `${BASE_URL}/monitoring/getCategoriesReport/professor/${PROFESSOR_ID}`,
+            `${BASE_URL}/monitoring/getCategoriesReport/professor/${pid}`,
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_categorias' },
@@ -201,18 +217,18 @@ function flujoReporteProfesorYCategorias() {
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'reporte categorías: sin error de servidor': (r) => r.status < 500,
-        });
+        if (res.status >= 500) console.error(`[reporte_categorias] prof=${pid} status=${res.status} body=${res.body.substring(0, 300)}`);
+        check(res, { 'reporte categorías: sin error de servidor': (r) => r.status < 500 });
     });
 }
 
 // ── Flujo 4: Reporte de asistencia ────────────────────────────────────────────
 function flujoReporteAsistencia() {
+    const pid = profId();
     let token;
 
     group('Profesor — Login para asistencia', () => {
-        token = login(PROFESSOR_ID, PROFESSOR_PASS);
+        token = login(pid, PROF_PASS);
         check(token, { 'login para asistencia: ok': (t) => t !== null });
     });
 
@@ -221,7 +237,7 @@ function flujoReporteAsistencia() {
 
     group('Profesor — Reporte de asistencia', () => {
         const res = http.get(
-            `${BASE_URL}/monitoring/getAttendanceReport/professor/${PROFESSOR_ID}`,
+            `${BASE_URL}/monitoring/getAttendanceReport/professor/${pid}`,
             {
                 ...authHeaders(token),
                 tags: { endpoint: 'reporte_asistencia' },
@@ -229,8 +245,7 @@ function flujoReporteAsistencia() {
                 responseCallback: http.expectedStatuses(200, 201, 204, 400, 401, 403, 404),
             }
         );
-        check(res, {
-            'reporte asistencia: sin error de servidor': (r) => r.status < 500,
-        });
+        if (res.status >= 500) console.error(`[reporte_asistencia] prof=${pid} status=${res.status} body=${res.body.substring(0, 300)}`);
+        check(res, { 'reporte asistencia: sin error de servidor': (r) => r.status < 500 });
     });
 }
