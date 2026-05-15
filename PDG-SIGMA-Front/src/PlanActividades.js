@@ -347,6 +347,13 @@ function PlanActividades() {
 
         const selectedMonitoring = monitorings.find(m => m.id.toString() === formData.monitoringId.toString());
         
+        // HU-03: Bloquear creación si la monitoría está cerrada
+        if (!editingActivity && selectedMonitoring?.approvalStatus === 'CERRADA') {
+            setMessage('No se pueden crear actividades en una monitoría cerrada.');
+            setIsOpen(true);
+            return;
+        }
+
         console.log('Monitoría seleccionada:', selectedMonitoring);
 
         const activityDTO = {
@@ -519,14 +526,35 @@ function PlanActividades() {
                     </div>
                 )}
 
+                {/* HU-03: Banner de monitoría cerrada */}
+                {(() => {
+                    const selMon = monitorings.find(m => m.id.toString() === selectedMonitoringId.toString());
+                    return selMon?.approvalStatus === 'CERRADA' ? (
+                        <div className="warning-banner" style={{ borderLeft: '4px solid #e9683b', background: '#fff3f0' }}>
+                            <span className="warning-icon"><AlertTriangle {...iconProps} /></span>
+                            <div className="warning-text">
+                                <strong>Monitoría cerrada</strong>
+                                <p>Esta monitoría está cerrada. No es posible crear nuevas actividades.</p>
+                            </div>
+                        </div>
+                    ) : null;
+                })()}
+
                 <div className="plan-actions">
-                    <button 
-                        className="btn-primary plan-add-activity-btn" 
-                        onClick={() => handleOpenModal()}
-                        disabled={!selectedMonitoringId || monitorings.length === 0}
-                    >
-                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Actividad
-                    </button>
+                    {(() => {
+                        const selMon = monitorings.find(m => m.id.toString() === selectedMonitoringId.toString());
+                        const isClosed = selMon?.approvalStatus === 'CERRADA';
+                        return (
+                            <button 
+                                className="btn-primary plan-add-activity-btn" 
+                                onClick={() => handleOpenModal()}
+                                disabled={!selectedMonitoringId || monitorings.length === 0 || isClosed}
+                                title={isClosed ? 'No se pueden agregar actividades a una monitoría cerrada' : ''}
+                            >
+                                <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Actividad
+                            </button>
+                        );
+                    })()}
                     <button 
                         className="btn-secondary" 
                         onClick={() => navigate('/gestion-rubricas')}
@@ -537,6 +565,7 @@ function PlanActividades() {
                         <ArrowLeft {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Volver
                     </button>
                 </div>
+
 
                 <div className="activities-list">
                     {isLoadingMonitorings ? (

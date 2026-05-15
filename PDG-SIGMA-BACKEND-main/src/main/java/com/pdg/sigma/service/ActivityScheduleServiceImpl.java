@@ -66,6 +66,11 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
         Monitoring monitoring = monitoringRepository.findById(Long.valueOf(dto.getMonitoringId()))
                 .orElseThrow(() -> new Exception("Monitoría no encontrada"));
 
+        // HU-03: Bloquear creación de actividades en monitorías cerradas
+        if (dto.getId() == null && monitoring.isClosed()) {
+            throw new Exception("No se pueden crear actividades en una monitoría cerrada.");
+        }
+
         Professor professor = null;
         if (dto.getProfessorId() != null) {
             professor = professorRepository.findById(dto.getProfessorId())
