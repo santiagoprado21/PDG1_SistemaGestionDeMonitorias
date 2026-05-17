@@ -1,140 +1,114 @@
-# ChatControllerTest - Casos de Prueba
+# Diseño de Pruebas: `ChatController`
 
-## Clase
-`ChatControllerTest`
+Este documento describe los casos de prueba diseñados para verificar la funcionalidad del controlador de chat implementado mediante `ChatController`. Los tests correspondientes se encuentran en la clase `ChatControllerTest`.
 
-## Objetivo
-Validar el funcionamiento del controlador de chat, asegurando:
-- Obtención de conversaciones.
-- Envío de mensajes.
-- Envío de mensajes con archivos adjuntos.
-- Descarga de archivos adjuntos.
-- Manejo correcto de errores HTTP.
+**Objetivo:**  
+Asegurar que `ChatController` gestione correctamente las operaciones relacionadas con conversaciones, envío de mensajes, manejo de archivos adjuntos y descarga de recursos, validando respuestas HTTP y manejo adecuado de errores.
+
+**Alcance:**  
+Pruebas web del controlador utilizando `@WebMvcTest`, configuradas sobre `ChatController` y utilizando mocks para dependencias externas como `ChatService` y `JwtAuthenticationFilter`. Se valida el comportamiento de los endpoints REST asociados al módulo de chat.
+
+**Estrategia:**  
+Pruebas funcionales del controlador enfocadas en:
+
+- obtención de conversaciones,
+- envío de mensajes,
+- envío de mensajes con archivos adjuntos,
+- descarga de archivos,
+- y manejo de errores HTTP.
+
+Las pruebas utilizan `MockMvc` para simular peticiones HTTP y aserciones (`status`, `jsonPath`, `content`) para validar respuestas esperadas.
 
 ---
 
 # Casos de Prueba
 
-## 1. Obtener conversaciones exitosamente
-
-### Método
-`getConversations_returnsOk()`
-
-### Objetivo
-Verificar que un usuario pueda obtener correctamente sus conversaciones.
-
-### Flujo
-1. Simular conversaciones existentes.
-2. Ejecutar petición GET.
-3. Validar respuesta.
-
-### Endpoint
-`GET /chat/conversations/{userId}/{role}`
-
-### Resultado Esperado
-- Estado HTTP `200 OK`.
-- Retorna lista de conversaciones.
-- El ID de conversación coincide con el esperado.
+A continuación, se detallan los casos de prueba diseñados e implementados en `ChatControllerTest`:
 
 ---
 
-## 2. Enviar mensaje exitosamente
+## 1. Obtención de Conversaciones
 
-### Método
-`sendMessage_returnsCreated()`
+Estos casos verifican que el sistema retorne correctamente las conversaciones asociadas a un usuario.
 
-### Objetivo
-Validar el envío de mensajes simples sin archivos adjuntos.
-
-### Flujo
-1. Crear payload del mensaje.
-2. Simular creación del mensaje.
-3. Ejecutar petición POST.
-
-### Endpoint
-`POST /chat/messages`
-
-### Resultado Esperado
-- Estado HTTP `201 Created`.
-- Retorna el mensaje creado.
-- El ID del mensaje es correcto.
-- La conversación corresponde al payload enviado.
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| CHT-001 | `getConversations_returnsOk` | Verifica la obtención exitosa de conversaciones de un usuario. | Existe al menos una conversación simulada asociada al usuario. | 1. Simular conversaciones mediante `ChatService`. 2. Ejecutar petición GET sobre `/chat/conversations/{userId}/{role}`. 3. Validar respuesta JSON. | El sistema debe retornar estado `200 OK` y una lista de conversaciones con el identificador esperado. | OK |
 
 ---
 
-## 3. Enviar mensaje con archivos adjuntos
+## 2. Envío de Mensajes Simples
 
-### Método
-`sendMessageWithAttachments_returnsCreated()`
+Estos casos verifican el envío correcto de mensajes sin archivos adjuntos.
 
-### Objetivo
-Verificar el envío de mensajes junto con archivos adjuntos.
-
-### Flujo
-1. Crear payload multipart.
-2. Adjuntar archivo.
-3. Ejecutar petición multipart.
-
-### Endpoint
-`POST /chat/messages/with-attachments`
-
-### Resultado Esperado
-- Estado HTTP `201 Created`.
-- El mensaje se registra exitosamente.
-- El archivo adjunto es procesado correctamente.
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| CHT-002 | `sendMessage_returnsCreated` | Verifica el envío exitoso de mensajes simples. | Existe una conversación válida entre usuarios. | 1. Construir `ChatMessageCreateDTO`. 2. Simular creación del mensaje mediante `ChatService`. 3. Ejecutar petición POST sobre `/chat/messages`. | El sistema debe retornar estado `201 Created` y devolver el mensaje creado con el ID y conversación correctos. | OK |
 
 ---
 
-## 4. Descargar adjunto inexistente
+## 3. Envío de Mensajes con Archivos Adjuntos
 
-### Método
-`downloadAttachment_notFound_returns404()`
+Estos casos verifican el procesamiento correcto de mensajes multipart con archivos adjuntos.
 
-### Objetivo
-Validar manejo de errores al solicitar archivos inexistentes.
-
-### Flujo
-1. Solicitar descarga de adjunto inexistente.
-2. Simular excepción del servicio.
-
-### Endpoint
-`GET /chat/attachments/{attachmentId}`
-
-### Resultado Esperado
-- Estado HTTP `404 Not Found`.
-- Mensaje: `"Adjunto no encontrado"`.
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| CHT-003 | `sendMessageWithAttachments_returnsCreated` | Verifica el envío exitoso de mensajes con archivos adjuntos. | Existe una conversación válida y un archivo de prueba disponible. | 1. Crear payload multipart con mensaje y archivo adjunto. 2. Simular creación del mensaje. 3. Ejecutar petición multipart sobre `/chat/messages/with-attachments`. | El sistema debe retornar estado `201 Created` y registrar correctamente el mensaje junto al archivo adjunto. | OK |
 
 ---
 
-## 5. Descargar archivo adjunto exitosamente
+## 4. Descarga de Adjuntos Inexistentes
 
-### Método
-`downloadAttachment_returnsFile()`
+Estos casos verifican el manejo adecuado de errores al solicitar archivos inexistentes.
 
-### Objetivo
-Verificar la descarga correcta de archivos adjuntos.
-
-### Flujo
-1. Simular archivo almacenado.
-2. Ejecutar petición GET.
-3. Validar contenido retornado.
-
-### Endpoint
-`GET /chat/attachments/{attachmentId}`
-
-### Resultado Esperado
-- Estado HTTP `200 OK`.
-- Content-Type correcto (`text/plain`).
-- Archivo retornado exitosamente.
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| CHT-004 | `downloadAttachment_notFound_returns404` | Verifica el manejo de error al descargar un adjunto inexistente. | El servicio de chat simula inexistencia del archivo solicitado. | 1. Solicitar descarga de un archivo inexistente. 2. Simular excepción desde `ChatService`. | El sistema debe retornar estado `404 Not Found` con el mensaje `"Adjunto no encontrado"`. | OK |
 
 ---
 
-# Cobertura Validada
+## 5. Descarga Exitosa de Adjuntos
 
-- Obtención de conversaciones.
-- Envío de mensajes.
-- Manejo de multipart/form-data.
-- Descarga de archivos.
-- Manejo de errores HTTP.
-- Serialización JSON.
-- Validación de endpoints REST.
+Estos casos verifican la descarga correcta de archivos almacenados.
+
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| CHT-005 | `downloadAttachment_returnsFile` | Verifica la descarga exitosa de archivos adjuntos almacenados. | Existe un archivo simulado disponible para descarga. | 1. Simular recurso descargable mediante `ChatService`. 2. Ejecutar petición GET sobre `/chat/attachments/{attachmentId}`. 3. Validar contenido retornado. | El sistema debe retornar estado `200 OK`, content-type correcto y el archivo solicitado. | OK |
+
+---
+
+# Configuración de Datos de Prueba
+
+Antes de ejecutar cada caso de prueba, se configuran automáticamente los componentes necesarios mediante mocks y configuración de entorno:
+
+- `ChatService`
+- `JwtAuthenticationFilter`
+- `MockMvc`
+- `ObjectMapper`
+
+Las dependencias son simuladas mediante `@MockBean` para aislar completamente el comportamiento del controlador.
+
+---
+
+# Dependencias Utilizadas
+
+Las pruebas integran los siguientes componentes:
+
+| Componente | Tipo |
+| :-- | :-- |
+| `ChatController` | Controlador principal |
+| `ChatService` | Servicio mockeado |
+| `JwtAuthenticationFilter` | Filtro mockeado |
+| `MockMvc` | Framework de pruebas HTTP |
+| `ObjectMapper` | Serialización JSON |
+
+---
+
+# Notas
+
+- Las pruebas utilizan `@WebMvcTest` para aislar únicamente el comportamiento del controlador.
+- La seguridad de Spring Security se encuentra deshabilitada mediante `excludeAutoConfiguration`.
+- Se utiliza `@AutoConfigureMockMvc(addFilters = false)` para evitar ejecución de filtros reales durante las pruebas.
+- Los archivos adjuntos son simulados mediante `MockMultipartFile`.
+- Las respuestas HTTP son validadas utilizando `jsonPath`, `status` y `content`.
+- Los casos implementados cubren el flujo funcional principal del módulo de chat.
