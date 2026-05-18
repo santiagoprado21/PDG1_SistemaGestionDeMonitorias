@@ -19,6 +19,23 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const normalizeCourseLabel = (value) => (value || '')
+  .toLowerCase()
+  .replace(/[·:\-–—|]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const isDuplicateCourseLabel = (monitoringName, courseName, semester) => {
+  if (!monitoringName) {
+    return false;
+  }
+  const courseLine = [courseName, semester].filter(Boolean).join(' ');
+  if (!courseLine) {
+    return false;
+  }
+  return normalizeCourseLabel(monitoringName) === normalizeCourseLabel(courseLine);
+};
+
 function MisEvaluacionesHU015() {
   const role = localStorage.getItem('role') || 'monitor';
   const userIdentifier = localStorage.getItem('userId');
@@ -152,13 +169,16 @@ function MisEvaluacionesHU015() {
   const renderEvaluationCard = (evaluation) => {
     const badgeClass = PERFORMANCE_CLASSES[evaluation.performanceLevel] || 'badge-adecuado';
     const acknowledged = evaluation.acknowledgedByMonitor;
+    const hasDuplicateCourse = isDuplicateCourseLabel(evaluation.monitoringName, evaluation.courseName, evaluation.semester);
 
     return (
       <article className="evaluation-card" key={evaluation.evaluationId}>
         <header className="evaluation-card__header">
           <div>
             <h3>{evaluation.monitoringName || 'Monitoría sin nombre'}</h3>
-            <p>{evaluation.courseName || 'Curso no asignado'} · {evaluation.semester || 'Periodo sin registrar'}</p>
+            {!hasDuplicateCourse && (
+              <p>{evaluation.courseName || 'Curso no asignado'} · {evaluation.semester || 'Periodo sin registrar'}</p>
+            )}
             {isProfessor ? (
               <span className="evaluation-card__meta">
                 Monitor evaluado: {evaluation.monitorFullName || 'Sin nombre'} {evaluation.monitorCode ? `(${evaluation.monitorCode})` : ''}

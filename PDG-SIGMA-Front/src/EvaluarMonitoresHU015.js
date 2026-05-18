@@ -20,6 +20,23 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const normalizeCourseLabel = (value) => (value || '')
+  .toLowerCase()
+  .replace(/[·:\-–—|]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const isDuplicateCourseLabel = (monitoringName, courseName, semester) => {
+  if (!monitoringName) {
+    return false;
+  }
+  const courseLine = [courseName, semester].filter(Boolean).join(' ');
+  if (!courseLine) {
+    return false;
+  }
+  return normalizeCourseLabel(monitoringName) === normalizeCourseLabel(courseLine);
+};
+
 function EvaluarMonitoresHU015() {
   const professorId = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
@@ -232,6 +249,7 @@ function EvaluarMonitoresHU015() {
   const renderAssignmentItem = (assignment) => {
     const isSelected = selectedAssignment && selectedAssignment.monitoringId === assignment.monitoringId && selectedAssignment.monitorCode === assignment.monitorCode;
     const badgeClass = PERFORMANCE_CLASSES[assignment.performanceLevel] || 'badge-adecuado';
+    const hasDuplicateCourse = isDuplicateCourseLabel(assignment.monitoringName, assignment.courseName, assignment.semester);
     return (
       <button
         key={`${assignment.monitoringId}-${assignment.monitorCode}`}
@@ -244,7 +262,9 @@ function EvaluarMonitoresHU015() {
             {assignment.evaluated ? PERFORMANCE_LABELS[assignment.performanceLevel] || 'Evaluado' : 'Pendiente'}
           </span>
         </div>
-        <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        {!hasDuplicateCourse && (
+          <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        )}
         <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {assignment.semester || 'Periodo sin registrar'}</p>
         {assignment.evaluated && (
           <div className="assignment-score">
@@ -320,7 +340,9 @@ function EvaluarMonitoresHU015() {
               <header className="form-header">
                 <div>
                   <h3>{selectedAssignment.monitorFullName}</h3>
-                  <p>{selectedAssignment.monitoringName}</p>
+                  {selectedAssignment.monitoringName && !isDuplicateCourseLabel(selectedAssignment.monitoringName, selectedAssignment.courseName, selectedAssignment.semester) && (
+                    <p>{selectedAssignment.monitoringName}</p>
+                  )}
                   <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignment.semester}</span>
                 </div>
                 <div className={`impact-badge ${PERFORMANCE_CLASSES[performanceLevel]}`}>

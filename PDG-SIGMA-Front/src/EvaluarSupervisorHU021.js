@@ -28,6 +28,23 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const normalizeCourseLabel = (value) => (value || '')
+  .toLowerCase()
+  .replace(/[·:\-–—|]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const isDuplicateCourseLabel = (monitoringName, courseName, semester) => {
+  if (!monitoringName) {
+    return false;
+  }
+  const courseLine = [courseName, semester].filter(Boolean).join(' ');
+  if (!courseLine) {
+    return false;
+  }
+  return normalizeCourseLabel(monitoringName) === normalizeCourseLabel(courseLine);
+};
+
 const buildDefaultScores = (questions) => {
   const defaults = {};
   questions.forEach((question) => {
@@ -200,7 +217,8 @@ function EvaluarSupervisorHU021() {
     return 'EN_RIESGO';
   }, [formattedAverage]);
 
-  const selectedAssignmentPeriod = normalizeValidPeriod(selectedAssignment?.semester) || 'Periodo sin registrar';
+  const selectedAssignmentPeriod = normalizeValidPeriod(selectedAssignment?.semester);
+  const selectedAssignmentPeriodLabel = selectedAssignmentPeriod || 'Periodo sin registrar';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -268,6 +286,7 @@ function EvaluarSupervisorHU021() {
   const renderAssignmentItem = (assignment) => {
     const isSelected = selectedAssignment && selectedAssignment.monitoringId === assignment.monitoringId;
     const period = normalizeValidPeriod(assignment.semester);
+    const hasDuplicateCourse = isDuplicateCourseLabel(assignment.monitoringName, assignment.courseName, period);
 
     return (
       <button
@@ -281,7 +300,9 @@ function EvaluarSupervisorHU021() {
             {assignment.status || (assignment.evaluated ? 'Enviada' : 'Pendiente')}
           </span>
         </div>
-        <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        {!hasDuplicateCourse && (
+          <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        )}
         <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {period || 'Periodo sin registrar'}</p>
         {assignment.evaluated && assignment.submittedAt && (
           <div className="assignment-score">
@@ -419,8 +440,10 @@ function EvaluarSupervisorHU021() {
               <header className="form-header">
                 <div>
                   <h3>{selectedAssignment.professorName || 'Profesor supervisor'}</h3>
-                  <p>{selectedAssignment.monitoringName}</p>
-                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignmentPeriod}</span>
+                  {selectedAssignment.monitoringName && !isDuplicateCourseLabel(selectedAssignment.monitoringName, selectedAssignment.courseName, selectedAssignmentPeriod) && (
+                    <p>{selectedAssignment.monitoringName}</p>
+                  )}
+                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignmentPeriodLabel}</span>
                 </div>
                 <div className={`impact-badge ${PERFORMANCE_CLASSES[performanceLevel]}`}>
                   <span>{PERFORMANCE_LABELS[performanceLevel]}</span>

@@ -6,7 +6,6 @@ import CreateActivity from './CreateActivity';
 import Profile from './Profile';
 import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
-import { useEffect } from "react";
 import NotificationSettings from './NotificationSettings';
 import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
 import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
@@ -43,12 +42,6 @@ import MisPostulaciones from './MisPostulaciones';
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
-  
-  useEffect(() => {
-      return () => {
-          localStorage.clear(); // Se borra el localStorage al desmontar el frontend
-      };
-    }, []);
   return (
     <div className="App">
       <Routes>

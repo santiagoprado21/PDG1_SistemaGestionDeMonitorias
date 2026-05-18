@@ -26,6 +26,7 @@ const setRole = (role) => {
             getItem: jest.fn((key) => {
                 if (key === 'role') return role;
                 if (key === 'userId') return 'MON-001';
+                if (key === 'token') return 'mock-token';
                 return null;
             }),
             setItem: jest.fn(),
@@ -35,10 +36,52 @@ const setRole = (role) => {
     });
 };
 
+const mockReport = {
+    totalResponses: 1,
+    averageScore: 5.2,
+    totalAnswers: 2,
+    questionStats: [
+        {
+            questionId: 1,
+            statement: 'El monitor demostro dominio de los temas tratados.',
+            category: 'Apoyo Pedagogico',
+            averageScore: 5.2,
+            responsesCount: 1,
+            minScore: 5,
+            maxScore: 6
+        }
+    ],
+    responses: [
+        {
+            responseId: 10,
+            semester: '2024-2',
+            monitoringId: '1024',
+            monitorCode: 'MON-001',
+            monitorName: 'Juan Perez',
+            averageScore: 5.2,
+            createdAt: '2024-10-22T10:30:00'
+        }
+    ]
+};
+
 describe('EvaluacionMonitoriaEstudianteSimple', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        global.fetch = jest.fn().mockResolvedValue({ ok: true });
+        global.fetch = jest.fn((url) => {
+            if (String(url).includes('/monitor-survey/public/current-config')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ({ questions: [] })
+                });
+            }
+            if (String(url).includes('/monitor-survey/admin/report')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => mockReport
+                });
+            }
+            return Promise.resolve({ ok: true, json: async () => ({}) });
+        });
         Object.defineProperty(navigator, 'clipboard', {
             value: { writeText: jest.fn().mockResolvedValue(undefined) },
             writable: true
@@ -72,7 +115,7 @@ describe('EvaluacionMonitoriaEstudianteSimple', () => {
 
         await waitFor(() => {
             expect(fetch).toHaveBeenCalledWith(
-                expect.stringContaining('script.google.com/macros'),
+                expect.stringContaining('/monitor-survey/public/responses'),
                 expect.objectContaining({ method: 'POST' })
             );
         });
@@ -95,12 +138,13 @@ describe('EvaluacionMonitoriaEstudianteSimple', () => {
         });
     });
 
-    test('rol jfedpto muestra panel de resultados con iframe', () => {
+    test('rol jfedpto muestra panel de resultados internos', async () => {
         setRole('jfedpto');
 
         render(<EvaluacionMonitoriaEstudiante />);
 
         expect(screen.getByText(/Resultados de encuestas/i)).toBeInTheDocument();
-        expect(screen.getByTitle(/Resultados de monitoria/i)).toBeInTheDocument();
+        expect(await screen.findByText(/Resultados por pregunta/i)).toBeInTheDocument();
+        expect(screen.getByText(/Exportar CSV/i)).toBeInTheDocument();
     });
 });

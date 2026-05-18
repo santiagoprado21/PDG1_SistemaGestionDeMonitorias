@@ -6,9 +6,6 @@ import { BACKEND_URL } from './config/ApiBackend';
 import { generateAcademicPeriodOptions, getCurrentAcademicPeriod, isSelectableAcademicPeriod } from './globalFix';
 import './EvaluacionMonitoriaEstudiante.css';
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZ6-xGZk9S0pQ-RjxTWShR362EGiI_l4TqeXGUt1F_ZjoPfgJe0vD9DGQCV69I9Rh_Bg/exec';
-const DASHBOARD_URL = 'https://docs.google.com/spreadsheets/d/1xMZBNO-msHyZUHAy2GMBuSDgwAlgz_rX0EsFHzREwA4/edit?usp=sharing';
-
 const SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
 
 const FALLBACK_QUESTIONS = [
@@ -77,18 +74,6 @@ const FALLBACK_QUESTIONS = [
   }
 ];
 
-const LEGACY_APPS_SCRIPT_MAP = {
-  topic_mastery: 'topicMastery',
-  explanation_clarity: 'explanationClarity',
-  doubt_resolution: 'doubtResolution',
-  schedule_compliance: 'scheduleCompliance',
-  availability: 'availability',
-  respectful_attitude: 'respectfulAttitude',
-  learning_resources: 'learningResources',
-  perceived_value: 'perceivedValue',
-  recommendation: 'recommendation'
-};
-
 const buildInitialScores = (questions) => {
   const scores = {};
   questions.forEach((question) => {
@@ -99,6 +84,7 @@ const buildInitialScores = (questions) => {
 
 function EvaluacionMonitoriaEstudiante() {
   const role = localStorage.getItem('role');
+  const token = localStorage.getItem('token');
   const academicPeriodOptions = useMemo(() => generateAcademicPeriodOptions(), []);
   const currentAcademicPeriod = useMemo(() => getCurrentAcademicPeriod(), []);
   const [monitoringId, setMonitoringId] = useState('');
@@ -118,6 +104,15 @@ function EvaluacionMonitoriaEstudiante() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [reportFilters, setReportFilters] = useState({
+    semester: currentAcademicPeriod,
+    monitorCode: '',
+    monitoringId: ''
+  });
+  const [reportData, setReportData] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState('');
+  const [exportingReport, setExportingReport] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -193,10 +188,90 @@ function EvaluacionMonitoriaEstudiante() {
     setIsOpen(false);
   };
 
+  const authHeaders = token ? { Authorization: token } : {};
+
   const handleSemesterChange = (event) => {
     setSemester(event.target.value);
     setHasExplicitSemester(true);
   };
+
+  const handleReportFilterChange = (field) => (event) => {
+    setReportFilters((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const buildReportQuery = () => {
+    const params = new URLSearchParams();
+    if (reportFilters.semester) params.set('semester', reportFilters.semester);
+    if (reportFilters.monitorCode.trim()) params.set('monitorCode', reportFilters.monitorCode.trim());
+    if (reportFilters.monitoringId.trim()) params.set('monitoringId', reportFilters.monitoringId.trim());
+    return params.toString();
+  };
+
+  const fetchReport = async () => {
+    if (!token) {
+      setReportError('Debes iniciar sesión para consultar los resultados.');
+      return;
+    }
+
+    setReportLoading(true);
+    setReportError('');
+    try {
+      const query = buildReportQuery();
+      const response = await fetch(
+        `${BACKEND_URL}/monitor-survey/admin/report${query ? `?${query}` : ''}`,
+        { headers: authHeaders }
+      );
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(body.error || 'No se pudo cargar el reporte');
+      }
+      setReportData(body);
+    } catch (error) {
+      setReportError(error.message || 'No se pudo cargar el reporte');
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  const handleExportReport = async () => {
+    if (!token) {
+      showMessage('Debes iniciar sesión para exportar el reporte.');
+      return;
+    }
+
+    setExportingReport(true);
+    try {
+      const query = buildReportQuery();
+      const response = await fetch(
+        `${BACKEND_URL}/monitor-survey/admin/report/csv${query ? `?${query}` : ''}`,
+        { headers: authHeaders }
+      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || 'No se pudo exportar el reporte');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const suffix = reportFilters.semester ? reportFilters.semester : 'todos';
+      link.href = url;
+      link.download = `resultados_monitorias_${suffix}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      showMessage(error.message || 'No se pudo exportar el reporte');
+    } finally {
+      setExportingReport(false);
+    }
+  };
+
+  useEffect(() => {
+    if (role === 'jfedpto') {
+      fetchReport();
+    }
+  }, [role]);
 
   const handleScoreChange = (questionId, value) => {
     setQuestionScores((prev) => ({
@@ -276,11 +351,6 @@ function EvaluacionMonitoriaEstudiante() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (APPS_SCRIPT_URL === 'REPLACE_WITH_APPS_SCRIPT_URL') {
-      showMessage('Falta configurar el URL del Apps Script.');
-      return;
-    }
-
     const validationError = validateForm();
     if (validationError) {
       showMessage(validationError);
@@ -295,27 +365,6 @@ function EvaluacionMonitoriaEstudiante() {
       score: Number(questionScores[String(question.id)])
     }));
 
-    const legacyPayload = {};
-    answers.forEach((answer) => {
-      const legacyKey = LEGACY_APPS_SCRIPT_MAP[answer.questionKey];
-      if (legacyKey) {
-        legacyPayload[legacyKey] = answer.score;
-      }
-    });
-
-    const payload = {
-      semester: semester.trim(),
-      monitoringId: monitoringId.trim(),
-      monitorCode: monitorCode.trim(),
-      monitorName: monitorName.trim(),
-      answers,
-      positiveFeedback,
-      improvementFeedback,
-      averageScore,
-      submittedAt: new Date().toISOString(),
-      ...legacyPayload
-    };
-
     setSaving(true);
     try {
       // Persistencia en backend para habilitar reglas de edición del banco por periodo.
@@ -325,24 +374,15 @@ function EvaluacionMonitoriaEstudiante() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          semester: payload.semester,
-          monitoringId: payload.monitoringId,
-          monitorCode: payload.monitorCode,
-          monitorName: payload.monitorName,
+          semester: semester.trim(),
+          monitoringId: monitoringId.trim(),
+          monitorCode: monitorCode.trim(),
+          monitorName: monitorName.trim(),
           answers: answers.map((item) => ({ questionId: item.questionId, score: item.score })),
-          positiveFeedback: payload.positiveFeedback,
-          improvementFeedback: payload.improvementFeedback,
-          averageScore: Number(payload.averageScore)
+          positiveFeedback,
+          improvementFeedback,
+          averageScore: Number(averageScore)
         })
-      });
-
-      await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
       });
 
       showMessage('Gracias. Tu evaluacion fue registrada.');
@@ -377,6 +417,16 @@ function EvaluacionMonitoriaEstudiante() {
       showMessage('No se pudo copiar el enlace. Copialo manualmente.');
     }
   };
+
+  const formatReportDate = (value) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('es-CO');
+  };
+
+  const reportQuestionStats = reportData?.questionStats || [];
+  const reportResponses = reportData?.responses || [];
 
   return (
     <div className="monitoria-eval-layout">
@@ -647,20 +697,172 @@ function EvaluacionMonitoriaEstudiante() {
 
         {role === 'jfedpto' && (
           <section className="monitoria-dashboard-panel">
-            <h2>Resultados de encuestas</h2>
-            <p>Visualiza los resultados agregados de la monitoria.</p>
-            {DASHBOARD_URL === 'REPLACE_WITH_DASHBOARD_URL' ? (
-              <div className="monitoria-placeholder">
-                <p>Configura el URL del dashboard o Google Sheet para mostrar los resultados.</p>
+            <header className="monitoria-dashboard-header app-page-header">
+              <h2 className="app-page-title">Resultados de encuestas</h2>
+              <p className="app-page-subtitle">Explora el consolidado interno y exporta los datos cuando lo necesites.</p>
+            </header>
+
+            <div className="monitoria-dashboard-grid">
+              <div className="monitoria-report-panel">
+                <h3>Filtros y resumen</h3>
+                <p className="monitoria-report-hint">
+                  Ajusta los filtros para revisar periodos, monitorias o monitores específicos.
+                </p>
+                <div className="monitoria-report-filters">
+                  <label>
+                    Periodo
+                    <select
+                      value={reportFilters.semester}
+                      onChange={handleReportFilterChange('semester')}
+                    >
+                      <option value="">Todos</option>
+                      {academicPeriodOptions.map((period) => (
+                        <option key={period} value={period}>{period}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Codigo de monitoria
+                    <input
+                      type="text"
+                      value={reportFilters.monitoringId}
+                      onChange={handleReportFilterChange('monitoringId')}
+                      placeholder="Ej: 1024"
+                    />
+                  </label>
+                  <label>
+                    Codigo del monitor
+                    <input
+                      type="text"
+                      value={reportFilters.monitorCode}
+                      onChange={handleReportFilterChange('monitorCode')}
+                      placeholder="Ej: M-045"
+                    />
+                  </label>
+                </div>
+                <div className="monitoria-report-actions">
+                  <button
+                    type="button"
+                    className="monitoria-primary"
+                    onClick={fetchReport}
+                    disabled={reportLoading}
+                  >
+                    {reportLoading ? 'Actualizando...' : 'Actualizar'}
+                  </button>
+                  <button
+                    type="button"
+                    className="monitoria-secondary"
+                    onClick={handleExportReport}
+                    disabled={exportingReport || reportLoading}
+                  >
+                    {exportingReport ? 'Exportando...' : 'Exportar CSV'}
+                  </button>
+                </div>
+                {reportError && (
+                  <p className="monitoria-report-error">{reportError}</p>
+                )}
+                <div className="monitoria-report-summary">
+                  <div className="monitoria-summary-card">
+                    <span>Respuestas</span>
+                    <strong>{reportData?.totalResponses ?? 0}</strong>
+                  </div>
+                  <div className="monitoria-summary-card">
+                    <span>Promedio general</span>
+                    <strong>{(reportData?.averageScore ?? 0).toFixed(2)}</strong>
+                  </div>
+                  <div className="monitoria-summary-card">
+                    <span>Respuestas a preguntas</span>
+                    <strong>{reportData?.totalAnswers ?? 0}</strong>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <iframe
-                title="Resultados de monitoria"
-                src={DASHBOARD_URL}
-                className="monitoria-dashboard"
-                loading="lazy"
-              />
-            )}
+
+              <div className="monitoria-dashboard-card">
+                <div className="monitoria-report-section">
+                  <div className="monitoria-report-section-header">
+                    <h3>Resultados por pregunta</h3>
+                    <p>Promedios y dispersion por cada enunciado activo.</p>
+                  </div>
+                  {reportLoading ? (
+                    <div className="monitoria-placeholder">
+                      <p>Cargando resultados...</p>
+                    </div>
+                  ) : reportQuestionStats.length === 0 ? (
+                    <div className="monitoria-placeholder">
+                      <p>No hay respuestas para los filtros seleccionados.</p>
+                    </div>
+                  ) : (
+                    <div className="monitoria-report-table-wrap">
+                      <table className="monitoria-report-table">
+                        <thead>
+                          <tr>
+                            <th>Pregunta</th>
+                            <th>Categoria</th>
+                            <th>Promedio</th>
+                            <th>Respuestas</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportQuestionStats.map((item) => (
+                            <tr key={item.questionId}>
+                              <td>{item.statement}</td>
+                              <td>{item.category}</td>
+                              <td>{Number(item.averageScore || 0).toFixed(2)}</td>
+                              <td>{item.responsesCount}</td>
+                              <td>{item.minScore}</td>
+                              <td>{item.maxScore}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                <div className="monitoria-report-section">
+                  <div className="monitoria-report-section-header">
+                    <h3>Respuestas registradas</h3>
+                    <p>Lista base para seguimiento y auditoria.</p>
+                  </div>
+                  {reportLoading ? (
+                    <div className="monitoria-placeholder">
+                      <p>Cargando respuestas...</p>
+                    </div>
+                  ) : reportResponses.length === 0 ? (
+                    <div className="monitoria-placeholder">
+                      <p>Sin respuestas disponibles.</p>
+                    </div>
+                  ) : (
+                    <div className="monitoria-report-table-wrap">
+                      <table className="monitoria-report-table">
+                        <thead>
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Periodo</th>
+                            <th>Monitoria</th>
+                            <th>Monitor</th>
+                            <th>Promedio</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportResponses.map((item) => (
+                            <tr key={item.responseId}>
+                              <td>{formatReportDate(item.createdAt)}</td>
+                              <td>{item.semester}</td>
+                              <td>{item.monitoringId || '—'}</td>
+                              <td>{item.monitorName || item.monitorCode || '—'}</td>
+                              <td>{Number(item.averageScore || 0).toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
