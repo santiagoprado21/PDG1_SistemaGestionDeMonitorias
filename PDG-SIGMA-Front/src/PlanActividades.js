@@ -225,7 +225,8 @@ function PlanActividades() {
                 recurrence: activity.recurrence || 'NONE',
                 rubricId: activity.rubricId || null,
                 monitoringId: activity.monitoringId || selectedMonitoringId,
-                state: activity.state || 'PENDIENTE'
+                state: activity.state || 'PENDIENTE',
+                progressPercentage: activity.progressPercentage ?? 0
             });
         } else {
             // Nueva actividad - preseleccionar la monitoría actual
@@ -341,6 +342,14 @@ function PlanActividades() {
 
         if (!formData.monitoringId) {
             setMessage('Debe seleccionar una monitoría');
+            setIsOpen(true);
+            return;
+        }
+
+        // HU-01: Validar consistencia estado-progreso en el frontend
+        const progress = formData.progressPercentage ?? 0;
+        if ((formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT') && progress < 100) {
+            setMessage(`El estado "Completado" solo se puede asignar cuando el progreso es 100%. Progreso actual: ${progress}%.`);
             setIsOpen(true);
             return;
         }
@@ -695,7 +704,34 @@ function PlanActividades() {
                                 {/* Estado (solo visible al editar) */}
                                 {editingActivity && (
                                     <div className="form-group">
-                                        <label>Estado</label>
+                                        <label>Progreso actual</label>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            marginBottom: '4px'
+                                        }}>
+                                            <div style={{
+                                                flex: 1,
+                                                height: '12px',
+                                                background: '#e0e0e0',
+                                                borderRadius: '6px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <div style={{
+                                                    width: `${formData.progressPercentage ?? 0}%`,
+                                                    height: '100%',
+                                                    background: (formData.progressPercentage ?? 0) >= 100 ? '#4cb979' : '#5454e9',
+                                                    borderRadius: '6px',
+                                                    transition: 'width 0.3s'
+                                                }} />
+                                            </div>
+                                            <span style={{ fontWeight: '700', minWidth: '40px', color: (formData.progressPercentage ?? 0) >= 100 ? '#4cb979' : '#5454e9' }}>
+                                                {formData.progressPercentage ?? 0}%
+                                            </span>
+                                        </div>
+
+                                        <label style={{ marginTop: '10px' }}>Estado</label>
                                         <select
                                             name="state"
                                             value={formData.state}
@@ -710,13 +746,28 @@ function PlanActividades() {
                                             }}
                                         >
                                             <option value="PENDIENTE">PENDIENTE</option>
-                                            <option value="COMPLETADO">COMPLETADO</option>
-                                            <option value="COMPLETADOT">COMPLETADO TARDE</option>
+                                            <option
+                                                value="COMPLETADO"
+                                                disabled={(formData.progressPercentage ?? 0) < 100}
+                                            >
+                                                COMPLETADO{(formData.progressPercentage ?? 0) < 100 ? ` (requiere 100% de progreso)` : ''}
+                                            </option>
+                                            <option
+                                                value="COMPLETADOT"
+                                                disabled={(formData.progressPercentage ?? 0) < 100}
+                                            >
+                                                COMPLETADO TARDE{(formData.progressPercentage ?? 0) < 100 ? ` (requiere 100% de progreso)` : ''}
+                                            </option>
                                         </select>
                                         <small style={{ display: 'block', marginTop: '8px', color: '#88898c', fontSize: '13px' }}>
-                                            {formData.state === 'PENDIENTE' && 'La actividad esta pendiente de completar'}
+                                            {formData.state === 'PENDIENTE' && 'La actividad está pendiente de completar'}
                                             {formData.state === 'COMPLETADO' && 'La actividad fue completada a tiempo'}
                                             {formData.state === 'COMPLETADOT' && 'La actividad fue completada con retraso'}
+                                            {(formData.progressPercentage ?? 0) < 100 && formData.state === 'PENDIENTE' &&
+                                                <span style={{ display: 'block', color: '#e9683b' }}>
+                                                    El estado Completado solo está disponible cuando el progreso sea 100%
+                                                </span>
+                                            }
                                         </small>
                                     </div>
                                 )}
