@@ -1,33 +1,78 @@
-# Diseño de Pruebas: MonitorController - Obtener Perfil (MonitorProfileTest)
+# Diseño de Pruebas: `MonitorController` - Perfil del Monitor
 
-Este documento detalla los casos de prueba implementados en la clase `MonitorProfileTest` para verificar la funcionalidad del endpoint `/monitor/profile/{id}` en `MonitorController`, responsable de obtener la información del perfil de un Monitor.
+Este documento describe los casos de prueba diseñados para verificar la funcionalidad relacionada con la consulta del perfil de monitor implementada mediante `MonitorController`. Los tests correspondientes se encuentran en la clase `MonitorProfileTest`.
 
-**Objetivo:** Validar que el controlador maneja correctamente las solicitudes para obtener el perfil de un Monitor, interactúa adecuadamente con `MonitorServiceImpl`, y gestiona los casos de éxito y error (ej. monitor no encontrado).
+**Objetivo:**  
+Asegurar que `MonitorController` gestione correctamente la consulta del perfil de un monitor, retornando la información esperada cuando el monitor existe y manejando adecuadamente los errores cuando no existe.
 
-**Alcance:** Pruebas unitarias/de integración ligera del endpoint `/monitor/profile/{id}` utilizando `@WebMvcTest`. Se mockea la dependencia `MonitorServiceImpl` para aislar la prueba al controlador.
+**Alcance:**  
+Pruebas web utilizando `@WebMvcTest` sobre el endpoint principal del controlador `MonitorController`, validando la interacción con `MonitorServiceImpl`.
 
-**Estrategia:** Simular peticiones HTTP GET utilizando `MockMvc`. Configurar el mock de `MonitorServiceImpl` para devolver un `MonitorDTO` o lanzar una excepción según el escenario. Verificar los códigos de estado HTTP y el contenido de las respuestas JSON.
+**Estrategia:**  
+Pruebas de integración web enfocadas en la historia de usuario relacionada con visualización de perfil de monitor, verificando:
+- consulta exitosa del perfil,
+- manejo de errores cuando el monitor no existe,
+- validación de respuestas HTTP y contenido JSON.
 
-## Casos de Prueba (Implementados en `MonitorProfileTest`)
-
-### 1. Obtención de Perfil del Monitor
-
-| ID Caso | Nombre del Test (Método)        | Descripción                                                                      | Precondiciones (Mocks)                                                           | Pasos                                                                                    | Resultado Esperado                                                                                                                             | Estado |
-| :------ | :------------------------------ | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
-| MON-GP-001 | `testProfileMonitorFound`       | Verifica la obtención exitosa de la información del perfil para un ID de monitor válido. | `monitorService.getProfile("123")` devuelve un `MonitorDTO` válido.            | 1. Definir `monitorId`. 2. Configurar Mock del servicio. 3. Realizar petición GET a `/monitor/profile/{id}`. | Status HTTP 200 (OK). Cuerpo JSON contiene los datos esperados del DTO (school, program, rol, name) verificados con `jsonPath`.           | OK     |
-| MON-GP-002 | `testProfileMonitorNotFound`    | Verifica el manejo cuando se solicita el perfil de un ID de monitor que no existe.     | `monitorService.getProfile("999")` lanza `Exception("No existe monitor...")`. | 1. Definir `monitorId` inexistente. 2. Configurar Mock para lanzar excepción. 3. Realizar petición GET. | Status HTTP 404 (Not Found). Cuerpo de la respuesta contiene el mensaje de error exacto devuelto por el servicio (`content().string(...)`). | OK     |
-| MON-GP-003 | N/A                             | Verifica el manejo de un error interno inesperado en el servicio.                  | `monitorService.getProfile(id)` lanza `RuntimeException("Error interno")`.       | 1. Definir `monitorId`. 2. Configurar Mock para lanzar `RuntimeException`. 3. Realizar petición GET.          | Status HTTP 500 (Internal Server Error). Cuerpo de la respuesta contiene un mensaje de error genérico (según el controlador).                  | Pendiente |
-| MON-GP-004 | N/A                             | Verifica el comportamiento con un ID de formato inválido (si aplica validación). | -                                                                                | 1. Definir `monitorId` con formato inválido. 2. Realizar petición GET.                   | Status HTTP 400 (Bad Request) si hay validación de formato en el controlador o Spring.                                                     | Pendiente |
+Las pruebas utilizan `MockMvc`, `Mockito` y aserciones (`status`, `jsonPath`, `content`) para validar el comportamiento esperado del endpoint.
 
 ---
 
-**Notas:**
+# Casos de Prueba
 
-*   Se utiliza `@WebMvcTest(MonitorController.class)` para enfocar el test en el controlador específico.
-*   Se mockea `MonitorServiceImpl` para controlar el comportamiento de la lógica de negocio.
-*   Se verifica el código de estado HTTP (`status().isOk()`, `status().isNotFound()`, etc.).
-*   Se utiliza `jsonPath` para validar la estructura y los valores del cuerpo JSON en el caso exitoso.
-*   Se utiliza `content().string()` para validar el mensaje de error exacto en el caso "Not Found".
-*   Las rutas en `mockMvc.perform` son relativas (`/monitor/profile/{id}`).
+A continuación, se detallan los casos de prueba diseñados e implementados en `MonitorProfileTest`:
 
-Este diseño cubre los escenarios básicos (éxito y no encontrado) para el endpoint de obtención de perfil del Monitor, tal como están implementados en `MonitorProfileTest`.
+---
+
+## 1. Consulta Exitosa del Perfil del Monitor
+
+Estos casos verifican que el sistema retorne correctamente la información del perfil del monitor cuando el ID existe.
+
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| MPT-001 | `testProfileMonitorFound` | Verifica que el endpoint retorne correctamente la información del perfil de un monitor existente. | Existe un monitor válido registrado en el sistema y el servicio retorna un `MonitorDTO` válido. | 1. Configurar mock del servicio `getProfile`. 2. Realizar petición GET a `/monitor/profile/{id}`. 3. Validar respuesta HTTP y contenido JSON. | El sistema debe responder con estado `200 OK` y retornar correctamente los campos `school`, `program`, `rol` y `name`. | OK |
+
+---
+
+## 2. Consulta de Perfil para Monitor Inexistente
+
+Estos casos verifican el manejo de errores cuando se consulta un monitor inexistente.
+
+| ID Caso | Nombre del Test (Método) | Descripción | Precondiciones | Pasos | Resultado Esperado | Estado |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| MPT-002 | `testProfileMonitorNotFound` | Verifica que el sistema retorne error cuando el monitor no existe. | El servicio `getProfile` lanza excepción indicando que el monitor no existe. | 1. Configurar mock del servicio para lanzar excepción. 2. Realizar petición GET a `/monitor/profile/{id}` con un ID inexistente. 3. Validar respuesta HTTP y mensaje retornado. | El sistema debe responder con estado `404 NOT FOUND` y retornar el mensaje `"No existe monitor con este ID"`. | OK |
+
+---
+
+# Configuración de Datos de Prueba
+
+Antes de ejecutar cada caso de prueba:
+
+- Se inicializa `MockMvc` mediante `@WebMvcTest`.
+- Se mockea `MonitorServiceImpl` utilizando `@MockBean`.
+- Se configura autenticación simulada mediante `@WithMockUser`.
+
+Las respuestas del servicio son simuladas utilizando `Mockito.when(...)`.
+
+---
+
+# Dependencias Utilizadas
+
+Las pruebas integran los siguientes componentes:
+
+| Componente | Tipo |
+| :-- | :-- |
+| `MonitorController` | Controlador principal |
+| `MonitorServiceImpl` | Servicio mockeado |
+| `MockMvc` | Framework de pruebas web |
+| `Mockito` | Framework de mocking |
+
+---
+
+# Notas
+
+- Las pruebas utilizan `@WebMvcTest(MonitorController.class)` para cargar únicamente el contexto web necesario.
+- La autenticación se simula mediante `@WithMockUser(roles = "monitor")`.
+- El servicio `MonitorServiceImpl` es mockeado para aislar el comportamiento del controlador.
+- Las validaciones incluyen tanto el estado HTTP como el contenido de la respuesta JSON o texto plano.
+- Los casos implementados validan el flujo funcional de consulta de perfil del monitor.
