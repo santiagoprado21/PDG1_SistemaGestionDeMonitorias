@@ -295,7 +295,7 @@ function VerticalNavbar() {
                   onClick={handleNavItemClick}
                 >
                   <ClipboardCheck {...navIconProps} />
-                  <span className="nav-label">Evaluar supervisor</span>
+                  <span className="nav-label">Evaluar profesor</span>
                 </NavLink>
                 <NavLink
                   to="/mis-actividades"

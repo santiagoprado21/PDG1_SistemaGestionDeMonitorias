@@ -224,7 +224,7 @@ function EvaluarSupervisorHU021() {
     event.preventDefault();
     setSaveFeedback('');
     if (!selectedAssignment) {
-      showMessage('Selecciona una monitoría para evaluar al supervisor.');
+      showMessage('Selecciona una monitoría para evaluar al profesor.');
       return;
     }
     if (selectedAssignment.evaluated) {
@@ -385,7 +385,7 @@ function EvaluarSupervisorHU021() {
       <div className="evaluar-monitores-content">
         <section className="assignments-panel">
           <header className="panel-header">
-            <h2>Evaluación de tu profesor supervisor</h2>
+            <h2>Evaluación de tu profesor</h2>
             <p className="panel-description">
               Califica la supervisión recibida en tus monitorías. La escala es de 1 a 7, donde 1 es "Totalmente en desacuerdo" y 7 "Totalmente de acuerdo". Tu evaluación es confidencial y será revisada por coordinación.
             </p>
@@ -433,13 +433,13 @@ function EvaluarSupervisorHU021() {
           {!selectedAssignment ? (
             <div className="placeholder-panel">
               <h3>Selecciona una monitoría</h3>
-              <p>Elige la monitoría para evaluar la experiencia con tu profesor supervisor.</p>
+              <p>Elige la monitoría para evaluar la experiencia con tu profesor.</p>
             </div>
           ) : (
             <form className="evaluation-form" onSubmit={handleSubmit}>
               <header className="form-header">
                 <div>
-                  <h3>{selectedAssignment.professorName || 'Profesor supervisor'}</h3>
+                  <h3>{selectedAssignment.professorName || 'Profesor'}</h3>
                   {selectedAssignment.monitoringName && !isDuplicateCourseLabel(selectedAssignment.monitoringName, selectedAssignment.courseName, selectedAssignmentPeriod) && (
                     <p>{selectedAssignment.monitoringName}</p>
                   )}
