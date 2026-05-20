@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
 
     private static final int MIN_SCORE = 1;
     private static final int MAX_SCORE = 5;
+    private static final int EDIT_WINDOW_YEARS = 1;
 
     @Autowired
     private MonitorEvaluationRepository monitorEvaluationRepository;
@@ -100,6 +102,8 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
         if (evaluation.getProfessor() == null || !evaluation.getProfessor().getId().equals(professorId)) {
             throw new Exception("No está autorizado para editar esta evaluación");
         }
+
+        ensureEditable(evaluation);
 
         boolean visible = request.getVisibleToMonitor() == null ? evaluation.isVisibleToMonitor() : request.getVisibleToMonitor();
         evaluation.setVisibleToMonitor(visible);
@@ -288,6 +292,17 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
     private void ensureOwnership(Monitoring monitoring, String professorId) throws Exception {
         if (monitoring.getProfessor() == null || !professorId.equals(monitoring.getProfessor().getId())) {
             throw new Exception("La monitoría no pertenece al profesor indicado");
+        }
+    }
+
+    private void ensureEditable(MonitorEvaluation evaluation) throws Exception {
+        LocalDateTime createdAt = evaluation.getCreatedAt();
+        if (createdAt == null) {
+            return;
+        }
+        LocalDateTime limit = LocalDateTime.now().minusYears(EDIT_WINDOW_YEARS);
+        if (createdAt.isBefore(limit)) {
+            throw new Exception("No se permite editar evaluaciones con antigüedad mayor a 1 año");
         }
     }
 
