@@ -225,7 +225,8 @@ function PlanActividades() {
                 recurrence: activity.recurrence || 'NONE',
                 rubricId: activity.rubricId || null,
                 monitoringId: activity.monitoringId || selectedMonitoringId,
-                state: activity.state || 'PENDIENTE'
+                state: activity.state || 'PENDIENTE',
+                progressPercentage: activity.progressPercentage ?? 0
             });
         } else {
             // Nueva actividad - preseleccionar la monitoría actual
@@ -345,8 +346,23 @@ function PlanActividades() {
             return;
         }
 
+        // HU-01: Validar consistencia estado-progreso en el frontend
+        const progress = formData.progressPercentage ?? 0;
+        if ((formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT') && progress < 100) {
+            setMessage(`El estado "Completado" solo se puede asignar cuando el progreso es 100%. Progreso actual: ${progress}%.`);
+            setIsOpen(true);
+            return;
+        }
+
         const selectedMonitoring = monitorings.find(m => m.id.toString() === formData.monitoringId.toString());
         
+        // HU-03: Bloquear creación si la monitoría está cerrada
+        if (!editingActivity && selectedMonitoring?.approvalStatus === 'CERRADA') {
+            setMessage('No se pueden crear actividades en una monitoría cerrada.');
+            setIsOpen(true);
+            return;
+        }
+
         console.log('Monitoría seleccionada:', selectedMonitoring);
 
         const activityDTO = {
@@ -519,14 +535,35 @@ function PlanActividades() {
                     </div>
                 )}
 
+                {/* HU-03: Banner de monitoría cerrada */}
+                {(() => {
+                    const selMon = monitorings.find(m => m.id.toString() === selectedMonitoringId.toString());
+                    return selMon?.approvalStatus === 'CERRADA' ? (
+                        <div className="warning-banner" style={{ borderLeft: '4px solid #e9683b', background: '#fff3f0' }}>
+                            <span className="warning-icon"><AlertTriangle {...iconProps} /></span>
+                            <div className="warning-text">
+                                <strong>Monitoría cerrada</strong>
+                                <p>Esta monitoría está cerrada. No es posible crear nuevas actividades.</p>
+                            </div>
+                        </div>
+                    ) : null;
+                })()}
+
                 <div className="plan-actions">
-                    <button 
-                        className="btn-primary plan-add-activity-btn" 
-                        onClick={() => handleOpenModal()}
-                        disabled={!selectedMonitoringId || monitorings.length === 0}
-                    >
-                        <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Actividad
-                    </button>
+                    {(() => {
+                        const selMon = monitorings.find(m => m.id.toString() === selectedMonitoringId.toString());
+                        const isClosed = selMon?.approvalStatus === 'CERRADA';
+                        return (
+                            <button 
+                                className="btn-primary plan-add-activity-btn" 
+                                onClick={() => handleOpenModal()}
+                                disabled={!selectedMonitoringId || monitorings.length === 0 || isClosed}
+                                title={isClosed ? 'No se pueden agregar actividades a una monitoría cerrada' : ''}
+                            >
+                                <Plus {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Agregar Actividad
+                            </button>
+                        );
+                    })()}
                     <button 
                         className="btn-secondary" 
                         onClick={() => navigate('/gestion-rubricas')}
@@ -537,6 +574,7 @@ function PlanActividades() {
                         <ArrowLeft {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Volver
                     </button>
                 </div>
+
 
                 <div className="activities-list">
                     {isLoadingMonitorings ? (
@@ -695,7 +733,34 @@ function PlanActividades() {
                                 {/* Estado (solo visible al editar) */}
                                 {editingActivity && (
                                     <div className="form-group">
-                                        <label>Estado</label>
+                                        <label>Progreso actual</label>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            marginBottom: '4px'
+                                        }}>
+                                            <div style={{
+                                                flex: 1,
+                                                height: '12px',
+                                                background: '#e0e0e0',
+                                                borderRadius: '6px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <div style={{
+                                                    width: `${formData.progressPercentage ?? 0}%`,
+                                                    height: '100%',
+                                                    background: (formData.progressPercentage ?? 0) >= 100 ? '#4cb979' : '#5454e9',
+                                                    borderRadius: '6px',
+                                                    transition: 'width 0.3s'
+                                                }} />
+                                            </div>
+                                            <span style={{ fontWeight: '700', minWidth: '40px', color: (formData.progressPercentage ?? 0) >= 100 ? '#4cb979' : '#5454e9' }}>
+                                                {formData.progressPercentage ?? 0}%
+                                            </span>
+                                        </div>
+
+                                        <label style={{ marginTop: '10px' }}>Estado</label>
                                         <select
                                             name="state"
                                             value={formData.state}
@@ -710,13 +775,28 @@ function PlanActividades() {
                                             }}
                                         >
                                             <option value="PENDIENTE">PENDIENTE</option>
-                                            <option value="COMPLETADO">COMPLETADO</option>
-                                            <option value="COMPLETADOT">COMPLETADO TARDE</option>
+                                            <option
+                                                value="COMPLETADO"
+                                                disabled={(formData.progressPercentage ?? 0) < 100}
+                                            >
+                                                COMPLETADO{(formData.progressPercentage ?? 0) < 100 ? ` (requiere 100% de progreso)` : ''}
+                                            </option>
+                                            <option
+                                                value="COMPLETADOT"
+                                                disabled={(formData.progressPercentage ?? 0) < 100}
+                                            >
+                                                COMPLETADO TARDE{(formData.progressPercentage ?? 0) < 100 ? ` (requiere 100% de progreso)` : ''}
+                                            </option>
                                         </select>
                                         <small style={{ display: 'block', marginTop: '8px', color: '#88898c', fontSize: '13px' }}>
-                                            {formData.state === 'PENDIENTE' && 'La actividad esta pendiente de completar'}
+                                            {formData.state === 'PENDIENTE' && 'La actividad está pendiente de completar'}
                                             {formData.state === 'COMPLETADO' && 'La actividad fue completada a tiempo'}
                                             {formData.state === 'COMPLETADOT' && 'La actividad fue completada con retraso'}
+                                            {(formData.progressPercentage ?? 0) < 100 && formData.state === 'PENDIENTE' &&
+                                                <span style={{ display: 'block', color: '#e9683b' }}>
+                                                    El estado Completado solo está disponible cuando el progreso sea 100%
+                                                </span>
+                                            }
                                         </small>
                                     </div>
                                 )}

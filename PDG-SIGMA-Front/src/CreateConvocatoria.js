@@ -127,6 +127,18 @@ function CreateConvocatoria() {
         }
     };
 
+    // HU-02: Calcula el rango de fechas permitido según el semestre académico
+    const getPeriodDateRange = (sem) => {
+        if (!sem) return { min: '', max: '' };
+        const [year, half] = sem.split('-');
+        if (half === '1') {
+            return { min: `${year}-02-01`, max: `${year}-06-30` };
+        }
+        return { min: `${year}-07-01`, max: `${year}-11-30` };
+    };
+
+    const periodRange = getPeriodDateRange(semester);
+
     const handleCreateConvocatoria = async (e) => {
         e.preventDefault();
         
@@ -138,6 +150,36 @@ function CreateConvocatoria() {
 
         if (justification.length < 50) {
             setMessage("La justificación debe tener al menos 50 caracteres");
+            setIsOpen(true);
+            return;
+        }
+
+        // HU-02: Validar notas mínimas
+        if (parseFloat(requiredAverageGrade) < 4.0) {
+            setMessage("El promedio requerido debe ser mínimo 4.0");
+            setIsOpen(true);
+            return;
+        }
+        if (parseFloat(requiredCourseGrade) < 4.0) {
+            setMessage("La nota del curso requerida debe ser mínimo 4.0");
+            setIsOpen(true);
+            return;
+        }
+
+        // HU-02: Validar fechas dentro del período académico
+        const { min: periodMin, max: periodMax } = getPeriodDateRange(semester);
+        if (periodMin && startDate < periodMin) {
+            setMessage(`La fecha de inicio debe ser igual o posterior al inicio del período académico (${periodMin}).`);
+            setIsOpen(true);
+            return;
+        }
+        if (periodMax && finishDate > periodMax) {
+            setMessage(`La fecha de fin debe ser igual o anterior al fin del período académico (${periodMax}).`);
+            setIsOpen(true);
+            return;
+        }
+        if (startDate > finishDate) {
+            setMessage("La fecha de inicio no puede ser posterior a la fecha de fin.");
             setIsOpen(true);
             return;
         }
@@ -339,15 +381,18 @@ function CreateConvocatoria() {
                             </div>
 
                             <div className="form-group">
-                                <label>Valor por Hora *</label>
+                                <label>Valor por Hora</label>
                                 <input 
                                     type="number" 
                                     value={hourlyRate}
-                                    onChange={(e) => setHourlyRate(e.target.value)}
-                                    min="1000"
-                                    step="1000"
-                                    required
+                                    readOnly
+                                    disabled
+                                    style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed', color: '#88898c' }}
+                                    title="El valor por hora es determinado por la institución"
                                 />
+                                <small style={{ color: '#88898c', fontSize: '12px' }}>
+                                    Valor institucional fijo: ${parseInt(hourlyRate).toLocaleString('es-CO')}
+                                </small>
                             </div>
                         </div>
 
@@ -358,8 +403,15 @@ function CreateConvocatoria() {
                                     type="date" 
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
+                                    min={periodRange.min}
+                                    max={periodRange.max}
                                     required
                                 />
+                                {periodRange.min && (
+                                    <small style={{ color: '#88898c', fontSize: '12px' }}>
+                                        Rango permitido: {periodRange.min} — {periodRange.max}
+                                    </small>
+                                )}
                             </div>
 
                             <div className="form-group">
@@ -368,6 +420,8 @@ function CreateConvocatoria() {
                                     type="date" 
                                     value={finishDate}
                                     onChange={(e) => setFinishDate(e.target.value)}
+                                    min={startDate || periodRange.min}
+                                    max={periodRange.max}
                                     required
                                 />
                             </div>
@@ -375,29 +429,35 @@ function CreateConvocatoria() {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Promedio Requerido *</label>
+                                <label>Promedio Requerido * <small style={{ color: '#e9683b' }}>(mín. 4.0)</small></label>
                                 <input 
                                     type="number" 
                                     value={requiredAverageGrade}
                                     onChange={(e) => setRequiredAverageGrade(e.target.value)}
-                                    min="0"
+                                    min="4.0"
                                     max="5"
                                     step="0.1"
                                     required
                                 />
+                                {parseFloat(requiredAverageGrade) < 4.0 && (
+                                    <small style={{ color: '#e9683b' }}>El promedio mínimo es 4.0</small>
+                                )}
                             </div>
 
                             <div className="form-group">
-                                <label>Nota Curso Requerida *</label>
+                                <label>Nota Curso Requerida * <small style={{ color: '#e9683b' }}>(mín. 4.0)</small></label>
                                 <input 
                                     type="number" 
                                     value={requiredCourseGrade}
                                     onChange={(e) => setRequiredCourseGrade(e.target.value)}
-                                    min="0"
+                                    min="4.0"
                                     max="5"
                                     step="0.1"
                                     required
                                 />
+                                {parseFloat(requiredCourseGrade) < 4.0 && (
+                                    <small style={{ color: '#e9683b' }}>La nota mínima es 4.0</small>
+                                )}
                             </div>
                         </div>
 

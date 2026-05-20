@@ -69,5 +69,8 @@ public class ActivityScheduleDTO {
     // Información adicional de la rúbrica (solo para lectura)
     private String rubricName;
     private Integer rubricTotalPoints;
+
+    // HU-01: Progreso de la actividad (solo lectura)
+    private Integer progressPercentage;
 }
 

@@ -66,6 +66,11 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
         Monitoring monitoring = monitoringRepository.findById(Long.valueOf(dto.getMonitoringId()))
                 .orElseThrow(() -> new Exception("Monitoría no encontrada"));
 
+        // HU-03: Bloquear creación de actividades en monitorías cerradas
+        if (dto.getId() == null && monitoring.isClosed()) {
+            throw new Exception("No se pueden crear actividades en una monitoría cerrada.");
+        }
+
         Professor professor = null;
         if (dto.getProfessorId() != null) {
             professor = professorRepository.findById(dto.getProfessorId())
@@ -90,7 +95,22 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
             // Actualizar
             activity = activityRepository.findById(dto.getId())
                     .orElseThrow(() -> new Exception("Actividad no encontrada"));
-            
+
+            StateActivity newState = StateActivity.valueOf(dto.getState());
+
+            // HU-01: Validar consistencia entre estado y progreso
+            int currentProgress = activity.getProgressPercentage() != null ? activity.getProgressPercentage() : 0;
+            if ((newState == StateActivity.COMPLETADO || newState == StateActivity.COMPLETADOT)
+                    && currentProgress < 100) {
+                throw new Exception(
+                    "No se puede marcar la actividad como Completada porque el progreso es solo " +
+                    currentProgress + "%. El progreso debe ser 100% para este estado.");
+            }
+            // Si el progreso ya es 100% y el estado sigue en PENDIENTE, corregirlo automáticamente
+            if (newState == StateActivity.PENDIENTE && currentProgress == 100) {
+                newState = StateActivity.COMPLETADO;
+            }
+
             activity.setName(dto.getName());
             activity.setDescription(dto.getDescription());
             activity.setCategory(dto.getCategory());
@@ -98,7 +118,7 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
             activity.setMonitoring(monitoring);
             activity.setProfessor(professor);
             activity.setMonitor(monitor);
-            activity.setState(StateActivity.valueOf(dto.getState()));
+            activity.setState(newState);
             activity.setSemester(dto.getSemester());
             activity.setDelivey(dto.getDelivey());
             activity.setEdited(new Date());
@@ -322,6 +342,9 @@ public class ActivityScheduleServiceImpl implements ActivityScheduleService {
             dto.setRubricName(activity.getRubric().getName());
             dto.setRubricTotalPoints(activity.getRubric().getTotalPoints());
         }
+
+        // HU-01: Progreso de la actividad
+        dto.setProgressPercentage(activity.getProgressPercentage() != null ? activity.getProgressPercentage() : 0);
 
         return dto;
     }

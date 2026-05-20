@@ -108,7 +108,18 @@ public class MonitoringRequestServiceImpl implements MonitoringRequestService {
         if (dto.getStartDate().after(dto.getFinishDate())) {
             throw new Exception("La fecha de inicio debe ser anterior a la fecha de fin");
         }
-        
+
+        // HU-02: Validar notas mínimas
+        if (dto.getRequiredAverageGrade() != null && dto.getRequiredAverageGrade() < 4.0) {
+            throw new Exception("El promedio requerido debe ser mínimo 4.0");
+        }
+        if (dto.getRequiredCourseGrade() != null && dto.getRequiredCourseGrade() < 4.0) {
+            throw new Exception("La nota del curso requerida debe ser mínimo 4.0");
+        }
+
+        // HU-02: Validar fechas dentro del período académico
+        validateDatesWithinSemester(dto.getSemester(), dto.getStartDate(), dto.getFinishDate());
+
         // 6. Crear la convocatoria
         MonitoringRequest request = new MonitoringRequest(
                 professor, course, school, program,
@@ -550,6 +561,47 @@ public class MonitoringRequestServiceImpl implements MonitoringRequestService {
         
         System.out.println("Convocatoria " + requestId + " modificada y aprobada por jefe " + departmentHeadId);
         return saved;
+    }
+
+    /**
+     * HU-02: Valida que las fechas de la convocatoria estén dentro del rango del período académico.
+     * Período 1 (YYYY-1): 1 feb – 30 jun.  Período 2 (YYYY-2): 1 jul – 30 nov.
+     */
+    private void validateDatesWithinSemester(String semester, java.util.Date startDate, java.util.Date finishDate) throws Exception {
+        if (semester == null || startDate == null || finishDate == null) return;
+        String[] parts = semester.split("-");
+        if (parts.length != 2) return;
+        int year, half;
+        try {
+            year = Integer.parseInt(parts[0]);
+            half = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            return;
+        }
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        java.util.Date periodStart, periodEnd;
+
+        if (half == 1) {
+            cal.set(year, java.util.Calendar.FEBRUARY, 1, 0, 0, 0);
+            cal.set(java.util.Calendar.MILLISECOND, 0);
+            periodStart = cal.getTime();
+            cal.set(year, java.util.Calendar.JUNE, 30, 23, 59, 59);
+            periodEnd = cal.getTime();
+        } else {
+            cal.set(year, java.util.Calendar.JULY, 1, 0, 0, 0);
+            cal.set(java.util.Calendar.MILLISECOND, 0);
+            periodStart = cal.getTime();
+            cal.set(year, java.util.Calendar.NOVEMBER, 30, 23, 59, 59);
+            periodEnd = cal.getTime();
+        }
+
+        if (startDate.before(periodStart)) {
+            throw new Exception("La fecha de inicio debe ser igual o posterior al inicio del período académico (" + semester + " inicia el " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(periodStart) + ")");
+        }
+        if (finishDate.after(periodEnd)) {
+            throw new Exception("La fecha de fin debe ser igual o anterior al fin del período académico (" + semester + " termina el " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(periodEnd) + ")");
+        }
     }
 }
 

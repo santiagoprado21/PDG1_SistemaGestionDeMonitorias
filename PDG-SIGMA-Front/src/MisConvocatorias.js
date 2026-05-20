@@ -15,15 +15,19 @@ function MisConvocatorias() {
         strokeLinejoin: 'miter'
     };
 
+    // Estados activos que se muestran por defecto en la vista principal
+    const ACTIVE_STATUSES = ['PENDIENTE_APROBACION_JEFE', 'CONVOCATORIA_ABIERTA', 'MONITOR_SELECCIONADO'];
+
     const navigate = useNavigate();
     const [myConvocatorias, setMyConvocatorias] = useState([]);
     const [filteredConvocatorias, setFilteredConvocatorias] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 8;
+    const [recordsPerPage, setRecordsPerPage] = useState(8);
     
-    // Filtros
-    const [filterStatus, setFilterStatus] = useState("Todos");
+    // Filtros — por defecto muestra solo convocatorias activas
+    const [filterStatus, setFilterStatus] = useState("ACTIVAS");
     const [filterCourse, setFilterCourse] = useState("Todos");
+    const [filterSemester, setFilterSemester] = useState("Todos");
     
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState("");
@@ -37,7 +41,7 @@ function MisConvocatorias() {
     
     useEffect(() => {
         applyFilters();
-    }, [myConvocatorias, filterStatus, filterCourse]);
+    }, [myConvocatorias, filterStatus, filterCourse, filterSemester]);
 
     const loadMyConvocatorias = async () => {
         setIsLoading(true);
@@ -69,8 +73,10 @@ function MisConvocatorias() {
     const applyFilters = () => {
         let filtered = [...myConvocatorias];
 
-        // Filtro por estado
-        if (filterStatus !== "Todos") {
+        // Filtro por estado — "ACTIVAS" agrupa los estados relevantes para el profesor
+        if (filterStatus === "ACTIVAS") {
+            filtered = filtered.filter(conv => ACTIVE_STATUSES.includes(conv.status));
+        } else if (filterStatus !== "Todos") {
             filtered = filtered.filter(conv => conv.status === filterStatus);
         }
 
@@ -79,8 +85,13 @@ function MisConvocatorias() {
             filtered = filtered.filter(conv => conv.courseName === filterCourse);
         }
 
+        // Filtro por semestre
+        if (filterSemester !== "Todos") {
+            filtered = filtered.filter(conv => conv.semester === filterSemester);
+        }
+
         setFilteredConvocatorias(filtered);
-        setCurrentPage(1); // Resetear a página 1 al filtrar
+        setCurrentPage(1);
     };
 
     const handleClose = () => {
@@ -89,7 +100,11 @@ function MisConvocatorias() {
 
     // Opciones únicas para filtros
     const uniqueCourses = ["Todos", ...new Set(myConvocatorias.map(c => c.courseName).filter(Boolean))];
-    const uniqueStatuses = ["Todos", ...new Set(myConvocatorias.map(c => c.status).filter(Boolean))];
+    const uniqueStatuses = ["ACTIVAS", "Todos", ...new Set(myConvocatorias.map(c => c.status).filter(Boolean))];
+    const uniqueSemesters = ["Todos", ...new Set(myConvocatorias.map(c => c.semester).filter(Boolean)).values()].sort().reverse();
+
+    // Conteo de activas para informar al usuario
+    const activeCount = myConvocatorias.filter(c => ACTIVE_STATUSES.includes(c.status)).length;
 
     // Paginación
     const indexOfLastRecord = currentPage * recordsPerPage;
@@ -159,12 +174,12 @@ function MisConvocatorias() {
 
                 <div className="create-monitoria-content">
                     {/* Sección de filtros */}
-                    <div className="filters-section-aprobar-hu010" style={{ marginBottom: '20px' }}>
+                    <div className="filters-section-aprobar-hu010" style={{ marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                         <div className="filter-group">
                             <label>Estado:</label>
                             <select 
                                 value={filterStatus} 
-                                onChange={(e) => setFilterStatus(e.target.value)}
+                                onChange={(e) => { setFilterStatus(e.target.value); }}
                                 style={{
                                     padding: '8px 12px',
                                     border: '2px solid #cecfd4',
@@ -176,8 +191,27 @@ function MisConvocatorias() {
                             >
                                 {uniqueStatuses.map((status, idx) => (
                                     <option key={idx} value={status}>
-                                        {status === "Todos" ? "Todos" : getStatusLabel(status)}
+                                        {status === "Todos" ? "Todas" : status === "ACTIVAS" ? `Activas (${activeCount})` : getStatusLabel(status)}
                                     </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filter-group">
+                            <label>Semestre:</label>
+                            <select 
+                                value={filterSemester} 
+                                onChange={(e) => setFilterSemester(e.target.value)}
+                                style={{
+                                    padding: '8px 12px',
+                                    border: '2px solid #cecfd4',
+                                    borderRadius: '0',
+                                    fontSize: '1rem',
+                                    cursor: 'pointer',
+                                    minWidth: '140px'
+                                }}
+                            >
+                                {uniqueSemesters.map((sem, idx) => (
+                                    <option key={idx} value={sem}>{sem}</option>
                                 ))}
                             </select>
                         </div>
@@ -200,8 +234,25 @@ function MisConvocatorias() {
                                 ))}
                             </select>
                         </div>
+                        <div className="filter-group">
+                            <label>Por página:</label>
+                            <select
+                                value={recordsPerPage}
+                                onChange={(e) => { setRecordsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                                style={{
+                                    padding: '8px 12px',
+                                    border: '2px solid #cecfd4',
+                                    borderRadius: '0',
+                                    fontSize: '1rem',
+                                    cursor: 'pointer',
+                                    minWidth: '80px'
+                                }}
+                            >
+                                {[5, 8, 10, 20].map(n => <option key={n} value={n}>{n}</option>)}
+                            </select>
+                        </div>
                         <div className="filter-stats">
-                            <span>Mostrando: {filteredConvocatorias.length} de {myConvocatorias.length}</span>
+                            <span>Mostrando: <strong>{filteredConvocatorias.length}</strong> de {myConvocatorias.length}</span>
                         </div>
                     </div>
 

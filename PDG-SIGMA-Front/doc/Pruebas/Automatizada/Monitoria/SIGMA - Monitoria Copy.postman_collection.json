@@ -1,299 +1,1153 @@
-{
-	"info": {
-		"_postman_id": "321c4801-b510-4d0d-9449-3c0efc8b5d3e",
-		"name": "SIGMA - Monitoria Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "45256902",
-		"_collection_link": "https://danielaolarte-2797333.postman.co/workspace/Daniela-Olarte's-Workspace~eb753441-ac85-4180-89c3-2a0aad0fb14b/collection/45256902-321c4801-b510-4d0d-9449-3c0efc8b5d3e?action=share&source=collection_link&creator=45256902"
-	},
-	"item": [
-		{
-			"name": "Get_Monitorias",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"Consulta exitosa (Status 200)\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						]
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODM2NzM1OCwiZXhwIjoxNzQ4NDUzNzU4fQ.QD8QxOuORExTkLiYSZwOTdxF6qRi0RJ3F-w_MrAk0Go"
-					}
-				],
-				"url": {
-					"raw": "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/getA",
-					"protocol": "https",
-					"host": [
-						"sigma-backend-d9dednhzhyeug2h7",
-						"eastus-01",
-						"azurewebsites",
-						"net"
-					],
-					"path": [
-						"monitoring",
-						"getA"
-					]
-				},
-				"description": "Generated from cURL: curl -X GET https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net//monitoring/getA \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODM2NzM1OCwiZXhwIjoxNzQ4NDUzNzU4fQ.QD8QxOuORExTkLiYSZwOTdxF6qRi0RJ3F-w_MrAk0Go\"\n"
-			},
-			"response": []
-		},
-		{
-			"name": "Create_Monitoria_Not_Success",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Debe fallar con status 400 o 403\", function () {",
-							"    pm.expect(pm.response.code).to.be.oneOf([400, 403]);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"programName\": \"\",               // Vacío, no permitido\n    \"courseName\": \"123\",            // Nombre inválido o muy corto\n    \"schoolName\": \"NoExiste\",       // Escuela que no existe en el sistema\n    \"start\": \"2025-06-20\",\n    \"finish\": \"2025-06-10\",         // Fecha fin antes de fecha inicio (inválido)\n    \"professorId\": \"abcde\",         // Id inválido (debería ser numérico)\n    \"semester\": \"2024-99\"           // Semestre inválido o inexistente\n}"
-				},
-				"url": {
-					"raw": "{{baseUrl}}/monitoring/create",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"monitoring",
-						"create"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Find_Monitoria_By_Faculty",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"Consulta de facultades exitosa (Status 200)\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						]
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/school/getSchools",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"school",
-						"getSchools"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete_Monitoria_By_Id_Not_Success",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"No debe permitir eliminar monitoria asociada (Status 403)\", function () {",
-							"    pm.response.to.have.status(403);",
-							"});"
-						]
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{token}}"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/monitoring/deleteMonitoring/15",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"monitoring",
-						"deleteMonitoring",
-						"15"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create_Monitoria_Sucess",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							" m.test(\"Creación exitosa (Status 200)\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODM2NzM1OCwiZXhwIjoxNzQ4NDUzNzU4fQ.QD8QxOuORExTkLiYSZwOTdxF6qRi0RJ3F-w_MrAk0Go"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"programName\": \"Ciencia Política\",\n    \"courseName\": \"Análisis Político I\",\n    \"schoolName\": \"Ciencias Humanas\",\n    \"start\": \"2025-06-02\",\n    \"finish\": \"2025-06-31\",\n    \"professorId\": \"1234567\",\n    \"semester\": \"2025-2\"\n  }",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/create",
-					"protocol": "https",
-					"host": [
-						"sigma-backend-d9dednhzhyeug2h7",
-						"eastus-01",
-						"azurewebsites",
-						"net"
-					],
-					"path": [
-						"monitoring",
-						"create"
-					]
-				},
-				"description": "Generated from cURL: curl -X POST 'https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/create' \\\n  -H 'Content-Type: application/json' \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODM2NzM1OCwiZXhwIjoxNzQ4NDUzNzU4fQ.QD8QxOuORExTkLiYSZwOTdxF6qRi0RJ3F-w_MrAk0Go' \\\n  --data-raw '{\n    \"programName\": \"Ciencia Política\",\n    \"courseName\": \"Análisis Político II\",\n    \"schoolName\": \"Ciencias Humanas\",\n    \"start\": \"2025-06-01\",\n    \"finish\": \"2025-06-30\",\n    \"professorId\": \"1234567\",\n    \"semester\": \"2025-2\"\n  }'\n"
-			},
-			"response": []
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMTE0OCwiZXhwIjoxNzQ4Mzg3NTQ4fQ.JgB1bylJ5m_x0caNyHrS0guaxya2UM43QhELBTEs9xI",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI",
-			"type": "string"
-		}
-	]
+﻿{
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "type":  "string",
+                         "value":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net"
+                     },
+                     {
+                         "key":  "token",
+                         "type":  "string",
+                         "value":  "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI"
+                     }
+                 ],
+    "event":  [
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  ""
+                                              ],
+                                     "packages":  {
+
+                                                  },
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "prerequest"
+                  },
+                  {
+                      "script":  {
+                                     "exec":  [
+                                                  ""
+                                              ],
+                                     "packages":  {
+
+                                                  },
+                                     "type":  "text/javascript"
+                                 },
+                      "listen":  "test"
+                  }
+              ],
+    "info":  {
+                 "_collection_link":  "https://danielaolarte-2797333.postman.co/workspace/Daniela-Olarte\u0027s-Workspace~eb753441-ac85-4180-89c3-2a0aad0fb14b/collection/45256902-321c4801-b510-4d0d-9449-3c0efc8b5d3e?action=share\u0026source=collection_link\u0026creator=45256902",
+                 "name":  "SIGMA - Monitoria Copy",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "_postman_id":  "321c4801-b510-4d0d-9449-3c0efc8b5d3e",
+                 "_exporter_id":  "45256902"
+             },
+    "item":  [
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/getA",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "getA"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Get_Monitorias",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Consulta exitosa (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"programName\": \"\",\n    \"courseName\": \"123\",\n    \"schoolName\": \"NoExiste\",\n    \"start\": \"2025-06-20\",\n    \"finish\": \"2025-06-10\",\n    \"professorId\": \"abcde\",\n    \"semester\": \"2024-99\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/create",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "create"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Create_Monitoria_Not_Success",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Debe fallar con status 400 o 403\", function () {",
+                                                                   "    pm.expect(pm.response.code).to.be.oneOf([400, 403]);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/school/getSchools",
+                                                 "path":  [
+                                                              "",
+                                                              "school",
+                                                              "getSchools"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Find_Monitoria_By_Faculty",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Consulta de facultades exitosa (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "DELETE",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/deleteMonitoring/15",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "deleteMonitoring",
+                                                              "15"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Delete_Monitoria_By_Id_Not_Success",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"No debe permitir eliminar monitoria asociada (Status 403)\", function () {",
+                                                                   "    pm.response.to.have.status(403);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"programName\": \"Ciencia PolÃ­tica\",\n    \"courseName\": \"AnÃ¡lisis PolÃ­tico I\",\n    \"schoolName\": \"Ciencias Humanas\",\n    \"start\": \"2025-06-02\",\n    \"finish\": \"2025-06-31\",\n    \"professorId\": \"1234567\",\n    \"semester\": \"2025-2\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/create",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "create"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Create_Monitoria_Success",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Creaci\\u00f3n exitosa (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"userId\": \"PROF001\",\n    \"password\": \"pass123\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/auth/login",
+                                                 "path":  [
+                                                              "",
+                                                              "auth",
+                                                              "login"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Login_Professor",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Login exitoso (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "    var jsonData = pm.response.json();",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027role\u0027);",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027token\u0027);",
+                                                                   "    pm.environment.set(\u0027authToken\u0027, jsonData.token);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/professor/profile/1234567",
+                                                 "path":  [
+                                                              "",
+                                                              "professor",
+                                                              "profile",
+                                                              "1234567"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Profile_Professor",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Perfil de profesor consultado (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "    var jsonData = pm.response.json();",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027name\u0027);",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027school\u0027);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/profile/1234567",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "profile",
+                                                              "1234567"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Profile_Monitorings",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Monitorias del perfil consultadas (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"comment\": \"Cierre de prueba automatizada\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring-closure/27/close?directorId=5001",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring-closure",
+                                                              "27",
+                                                              "close?directorId=5001"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Cerrar_Monitoria_Success",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Cierre de monitor\\u00eda exitoso\", function () {",
+                                                                   "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                                                                   "    var jsonData = pm.response.json();",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027compliancePercentage\u0027);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/evaluations/PROF-1",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "evaluations",
+                                                              "PROF-1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Evaluar_Monitores_List",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Lista de evaluaciones consultada (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/supervisor-evaluations/MON-10",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "supervisor-evaluations",
+                                                              "MON-10"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Evaluar_Supervisor_Assignments",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Asignaciones de supervisor consultadas (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitor-application/monitor/MON-001",
+                                                 "path":  [
+                                                              "",
+                                                              "monitor-application",
+                                                              "monitor",
+                                                              "MON-001"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Mis_Postulaciones",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Postulaciones consultadas (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/chat/conversations/prof-P1__mon-M1",
+                                                 "path":  [
+                                                              "",
+                                                              "chat",
+                                                              "conversations",
+                                                              "prof-P1__mon-M1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Chat_Conversations",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Conversaciones de chat consultadas (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/chat/messages/prof-P1__mon-M1",
+                                                 "path":  [
+                                                              "",
+                                                              "chat",
+                                                              "messages",
+                                                              "prof-P1__mon-M1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Chat_Messages",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Mensajes de chat consultados (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"conversationId\": \"prof-P1__mon-M1\",\n    \"senderId\": \"P1\",\n    \"senderRole\": \"professor\",\n    \"receiverId\": \"M1\",\n    \"activityId\": 88,\n    \"message\": \"Mensaje de prueba automatizada\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/chat/messages",
+                                                 "path":  [
+                                                              "",
+                                                              "chat",
+                                                              "messages"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Chat_Send_Message",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Mensaje enviado exitosamente (Status 201)\", function () {",
+                                                                   "    pm.response.to.have.status(201);",
+                                                                   "    var jsonData = pm.response.json();",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027id\u0027);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring-request/open",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring-request",
+                                                              "open"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Convocatorias_Abiertas",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Convocatorias abiertas consultadas (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "body":  {
+                                                  "raw":  "{\n    \"monitoringRequestId\": 7,\n    \"monitorId\": \"MON-001\",\n    \"motivationLetter\": \"Me apasiona la matemÃ¡tica y quiero compartir ese conocimiento.\",\n    \"semester\": \"2026-1\"\n}",
+                                                  "options":  {
+                                                                  "raw":  {
+                                                                              "language":  "json"
+                                                                          }
+                                                              },
+                                                  "mode":  "raw"
+                                              },
+                                     "method":  "POST",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitor-application/create",
+                                                 "path":  [
+                                                              "",
+                                                              "monitor-application",
+                                                              "create"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Postularse_Monitoria",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Postulaci\\u00f3n creada (Status 201)\", function () {",
+                                                                   "    pm.response.to.have.status(201);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/simon/preview?semester=2026-1",
+                                                 "path":  [
+                                                              "",
+                                                              "simon",
+                                                              "preview?semester=2026-1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Simon_Preview",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Preview SIMON consultado (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "    var jsonData = pm.response.json();",
+                                                                   "    pm.expect(jsonData).to.have.property(\u0027canGenerate\u0027);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/getMonitorsReport/COOR-1",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "getMonitorsReport",
+                                                              "COOR-1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Reportes_Monitores",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Reporte de monitores consultado (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "request":  {
+                                     "method":  "GET",
+                                     "url":  {
+                                                 "host":  [
+                                                              "sigma-backend-d9dednhzhyeug2h7",
+                                                              "eastus-01",
+                                                              "azurewebsites",
+                                                              "net"
+                                                          ],
+                                                 "protocol":  "https",
+                                                 "raw":  "https://sigma-backend-d9dednhzhyeug2h7.eastus-01.azurewebsites.net/monitoring/getProfessorReport/COOR-1",
+                                                 "path":  [
+                                                              "",
+                                                              "monitoring",
+                                                              "getProfessorReport",
+                                                              "COOR-1"
+                                                          ]
+                                             },
+                                     "header":  [
+                                                    {
+                                                        "key":  "Content-Type",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Accept",
+                                                        "value":  "application/json"
+                                                    },
+                                                    {
+                                                        "key":  "Authorization",
+                                                        "value":  "Bearer {{token}}"
+                                                    }
+                                                ]
+                                 },
+                     "name":  "Reportes_Profesores",
+                     "event":  [
+                                   {
+                                       "script":  {
+                                                      "exec":  [
+                                                                   "pm.test(\"Reporte de profesores consultado (Status 200)\", function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});"
+                                                               ],
+                                                      "type":  "text/javascript"
+                                                  },
+                                       "listen":  "test"
+                                   }
+                               ],
+                     "response":  [
+
+                                  ]
+                 }
+             ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoicHJvZmVzc29yIiwic3ViIjoiMTIzNDU2NyIsImlhdCI6MTc0ODMwMjcwMiwiZXhwIjoxNzQ4Mzg5MTAyfQ.zg-NiG9vT_HCVSTk0qeQS7MwOdCLEaV5aefh7YJRFOI"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
 }
