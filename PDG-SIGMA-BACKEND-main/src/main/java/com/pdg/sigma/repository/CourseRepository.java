@@ -12,6 +12,7 @@ import com.pdg.sigma.domain.Program;
 @Repository
 public interface CourseRepository extends JpaRepository<Course,Long> {
     public Optional<Course> findByName(String name);
+    public Optional<Course> findByNameIgnoreCaseAndProgram(String name, Program program);
 
     public List<Course> findByProgram(Program program);
     public List<Course> findByProgramId(Long programId);
