@@ -114,11 +114,33 @@ class SupervisorEvaluationServiceTest {
     }
 
     @Test
-    void createEvaluation_rejectsScoreOutOfRange() {
+    void createEvaluation_rejectsScoreOutOfRange() throws Exception {
         SupervisorEvaluationRequest request = new SupervisorEvaluationRequest();
         request.setMonitoringId(25L);
         request.setMonitorIdentifier("MON-10");
         request.setGuidanceClarity(8);
+
+        Professor professor = new Professor();
+        professor.setId("PROF-1");
+        professor.setName("Professor One");
+
+        Monitoring monitoring = new Monitoring();
+        monitoring.setId(25L);
+        monitoring.setProfessor(professor);
+        monitoring.setSemester("2025-2");
+
+        Monitor monitor = new Monitor();
+        monitor.setCode("MON-10");
+        monitor.setIdMonitor("10010");
+        monitor.setName("Ana");
+        monitor.setLastName("Diaz");
+
+        monitoring.setAssignedMonitor(monitor);
+
+        when(monitoringRepository.findById(25L)).thenReturn(Optional.of(monitoring));
+        when(monitorRepository.findById("MON-10")).thenReturn(Optional.of(monitor));
+        when(supervisorEvaluationRepository.findByMonitoringIdAndMonitorCode(25L, "MON-10")).thenReturn(Optional.empty());
+        when(monitoringMonitorRepository.findByMonitoringIdAndMonitorCode(25L, "MON-10")).thenReturn(Optional.empty());
 
         Exception error = assertThrows(Exception.class, () -> supervisorEvaluationService.createEvaluation("MON-10", request));
         assertNotNull(error.getMessage());
