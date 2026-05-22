@@ -1,0 +1,9 @@
+FACULTAD,PROGRAMA,CURSO,FECHA INICIO,FECHA FINALIZACION,PERIODO,PROMEDIO ACUMULADO,PROMEDIO MATERIA,HORAS ESTIMADAS,VALOR HORA
+Facultad de Ingeniería,Ingeniería de Sistemas,Programación I,01-02-2026,30-06-2026,2026-1,4.0,4.0,80,15000
+Facultad de Ingeniería,Ingeniería de Sistemas,Bases de Datos,01-02-2026,30-06-2026,2026-1,4.0,3.8,80,15000
+Facultad de Ingeniería,Ingeniería Industrial,Estadística,01-02-2026,30-06-2026,2026-1,4.0,4.0,60,15000
+Facultad de Ingeniería,Ingeniería Electrónica,Circuitos Eléctricos,01-02-2026,30-06-2026,2026-1,4.0,4.0,80,15000
+Facultad de Ciencias,Matemáticas,Cálculo Diferencial,01-02-2026,30-06-2026,2026-1,4.0,4.0,80,15000
+Facultad de Ciencias,Física,Física Mecánica,01-02-2026,30-06-2026,2026-1,4.0,4.0,80,15000
+Facultad de Humanidades,Psicología,Psicología General,01-02-2026,30-06-2026,2026-1,4.0,4.0,60,15000
+Facultad de Humanidades,Psicología,Psicología Social,01-02-2026,30-06-2026,2026-1,4.0,4.0,60,15000
