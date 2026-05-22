@@ -20,6 +20,38 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const EDIT_WINDOW_YEARS = 1;
+
+const isEditWindowExpired = (value) => {
+  if (!value) {
+    return false;
+  }
+  const evaluatedAt = new Date(value);
+  if (Number.isNaN(evaluatedAt.getTime())) {
+    return false;
+  }
+  const limit = new Date();
+  limit.setFullYear(limit.getFullYear() - EDIT_WINDOW_YEARS);
+  return evaluatedAt < limit;
+};
+
+const normalizeCourseLabel = (value) => (value || '')
+  .toLowerCase()
+  .replace(/[·:\-–—|]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const isDuplicateCourseLabel = (monitoringName, courseName, semester) => {
+  if (!monitoringName) {
+    return false;
+  }
+  const courseLine = [courseName, semester].filter(Boolean).join(' ');
+  if (!courseLine) {
+    return false;
+  }
+  return normalizeCourseLabel(monitoringName) === normalizeCourseLabel(courseLine);
+};
+
 function EvaluarMonitoresHU015() {
   const professorId = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
@@ -129,7 +161,17 @@ function EvaluarMonitoresHU015() {
     }));
   };
 
+  const editBlocked = useMemo(() => {
+    if (!selectedAssignment || !selectedAssignment.evaluated) {
+      return false;
+    }
+    return isEditWindowExpired(selectedAssignment.evaluatedAt);
+  }, [selectedAssignment]);
+
   const handleScoreKeyDown = (event, field, currentValue) => {
+    if (saving || editBlocked) {
+      return;
+    }
     const currentIndex = SCORE_OPTIONS.indexOf(Number(currentValue));
     if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
       event.preventDefault();
@@ -185,6 +227,10 @@ function EvaluarMonitoresHU015() {
       showMessage('Selecciona una monitoría para evaluar.');
       return;
     }
+    if (editBlocked) {
+      showMessage('Esta evaluación tiene más de un año de antigüedad y no puede modificarse.');
+      return;
+    }
     const payload = {
       professorId,
       monitoringId: selectedAssignment.monitoringId,
@@ -232,6 +278,7 @@ function EvaluarMonitoresHU015() {
   const renderAssignmentItem = (assignment) => {
     const isSelected = selectedAssignment && selectedAssignment.monitoringId === assignment.monitoringId && selectedAssignment.monitorCode === assignment.monitorCode;
     const badgeClass = PERFORMANCE_CLASSES[assignment.performanceLevel] || 'badge-adecuado';
+    const hasDuplicateCourse = isDuplicateCourseLabel(assignment.monitoringName, assignment.courseName, assignment.semester);
     return (
       <button
         key={`${assignment.monitoringId}-${assignment.monitorCode}`}
@@ -244,7 +291,9 @@ function EvaluarMonitoresHU015() {
             {assignment.evaluated ? PERFORMANCE_LABELS[assignment.performanceLevel] || 'Evaluado' : 'Pendiente'}
           </span>
         </div>
-        <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        {!hasDuplicateCourse && (
+          <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        )}
         <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {assignment.semester || 'Periodo sin registrar'}</p>
         {assignment.evaluated && (
           <div className="assignment-score">
@@ -320,7 +369,9 @@ function EvaluarMonitoresHU015() {
               <header className="form-header">
                 <div>
                   <h3>{selectedAssignment.monitorFullName}</h3>
-                  <p>{selectedAssignment.monitoringName}</p>
+                  {selectedAssignment.monitoringName && !isDuplicateCourseLabel(selectedAssignment.monitoringName, selectedAssignment.courseName, selectedAssignment.semester) && (
+                    <p>{selectedAssignment.monitoringName}</p>
+                  )}
                   <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignment.semester}</span>
                 </div>
                 <div className={`impact-badge ${PERFORMANCE_CLASSES[performanceLevel]}`}>
@@ -340,7 +391,7 @@ function EvaluarMonitoresHU015() {
                         className={`score-chip ${formValues.taskCompliance === option ? 'is-selected' : ''}`}
                         onClick={() => updateScore('taskCompliance', option)}
                         onKeyDown={(event) => handleScoreKeyDown(event, 'taskCompliance', formValues.taskCompliance)}
-                        disabled={saving}
+                        disabled={saving || editBlocked}
                         role="radio"
                         tabIndex={formValues.taskCompliance === option ? 0 : -1}
                         aria-checked={formValues.taskCompliance === option}
@@ -366,7 +417,7 @@ function EvaluarMonitoresHU015() {
                         className={`score-chip ${formValues.timelyCommunication === option ? 'is-selected' : ''}`}
                         onClick={() => updateScore('timelyCommunication', option)}
                         onKeyDown={(event) => handleScoreKeyDown(event, 'timelyCommunication', formValues.timelyCommunication)}
-                        disabled={saving}
+                        disabled={saving || editBlocked}
                         role="radio"
                         tabIndex={formValues.timelyCommunication === option ? 0 : -1}
                         aria-checked={formValues.timelyCommunication === option}
@@ -392,7 +443,7 @@ function EvaluarMonitoresHU015() {
                         className={`score-chip ${formValues.planFulfillment === option ? 'is-selected' : ''}`}
                         onClick={() => updateScore('planFulfillment', option)}
                         onKeyDown={(event) => handleScoreKeyDown(event, 'planFulfillment', formValues.planFulfillment)}
-                        disabled={saving}
+                        disabled={saving || editBlocked}
                         role="radio"
                         tabIndex={formValues.planFulfillment === option ? 0 : -1}
                         aria-checked={formValues.planFulfillment === option}
@@ -418,7 +469,7 @@ function EvaluarMonitoresHU015() {
                         className={`score-chip ${formValues.attitude === option ? 'is-selected' : ''}`}
                         onClick={() => updateScore('attitude', option)}
                         onKeyDown={(event) => handleScoreKeyDown(event, 'attitude', formValues.attitude)}
-                        disabled={saving}
+                        disabled={saving || editBlocked}
                         role="radio"
                         tabIndex={formValues.attitude === option ? 0 : -1}
                         aria-checked={formValues.attitude === option}
@@ -441,6 +492,7 @@ function EvaluarMonitoresHU015() {
                   value={formValues.comments}
                   onChange={(event) => setFormValues((prev) => ({ ...prev, comments: event.target.value }))}
                   placeholder="Comparte retroalimentación específica que apoye el crecimiento del monitor."
+                  disabled={saving || editBlocked}
                 />
               </label>
 
@@ -450,6 +502,7 @@ function EvaluarMonitoresHU015() {
                     type="checkbox"
                     checked={visibleToMonitor}
                     onChange={(event) => setVisibleToMonitor(event.target.checked)}
+                    disabled={saving || editBlocked}
                   />
                   Mostrar esta evaluación al monitor 
                 </label>
@@ -458,7 +511,13 @@ function EvaluarMonitoresHU015() {
                 )}
               </div>
 
-              <button type="submit" className="submit-button" disabled={saving}>
+              {editBlocked && (
+                <div className="edit-lock-alert" role="alert">
+                  Esta evaluación tiene más de un año de antigüedad y no puede modificarse.
+                </div>
+              )}
+
+              <button type="submit" className="submit-button" disabled={saving || editBlocked}>
                 {saving ? 'Guardando…' : selectedAssignment.evaluated ? 'Actualizar evaluación' : 'Guardar evaluación'}
               </button>
             </form>

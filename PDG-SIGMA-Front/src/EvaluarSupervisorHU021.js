@@ -28,6 +28,23 @@ const PERFORMANCE_CLASSES = {
   EN_RIESGO: 'badge-riesgo'
 };
 
+const normalizeCourseLabel = (value) => (value || '')
+  .toLowerCase()
+  .replace(/[·:\-–—|]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const isDuplicateCourseLabel = (monitoringName, courseName, semester) => {
+  if (!monitoringName) {
+    return false;
+  }
+  const courseLine = [courseName, semester].filter(Boolean).join(' ');
+  if (!courseLine) {
+    return false;
+  }
+  return normalizeCourseLabel(monitoringName) === normalizeCourseLabel(courseLine);
+};
+
 const buildDefaultScores = (questions) => {
   const defaults = {};
   questions.forEach((question) => {
@@ -200,13 +217,14 @@ function EvaluarSupervisorHU021() {
     return 'EN_RIESGO';
   }, [formattedAverage]);
 
-  const selectedAssignmentPeriod = normalizeValidPeriod(selectedAssignment?.semester) || 'Periodo sin registrar';
+  const selectedAssignmentPeriod = normalizeValidPeriod(selectedAssignment?.semester);
+  const selectedAssignmentPeriodLabel = selectedAssignmentPeriod || 'Periodo sin registrar';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSaveFeedback('');
     if (!selectedAssignment) {
-      showMessage('Selecciona una monitoría para evaluar al supervisor.');
+      showMessage('Selecciona una monitoría para evaluar al profesor.');
       return;
     }
     if (selectedAssignment.evaluated) {
@@ -268,6 +286,7 @@ function EvaluarSupervisorHU021() {
   const renderAssignmentItem = (assignment) => {
     const isSelected = selectedAssignment && selectedAssignment.monitoringId === assignment.monitoringId;
     const period = normalizeValidPeriod(assignment.semester);
+    const hasDuplicateCourse = isDuplicateCourseLabel(assignment.monitoringName, assignment.courseName, period);
 
     return (
       <button
@@ -281,7 +300,9 @@ function EvaluarSupervisorHU021() {
             {assignment.status || (assignment.evaluated ? 'Enviada' : 'Pendiente')}
           </span>
         </div>
-        <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        {!hasDuplicateCourse && (
+          <p className="assignment-subtitle">{assignment.monitoringName || 'Monitoría sin nombre'}</p>
+        )}
         <p className="assignment-meta">{assignment.courseName || 'Curso no asignado'} · {period || 'Periodo sin registrar'}</p>
         {assignment.evaluated && assignment.submittedAt && (
           <div className="assignment-score">
@@ -364,7 +385,7 @@ function EvaluarSupervisorHU021() {
       <div className="evaluar-monitores-content">
         <section className="assignments-panel">
           <header className="panel-header">
-            <h2>Evaluación de tu profesor supervisor</h2>
+            <h2>Evaluación de tu profesor</h2>
             <p className="panel-description">
               Califica la supervisión recibida en tus monitorías. La escala es de 1 a 7, donde 1 es "Totalmente en desacuerdo" y 7 "Totalmente de acuerdo". Tu evaluación es confidencial y será revisada por coordinación.
             </p>
@@ -412,15 +433,17 @@ function EvaluarSupervisorHU021() {
           {!selectedAssignment ? (
             <div className="placeholder-panel">
               <h3>Selecciona una monitoría</h3>
-              <p>Elige la monitoría para evaluar la experiencia con tu profesor supervisor.</p>
+              <p>Elige la monitoría para evaluar la experiencia con tu profesor.</p>
             </div>
           ) : (
             <form className="evaluation-form" onSubmit={handleSubmit}>
               <header className="form-header">
                 <div>
-                  <h3>{selectedAssignment.professorName || 'Profesor supervisor'}</h3>
-                  <p>{selectedAssignment.monitoringName}</p>
-                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignmentPeriod}</span>
+                  <h3>{selectedAssignment.professorName || 'Profesor'}</h3>
+                  {selectedAssignment.monitoringName && !isDuplicateCourseLabel(selectedAssignment.monitoringName, selectedAssignment.courseName, selectedAssignmentPeriod) && (
+                    <p>{selectedAssignment.monitoringName}</p>
+                  )}
+                  <span className="form-meta">{selectedAssignment.courseName} · {selectedAssignmentPeriodLabel}</span>
                 </div>
                 <div className={`impact-badge ${PERFORMANCE_CLASSES[performanceLevel]}`}>
                   <span>{PERFORMANCE_LABELS[performanceLevel]}</span>

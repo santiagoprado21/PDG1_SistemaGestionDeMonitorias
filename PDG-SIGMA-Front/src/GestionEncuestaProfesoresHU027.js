@@ -28,6 +28,7 @@ function GestionEncuestaProfesoresHU027() {
   const [questions, setQuestions] = useState([]);
   const [templateQuestionIds, setTemplateQuestionIds] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [currentConfig, setCurrentConfig] = useState({ semester: '', questions: [] });
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [expandedTemplateIds, setExpandedTemplateIds] = useState([]);
 
@@ -50,6 +51,15 @@ function GestionEncuestaProfesoresHU027() {
   const authHeaders = {
     'Content-Type': 'application/json',
     Authorization: token
+  };
+
+  const buildQuestionSignature = (items) => {
+    return (Array.isArray(items) ? items : [])
+      .slice()
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+      .map((question) => question.id)
+      .filter((id) => id !== null && id !== undefined)
+      .join('|');
   };
 
   const loadAll = async (semesterParam) => {
@@ -82,6 +92,10 @@ function GestionEncuestaProfesoresHU027() {
       setTemplates(normalizedTemplates);
 
       const effectiveSemester = normalizeValidPeriod(semesterParam) || normalizeValidPeriod(configBody.semester);
+      setCurrentConfig({
+        semester: effectiveSemester,
+        questions: Array.isArray(configBody.questions) ? configBody.questions : []
+      });
       if (effectiveSemester && academicPeriodOptions.includes(effectiveSemester)) {
         setSemester(effectiveSemester);
         setTemplateForm((prev) =>
@@ -140,6 +154,22 @@ function GestionEncuestaProfesoresHU027() {
       setTemplatePeriodFilter('');
     }
   }, [templatePeriodFilter, templatePeriodOptions]);
+
+  const activeTemplateId = useMemo(() => {
+    const activeSignature = buildQuestionSignature(currentConfig?.questions);
+    if (!activeSignature) return null;
+
+    const activePeriod = normalizeValidPeriod(currentConfig?.semester || semester);
+    const matchingTemplate = templates.find((template) => {
+      const templatePeriod = normalizeValidPeriod(template.createdForSemester);
+      if (activePeriod && templatePeriod && templatePeriod !== activePeriod) {
+        return false;
+      }
+      return buildQuestionSignature(template.questions) === activeSignature;
+    });
+
+    return matchingTemplate ? matchingTemplate.id : null;
+  }, [currentConfig, templates, semester]);
 
   const getTemplateQuestionIds = (template) => {
     return (template.questions || [])
@@ -604,11 +634,17 @@ function GestionEncuestaProfesoresHU027() {
                     const questionItems = (template.questions || [])
                       .slice()
                       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+                    const isActiveTemplate = template.id === activeTemplateId;
 
                     return (
                       <article key={template.id}>
                         <div className="hu027-template-main">
-                          <strong>{template.name}</strong>
+                          <div className="hu027-template-title-row">
+                            <strong>{template.name}</strong>
+                            <span className={`hu027-template-badge ${isActiveTemplate ? 'active' : 'inactive'}`}>
+                              {isActiveTemplate ? 'Activa' : 'Inactiva'}
+                            </span>
+                          </div>
                           <p>{template.description || 'Sin descripción'}</p>
                           <small>
                             Periodo de creación: {template.createdForSemester || 'No definido'} | {template.questions?.length || 0} preguntas

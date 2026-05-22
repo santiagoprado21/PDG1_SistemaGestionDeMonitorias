@@ -6,7 +6,6 @@ import CreateActivity from './CreateActivity';
 import Profile from './Profile';
 import Reports from './Reports';
 import GenerateSimonFile from './GenerateSimonFile';
-import { useEffect } from "react";
 import NotificationSettings from './NotificationSettings';
 import EvaluarMonitoresHU015 from './EvaluarMonitoresHU015';
 import EvaluarSupervisorHU021 from './EvaluarSupervisorHU021';
@@ -43,12 +42,6 @@ import MisPostulaciones from './MisPostulaciones';
 function App() {
   // Hook para obtener la ruta actual
   const location = useLocation();
-  
-  useEffect(() => {
-      return () => {
-          localStorage.clear(); // Se borra el localStorage al desmontar el frontend
-      };
-    }, []);
   return (
     <div className="App">
       <Routes>
@@ -73,7 +66,7 @@ function App() {
          {/* HU-015: Evaluación de monitores */}
          <Route path="/evaluar-monitores" element={<EvaluarMonitoresHU015 />} />
          <Route path="/mis-evaluaciones" element={<MisEvaluacionesHU015 />} />
-         {/* HU-021: Evaluación de supervisor */}
+         {/* HU-021: Evaluación de profesor */}
          <Route path="/evaluar-supervisor" element={<EvaluarSupervisorHU021 />} />
 
          {/* HU-022: Evaluacion experiencia con monitores */}

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,9 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
 
     @Autowired
     private MonitorSurveyResponseAnswerRepository responseAnswerRepository;
+
+    @Autowired
+    private MonitorSurveyIntegrationConfigRepository integrationConfigRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -363,6 +367,120 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public MonitorSurveyIntegrationConfigDTO getIntegrationConfig() {
+        MonitorSurveyIntegrationConfig config = integrationConfigRepository
+                .findFirstByOrderByUpdatedAtDesc()
+                .orElse(null);
+        return toIntegrationConfigDTO(config);
+    }
+
+    @Override
+    @Transactional
+    public MonitorSurveyIntegrationConfigDTO saveIntegrationConfig(MonitorSurveyIntegrationConfigRequest request) throws Exception {
+        MonitorSurveyIntegrationConfig config = integrationConfigRepository
+                .findFirstByOrderByUpdatedAtDesc()
+                .orElseGet(MonitorSurveyIntegrationConfig::new);
+
+        config.setAppsScriptUrl(trimToNull(request.getAppsScriptUrl()));
+        config.setDashboardUrl(trimToNull(request.getDashboardUrl()));
+
+        MonitorSurveyIntegrationConfig saved = integrationConfigRepository.save(config);
+        return toIntegrationConfigDTO(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MonitorSurveyReportDTO getSurveyReport(String semester, String monitorCode, String monitoringId) {
+        ReportData reportData = loadReportData(semester, monitorCode, monitoringId);
+        MonitorSurveyReportDTO dto = new MonitorSurveyReportDTO();
+        dto.setSemester(reportData.semester);
+
+        List<MonitorSurveyResponse> responses = reportData.responses;
+        dto.setTotalResponses(responses.size());
+        dto.setAverageScore(responses.stream()
+                .map(MonitorSurveyResponse::getAverageScore)
+                .filter(Objects::nonNull)
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0));
+
+        List<MonitorSurveyResponseSummaryDTO> responseSummaries = responses.stream()
+                .map(this::toResponseSummary)
+                .collect(Collectors.toList());
+        dto.setResponses(responseSummaries);
+
+        List<MonitorSurveyResponseAnswer> answers = reportData.answers;
+        dto.setTotalAnswers(answers.size());
+
+        Map<Long, List<MonitorSurveyResponseAnswer>> byQuestion = answers.stream()
+                .filter(answer -> answer.getQuestion() != null)
+                .collect(Collectors.groupingBy(answer -> answer.getQuestion().getId()));
+
+        List<MonitorSurveyQuestionStatsDTO> stats = new ArrayList<>();
+        for (Map.Entry<Long, List<MonitorSurveyResponseAnswer>> entry : byQuestion.entrySet()) {
+            List<MonitorSurveyResponseAnswer> questionAnswers = entry.getValue();
+            if (questionAnswers.isEmpty() || questionAnswers.get(0).getQuestion() == null) {
+                continue;
+            }
+            MonitorSurveyQuestion question = questionAnswers.get(0).getQuestion();
+            DoubleSummaryStatistics summary = questionAnswers.stream()
+                    .mapToDouble(MonitorSurveyResponseAnswer::getScore)
+                    .summaryStatistics();
+
+            MonitorSurveyQuestionStatsDTO stat = new MonitorSurveyQuestionStatsDTO();
+            stat.setQuestionId(question.getId());
+            stat.setQuestionKey(question.getQuestionKey());
+            stat.setStatement(question.getStatement());
+            stat.setCategory(question.getCategory());
+            stat.setResponsesCount((int) summary.getCount());
+            stat.setAverageScore(summary.getAverage());
+            stat.setMinScore((int) summary.getMin());
+            stat.setMaxScore((int) summary.getMax());
+            stats.add(stat);
+        }
+
+        stats.sort(Comparator
+                .comparing(MonitorSurveyQuestionStatsDTO::getCategory, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+                .thenComparing(MonitorSurveyQuestionStatsDTO::getStatement, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+        dto.setQuestionStats(stats);
+
+        return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String exportSurveyReportCsv(String semester, String monitorCode, String monitoringId) {
+        ReportData reportData = loadReportData(semester, monitorCode, monitoringId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("response_id,created_at,semester,monitoring_id,monitor_code,monitor_name,average_score,question_id,question_key,question_category,question_statement,score,positive_feedback,improvement_feedback\n");
+
+        for (MonitorSurveyResponseAnswer answer : reportData.answers) {
+            MonitorSurveyResponse response = answer.getResponse();
+            MonitorSurveyQuestion question = answer.getQuestion();
+
+            csv.append(escapeCsv(asString(response != null ? response.getId() : null))).append(',');
+            csv.append(escapeCsv(response != null && response.getCreatedAt() != null ? formatter.format(response.getCreatedAt()) : null)).append(',');
+            csv.append(escapeCsv(response != null ? response.getSemester() : null)).append(',');
+            csv.append(escapeCsv(response != null ? response.getMonitoringId() : null)).append(',');
+            csv.append(escapeCsv(response != null ? response.getMonitorCode() : null)).append(',');
+            csv.append(escapeCsv(response != null ? response.getMonitorName() : null)).append(',');
+            csv.append(escapeCsv(response != null ? asString(response.getAverageScore()) : null)).append(',');
+            csv.append(escapeCsv(question != null ? asString(question.getId()) : null)).append(',');
+            csv.append(escapeCsv(question != null ? question.getQuestionKey() : null)).append(',');
+            csv.append(escapeCsv(question != null ? question.getCategory() : null)).append(',');
+            csv.append(escapeCsv(question != null ? question.getStatement() : null)).append(',');
+            csv.append(escapeCsv(asString(answer.getScore()))).append(',');
+            csv.append(escapeCsv(response != null ? response.getPositiveFeedback() : null)).append(',');
+            csv.append(escapeCsv(response != null ? response.getImprovementFeedback() : null)).append('\n');
+        }
+
+        return csv.toString();
+    }
+
     private Optional<MonitorSurveySemesterConfig> resolveConfig(String semester) {
         if (semester != null && !semester.isBlank()) {
             return semesterConfigRepository.findBySemester(semester.trim());
@@ -435,6 +553,71 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
         return dto;
     }
 
+    private MonitorSurveyIntegrationConfigDTO toIntegrationConfigDTO(MonitorSurveyIntegrationConfig config) {
+        MonitorSurveyIntegrationConfigDTO dto = new MonitorSurveyIntegrationConfigDTO();
+        if (config == null) {
+            dto.setAppsScriptUrl(null);
+            dto.setDashboardUrl(null);
+            return dto;
+        }
+        dto.setAppsScriptUrl(config.getAppsScriptUrl());
+        dto.setDashboardUrl(config.getDashboardUrl());
+        return dto;
+    }
+
+    private MonitorSurveyResponseSummaryDTO toResponseSummary(MonitorSurveyResponse response) {
+        MonitorSurveyResponseSummaryDTO dto = new MonitorSurveyResponseSummaryDTO();
+        dto.setResponseId(response.getId());
+        dto.setSemester(response.getSemester());
+        dto.setMonitoringId(response.getMonitoringId());
+        dto.setMonitorCode(response.getMonitorCode());
+        dto.setMonitorName(response.getMonitorName());
+        dto.setAverageScore(response.getAverageScore());
+        dto.setPositiveFeedback(response.getPositiveFeedback());
+        dto.setImprovementFeedback(response.getImprovementFeedback());
+        dto.setCreatedAt(response.getCreatedAt());
+        return dto;
+    }
+
+    private ReportData loadReportData(String semester, String monitorCode, String monitoringId) {
+        String normalizedSemester = trimToNull(semester);
+        String normalizedMonitorCode = trimToNull(monitorCode);
+        String normalizedMonitoringId = trimToNull(monitoringId);
+
+        List<MonitorSurveyResponse> responses = responseRepository
+                .findByFilters(normalizedSemester, normalizedMonitorCode, normalizedMonitoringId);
+        if (responses.isEmpty()) {
+            return new ReportData(normalizedSemester, Collections.emptyList(), Collections.emptyList());
+        }
+
+        List<Long> responseIds = responses.stream()
+                .map(MonitorSurveyResponse::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (responseIds.isEmpty()) {
+            return new ReportData(normalizedSemester, responses, Collections.emptyList());
+        }
+
+        List<MonitorSurveyResponseAnswer> answers = responseAnswerRepository.findByResponseIdInWithDetails(responseIds);
+        return new ReportData(normalizedSemester, responses, answers);
+    }
+
+    private String escapeCsv(String value) {
+        if (value == null) {
+            return "";
+        }
+        String escaped = value.replace("\"", "\"\"");
+        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n") || escaped.contains("\r")) {
+            return "\"" + escaped + "\"";
+        }
+        return escaped;
+    }
+
+    private String asString(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
     private String normalizeRequired(String value, String errorMessage) throws Exception {
         String normalized = trimToNull(value);
         if (normalized == null) {
@@ -495,5 +678,17 @@ public class MonitorSurveyServiceImpl implements MonitorSurveyService {
                 .replaceAll("[^a-z0-9]+", "_");
 
         return normalized.isBlank() ? "item" : normalized;
+    }
+
+    private static class ReportData {
+        private final String semester;
+        private final List<MonitorSurveyResponse> responses;
+        private final List<MonitorSurveyResponseAnswer> answers;
+
+        private ReportData(String semester, List<MonitorSurveyResponse> responses, List<MonitorSurveyResponseAnswer> answers) {
+            this.semester = semester;
+            this.responses = responses;
+            this.answers = answers;
+        }
     }
 }

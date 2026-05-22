@@ -30,6 +30,15 @@
   gap: var(--space-5);
 }
 
+.monitoria-dashboard-panel {
+  grid-column: 1 / -1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  gap: var(--space-6);
+}
+
 .evaluacion-container {
   width: 100%;
   max-width: 940px;
@@ -248,6 +257,161 @@
   margin: 0;
 }
 
+.monitoria-dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.monitoria-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.monitoria-dashboard-card {
+  background: var(--blanco);
+  border: 1px solid var(--gris-2);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.monitoria-report-panel {
+  border: 1px solid var(--gris-2);
+  background-color: var(--blanco);
+  padding: var(--space-5);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.monitoria-report-panel h3 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  color: var(--color-text-primary);
+}
+
+.monitoria-report-hint {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.monitoria-report-filters {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.monitoria-report-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.monitoria-report-filters input,
+.monitoria-report-filters select {
+  border: 1px solid var(--gris-2);
+  border-radius: 0;
+  padding: var(--space-3);
+  background-color: var(--blanco);
+  font-size: var(--fs-body);
+}
+
+.monitoria-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.monitoria-report-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.85rem;
+}
+
+.monitoria-report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+
+.monitoria-summary-card {
+  background-color: #f7f8fb;
+  border: 1px solid var(--gris-2);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.monitoria-summary-card span {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.monitoria-summary-card strong {
+  font-size: 1.2rem;
+  color: var(--color-text-primary);
+}
+
+.monitoria-report-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.monitoria-report-section-header h3 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  color: var(--color-text-primary);
+}
+
+.monitoria-report-section-header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.monitoria-report-table-wrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid var(--gris-2);
+}
+
+.monitoria-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.monitoria-report-table th,
+.monitoria-report-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--gris-2);
+}
+
+.monitoria-report-table th {
+  background-color: #f1f3f8;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.monitoria-report-table tbody tr:hover {
+  background-color: #fafbff;
+}
+
 .monitoria-share-box {
   display: flex;
   gap: var(--space-3);
@@ -275,18 +439,16 @@
   color: var(--color-text-secondary);
 }
 
-.monitoria-dashboard {
-  width: 100%;
-  min-height: 520px;
-  border: 1px solid var(--color-border);
-  border-radius: 0;
-}
-
 .monitoria-placeholder {
   padding: var(--space-5);
   border-radius: 0;
   background-color: var(--color-bg-alt);
   color: var(--color-text-secondary);
+}
+
+.monitoria-dashboard-card .monitoria-placeholder {
+  padding: 0;
+  background: transparent;
 }
 
 .monitoria-loading {
@@ -295,6 +457,10 @@
 
 @media (max-width: 1200px) {
   .monitoria-eval-content {
+    grid-template-columns: 1fr;
+  }
+
+  .monitoria-dashboard-grid {
     grid-template-columns: 1fr;
   }
 }

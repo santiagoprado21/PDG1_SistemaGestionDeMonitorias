@@ -242,6 +242,47 @@ class MonitorEvaluationServiceTest {
     }
 
     @Test
+    void updateEvaluation_rejectsWhenOlderThanOneYear() throws Exception {
+        Long evaluationId = 121L;
+        String professorId = "PROF-77";
+
+        Professor professor = new Professor();
+        professor.setId(professorId);
+
+        Monitor monitor = new Monitor();
+        monitor.setCode("MON-201");
+
+        Monitoring monitoring = new Monitoring();
+        monitoring.setId(56L);
+        monitoring.setProfessor(professor);
+
+        MonitorEvaluation existing = new MonitorEvaluation();
+        existing.setId(evaluationId);
+        existing.setProfessor(professor);
+        existing.setMonitor(monitor);
+        existing.setMonitoring(monitoring);
+        existing.applyScores(4, 4, 4, 4, "Buen trabajo");
+        existing.setCreatedAt(LocalDateTime.now().minusYears(1).minusDays(1));
+        existing.setUpdatedAt(existing.getCreatedAt());
+
+        MonitorEvaluationRequest request = new MonitorEvaluationRequest();
+        request.setProfessorId(professorId);
+        request.setTaskCompliance(5);
+        request.setTimelyCommunication(5);
+        request.setPlanFulfillment(5);
+        request.setAttitude(5);
+        request.setComments("Actualización tardía");
+
+        when(monitorEvaluationRepository.findById(evaluationId)).thenReturn(Optional.of(existing));
+
+        Exception error = assertThrows(Exception.class, () ->
+                monitorEvaluationService.updateEvaluation(evaluationId, professorId, request));
+
+        assertTrue(error.getMessage().contains("mayor a 1 año"));
+        verify(monitorEvaluationRepository, never()).save(any(MonitorEvaluation.class));
+    }
+
+    @Test
     void acknowledgeEvaluation_marksEvaluationWhenVisible() throws Exception {
         Long evaluationId = 300L;
         String monitorIdentifier = "MON-888";
