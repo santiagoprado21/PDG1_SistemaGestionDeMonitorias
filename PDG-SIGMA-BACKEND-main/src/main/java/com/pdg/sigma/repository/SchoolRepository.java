@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface SchoolRepository extends JpaRepository<School,Long> {
     public Optional<School> findByName(String name);
+    public Optional<School> findByNameIgnoreCase(String name);
 }

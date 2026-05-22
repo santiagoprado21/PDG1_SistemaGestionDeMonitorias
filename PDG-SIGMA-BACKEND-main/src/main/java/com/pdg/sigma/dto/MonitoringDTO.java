@@ -4,6 +4,7 @@ import com.pdg.sigma.domain.Course;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.Program;
 import com.pdg.sigma.domain.School;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,9 @@ public class MonitoringDTO  implements Serializable {
     private String schoolName;
 
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date start;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date finish;
     private double averageGrade;
     private double courseGrade;

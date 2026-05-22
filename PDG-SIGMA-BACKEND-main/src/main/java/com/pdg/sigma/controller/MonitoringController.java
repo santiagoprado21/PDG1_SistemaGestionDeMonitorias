@@ -84,11 +84,11 @@ public class MonitoringController {
         System.out.println(id);
         try{
             List<Monitoring> listMonitoring = monitoringService.findAllByProfessor(id);
-            if(!listMonitoring.isEmpty()){
-                return ResponseEntity.status(200).body(listMonitoring);
+            if (listMonitoring == null || listMonitoring.isEmpty()) {
+                return ResponseEntity.status(200).body(Collections.emptyList());
             }
 
-            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+            return ResponseEntity.status(200).body(listMonitoring);
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }

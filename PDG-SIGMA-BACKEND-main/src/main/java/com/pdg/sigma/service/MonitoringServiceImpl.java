@@ -6,11 +6,13 @@ import com.pdg.sigma.repository.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -21,6 +23,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.function.Function;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -71,6 +74,9 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private MonitoringRequestRepository monitoringRequestRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     /**
      * Método auxiliar para verificar si una monitoría ya tiene un monitor aprobado
      * @param monitoring La monitoría a verificar
@@ -80,6 +86,25 @@ public class MonitoringServiceImpl implements MonitoringService{
         List<MonitoringMonitor> applications = monitoringMonitorRepository.findByMonitoring(monitoring);
         return applications.stream()
                 .anyMatch(mm -> "aprobado".equalsIgnoreCase(mm.getEstadoSeleccion()));
+    }
+
+    private void syncMonitoringSequenceIfNeeded() {
+        try {
+            String sequence = jdbcTemplate.queryForObject(
+                    "select pg_get_serial_sequence('sigma.monitoring','id')",
+                    String.class
+            );
+            if (sequence == null || sequence.isBlank()) {
+                return;
+            }
+            jdbcTemplate.queryForObject(
+                    "select setval(?::regclass, coalesce((select max(id) from sigma.monitoring), 0))",
+                    Long.class,
+                    sequence
+            );
+        } catch (Exception ex) {
+            System.out.println("No fue posible sincronizar la secuencia de monitoring: " + ex.getMessage());
+        }
     }
 
     @Override
@@ -146,33 +171,67 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Override
     public Monitoring save(MonitoringDTO entity) throws Exception{
-        Program program = programRepository.findByName(entity.getProgramName()).get();
-        School school = schoolRepository.findByName(entity.getSchoolName()).get();
-        Course course = courseRepository.findByName(entity.getCourseName()).get();
-        Monitoring newMonitoring = null;
-        Optional<Professor> professor = null;
-        if(program.getName().equals(entity.getProgramName()))
-            if(school.getName().equals(entity.getSchoolName()))
-                if(course.getName().equals(entity.getCourseName()))
-                    if(monitoringRepository.findByCourse(course).isEmpty()){
-                        professor = professorRepository.findById(entity.getProfessorId());
-                        if(professor.isPresent()){
-                            newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), 4.5, 4.5, entity.getSemester(), professor.get());
-                            monitoringRepository.save(newMonitoring);
-                        }
-                        else
-                            throw new Exception("El profesor no está registrado");
-
-                        return monitoringRepository.findByCourse(course).get();
-                    }
-                    else
-                        throw new Exception("Ya existe una monitoria para esta materia");
-                else
-                    throw new Exception("No existe un curso con este nombre");
-            else
-                throw new Exception("No existe un programa con este nombre");
-        else
+        if (entity == null) {
+            throw new Exception("Datos de monitoria invalidos");
+        }
+        if (entity.getSchoolName() == null || entity.getSchoolName().trim().isEmpty()) {
             throw new Exception("No existe una facultad con este nombre");
+        }
+        if (entity.getProgramName() == null || entity.getProgramName().trim().isEmpty()) {
+            throw new Exception("No existe un programa con este nombre");
+        }
+        if (entity.getCourseName() == null || entity.getCourseName().trim().isEmpty()) {
+            throw new Exception("No existe un curso con este nombre");
+        }
+        if (entity.getProfessorId() == null || entity.getProfessorId().trim().isEmpty()) {
+            throw new Exception("El profesor no está registrado");
+        }
+        if (entity.getSemester() == null || entity.getSemester().trim().isEmpty()) {
+            throw new Exception("El periodo es obligatorio");
+        }
+        if (entity.getStart() == null || entity.getFinish() == null) {
+            throw new Exception("Las fechas de inicio y fin son obligatorias");
+        }
+
+        School school = findSchoolByName(entity.getSchoolName());
+        if (school == null) {
+            throw new Exception("No existe una facultad con este nombre");
+        }
+        Program program = findProgramByName(entity.getProgramName(), school);
+        if (program == null) {
+            throw new Exception("No existe un programa con este nombre");
+        }
+        Course course = findCourseByName(entity.getCourseName(), program);
+        if (course == null) {
+            throw new Exception("No existe un curso con este nombre");
+        }
+        Professor professor = professorRepository.findById(entity.getProfessorId())
+                .orElseThrow(() -> new Exception("El profesor no está registrado"));
+
+        boolean exists = monitoringRepository
+                .findByProfessorAndCourseAndSemester(professor, course, entity.getSemester())
+                .isPresent();
+        if (exists) {
+            throw new Exception("Ya existe una monitoria para este curso en el periodo " + entity.getSemester());
+        }
+
+        syncMonitoringSequenceIfNeeded();
+
+        Monitoring newMonitoring = new Monitoring(
+                school,
+                program,
+                course,
+                entity.getStart(),
+                entity.getFinish(),
+                4.5,
+                4.5,
+                entity.getSemester(),
+                professor
+        );
+        newMonitoring.setEstimatedHours(entity.getEstimatedHours());
+        newMonitoring.setHourlyRate(entity.getHourlyRate());
+        monitoringRepository.save(newMonitoring);
+        return newMonitoring;
     }
     public List<Monitoring> findBySchool(MonitoringDTO monitoringDTO){ //programName = nombre elemento a buscar, courseName = state o estado
         if(!monitoringDTO.getProgramName().isBlank()){
@@ -699,17 +758,41 @@ public class MonitoringServiceImpl implements MonitoringService{
                 throw new Exception("Incompatibilidad con alguno de los campos del archivo");
             }
             // header
-            String[] header = lines[0].split(",");
+            String headerLine = lines[0];
+            String delimiter = ",";
+            String[] header = headerLine.split(delimiter, -1);
+            if (header.length < 2 && headerLine.contains(";")) {
+                delimiter = ";";
+                header = headerLine.split(delimiter, -1);
+            }
             List<String> columnsName = new ArrayList<>();
-            for (String h : header) columnsName.add(h.trim());
+            for (int i = 0; i < header.length; i++) {
+                String value = header[i].trim();
+                if (i == 0) {
+                    value = value.replace("\uFEFF", "");
+                }
+                columnsName.add(value);
+            }
+            while (!columnsName.isEmpty() && columnsName.get(columnsName.size() - 1).trim().isEmpty()) {
+                columnsName.remove(columnsName.size() - 1);
+            }
+            if (columnsName.size() < 10) {
+                System.out.println("ERROR CSV: columnas insuficientes: " + columnsName.size());
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo (se requieren 10 columnas, se encontraron " + columnsName.size() + ")");
+            }
+            if (columnsName.size() > 10) {
+                columnsName = new ArrayList<>(columnsName.subList(0, 10));
+            }
             if (!checkColumns(columnsName)) {
-                throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                System.out.println("ERROR CSV: nombres de columnas incorrectos: " + columnsName);
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo (nombres de columnas incorrectos)");
             }
             for (int r = 1; r < lines.length; r++) {
                 if (lines[r].trim().isEmpty()) continue;
-                String[] parts = lines[r].split(",");
+                String[] parts = lines[r].split(delimiter, -1);
                 if (parts.length < columnsName.size()) {
-                    throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                    System.out.println("ERROR CSV fila " + r + ": pocas columnas: " + parts.length);
+                    throw new Exception("Incompatibilidad con alguno de los campos del archivo (fila " + r + " tiene " + parts.length + " columnas)");
                 }
                 List<String> row = new ArrayList<>();
                 for (int i = 0; i < columnsName.size(); i++) {
@@ -718,16 +801,19 @@ public class MonitoringServiceImpl implements MonitoringService{
                 rows.add(row);
             }
             // Build DTOs from rows
-            for (List<String> row : rows) {
+            for (int r = 0; r < rows.size(); r++) {
+                List<String> row = rows.get(r);
                 MonitoringDTO monitoring = new MonitoringDTO(0.0, 0.0);
                 for (int i = 0; i < columnsName.size(); i++) {
                     String value = row.get(i);
                     if (value.equals("")) {
-                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                        System.out.println("ERROR CSV fila " + (r+2) + " columna " + i + " (" + columnsName.get(i) + "): valor vacio");
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (fila " + (r+2) + ", columna '" + columnsName.get(i) + "' vacia)");
                     }
                     Object check = checkValue(i, value, monitoring, columnsName);
                     if (check == null) {
-                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                        System.out.println("ERROR CSV fila " + (r+2) + " columna " + i + " (" + columnsName.get(i) + "): valor '" + value + "' no reconocido");
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (fila " + (r+2) + ", columna '" + columnsName.get(i) + "': '" + value + "' no valido)");
                     }
                     monitoring = (MonitoringDTO) check;
                 }
@@ -744,8 +830,19 @@ public class MonitoringServiceImpl implements MonitoringService{
                 }
                 Row header = rowIterator.next();
                 List<String> columnsName = new ArrayList<>();
-                for (Cell cell : header) {
-                    columnsName.add(cell.getStringCellValue().trim());
+                short lastCell = header.getLastCellNum();
+                for (int i = 0; i < lastCell; i++) {
+                    Cell cell = header.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    columnsName.add(getCellValue(cell));
+                }
+                while (!columnsName.isEmpty() && columnsName.get(columnsName.size() - 1).trim().isEmpty()) {
+                    columnsName.remove(columnsName.size() - 1);
+                }
+                if (columnsName.size() < 10) {
+                    throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                }
+                if (columnsName.size() > 10) {
+                    columnsName = new ArrayList<>(columnsName.subList(0, 10));
                 }
                 if (!checkColumns(columnsName)) {
                     throw new Exception("Incompatibilidad con alguno de los campos del archivo");
@@ -773,6 +870,8 @@ public class MonitoringServiceImpl implements MonitoringService{
 
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new Exception("Profesor no encontrado"));
+
+        syncMonitoringSequenceIfNeeded();
 
         for (MonitoringDTO monitoring : toCreate) {
             // Duplicado para mismo profesor-curso-semestre
@@ -803,66 +902,44 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     //Method to check values header
     private boolean checkColumns(List<String> columns) {
-        boolean valid=true;
-        for(int i=0; i<columns.size();i++){
-
-            switch (i) {
-                case 0:
-                    if(!columns.get(0).equalsIgnoreCase("FACULTAD")){
-                        valid=false;
-                    }
-                    break;
-                case 1:
-                    if(!columns.get(1).equalsIgnoreCase("PROGRAMA")) {
-                        valid = false;
-                    }
-                    break;
-                case 2:
-                    if(!columns.get(2).equalsIgnoreCase("CURSO")) {
-                        valid = false;
-                    }
-                    break;
-                case 3:
-                    if(!columns.get(3).equalsIgnoreCase("FECHA INICIO")) {
-                        valid = false;
-                    }
-                    break;
-                case 4:
-                    if(!columns.get(4).equalsIgnoreCase("FECHA FINALIZACION")) {
-                        valid = false;
-                    }
-                    break;
-                case 5:
-                    if(!columns.get(5).replaceAll("\\s+$", "").equalsIgnoreCase("PERIODO")) {
-                        valid = false;
-                    }
-                    break;
-                case 6:
-                    if(!columns.get(6).equalsIgnoreCase("PROMEDIO ACUMULADO")) {
-                        valid = false;
-                    }
-                    break;
-                case 7:
-                    if(!columns.get(7).equalsIgnoreCase("PROMEDIO MATERIA")) {
-                        valid = false;
-                    }
-                    break;
-                case 8:
-                    if(!columns.get(8).equalsIgnoreCase("HORAS ESTIMADAS")) {
-                        valid = false;
-                    }
-                    break;
-                case 9:
-                    if(!columns.get(9).equalsIgnoreCase("VALOR HORA")) {
-                        valid = false;
-                    }
-                    break;
-                default:
-                    System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
-            }
+        if (columns.size() < 10) {
+            return false;
         }
+        String c0 = normalizeHeaderName(columns.get(0));
+        String c1 = normalizeHeaderName(columns.get(1));
+        String c2 = normalizeHeaderName(columns.get(2));
+        String c3 = normalizeHeaderName(columns.get(3));
+        String c4 = normalizeHeaderName(columns.get(4));
+        String c5 = normalizeHeaderName(columns.get(5));
+        String c6 = normalizeHeaderName(columns.get(6));
+        String c7 = normalizeHeaderName(columns.get(7));
+        String c8 = normalizeHeaderName(columns.get(8));
+        String c9 = normalizeHeaderName(columns.get(9));
 
-        return valid;
+        boolean ok = c0.equals("FACULTAD") &&
+                c1.equals("PROGRAMA") &&
+                c2.equals("CURSO") &&
+                c3.equals("FECHA INICIO") &&
+                c4.equals("FECHA FINALIZACION") &&
+                c5.equals("PERIODO") &&
+                c6.equals("PROMEDIO ACUMULADO") &&
+                c7.equals("PROMEDIO MATERIA") &&
+                c8.equals("HORAS ESTIMADAS") &&
+                c9.equals("VALOR HORA");
+        if (!ok) {
+            System.out.println("DEBUG checkColumns: [" + c0 + "|" + c1 + "|" + c2 + "|" + c3 + "|" + c4 + "|" + c5 + "|" + c6 + "|" + c7 + "|" + c8 + "|" + c9 + "]");
+        }
+        return ok;
+    }
+
+    private String normalizeHeaderName(String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        normalized = normalized.replaceAll("\\s+", " ").trim().toUpperCase();
+        return normalized;
     }
 
     //Method to check type of value
@@ -872,9 +949,14 @@ public class MonitoringServiceImpl implements MonitoringService{
                 return cell.getStringCellValue().trim();
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                    return formatter.format(cell.getDateCellValue());
                 }
-                return String.valueOf(cell.getNumericCellValue());
+                double numericValue = cell.getNumericCellValue();
+                if (Math.floor(numericValue) == numericValue) {
+                    return String.valueOf((long) numericValue);
+                }
+                return String.valueOf(numericValue);
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
@@ -884,73 +966,179 @@ public class MonitoringServiceImpl implements MonitoringService{
         }
     }
 
+    private Date parseDateFlexible(String value) {
+        String[] patterns = new String[] {"dd-MM-yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "yyyy/MM/dd"};
+        for (String pattern : patterns) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+                formatter.setLenient(false);
+                return formatter.parse(value);
+            } catch (ParseException ignored) {
+            }
+        }
+        return null;
+    }
+
+    private String normalizeNumeric(String value) {
+        String v = value.trim();
+        if (v.contains(",") && v.contains(".")) {
+            v = v.replace(".", "").replace(",", ".");
+        } else if (v.contains(",")) {
+            v = v.replace(",", ".");
+        }
+        return v;
+    }
+
+    private String semesterFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int semester = month <= 6 ? 1 : 2;
+        return year + "-" + semester;
+    }
+
+    private String normalizeComparableName(String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        normalized = normalized.replaceAll("\\s+", " ").trim().toLowerCase();
+        return normalized;
+    }
+
+    private <T> T findByNormalizedName(List<T> items, String name, Function<T, String> nameGetter) {
+        String target = normalizeComparableName(name);
+        for (T item : items) {
+            String candidate = normalizeComparableName(nameGetter.apply(item));
+            if (candidate.equals(target)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private School findSchoolByName(String name) {
+        Optional<School> direct = schoolRepository.findByNameIgnoreCase(name);
+        if (direct.isPresent()) {
+            return direct.get();
+        }
+        School fallback = findByNormalizedName(schoolRepository.findAll(), name, School::getName);
+        if (fallback == null) {
+            System.out.println("DEBUG: Escuela no encontrada: '" + name + "'. Escuelas disponibles: " + schoolRepository.findAll().stream().map(School::getName).toList());
+        }
+        return fallback;
+    }
+
+    private Program findProgramByName(String name, School school) {
+        Optional<Program> direct = programRepository.findByNameIgnoreCaseAndSchool(name, school);
+        if (direct.isPresent()) {
+            return direct.get();
+        }
+        Program fallback = findByNormalizedName(programRepository.findBySchool(school), name, Program::getName);
+        if (fallback == null) {
+            System.out.println("DEBUG: Programa no encontrado: '" + name + "' para escuela '" + school.getName() + "'. Programas disponibles: " + programRepository.findBySchool(school).stream().map(Program::getName).toList());
+        }
+        return fallback;
+    }
+
+    private Course findCourseByName(String name, Program program) {
+        Optional<Course> direct = courseRepository.findByNameIgnoreCaseAndProgram(name, program);
+        if (direct.isPresent()) {
+            return direct.get();
+        }
+        Course fallback = findByNormalizedName(courseRepository.findByProgram(program), name, Course::getName);
+        if (fallback == null) {
+            System.out.println("DEBUG: Curso no encontrado: '" + name + "' para programa '" + program.getName() + "'. Cursos disponibles: " + courseRepository.findByProgram(program).stream().map(Course::getName).toList());
+        }
+        return fallback;
+    }
+
+    private String stripQuotes(String value) {
+        if (value == null) {
+            return "";
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+            return trimmed.substring(1, trimmed.length() - 1).trim();
+        }
+        return trimmed;
+    }
+
     //Method to check value and return object of the value
     private Object checkValue(int column, String value, MonitoringDTO monitoring, List<String> header) throws ParseException {
-        String regex = "^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\\d{4}$";
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         String regexSemester = "^\\d{4}-(1|2)$";
+        String cleanedValue = stripQuotes(value);
 
         boolean valid=true;
             switch (column) {
                 case 0:
-                    Optional<School> school = schoolRepository.findByName(value);
-                    if(school.isPresent()){
-                        monitoring.setSchool(school.get());
+                    School school = findSchoolByName(cleanedValue);
+                    if(school != null){
+                        monitoring.setSchool(school);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    return null;
                 case 1:
-                    Optional<Program> program = programRepository.findByName(value);
-                    if(program.isPresent()){
-                        monitoring.setProgram(program.get());
+                    if (monitoring.getSchool() == null) {
+                        return null;
+                    }
+                    Program program = findProgramByName(cleanedValue, monitoring.getSchool());
+                    if(program != null){
+                        monitoring.setProgram(program);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    return null;
                 case 2:
-                    Optional<Course> course = courseRepository.findByName(value);
-                    if(course.isPresent()){
-                        monitoring.setCourse(course.get());
+                    if (monitoring.getProgram() == null) {
+                        return null;
+                    }
+                    Course course = findCourseByName(cleanedValue, monitoring.getProgram());
+                    if(course != null){
+                        monitoring.setCourse(course);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    return null;
 
                 case 3:
-                    if(value.matches(regex)){
-                        monitoring.setStart(formatter.parse(value));
+                    Date parsedStart = parseDateFlexible(cleanedValue);
+                    if (parsedStart != null) {
+                        monitoring.setStart(parsedStart);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    return null;
                 case 4:
-                    if(value.matches(regex)){
-                        monitoring.setFinish(formatter.parse(value));
+                    Date parsedFinish = parseDateFlexible(cleanedValue);
+                    if (parsedFinish != null) {
+                        monitoring.setFinish(parsedFinish);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    return null;
                 case 5:
-                    if(value.matches(regexSemester)){
-
-                        monitoring.setSemester(value);
+                    String semesterValue = cleanedValue.trim().replace("/", "-");
+                    if(semesterValue.matches(regexSemester)){
+                        monitoring.setSemester(semesterValue);
                         return monitoring;
                     }
-                    else
-                        return null;
+                    Date semesterDate = parseDateFlexible(cleanedValue);
+                    if (semesterDate != null) {
+                        monitoring.setSemester(semesterFromDate(semesterDate));
+                        return monitoring;
+                    }
+                    return null;
                 case 6:
-                    monitoring.setAverageGrade(Double.parseDouble(value));
+                    monitoring.setAverageGrade(Double.parseDouble(normalizeNumeric(cleanedValue)));
                     return monitoring;
 
                 case 7:
-                    monitoring.setCourseGrade(Double.parseDouble(value));
+                    monitoring.setCourseGrade(Double.parseDouble(normalizeNumeric(cleanedValue)));
                     return monitoring;
                 case 8:
-                    monitoring.setEstimatedHours(Integer.parseInt(value));
+                    monitoring.setEstimatedHours((int) Math.round(Double.parseDouble(normalizeNumeric(cleanedValue))));
                     return monitoring;
                 case 9:
-                    monitoring.setHourlyRate(Double.parseDouble(value));
+                    monitoring.setHourlyRate(Double.parseDouble(normalizeNumeric(cleanedValue)));
                     return monitoring;
                 default:
                     System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción

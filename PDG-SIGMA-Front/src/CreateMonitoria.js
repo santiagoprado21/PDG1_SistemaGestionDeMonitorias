@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './CreateMonitoria.css'; 
 // import './Task.css';
 import VerticalNavbar from './VerticalNavbar';
@@ -43,11 +43,13 @@ function CreateMonitoria() {
     const [showBudgetPopup, setShowBudgetPopup] = useState(false);
     const [budgetRecord, setBudgetRecord] = useState(null);
     const [budgetInfo, setBudgetInfo] = useState({ remainingHours: 0 });
+    const fileInputRef = useRef(null);
 
 
     // Fetch Faculty options
     useEffect(() => {
         const idProfessor = localStorage.getItem('userId');
+        const normalizedRole = (role || '').toLowerCase();
         console.log(idProfessor);
         fetch(`${BACKEND_URL}/school/getSchools`)
             .then(res => {
@@ -66,14 +68,14 @@ function CreateMonitoria() {
             .catch(error => console.error('Error fetching faculty data:', error));
 
             // Cargar monitorías existentes: si es jefe, esperar selección de profesor; si es profesor, usar su propio id
-            const targetId = role === 'jfedpto' ? selectedProfessorId : idProfessor;
-            if (targetId || role === 'jfedpto') {
+            const targetId = normalizedRole === 'jfedpto' ? selectedProfessorId : idProfessor;
+            if (targetId || normalizedRole === 'jfedpto') {
                 // Refresca la tabla; si no hay profesor seleccionado (jefe), dejar lista vacía
                 refreshRecords();
             }
 
             // Si es jefe, cargar lista de profesores asociados
-            if (role === 'jfedpto') {
+            if (normalizedRole === 'jfedpto') {
                 fetch(`${BACKEND_URL}/department-head/${idProfessor}/professors`, {
                     headers: {
                         'Authorization': localStorage.getItem('token')
@@ -98,9 +100,14 @@ function CreateMonitoria() {
     const refreshRecords = async () => {
         try {
             const idLogged = localStorage.getItem('userId');
-            const targetId = role === 'jfedpto' ? selectedProfessorId : idLogged;
+            const normalizedRole = (role || '').toLowerCase();
+            const targetId = normalizedRole === 'jfedpto' ? selectedProfessorId : idLogged;
             if (!targetId) { setRecords([]); return; }
-            const res = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${targetId}`);
+            const res = await fetch(`${BACKEND_URL}/monitoring/getAllByProfessor/${targetId}`, {
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                }
+            });
             if (!res.ok) return setRecords([]);
             const data = await res.json();
             setRecords(Array.isArray(data) ? data : []);
@@ -258,74 +265,58 @@ function CreateMonitoria() {
         setSelectedFinishDate(event.target.value);
     };
 
-
     const handleUpload = () => {
-        console.log("handleUpload llamado");
-        console.log("Role:", role);
-        console.log("selectedProfessorId:", selectedProfessorId);
-        
-        // Validación para jefe de departamento
-        if (role === 'jfedpto' && !selectedProfessorId) {
+        const normalizedRole = (role || '').toLowerCase();
+        if (normalizedRole === 'jfedpto' && !selectedProfessorId) {
             setMessage("Por favor selecciona un profesor responsable antes de cargar el archivo CSV.");
             setIsOpen(true);
             return;
         }
 
-        // Abrir selector de archivos directamente
-        console.log("Creando input file...");
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = ".xlsx, .xls, .csv";
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.click();
+        }
+    };
 
-        input.onchange = async (event) => {
-            console.log("Archivo seleccionado:", event.target.files[0]);
-            const file = event.target.files[0];
-            
-            if (!file) {
-                setMessage("No se seleccionó ningún archivo.");
-                setIsOpen(true);
-                return;
+    const handleFileChange = async (event) => {
+        const selectedFile = event.target.files && event.target.files[0];
+
+        if (!selectedFile) {
+            setMessage("No se seleccionó ningún archivo.");
+            setIsOpen(true);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        let idProfessor = localStorage.getItem('userId');
+        if ((role || '').toLowerCase() === 'jfedpto') {
+            idProfessor = selectedProfessorId;
+        }
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
+                method: "POST",
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                },
+                body: formData,
+            });
+
+            const responseMessage = await response.text();
+            setMessage(responseMessage);
+            setIsOpen(true);
+
+            if (response.ok) {
+                await refreshRecords();
             }
-
-            const formData = new FormData();
-            formData.append("file", file);
-
-            let idProfessor = localStorage.getItem('userId');
-            if (role === 'jfedpto') {
-                idProfessor = selectedProfessorId;
-            }
-
-            console.log("Enviando archivo al backend para profesor:", idProfessor);
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/monitoring/createAll/${idProfessor}`, {
-                    method: "POST",
-                    headers: {
-                        'Authorization': localStorage.getItem('token')
-                    },
-                    body: formData,
-                });
-
-                const message = await response.text();
-                console.log("Respuesta del servidor:", message);
-                setMessage(message);
-                setIsOpen(true);
-                
-                // Refrescar tabla tras cargue exitoso
-                if (response.ok) {
-                    await refreshRecords();
-                }
-
-            } catch (error) {
-                console.error("Error:", error);
-                setMessage("Error al conectar con el servidor");
-                setIsOpen(true);
-            }
-        };
-
-        console.log("Haciendo click en input...");
-        input.click();
-        console.log("Click ejecutado");
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage("Error al conectar con el servidor");
+            setIsOpen(true);
+        }
     };
 
 
@@ -366,7 +357,7 @@ function CreateMonitoria() {
             schoolName: selectedFaculty,
             start: selectedStartDate,
             finish: selectedFinishDate,
-            professorId: role === 'jfedpto' ? selectedProfessorId : localStorage.getItem('userId'),
+            professorId: (role || '').toLowerCase() === 'jfedpto' ? selectedProfessorId : localStorage.getItem('userId'),
             semester: selectedSemester,
             estimatedHours: parseInt(requestedHours) || 0,
             hourlyRate: parseFloat(hourlyRate) || 15000,
@@ -385,7 +376,8 @@ function CreateMonitoria() {
             setIsOpen(true);
             return;
         }
-        if (role === 'jfedpto' && !selectedProfessorId) {
+        const normalizedRole = (role || '').toLowerCase();
+        if (normalizedRole === 'jfedpto' && !selectedProfessorId) {
             setMessage("Selecciona un profesor responsable antes de confirmar.");
             setIsOpen(true);
             return;
@@ -483,7 +475,7 @@ function CreateMonitoria() {
         <div className="create-monitoria-page">
             <VerticalNavbar />
             
-            {isOpen && <PopUp message={message} onClose={() => handleClose()} />}
+            <PopUp show={isOpen} onClose={() => handleClose()}>{message}</PopUp>
             <div className="create-monitoria-main">
                 <div className="title-container-create-monitoria app-page-header">
                     <div className="title-create-monitoria app-page-title">Crear/Cargar Monitorías</div>
@@ -496,6 +488,13 @@ function CreateMonitoria() {
                         <button className="btn-upload-csv" onClick={handleUpload}>
                             Cargar Datos (CSV/Excel)
                         </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".xlsx,.xls,.csv"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                        />
                     </div>
 
                     {/* Formulario de creación */}

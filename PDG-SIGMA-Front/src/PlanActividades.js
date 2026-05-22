@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import VerticalNavbar from './VerticalNavbar';
 import { PopUp } from './PopUp';
 import { BACKEND_URL } from './config/ApiBackend';
-import { AlertTriangle, Plus, BarChart3, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { AlertTriangle, Plus, BarChart3, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * HU-011: Creación de plan de actividades para monitores (Como profesor)
@@ -532,9 +532,6 @@ function PlanActividades() {
                         onClick={() => navigate('/gestion-rubricas')}
                     >
                         <BarChart3 {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Gestionar Rúbricas
-                    </button>
-                    <button className="btn-secondary" onClick={() => navigate(-1)}>
-                        <ArrowLeft {...iconProps} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />Volver
                     </button>
                 </div>
 
