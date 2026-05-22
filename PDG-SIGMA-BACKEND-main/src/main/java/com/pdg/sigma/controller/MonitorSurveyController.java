@@ -3,10 +3,13 @@ package com.pdg.sigma.controller;
 import com.pdg.sigma.dto.*;
 import com.pdg.sigma.service.MonitorSurveyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -207,6 +210,64 @@ public class MonitorSurveyController {
         try {
             monitorSurveyService.storePublicResponse(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Respuesta registrada"));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @GetMapping("/public/integration-config")
+    public ResponseEntity<?> getIntegrationConfig() {
+        try {
+            return ResponseEntity.ok(monitorSurveyService.getIntegrationConfig());
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @PutMapping("/admin/integration-config")
+    public ResponseEntity<?> saveIntegrationConfig(@RequestAttribute("role") String role,
+                                                   @RequestBody MonitorSurveyIntegrationConfigRequest request) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            return ResponseEntity.ok(monitorSurveyService.saveIntegrationConfig(request));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @GetMapping("/admin/report")
+    public ResponseEntity<?> getSurveyReport(@RequestAttribute("role") String role,
+                                             @RequestParam(required = false) String semester,
+                                             @RequestParam(required = false) String monitorCode,
+                                             @RequestParam(required = false) String monitoringId) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            return ResponseEntity.ok(monitorSurveyService.getSurveyReport(semester, monitorCode, monitoringId));
+        } catch (Exception e) {
+            return badRequest(e);
+        }
+    }
+
+    @GetMapping("/admin/report/csv")
+    public ResponseEntity<?> exportSurveyReportCsv(@RequestAttribute("role") String role,
+                                                   @RequestParam(required = false) String semester,
+                                                   @RequestParam(required = false) String monitorCode,
+                                                   @RequestParam(required = false) String monitoringId) {
+        if (!isDepartmentHead(role)) {
+            return forbidden();
+        }
+        try {
+            String csv = monitorSurveyService.exportSurveyReportCsv(semester, monitorCode, monitoringId);
+            String filename = "resultados_monitorias" + (semester != null && !semester.isBlank() ? "_" + semester.trim() : "") + ".csv";
+            ByteArrayResource resource = new ByteArrayResource(csv.getBytes(StandardCharsets.UTF_8));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .header("Content-Disposition", "attachment; filename=" + filename)
+                    .body(resource);
         } catch (Exception e) {
             return badRequest(e);
         }

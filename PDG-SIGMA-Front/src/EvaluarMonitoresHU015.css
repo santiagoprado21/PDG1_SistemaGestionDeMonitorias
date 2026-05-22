@@ -391,6 +391,14 @@
   font-weight: 600;
 }
 
+.edit-lock-alert {
+  border: 1px solid var(--color-danger);
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+}
+
 .submit-button {
   align-self: flex-end;
   min-height: 35px;

@@ -1,0 +1,50 @@
+@startuml
+title Despliegue - Sistema de Gestion de Monitorias
+
+left to right direction
+skinparam componentStyle rectangle
+skinparam dpi 160
+
+actor "Usuario" as user
+
+node "Cliente" as client {
+	node "Navegador Web" as browser
+}
+
+cloud "Internet" as internet
+
+node "Vercel (Frontend Hosting)" as vercel {
+	artifact "PDG-SIGMA-Front\nReact build" as front
+}
+
+node "Backend Host (Docker/VM)" as backend_host {
+	artifact "PDG-SIGMA-BACKEND\nSpring Boot (JRE 21)\nPort 5433" as backend
+	folder "Uploads\nactivities/\nchat/" as uploads
+}
+
+node "Railway (API Banner)" as railway {
+	artifact "API-Banner\nSpring Boot (JRE 21)\nPort 5435" as banner
+}
+
+database "Neon PostgreSQL\nneondb\nschemas: sigma, banner" as db
+cloud "SMTP Gmail" as smtp
+
+note right of banner
+Base URL configurable:
+- http://localhost:5435
+- api-banner-production.up.railway.app
+end note
+
+user --> browser
+browser --> internet
+internet --> vercel : HTTPS
+browser --> backend : HTTPS REST/JSON\nSSE /notifications/stream
+
+backend --> db : JDBC (schema sigma)
+banner --> db : JDBC (schema banner)
+backend --> banner : REST (auth + data sync)
+backend --> smtp : SMTP
+banner --> smtp : SMTP
+backend --> uploads : local FS
+
+@enduml

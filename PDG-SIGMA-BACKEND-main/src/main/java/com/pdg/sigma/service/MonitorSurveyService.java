@@ -21,4 +21,10 @@ public interface MonitorSurveyService {
 
     List<MonitorSurveyPublicQuestionDTO> getPublicQuestions(String semester);
     void storePublicResponse(MonitorSurveyPublicResponseRequest request) throws Exception;
+
+    MonitorSurveyIntegrationConfigDTO getIntegrationConfig();
+    MonitorSurveyIntegrationConfigDTO saveIntegrationConfig(MonitorSurveyIntegrationConfigRequest request) throws Exception;
+
+    MonitorSurveyReportDTO getSurveyReport(String semester, String monitorCode, String monitoringId);
+    String exportSurveyReportCsv(String semester, String monitorCode, String monitoringId);
 }

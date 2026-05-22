@@ -84,7 +84,7 @@ describe('VerticalNavbarSimple', () => {
         setAuth('monitor');
         renderNavbar();
 
-        expect(await screen.findByText(/Evaluar supervisor/i)).toBeInTheDocument();
+        expect(await screen.findByText(/Evaluar profesor/i)).toBeInTheDocument();
         expect(screen.getByText(/Mis Actividades/i)).toBeInTheDocument();
         expect(screen.getByText(/Mis Postulaciones/i)).toBeInTheDocument();
 

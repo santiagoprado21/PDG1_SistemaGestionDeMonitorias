@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
 
     private static final int MIN_SCORE = 1;
     private static final int MAX_SCORE = 5;
+    private static final int EDIT_WINDOW_YEARS = 1;
 
     @Autowired
     private MonitorEvaluationRepository monitorEvaluationRepository;
@@ -100,6 +102,8 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
         if (evaluation.getProfessor() == null || !evaluation.getProfessor().getId().equals(professorId)) {
             throw new Exception("No está autorizado para editar esta evaluación");
         }
+
+        ensureEditable(evaluation);
 
         boolean visible = request.getVisibleToMonitor() == null ? evaluation.isVisibleToMonitor() : request.getVisibleToMonitor();
         evaluation.setVisibleToMonitor(visible);
@@ -291,6 +295,17 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
         }
     }
 
+    private void ensureEditable(MonitorEvaluation evaluation) throws Exception {
+        LocalDateTime createdAt = evaluation.getCreatedAt();
+        if (createdAt == null) {
+            return;
+        }
+        LocalDateTime limit = LocalDateTime.now().minusYears(EDIT_WINDOW_YEARS);
+        if (createdAt.isBefore(limit)) {
+            throw new Exception("No se permite editar evaluaciones con antigüedad mayor a 1 año");
+        }
+    }
+
     private Monitor resolveMonitorForEvaluation(String monitorCode, Monitoring monitoring) throws Exception {
         if (monitorCode == null) {
             throw new Exception("Debe indicar el monitor a evaluar");
@@ -365,7 +380,7 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
 
         String courseName = monitoring.getCourse() != null ? monitoring.getCourse().getName() : null;
         String programName = monitoring.getProgram() != null ? monitoring.getProgram().getName() : null;
-        String semester = monitoring.getSemester();
+        String semester = resolveEvaluationSemester(evaluation, monitoring);
         String monitoringName = buildMonitoringName(courseName, semester);
 
         dto.setMonitoringName(monitoringName);
@@ -410,10 +425,11 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
         if (monitoring != null) {
             String courseName = monitoring.getCourse() != null ? monitoring.getCourse().getName() : null;
             String programName = monitoring.getProgram() != null ? monitoring.getProgram().getName() : null;
-            response.setMonitoringName(buildMonitoringName(courseName, monitoring.getSemester()));
+            String semester = resolveEvaluationSemester(evaluation, monitoring);
+            response.setMonitoringName(buildMonitoringName(courseName, semester));
             response.setCourseName(courseName);
             response.setProgramName(programName);
-            response.setSemester(monitoring.getSemester());
+            response.setSemester(semester);
             response.setProfessorId(monitoring.getProfessor() != null ? monitoring.getProfessor().getId() : null);
         } else {
             response.setMonitoringName(null);
@@ -481,5 +497,15 @@ public class MonitorEvaluationServiceImpl implements MonitorEvaluationService {
         String first = Optional.ofNullable(monitor.getName()).orElse("");
         String last = Optional.ofNullable(monitor.getLastName()).orElse("");
         return (first + " " + last).trim();
+    }
+
+    private String resolveEvaluationSemester(MonitorEvaluation evaluation, Monitoring monitoring) {
+        if (evaluation != null) {
+            String evaluationSemester = evaluation.getSemester();
+            if (evaluationSemester != null && !evaluationSemester.isBlank()) {
+                return evaluationSemester;
+            }
+        }
+        return monitoring != null ? monitoring.getSemester() : null;
     }
 }
