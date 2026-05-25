@@ -17,8 +17,8 @@ WORKDIR /app
 # Copia el .jar desde la etapa de build
 COPY --from=build /app/target/*.jar app.jar
 
-# Expone el puerto por defecto de Spring Boot
-EXPOSE 5431
+# Render asigna el puerto via variable de entorno PORT
+EXPOSE 5435
 
-# Comando para ejecutar el .jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Usa PORT si lo provee Render, si no usa 5435 por defecto
+CMD java -Dserver.port=${PORT:-5435} -jar app.jar

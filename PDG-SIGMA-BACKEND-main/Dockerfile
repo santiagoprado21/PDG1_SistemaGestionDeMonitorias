@@ -8,8 +8,8 @@ COPY . .
 # Da permisos de ejecución al wrapper de Maven
 RUN chmod +x ./mvnw
 
-# Construye el .jar 
-RUN ./mvnw clean package
+# Construye el .jar omitiendo tests (los tests de integracion requieren BD)
+RUN ./mvnw clean package -DskipTests
 
 # Etapa de ejecución
 FROM eclipse-temurin:21-jre
@@ -18,8 +18,8 @@ WORKDIR /app
 # Copia el .jar desde la etapa de build
 COPY --from=build /app/target/*.jar app.jar
 
-# Expone el puerto por defecto de Spring Boot
+# Render asigna el puerto via variable de entorno PORT
 EXPOSE 5433
 
-# Comando para ejecutar el .jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Usa PORT si lo provee Render, si no usa 5433 por defecto
+CMD java -Dserver.port=${PORT:-5433} -jar app.jar
