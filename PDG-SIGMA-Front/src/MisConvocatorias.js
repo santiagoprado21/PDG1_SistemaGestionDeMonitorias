@@ -114,18 +114,18 @@ function MisConvocatorias() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#e4eb60', icon: <Clock3 {...iconProps} /> },
+            'PENDIENTE_APROBACION_JEFE': { label: 'Pendiente Aprobacion', color: '#b45309', icon: <Clock3 {...iconProps} /> },
             'CONVOCATORIA_ABIERTA': { label: 'Abierta', color: '#4cb979', icon: <Megaphone {...iconProps} /> },
             'MONITOR_SELECCIONADO': { label: 'Monitor Seleccionado', color: '#5454e9', icon: <UserRound {...iconProps} /> },
             'APROBADA': { label: 'Cerrada', color: '#88898c' },
             'RECHAZADA': { label: 'Rechazada', color: '#e9683b', icon: <X {...iconProps} /> },
-            'CANCELADA': { label: 'Cancelada', color: '#e4eb60', icon: <Clock3 {...iconProps} /> }
+            'CANCELADA': { label: 'Cancelada', color: '#b45309', icon: <Clock3 {...iconProps} /> }
         };
 
-        const config = statusConfig[status] || { 
-            label: status ? status.replace(/_/g, ' ') : 'Sin estado', 
-            color: '#e4eb60', 
-            icon: null 
+        const config = statusConfig[status] || {
+            label: status ? status.replace(/_/g, ' ') : 'Sin estado',
+            color: '#b45309',
+            icon: null
         };
 
         return (
@@ -355,7 +355,7 @@ function MisConvocatorias() {
                                                         </button>
                                                     )}
                                                     {conv.status === 'PENDIENTE_APROBACION_JEFE' && (
-                                                        <span style={{ color: '#e4eb60', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span style={{ color: '#b45309', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                                                             <Clock3 {...iconProps} />Esperando jefe
                                                         </span>
                                                     )}

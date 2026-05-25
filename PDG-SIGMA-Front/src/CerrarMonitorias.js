@@ -181,7 +181,7 @@ function CerrarMonitorias() {
 
     const getComplianceColor = (percentage) => {
         if (percentage >= 90) return '#4cb979'; // Verde
-        if (percentage >= 70) return '#e4eb60'; // Naranja
+        if (percentage >= 70) return '#d97706'; // Ámbar accesible
         return '#e9683b'; // Rojo
     };
 
