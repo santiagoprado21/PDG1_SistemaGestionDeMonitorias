@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './CreateMonitoria.css'; 
 // import './Task.css';
 import VerticalNavbar from './VerticalNavbar';
-import {PopUp, PopUpUpdateBudget} from "./PopUp";
+import {PopUp, PopupDelete, PopUpUpdateBudget} from "./PopUp";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL, getApiUrl } from './config/ApiBackend';
 import { generateAcademicPeriodOptions, getCurrentAcademicPeriod } from './globalFix';
@@ -42,6 +42,8 @@ function CreateMonitoria() {
     const [selectedProfessorId, setSelectedProfessorId] = useState("");
     const [showBudgetPopup, setShowBudgetPopup] = useState(false);
     const [budgetRecord, setBudgetRecord] = useState(null);
+    const [showAnnulConfirm, setShowAnnulConfirm] = useState(false);
+    const [pendingAnnulId, setPendingAnnulId] = useState(null);
     const fileInputRef = useRef(null);
 
 
@@ -294,7 +296,15 @@ function CreateMonitoria() {
 
 
 
-    const handleDelete = async (id) => {
+    const handleAnnulClick = (id) => {
+        setPendingAnnulId(id);
+        setShowAnnulConfirm(true);
+    };
+
+    const handleAnnulConfirm = async () => {
+        setShowAnnulConfirm(false);
+        const id = pendingAnnulId;
+        setPendingAnnulId(null);
         try {
             const responseDelete = await fetch(`${BACKEND_URL}/monitoring/deleteMonitoring/${id}`, {
                 method: "DELETE",
@@ -305,15 +315,15 @@ function CreateMonitoria() {
             });
             const answer = await responseDelete.json();
             if (answer) {
-                setMessage("Se ha eliminado la monitoría");
+                setMessage("La monitoría ha sido anulada correctamente.");
                 await refreshRecords();
             } else {
-                setMessage("La monitoria no pudo ser eliminada debido a que está asociada a monitores o postulantes a monitoría. Asegúrate de revisar el proceso de postulación");
+                setMessage("La monitoría no pudo ser anulada. Es posible que ya se encuentre en ese estado.");
             }
             setIsOpen(true);
         } catch (error) {
-            console.error("Error deleting data:", error);
-            setMessage("Error en el servidor: No ha sido posible eliminar la monitoría");
+            console.error("Error anulando monitoría:", error);
+            setMessage("Error en el servidor: No fue posible anular la monitoría.");
             setIsOpen(true);
         }
     };
@@ -449,6 +459,11 @@ function CreateMonitoria() {
             <VerticalNavbar />
             
             <PopUp show={isOpen} onClose={() => handleClose()}>{message}</PopUp>
+            <PopupDelete
+                show={showAnnulConfirm}
+                onClose={() => { setShowAnnulConfirm(false); setPendingAnnulId(null); }}
+                onApply={handleAnnulConfirm}
+            />
             <div className="create-monitoria-main">
                 <div className="title-container-create-monitoria app-page-header">
                     <div className="title-create-monitoria app-page-title">Crear/Cargar Monitorías</div>
@@ -685,9 +700,9 @@ function CreateMonitoria() {
                                                 <td>
                                                     <button 
                                                         className="btn-delete-monitoria"
-                                                        onClick={() => handleDelete(record.id)}
+                                                        onClick={() => handleAnnulClick(record.id)}
                                                     >
-                                                        Eliminar
+                                                        Anular
                                                     </button>
                                                 </td>
                                                 <td>

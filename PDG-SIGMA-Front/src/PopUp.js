@@ -22,14 +22,16 @@ const PopupDelete = ({ show, onClose, onApply }) => {
     <div className="overlay">
       <div className="popup">
         <div className="content">
-          <p>¿Estás seguro de la acción a realizar?</p>
-          Eliminar
+          <p>¿Estás seguro de que deseas anular esta monitoría?</p>
+          <p style={{fontSize: '0.85rem', color: '#666'}}>
+            La monitoría cambiará a estado <strong>Anulada</strong> y no aparecerá en la consulta. Esta acción no elimina el registro.
+          </p>
         </div>
         <button
           className={`button button-apply`}
           onClick={onApply}
         >
-          Sí, Eliminar
+          Sí, Anular
         </button>
         <button className="button button-close" onClick={onClose}>
           Cancelar
