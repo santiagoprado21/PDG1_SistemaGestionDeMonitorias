@@ -136,7 +136,6 @@ public class MonitoringServiceImpl implements MonitoringService{
         if (professor.isPresent()) {
             System.out.println("inside findAllByProfessor");
             return monitoringRepository.findByProfessor(professor.get()).stream()
-                    .filter(m -> m.getApprovalStatus() != MonitoringApprovalStatus.ANULADA)
                     .peek(m -> {
                         // Forzar carga de assignedMonitor para el nuevo flujo HU-010
                         if (m.getAssignedMonitor() != null) {
@@ -144,6 +143,10 @@ public class MonitoringServiceImpl implements MonitoringService{
                         }
                     })
                     .sorted(Comparator.comparing(m -> {
+                        // ANULADA siempre al final (orden 3)
+                        if (m.getApprovalStatus() == MonitoringApprovalStatus.ANULADA) {
+                            return 3;
+                        }
                         Date start = m.getStart();
                         Date end = m.getFinish();
 

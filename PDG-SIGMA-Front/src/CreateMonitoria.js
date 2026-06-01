@@ -686,39 +686,57 @@ function CreateMonitoria() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {processedRecords.map((record, i) => (
-                                            <tr key={i}>
-                                                <td>{record.school.name}</td>
-                                                <td>{record.program.name}</td>
-                                                <td>{record.course.name}</td>
-                                                <td>{record.semester}</td>
-                                                <td>{record.startFormatted}</td>
-                                                <td>{record.endFormatted}</td>
-                                                <td>{record.estimatedHours}h</td>
-                                                <td>{formatCurrency(record.hourlyRate)}</td>
-                                                <td>{formatCurrency(record.totalCost)}</td>
+                                        {processedRecords.map((record, i) => {
+                                            const isAnulada = record.approvalStatus === 'ANULADA';
+                                            return (
+                                            <tr key={i} style={isAnulada ? { opacity: 0.5, backgroundColor: '#f5f5f5' } : {}}>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.school.name}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.program.name}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.course.name}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.semester}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.startFormatted}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.endFormatted}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{record.estimatedHours}h</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{formatCurrency(record.hourlyRate)}</td>
+                                                <td style={isAnulada ? { textDecoration: 'line-through' } : {}}>{formatCurrency(record.totalCost)}</td>
                                                 <td>
-                                                    <button 
-                                                        className="btn-delete-monitoria"
-                                                        onClick={() => handleAnnulClick(record.id)}
-                                                    >
-                                                        Anular
-                                                    </button>
+                                                    {isAnulada ? (
+                                                        <span style={{
+                                                            backgroundColor: '#9e9e9e',
+                                                            color: 'white',
+                                                            padding: '3px 8px',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: 'bold'
+                                                        }}>
+                                                            ANULADA
+                                                        </span>
+                                                    ) : (
+                                                        <button 
+                                                            className="btn-delete-monitoria"
+                                                            onClick={() => handleAnnulClick(record.id)}
+                                                        >
+                                                            Anular
+                                                        </button>
+                                                    )}
                                                 </td>
                                                 <td>
                                                     {role === 'jfedpto' ? (
-                                                        <button 
-                                                            className="btn-edit-budget"
-                                                            onClick={() => openBudgetPopup(record)}
-                                                        >
-                                                            Editar
-                                                        </button>
+                                                        !isAnulada && (
+                                                            <button
+                                                                className="btn-edit-budget"
+                                                                onClick={() => openBudgetPopup(record)}
+                                                            >
+                                                                Editar
+                                                            </button>
+                                                        )
                                                     ) : (
                                                         <span>{formatCurrency(record.totalCost)}</span>
                                                     )}
                                                 </td>
                                             </tr>
-                                        ))}
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
 
