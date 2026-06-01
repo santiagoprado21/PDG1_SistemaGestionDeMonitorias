@@ -42,7 +42,6 @@ function CreateMonitoria() {
     const [selectedProfessorId, setSelectedProfessorId] = useState("");
     const [showBudgetPopup, setShowBudgetPopup] = useState(false);
     const [budgetRecord, setBudgetRecord] = useState(null);
-    const [budgetInfo, setBudgetInfo] = useState({ remainingHours: 0 });
     const fileInputRef = useRef(null);
 
 
@@ -115,38 +114,12 @@ function CreateMonitoria() {
     };
 
     const openBudgetPopup = async (record) => {
-        try {
-            // Obtener presupuesto restante del programa/periodo
-            const res = await fetch(`${BACKEND_URL}/budget/${encodeURIComponent(record.program.name)}/${encodeURIComponent(record.semester)}`);
-            let remaining = 0;
-            if (res.ok) {
-                const data = await res.json();
-                remaining = Number(data.remainingHours || 0);
-            } else {
-                // Si no hay presupuesto configurado, usar un valor alto para no bloquear el flujo visual
-                remaining = 999999;
-            }
-            setBudgetInfo({ remainingHours: remaining });
-            setBudgetRecord(record);
-            setShowBudgetPopup(true);
-        } catch (e) {
-            console.error('Error fetching budget:', e);
-            // Fallback generoso si hay fallo de red
-            setBudgetInfo({ remainingHours: 999999 });
-            setBudgetRecord(record);
-            setShowBudgetPopup(true);
-        }
+        setBudgetRecord(record);
+        setShowBudgetPopup(true);
     };
 
     const submitBudgetUpdate = async (hours, rate) => {
         if (!budgetRecord) return;
-        const current = Number(budgetRecord.estimatedHours || 0);
-        const available = Number(budgetInfo.remainingHours || 0) + current;
-        if (hours > available) {
-            setMessage(`No se pueden asignar más horas de las disponibles. Disponibles: ${available}`);
-            setIsOpen(true);
-            return;
-        }
         try {
             const res = await fetch(`${BACKEND_URL}/monitoring/updateBudget/${budgetRecord.id}`, {
                 method: 'POST',
@@ -694,7 +667,7 @@ function CreateMonitoria() {
                                             <th>Valor Hora</th>
                                             <th>Costo Total</th>
                                             <th>Acciones</th>
-                                            {role === 'jfedpto' && <th>Presupuesto</th>}
+                                            <th>Presupuesto</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -717,16 +690,18 @@ function CreateMonitoria() {
                                                         Eliminar
                                                     </button>
                                                 </td>
-                                                {role === 'jfedpto' && (
-                                                    <td>
+                                                <td>
+                                                    {role === 'jfedpto' ? (
                                                         <button 
                                                             className="btn-edit-budget"
                                                             onClick={() => openBudgetPopup(record)}
                                                         >
                                                             Editar
                                                         </button>
-                                                    </td>
-                                                )}
+                                                    ) : (
+                                                        <span>{formatCurrency(record.totalCost)}</span>
+                                                    )}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -762,8 +737,6 @@ function CreateMonitoria() {
                         onSubmit={submitBudgetUpdate}
                         initialHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
                         initialRate={budgetRecord ? (budgetRecord.hourlyRate || 0) : 0}
-                        remainingHours={budgetInfo.remainingHours}
-                        currentHours={budgetRecord ? (budgetRecord.estimatedHours || 0) : 0}
                     />
                 </div>
             </div>

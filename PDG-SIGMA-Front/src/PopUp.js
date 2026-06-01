@@ -39,7 +39,7 @@ const PopupDelete = ({ show, onClose, onApply }) => {
   );
 };
 
-const PopUpUpdateBudget = ({ show, onClose, onSubmit, initialHours, initialRate, remainingHours = 0, currentHours = 0 }) => {
+const PopUpUpdateBudget = ({ show, onClose, onSubmit, initialHours, initialRate }) => {
   const [hours, setHours] = React.useState(initialHours || 0);
   const [rate, setRate] = React.useState(initialRate || 0);
 
@@ -58,7 +58,6 @@ const PopUpUpdateBudget = ({ show, onClose, onSubmit, initialHours, initialRate,
     setRate(initialRate || 0);
   }, [initialHours, initialRate, show]);
 
-  const predictedRemaining = (Number(remainingHours) + Number(currentHours)) - Number(hours);
   const cost = Number(hours) * Number(rate);
 
   if (!show) return null;
@@ -75,7 +74,6 @@ const PopUpUpdateBudget = ({ show, onClose, onSubmit, initialHours, initialRate,
 
           <div style={{marginTop: '10px'}}>
             <div><strong>Resumen:</strong> {Number(hours) || 0} horas × {formatCurrency(rate)} = <strong>{formatCurrency(cost)}</strong></div>
-            <div><strong>Horas restantes (estimado):</strong> {isNaN(predictedRemaining) ? 0 : predictedRemaining}</div>
           </div>
         </div>
         <button className="button button-apply" onClick={() => onSubmit(Number(hours), Number(rate))}>
