@@ -768,7 +768,7 @@ function PlanActividades() {
                                                 fontSize: '15px',
                                                 borderRadius: '4px',
                                                 border: '2px solid #cecfd4',
-                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4cb979' : '#e4eb60'
+                                                color: formData.state === 'COMPLETADO' || formData.state === 'COMPLETADOT' ? '#4cb979' : '#b45309'
                                             }}
                                         >
                                             <option value="PENDIENTE">PENDIENTE</option>

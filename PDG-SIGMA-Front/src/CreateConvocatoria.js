@@ -247,12 +247,12 @@ function CreateConvocatoria() {
 
     const getStatusBadge = (status) => {
         const statusMap = {
-            'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#e4eb60' },
+            'PENDIENTE_APROBACION_JEFE': { text: 'Pendiente Aprobacion', color: '#b45309' },
             'CONVOCATORIA_ABIERTA': { text: 'Abierta', color: '#4cb979' },
             'MONITOR_SELECCIONADO': { text: 'Monitor Seleccionado', color: '#5454e9' },
             'APROBADA': { text: 'Cerrada', color: '#88898c' },
             'RECHAZADA': { text: 'Rechazada', color: '#e9683b' },
-            'CANCELADA': { text: 'Cancelada', color: '#e4eb60' }
+            'CANCELADA': { text: 'Cancelada', color: '#b45309' }
         };
         const statusInfo = statusMap[status] || { 
             text: status ? status.replace(/_/g, ' ') : 'Sin estado', 

@@ -218,11 +218,11 @@
     white-space: nowrap;
 }
 
-/* Pendiente/En revisión → Amarillo Icesi */
+/* Pendiente/En revisión → Ámbar oscuro accesible */
 .badge-postulado {
-    background: #fdfee8;
-    color: #6b6e00;
-    border: 1px solid var(--color-yellow);
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
 }
 
 /* Seleccionado/Aprobado → Verde Icesi */

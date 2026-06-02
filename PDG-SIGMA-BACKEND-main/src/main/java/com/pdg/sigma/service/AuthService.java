@@ -1,5 +1,6 @@
 package com.pdg.sigma.service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,12 +9,15 @@ import com.pdg.sigma.repository.*;
 import com.pdg.sigma.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.pdg.sigma.dto.AuthDTO;
 
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Service
 public class AuthService {
@@ -94,13 +98,25 @@ public class AuthService {
     }*/
 
     public String authAPI(String id, String password) throws Exception{
-        AuthDTO authDTO = new AuthDTO(id,password);
+        AuthDTO authDTO = new AuthDTO(id, password);
+        // Reintenta hasta 4 veces con 5s de espera si el API-Banner responde 502
+        // (ocurre cuando Render despierta el servicio desde reposo en plan gratuito)
         String respuesta = webClient.post()
             .uri(bannerApiBaseUrl + "/api/auth/login")
-                .bodyValue(authDTO)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+            .bodyValue(authDTO)
+            .retrieve()
+            .onStatus(
+                status -> status == HttpStatus.BAD_GATEWAY || status == HttpStatus.SERVICE_UNAVAILABLE,
+                clientResponse -> Mono.error(new WebClientResponseException(
+                    clientResponse.statusCode().value(),
+                    "API-Banner iniciando, reintentando...", null, null, null))
+            )
+            .bodyToMono(String.class)
+            .retryWhen(Retry.fixedDelay(4, Duration.ofSeconds(5))
+                .filter(e -> e instanceof WebClientResponseException wcre
+                    && (wcre.getStatusCode() == HttpStatus.BAD_GATEWAY
+                        || wcre.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE)))
+            .block(Duration.ofSeconds(60));
 
         return respuesta;
     }
