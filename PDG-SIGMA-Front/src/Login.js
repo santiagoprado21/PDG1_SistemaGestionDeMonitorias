@@ -1,7 +1,6 @@
 import './Login.css';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from './img/logo.png';
 import Alert from './Alert';
 import { BACKEND_URL } from './config/ApiBackend';
 
@@ -121,7 +120,6 @@ function Login() {
       <main className="login-layout">
         <section className="login-hero" aria-hidden="true">
           <div className="login-hero-overlay" />
-          <img src={logo} alt="Universidad Icesi" className="logo-login" />
           <div className="login-hero-caption">
             <p>Llega mas lejos</p>
             <a href="https://www.icesi.edu.co" target="_blank" rel="noreferrer">
@@ -132,7 +130,6 @@ function Login() {
 
         <section className="login-panel">
           <div className="login-panel-header">
-            <h1>ICESI SIGMA</h1>
             <a href="https://banner.icesi.edu.co" target="_blank" rel="noreferrer">
               Guia Banner
             </a>
