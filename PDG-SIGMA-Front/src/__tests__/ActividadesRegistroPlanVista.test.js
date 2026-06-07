@@ -100,7 +100,8 @@ describe('ActividadesRegistroPlanVista', () => {
             </BrowserRouter>
         );
 
-        expect(await screen.findByText(/Plan de Actividades/i)).toBeInTheDocument();
+        const planTitles = await screen.findAllByText(/Plan de Actividades/i);
+        expect(planTitles.length).toBeGreaterThan(0);
         await waitFor(() => {
             expect(screen.getByText(/No hay actividades en el plan/i)).toBeInTheDocument();
         });
@@ -153,6 +154,169 @@ describe('ActividadesRegistroPlanVista', () => {
         });
         expect(await screen.findByText(/Asesoría semanal/i)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Limpiar filtros/i })).toBeInTheDocument();
+    });
+
+    test('VistaMonitorActividades muestra estado vacio sin actividades', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockImplementation(async () => ({ ok: true, json: async () => [] }));
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        expect(await screen.findByText(/Mis Actividades/i)).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.queryByText(/Cargando tus actividades/i)).not.toBeInTheDocument();
+        });
+    });
+
+    test('VistaMonitorActividades no se rompe cuando falla la API', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockRejectedValue(new Error('Error de red'));
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        expect(await screen.findByText(/Mis Actividades/i)).toBeInTheDocument();
+    });
+
+    test('VistaMonitorActividades muestra loading mientras carga', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockImplementation(() => new Promise(() => {}));
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        expect(await screen.findByText(/Cargando tus actividades/i)).toBeInTheDocument();
+    });
+
+    test('VistaMonitorActividades filtra por estado pendientes', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/activity/findAll/MON-01/monitor')) {
+                return { ok: true, json: async () => [
+                    { id: 1, name: 'Tarea pendiente', description: 'Desc', state: 'PENDIENTE', finish: '2099-12-31T00:00:00', monitoring: { id: 1, course: { name: 'Curso' }, professor: { name: 'Profe' }, semester: '2026-1' } },
+                    { id: 2, name: 'Tarea completada', description: 'Desc', state: 'COMPLETADO', finish: '2020-01-01T00:00:00', monitoring: { id: 1, course: { name: 'Curso' }, professor: { name: 'Profe' }, semester: '2026-1' } }
+                ]};
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        await screen.findByText(/Mis Actividades/i);
+        await waitFor(() => expect(screen.queryByText(/Cargando tus actividades/i)).not.toBeInTheDocument());
+
+        fireEvent.change(screen.getByDisplayValue(/Todas las actividades/i), { target: { value: 'pendientes' } });
+
+        await waitFor(() => {
+            expect(screen.getByText(/Tarea pendiente/i)).toBeInTheDocument();
+        });
+        expect(screen.queryByText(/Tarea completada/i)).not.toBeInTheDocument();
+    });
+
+    test('VistaMonitorActividades abre modal de confirmacion al hacer clic en Completar', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/activity/findAll/MON-01/monitor')) {
+                return { ok: true, json: async () => [
+                    { id: 1, name: 'Tarea a completar', description: 'Desc', state: 'PENDIENTE', finish: '2099-12-31T00:00:00', monitoring: { id: 1, course: { name: 'Curso' }, professor: { name: 'Profe' }, semester: '2026-1' } }
+                ]};
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        await screen.findByText(/Mis Actividades/i);
+        await waitFor(() => expect(screen.queryByText(/Cargando tus actividades/i)).not.toBeInTheDocument());
+
+        fireEvent.click(screen.getByRole('button', { name: /Completar/i }));
+
+        expect(await screen.findByText(/¿Estás seguro de marcar esta actividad como completada/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Marcar como Completada/i })).toBeInTheDocument();
+    });
+
+    test('VistaMonitorActividades cierra modal de confirmacion al cancelar', async () => {
+        window.localStorage.getItem.mockImplementation((key) => {
+            if (key === 'role') return 'monitor';
+            if (key === 'userId') return 'MON-01';
+            if (key === 'token') return 'Bearer test-token';
+            return null;
+        });
+
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/activity/findAll/MON-01/monitor')) {
+                return { ok: true, json: async () => [
+                    { id: 1, name: 'Tarea', description: 'Desc', state: 'PENDIENTE', finish: '2099-12-31T00:00:00', monitoring: { id: 1, course: { name: 'Curso' }, professor: { name: 'Profe' }, semester: '2026-1' } }
+                ]};
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        render(
+            <BrowserRouter>
+                <VistaMonitorActividades />
+            </BrowserRouter>
+        );
+
+        await screen.findByText(/Mis Actividades/i);
+        await waitFor(() => expect(screen.queryByText(/Cargando tus actividades/i)).not.toBeInTheDocument());
+
+        fireEvent.click(screen.getByRole('button', { name: /Completar/i }));
+        expect(await screen.findByText(/¿Estás seguro/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', { name: /Cancelar/i }));
+
+        await waitFor(() => {
+            expect(screen.queryByText(/¿Estás seguro/i)).not.toBeInTheDocument();
+        });
     });
 });
 

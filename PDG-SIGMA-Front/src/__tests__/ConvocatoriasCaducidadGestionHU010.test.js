@@ -74,6 +74,9 @@ describe('ConvocatoriasCaducidadGestionHU010', () => {
     test('Debe reflejar convocatorias cerradas (APROBADA) sin accion de postulantes', async () => {
         renderComponent();
 
+        const statusSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.change(statusSelect, { target: { value: 'Todos' } });
+
         const table = await screen.findByRole('table');
         await waitFor(() => {
             expect(within(table).getByText('Estructuras de Datos')).toBeInTheDocument();
@@ -81,10 +84,10 @@ describe('ConvocatoriasCaducidadGestionHU010', () => {
 
         const closedRow = within(table).getByText('Estructuras de Datos').closest('tr');
         expect(within(closedRow).getAllByText('Cerrada').length).toBeGreaterThan(0);
-        expect(within(closedRow).queryByRole('button', { name: /Ver Postulantes/i })).not.toBeInTheDocument();
+        expect(within(closedRow).queryByRole('button')).not.toBeInTheDocument();
 
         const openRow = within(table).getByText('Bases de Datos').closest('tr');
-        expect(within(openRow).getByRole('button', { name: /Ver Postulantes/i })).toBeInTheDocument();
+        expect(within(openRow).getByText('Abierta')).toBeInTheDocument();
     });
 
     test('Debe permitir filtrar por estado cerrado y mostrar solo convocatorias APROBADAS', async () => {

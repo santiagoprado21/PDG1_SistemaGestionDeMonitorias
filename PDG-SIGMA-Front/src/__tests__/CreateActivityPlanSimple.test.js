@@ -154,4 +154,266 @@ describe('CreateActivityPlanSimple', () => {
 
         expect(await screen.findByRole('heading', { name: /Nueva Actividad/i })).toBeInTheDocument();
     });
+
+    test('PlanActividades muestra estado de carga inicial', () => {
+        global.fetch = jest.fn(async () => {
+            await new Promise(r => setTimeout(r, 500));
+            return { ok: true, json: async () => [] };
+        });
+        render(<PlanActividades />);
+        expect(screen.getByText(/Cargando monitorías y plan de actividades/i)).toBeInTheDocument();
+    });
+
+    test('PlanActividades muestra error en carga de monitorías', async () => {
+        global.fetch = jest.fn(async () => {
+            throw new Error('Network error');
+        });
+        render(<PlanActividades />);
+        await waitFor(() => {
+            expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+        });
+    });
+
+    test('CreateActivity llena formulario y envia exitosamente', async () => {
+        const mockCourse = { id: 5, course: { name: 'POO', id: 50 } };
+        const mockMonitor = { userId: 'MON-1', name: 'Juan Monitor', rol: 'M' };
+        const mockCategory = { id: 1, name: 'Académico' };
+
+        global.fetch = jest.fn(async (url, options) => {
+            if (url.includes('/monitoring/getAllActiveByUserId/')) {
+                return { ok: true, json: async () => [mockCourse] };
+            }
+            if (url.includes('/student/getA')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/monitoring-monitor/')) {
+                return { ok: true, json: async () => [mockMonitor] };
+            }
+            if (url.includes('/student/course/')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/category/course/')) {
+                return { ok: true, json: async () => [mockCategory] };
+            }
+            if (url.includes('/activity/create')) {
+                return { ok: true, json: async () => ({ id: 100 }) };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        const { container } = render(<CreateActivity />);
+        expect(screen.getByText('Crear Actividad')).toBeInTheDocument();
+
+        const nameInput = container.querySelector('input.input-text');
+        fireEvent.change(nameInput, { target: { value: 'Tutoría de POO' } });
+
+        await screen.findByText('POO');
+
+        const selects = container.querySelectorAll('select');
+        fireEvent.change(selects[0], { target: { value: '5' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('Académico')).toBeInTheDocument();
+        });
+
+        fireEvent.change(selects[1], { target: { value: 'Académico' } });
+
+        const dateInput = container.querySelector('input[type="date"]');
+        fireEvent.change(dateInput, { target: { value: '2026-06-15' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('Juan Monitor')).toBeInTheDocument();
+        });
+
+        fireEvent.change(selects[2], { target: { value: 'MON-1' } });
+
+        fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText(/Actividad creada exitosamente/i)).toBeInTheDocument();
+        });
+    });
+
+    test('CreateActivity muestra error HTTP al crear actividad', async () => {
+    const mockCourse = { id: 5, course: { name: 'POO', id: 50 } };
+    const mockMonitor = { userId: 'MON-1', name: 'Juan Monitor', rol: 'M' };
+    const mockCategory = { id: 1, name: 'Académico' };
+
+    global.fetch = jest.fn(async (url, options) => {
+        if (url.includes('/monitoring/getAllActiveByUserId/')) {
+            return { ok: true, json: async () => [mockCourse] };
+        }
+        if (url.includes('/student/getA')) {
+            return { ok: true, json: async () => [] };
+        }
+        if (url.includes('/monitoring-monitor/')) {
+            return { ok: true, json: async () => [mockMonitor] };
+        }
+        if (url.includes('/student/course/')) {
+            return { ok: true, json: async () => [] };
+        }
+        if (url.includes('/category/course/')) {
+            return { ok: true, json: async () => [mockCategory] };
+        }
+        if (url.includes('/activity/create')) {
+            return { ok: false, status: 500, text: async () => 'Internal Server Error' };
+        }
+        return { ok: true, json: async () => [] };
+    });
+
+    const { container } = render(<CreateActivity />);
+    const nameInput = container.querySelector('input.input-text');
+    fireEvent.change(nameInput, { target: { value: 'Tutoría' } });
+
+    await screen.findByText('POO');
+
+    const selects = container.querySelectorAll('select');
+    fireEvent.change(selects[0], { target: { value: '5' } });
+
+    await waitFor(() => {
+        expect(screen.getByText('Académico')).toBeInTheDocument();
+    });
+
+    fireEvent.change(selects[1], { target: { value: 'Académico' } });
+
+    const dateInput = container.querySelector('input[type="date"]');
+    fireEvent.change(dateInput, { target: { value: '2026-06-15' } });
+
+    await waitFor(() => {
+        expect(screen.getByText('Juan Monitor')).toBeInTheDocument();
+    });
+
+    fireEvent.change(selects[2], { target: { value: 'MON-1' } });
+    fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
+
+    await waitFor(() => {
+        expect(screen.getByText(/Error al crear la actividad/i)).toBeInTheDocument();
+    });
+});
+
+test('CreateActivity permite desactivar registro de asistencia', async () => {
+    render(<CreateActivity />);
+    const checkbox = screen.getByLabelText(/¿Esta actividad requiere registrar asistencia/i);
+    expect(checkbox).toBeChecked();
+    fireEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
+    expect(screen.getByText(/registro de asistencia está desactivado/i)).toBeInTheDocument();
+});
+
+test('CreateActivity permite crear nueva categoría exitosamente', async () => {
+    const mockCourse = { id: 5, course: { name: 'POO', id: 50 } };
+
+    global.fetch = jest.fn(async (url, options) => {
+        if (url.includes('/monitoring/getAllActiveByUserId/')) {
+            return { ok: true, json: async () => [mockCourse] };
+        }
+        if (url.includes('/student/getA')) {
+            return { ok: true, json: async () => [] };
+        }
+        if (url.includes('/category/create')) {
+            return { ok: true, json: async () => ({ id: 10, name: 'NuevaCat' }) };
+        }
+        if (url.includes('/category/course/')) {
+            return { ok: true, json: async () => [{ id: 1, name: 'Académico' }] };
+        }
+        if (url.includes('/monitoring-monitor/')) {
+            return { ok: true, json: async () => [] };
+        }
+        if (url.includes('/student/course/')) {
+            return { ok: true, json: async () => [] };
+        }
+        return { ok: true, json: async () => [] };
+    });
+
+    const { container } = render(<CreateActivity />);
+    await screen.findByText('POO');
+
+    const selects = container.querySelectorAll('select');
+    fireEvent.change(selects[0], { target: { value: '5' } });
+
+    fireEvent.click(screen.getByRole('button', { name: '+' }));
+
+    const newCatInput = screen.getByPlaceholderText(/Nueva categoría/i);
+    fireEvent.change(newCatInput, { target: { value: 'NuevaCat' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /Añadir/i }));
+
+    await waitFor(() => {
+        expect(screen.getByText(/Categoría creada/i)).toBeInTheDocument();
+    });
+});
+
+test('CreateActivity maneja error de red al cargar cursos', async () => {
+    global.fetch = jest.fn(async (url) => {
+        if (url.includes('/monitoring/getAllActiveByUserId/')) {
+            throw new Error('Network error');
+        }
+        if (url.includes('/student/getA')) {
+            return { ok: true, json: async () => [] };
+        }
+        return { ok: true, json: async () => [] };
+    });
+
+    render(<CreateActivity />);
+    expect(screen.getByText('Crear Actividad')).toBeInTheDocument();
+});
+
+test('CreateActivity muestra error de red al enviar', async () => {
+        const mockCourse = { id: 5, course: { name: 'POO', id: 50 } };
+        const mockMonitor = { userId: 'MON-1', name: 'Juan Monitor', rol: 'M' };
+        const mockCategory = { id: 1, name: 'Académico' };
+
+        global.fetch = jest.fn(async (url, options) => {
+            if (url.includes('/monitoring/getAllActiveByUserId/')) {
+                return { ok: true, json: async () => [mockCourse] };
+            }
+            if (url.includes('/student/getA')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/monitoring-monitor/')) {
+                return { ok: true, json: async () => [mockMonitor] };
+            }
+            if (url.includes('/student/course/')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/category/course/')) {
+                return { ok: true, json: async () => [mockCategory] };
+            }
+            if (url.includes('/activity/create')) {
+                throw new Error('Network error');
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        const { container } = render(<CreateActivity />);
+
+        const nameInput = container.querySelector('input.input-text');
+        fireEvent.change(nameInput, { target: { value: 'Tutoría' } });
+
+        await screen.findByText('POO');
+
+        const selects = container.querySelectorAll('select');
+        fireEvent.change(selects[0], { target: { value: '5' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('Académico')).toBeInTheDocument();
+        });
+
+        fireEvent.change(selects[1], { target: { value: 'Académico' } });
+
+        const dateInput = container.querySelector('input[type="date"]');
+        fireEvent.change(dateInput, { target: { value: '2026-06-15' } });
+
+        await waitFor(() => {
+            expect(screen.getByText('Juan Monitor')).toBeInTheDocument();
+        });
+
+        fireEvent.change(selects[2], { target: { value: 'MON-1' } });
+
+        fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
+
+        await waitFor(() => {
+            expect(screen.getByText(/Error/i)).toBeInTheDocument();
+        });
+    });
 });

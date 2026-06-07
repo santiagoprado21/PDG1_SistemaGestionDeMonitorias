@@ -47,6 +47,25 @@ describe('PopupsConfirmacionFrontend', () => {
         expect(onApply).not.toHaveBeenCalled();
     });
 
+    test('Debe retornar null cuando show es false', () => {
+        const { container } = render(<PopupCheck show={false} onClose={jest.fn()} onApply={jest.fn()} />);
+        expect(container.innerHTML).toBe('');
+    });
+
+    test('Debe habilitar boton Aplicar cuando el checkbox esta marcado', () => {
+        const onApply = jest.fn();
+        render(<PopupCheck show={true} onClose={jest.fn()} onApply={onApply} />);
+
+        const checkbox = screen.getByRole('checkbox');
+        fireEvent.click(checkbox);
+
+        const applyButton = screen.getByRole('button', { name: /Aplicar/i });
+        expect(applyButton).not.toBeDisabled();
+
+        fireEvent.click(applyButton);
+        expect(onApply).toHaveBeenCalledTimes(1);
+    });
+
     test('Debe soportar popups encadenados (cerrar uno y abrir el siguiente)', () => {
         render(<ChainedPopupsHarness />);
 
