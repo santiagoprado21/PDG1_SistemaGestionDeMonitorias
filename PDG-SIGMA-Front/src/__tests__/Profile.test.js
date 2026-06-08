@@ -120,4 +120,192 @@ describe('Profile', () => {
     expect(screen.queryByTestId('update-button')).not.toBeInTheDocument();
     expect(screen.getByText(/profesor asignado/i)).toBeInTheDocument();
   });
+
+  it('en rol jfedpto muestra update button y ambas columnas', async () => {
+    localStorage.setItem('role', 'jfedpto');
+    localStorage.setItem('userId', 'JEF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/department-head/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ name: 'Jefe Dpto', school: 'Ingenieria', program: 'Sistemas', rol: 'Jefe Depto' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([{ id: 20, semester: '2025-1', courseName: 'POO', monitor: 'Monitor X', professorName: 'Prof Y' }]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    expect(await screen.findByText('Jefe Dpto')).toBeInTheDocument();
+    expect(screen.getByTestId('update-button')).toHaveTextContent('jfedpto:JEF-1');
+    expect(screen.getByText(/profesor asignado/i)).toBeInTheDocument();
+    expect(screen.getByText(/monitor asignado/i)).toBeInTheDocument();
+    expect(screen.getByText('Monitor X')).toBeInTheDocument();
+    expect(screen.getByText('Prof Y')).toBeInTheDocument();
+  });
+
+  it('maneja error HTTP en fetch de perfil de profesor', async () => {
+    localStorage.setItem('role', 'professor');
+    localStorage.setItem('userId', 'PROF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/professor/profile/')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve({ error: 'Not found' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
+
+  it('maneja data null en fetch de perfil de profesor', async () => {
+    localStorage.setItem('role', 'professor');
+    localStorage.setItem('userId', 'PROF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/professor/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
+
+  it('maneja error HTTP en fetch de cursos asignados', async () => {
+    localStorage.setItem('role', 'professor');
+    localStorage.setItem('userId', 'PROF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/professor/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ name: 'Ana', school: 'Ingenieria', program: 'Sistemas', rol: 'Profesor' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: false });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    expect(await screen.findByText('Ana')).toBeInTheDocument();
+  });
+
+  it('maneja data null en fetch de cursos asignados', async () => {
+    localStorage.setItem('role', 'professor');
+    localStorage.setItem('userId', 'PROF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/professor/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ name: 'Ana', school: 'Ingenieria', program: 'Sistemas', rol: 'Profesor' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    expect(await screen.findByText('Ana')).toBeInTheDocument();
+  });
+
+  it('maneja error HTTP en fetch de perfil de monitor', async () => {
+    localStorage.setItem('role', 'monitor');
+    localStorage.setItem('userId', 'MON-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/monitor/profile/')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve({ error: 'Not found' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
+
+  it('maneja data null en fetch de perfil de monitor', async () => {
+    localStorage.setItem('role', 'monitor');
+    localStorage.setItem('userId', 'MON-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/monitor/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
+
+  it('maneja error HTTP en fetch de perfil de jefe de departamento', async () => {
+    localStorage.setItem('role', 'jfedpto');
+    localStorage.setItem('userId', 'JEF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/department-head/profile/')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve({ error: 'Not found' }) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
+
+  it('maneja data null en fetch de perfil de jefe de departamento', async () => {
+    localStorage.setItem('role', 'jfedpto');
+    localStorage.setItem('userId', 'JEF-1');
+
+    fetch.mockImplementation((url) => {
+      if (url.includes('/department-head/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(null) });
+      }
+      if (url.includes('/monitoring/profile/')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+    });
+
+    render(<MemoryRouter><Profile /></MemoryRouter>);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    });
+  });
 });

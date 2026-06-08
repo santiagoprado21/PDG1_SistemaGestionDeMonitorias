@@ -13,6 +13,10 @@ jest.mock('../VerticalNavbar', () => {
     };
 });
 
+jest.mock('../PopUp', () => ({
+    PopUp: ({ show, children, onClose }) => (show ? <div data-testid="popup">{children}<button onClick={onClose}>OK</button></div> : null)
+}));
+
 describe('CerrarMonitoriasHU007', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -330,6 +334,264 @@ describe('CerrarMonitoriasHU007', () => {
         await waitFor(() => {
             expect(screen.getByText(/Debe ingresar un comentario/)).toBeInTheDocument();
         });
+    });
+
+    test('Debe mostrar error al cargar monitorías', async () => {
+        fetch.mockResolvedValueOnce({ ok: false });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText(/Error al cargar las monitorías/)).toBeInTheDocument();
+        });
+    });
+
+    test('Debe permitir seleccionar todas y desseleccionar', async () => {
+        const multipleMonitorings = [
+            { id: 1, semester: '2026-1', course: { name: 'Curso A' }, program: { name: 'Prog A' }, professor: { name: 'Prof A' }, assignedMonitor: { name: 'Mon A' }, estimatedHours: 40 },
+            { id: 2, semester: '2026-1', course: { name: 'Curso B' }, program: { name: 'Prog B' }, professor: { name: 'Prof B' }, assignedMonitor: { name: 'Mon B' }, estimatedHours: 30 }
+        ];
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => multipleMonitorings });
+
+        render(<BrowserRouter><CerrarMonitorias /></BrowserRouter>);
+
+        await screen.findByText('Curso A');
+
+        fireEvent.click(screen.getByText(/Seleccionar todas/i));
+        await waitFor(() => expect(screen.getByText(/Cerrar Seleccionadas \(2\)/)).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText(/Seleccionar todas/i));
+        await waitFor(() => expect(screen.getByText(/Cerrar Seleccionadas \(0\)/)).toBeInTheDocument());
+    });
+
+
+
+    test('Debe cerrar dos monitorías en lote', async () => {
+        const batchMonitorings = [
+            { id: 1, semester: '2026-1', course: { name: 'Curso A' }, program: { name: 'Prog A' }, professor: { name: 'Prof A' }, assignedMonitor: { name: 'Mon A' }, estimatedHours: 40 },
+            { id: 2, semester: '2026-1', course: { name: 'Curso B' }, program: { name: 'Prog B' }, professor: { name: 'Prof B' }, assignedMonitor: { name: 'Mon B' }, estimatedHours: 30 }
+        ];
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => batchMonitorings });
+
+        render(<BrowserRouter><CerrarMonitorias /></BrowserRouter>);
+
+        await screen.findByText('Curso A');
+
+        const checkboxes = screen.getAllByRole('checkbox');
+        fireEvent.click(checkboxes[1]);
+        fireEvent.click(checkboxes[2]);
+
+        await waitFor(() => expect(screen.getByText(/Cerrar Seleccionadas \(2\)/)).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText(/Cerrar Seleccionadas/));
+        await screen.findByPlaceholderText(/Ingrese un comentario/);
+
+        fireEvent.change(screen.getByPlaceholderText(/Ingrese un comentario/), { target: { value: 'Cierre lote' } });
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+
+        fireEvent.click(screen.getByRole('button', { name: /Cerrar Monitorías/ }));
+
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/monitoring-closure/close-batch'),
+                expect.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    test('Debe ver reporte de monitoría cerrada con cumplimiento bajo', async () => {
+        const lowComplianceClosed = {
+            id: 27, semester: '2026-1', course: { name: 'Programación Avanzada' }, program: { name: 'Ingeniería de Sistemas' },
+            professor: { name: 'Juan Pérez' }, assignedMonitor: { name: 'Ana García' },
+            compliancePercentage: 50, closureDate: '2026-01-21T17:30:00'
+        };
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [] }); // pendientes vacías
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [lowComplianceClosed] });
+
+        render(<BrowserRouter><CerrarMonitorias /></BrowserRouter>);
+
+        fireEvent.click(screen.getByText(/Monitorías Cerradas/));
+        await screen.findByText('Ver Reporte');
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => ({
+            courseName: 'Programación Avanzada', programName: 'Ingeniería de Sistemas',
+            professorName: 'Juan Pérez', monitorName: 'Ana García',
+            semester: '2026-1', compliancePercentage: 50,
+            completedActivities: 3, totalActivities: 6,
+            actualHours: 20, estimatedHours: 40,
+            startDate: '2026-01-15', finishDate: '2026-06-15',
+            closureDate: '2026-01-21', closedBy: 'Admin',
+            closureComment: 'Cierre por bajo rendimiento'
+        }) });
+
+        fireEvent.click(screen.getByText('Ver Reporte'));
+
+        expect(await screen.findByText('Reporte de Cumplimiento')).toBeInTheDocument();
+        expect(screen.getAllByText('50%').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText('3 / 6')).toBeInTheDocument();
+        expect(screen.getByText('20h / 40h')).toBeInTheDocument();
+    });
+
+    test('Debe abrir modal de cierre, desactivar autoCalculate y mostrar texto de métricas manuales', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockMonitorings
+        });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        await screen.findByText('Programación Avanzada');
+
+        const checkbox = screen.getAllByRole('checkbox')[1];
+        fireEvent.click(checkbox);
+
+        fireEvent.click(screen.getByText(/Cerrar Seleccionadas/));
+
+        await screen.findByPlaceholderText(/Ingrese un comentario/);
+
+        const autoCalcCheckbox = screen.getByLabelText(/Calcular automáticamente/i);
+        expect(screen.getByText(/El sistema calculará automáticamente/i)).toBeInTheDocument();
+
+        fireEvent.click(autoCalcCheckbox);
+
+        expect(screen.getByText(/Deberá ingresar manualmente/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('×'));
+
+        await waitFor(() => {
+            expect(screen.queryByPlaceholderText(/Ingrese un comentario/)).not.toBeInTheDocument();
+        });
+    });
+
+    test('Debe ver reporte con fechas nulas, presupuesto y tarifa nula, cumplimiento ámbar', async () => {
+        const closedWithNullDates = {
+            id: 27, semester: '2026-1', course: { name: 'Programación Avanzada' }, program: { name: 'Ingeniería de Sistemas' },
+            professor: { name: 'Juan Pérez' }, assignedMonitor: { name: 'Ana García' },
+            compliancePercentage: 75, closureDate: '2026-01-21T17:30:00'
+        };
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [closedWithNullDates] });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        fireEvent.click(screen.getByText(/Monitorías Cerradas/));
+        await screen.findByText('Ver Reporte');
+
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => ({
+            courseName: 'Programación Avanzada', programName: 'Ingeniería de Sistemas',
+            professorName: 'Juan Pérez', monitorName: 'Ana García',
+            semester: '2026-1', compliancePercentage: 75,
+            completedActivities: 3, totalActivities: 6,
+            actualHours: 20, estimatedHours: 40,
+            startDate: null, finishDate: null,
+            closureDate: null, closedBy: 'Admin',
+            closureComment: 'Cierre de prueba',
+            totalBudgetUsed: 5000, hourlyRate: null
+        }) });
+
+        fireEvent.click(screen.getByText('Ver Reporte'));
+
+        expect(await screen.findByText('Reporte de Cumplimiento')).toBeInTheDocument();
+        expect(screen.getByText(/Monto total usado:/)).toBeInTheDocument();
+        expect(screen.getAllByText('N/A').length).toBeGreaterThanOrEqual(3);
+        expect(screen.getByText('Cumplimiento General')).toBeInTheDocument();
+    });
+
+    test('Debe mostrar error al hacer clic en Cerrar sin seleccionar monitorias', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockMonitorings
+        });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        await screen.findByText('Programación Avanzada');
+
+        const cerrarButton = screen.getByText(/Cerrar Seleccionadas/i);
+        await waitFor(() => {
+            expect(cerrarButton).toBeDisabled();
+        });
+    });
+
+    test('Debe mostrar error al cargar reporte fallido', async () => {
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [] });
+        fetch.mockResolvedValueOnce({ ok: true, json: async () => [mockClosedMonitoring] });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        fireEvent.click(screen.getByText(/Monitorías Cerradas/));
+        await screen.findByText('Ver Reporte');
+
+        fetch.mockResolvedValueOnce({
+            ok: false,
+            status: 500,
+            json: async () => ({ error: 'Server error' })
+        });
+
+        fireEvent.click(screen.getByText('Ver Reporte'));
+
+        await waitFor(() => {
+            expect(screen.getByTestId('popup')).toBeInTheDocument();
+        });
+    });
+
+    test('Debe cambiar de periodo usando el select', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockMonitorings
+        });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        await screen.findByText('Programación Avanzada');
+        const semesterSelect = screen.getByRole('combobox');
+        fireEvent.change(semesterSelect, { target: { value: '2025-2' } });
+    });
+
+    test('Debe hacer clic en tab Listas para Cerrar', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockMonitorings
+        });
+
+        render(
+            <BrowserRouter>
+                <CerrarMonitorias />
+            </BrowserRouter>
+        );
+
+        await screen.findByText('Programación Avanzada');
+        fireEvent.click(screen.getByText(/Listas para Cerrar/));
     });
 });
 
