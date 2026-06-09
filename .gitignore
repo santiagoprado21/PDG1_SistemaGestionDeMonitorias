@@ -1,90 +1,71 @@
-# ================================================
-# GITIGNORE PARA PROYECTO SIGMA
-# ================================================
 
-# Configuración de VS Code (personal, no compartir)
-.vscode/
-*.code-workspace
-
-# Configuración de IDEs
-.idea/
-*.iml
-*.iws
-*.ipr
-.settings/
-.project
-.classpath
-
-# Sistema operativo
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Archivos temporales
-*.tmp
-*.temp
-*.log
-*.swp
-*.swo
-*~
-
-# Node modules (ya está en PDG-SIGMA-Front/.gitignore pero por si acaso)
-node_modules/
-
-# Build directories de Maven/Java
-target/
-build/
-out/
-*.class
-
-# Archivos de compilación
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# Dependencias descargadas
-.mvn/wrapper/maven-wrapper.jar
-
-# Variables de entorno locales (contraseñas, etc)
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Bases de datos locales (si usas SQLite o similar)
-*.db
-*.sqlite
-*.sqlite3
-
-# Backups
-*.bak
-*.backup
-*.old
-
-# Certificados y claves (NUNCA subir a git)
-*.key
-*.pem
-*.crt
-*.p12
-*.pfx
-
-# ================================================
-# CREDENCIALES NEON Y ARCHIVOS LOCALES
 # ================================================
 # Archivos con credenciales de Neon (local)
-credenciales_neon_LOCAL.txt
-credenciales_neon_CLOUD.txt
-
+# Archivos de compilación
+# Archivos temporales
+# Backups
+# Bases de datos locales (si usas SQLite o similar)
+# Build directories de Maven/Java
+# CREDENCIALES NEON Y ARCHIVOS LOCALES
+# Certificados y claves (NUNCA subir a git)
+# Configuración de IDEs
+# Configuración de VS Code (personal, no compartir)
+# Dependencias descargadas
+# GITIGNORE PARA PROYECTO SIGMA
+# Logs
+# Node modules (ya está en PDG-SIGMA-Front/.gitignore pero por si acaso)
 # Si creas archivos de configuración locales con credenciales
+# Sistema operativo
+# Variables de entorno locales (contraseñas, etc)
 *-LOCAL.properties
 *-local-credentials.*
-
+*.backup
+*.bak
+*.class
+*.code-workspace
+*.crt
+*.db
+*.ear
+*.iml
+*.ipr
+*.iws
+*.jar
+*.key
+*.log
+*.old
+*.p12
+*.pem
+*.pfx
+*.rar
+*.sqlite
+*.sqlite3
+*.swo
+*.swp
+*.tar.gz
+*.temp
+*.tmp
+*.war
+*.zip
+*~
+.DS_Store
+.classpath
+.env
+.env.*.local
+.env.local
+.idea/
+.mvn/wrapper/maven-wrapper.jar
+.project
+.settings/
+.vscode/
+Thumbs.db
+build/
+credenciales_neon_CLOUD.txt
+credenciales_neon_LOCAL.txt
+desktop.ini
+logs/
+node_modules/
+npm-debug.log*
+out/
+target/
+yarn-debug.log*
+yarn-error.log*
