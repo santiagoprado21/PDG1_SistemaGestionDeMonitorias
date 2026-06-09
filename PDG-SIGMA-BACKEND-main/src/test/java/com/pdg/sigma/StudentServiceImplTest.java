@@ -124,4 +124,10 @@ class StudentServiceImplTest {
 
         assertEquals(10L, result);
     }
+
+    @Test
+    @DisplayName("Debe validar estudiante")
+    void testValidate() {
+        studentService.validate(mockStudent);
+    }
 }

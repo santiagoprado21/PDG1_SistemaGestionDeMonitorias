@@ -55,4 +55,29 @@ class SchoolServiceImplTest {
     void save_returnsNull() throws Exception {
         assertNull(schoolService.save(new SchoolDTO(1L, "Test")));
     }
+
+    @Test
+    void update_returnsNull() throws Exception {
+        assertNull(schoolService.update(new SchoolDTO(1L, "Test")));
+    }
+
+    @Test
+    void delete_doesNothing() throws Exception {
+        schoolService.delete(new SchoolDTO(1L, "Test"));
+    }
+
+    @Test
+    void deleteById_doesNothing() throws Exception {
+        schoolService.deleteById(1L);
+    }
+
+    @Test
+    void validate_doesNothing() throws Exception {
+        schoolService.validate(new SchoolDTO(1L, "Test"));
+    }
+
+    @Test
+    void count_returnsNull() {
+        assertNull(schoolService.count());
+    }
 }

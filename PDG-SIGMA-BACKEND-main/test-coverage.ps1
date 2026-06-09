@@ -12,7 +12,7 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "       RESUMEN DE COBERTURA" -ForegroundColor Green
+Write-Host "          COVERAGE SUMMARY" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 
 $csvPath = "target\site\jacoco\jacoco.csv"
@@ -28,11 +28,19 @@ if (Test-Path $csvPath) {
     $totalMethods = ($csv | Measure-Object -Property METHOD_MISSED -Sum).Sum + ($csv | Measure-Object -Property METHOD_COVERED -Sum).Sum
     $coveredMethods = ($csv | Measure-Object -Property METHOD_COVERED -Sum).Sum
 
+    function Get-Color($pct) {
+        if ($pct -ge 80) { return "Green" } else { return "Yellow" }
+    }
+
     Write-Host ""
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Instrucciones", [math]::Round($coveredInst/$totalInst*100,2), $coveredInst, $totalInst) -ForegroundColor Yellow
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Ramas", [math]::Round($coveredBranch/$totalBranch*100,2), $coveredBranch, $totalBranch) -ForegroundColor Yellow
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Líneas", [math]::Round($coveredLines/$totalLines*100,2), $coveredLines, $totalLines) -ForegroundColor Yellow
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Métodos", [math]::Round($coveredMethods/$totalMethods*100,2), $coveredMethods, $totalMethods) -ForegroundColor Yellow
+    $instPct = [math]::Round($coveredInst/$totalInst*100,2)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Instructions", $instPct, $coveredInst, $totalInst) -ForegroundColor (Get-Color $instPct)
+    $branchPct = [math]::Round($coveredBranch/$totalBranch*100,2)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Branches", $branchPct, $coveredBranch, $totalBranch) -ForegroundColor (Get-Color $branchPct)
+    $linesPct = [math]::Round($coveredLines/$totalLines*100,2)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Lines", $linesPct, $coveredLines, $totalLines) -ForegroundColor (Get-Color $linesPct)
+    $methodsPct = [math]::Round($coveredMethods/$totalMethods*100,2)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Methods", $methodsPct, $coveredMethods, $totalMethods) -ForegroundColor (Get-Color $methodsPct)
 
     Write-Host ""
     Write-Host "Reporte HTML: target/site/jacoco/index.html" -ForegroundColor Cyan
