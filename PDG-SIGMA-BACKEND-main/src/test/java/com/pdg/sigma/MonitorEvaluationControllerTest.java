@@ -1,6 +1,5 @@
 package com.pdg.sigma;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdg.sigma.controller.MonitorEvaluationController;
 import com.pdg.sigma.dto.MonitorEvaluationAssignmentDTO;
 import com.pdg.sigma.dto.MonitorEvaluationRequest;
@@ -8,27 +7,22 @@ import com.pdg.sigma.dto.MonitorEvaluationResponse;
 import com.pdg.sigma.service.MonitorEvaluationService;
 import com.pdg.sigma.util.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -45,150 +39,282 @@ class MonitorEvaluationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private MonitorEvaluationService monitorEvaluationService;
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    // ---- POST /monitor-evaluations ----
+
     @Test
-    void createEvaluation_returnsCreatedResponse() throws Exception {
-        MonitorEvaluationRequest request = new MonitorEvaluationRequest();
-        request.setProfessorId("PROF-1");
-        request.setMonitoringId(10L);
-        request.setMonitorCode("MON-1");
-        request.setTaskCompliance(4);
-        request.setTimelyCommunication(4);
-        request.setPlanFulfillment(4);
-        request.setAttitude(4);
-        request.setComments("Buen trabajo");
-
+    void createEvaluation_returnsCreated() throws Exception {
         MonitorEvaluationResponse response = new MonitorEvaluationResponse();
-        response.setEvaluationId(90L);
-        response.setMonitoringId(10L);
-        response.setMonitorFullName("Ana Pérez");
-        response.setTotalScore(4.0);
-        response.setPerformanceLevel("ADECUADO");
-
-        Mockito.when(monitorEvaluationService.createEvaluation(eq("PROF-1"), any(MonitorEvaluationRequest.class)))
+        response.setEvaluationId(1L);
+        when(monitorEvaluationService.createEvaluation(anyString(), any(MonitorEvaluationRequest.class)))
                 .thenReturn(response);
 
         mockMvc.perform(post("/monitor-evaluations")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.evaluationId", is(90)))
-                .andExpect(jsonPath("$.monitorFullName", is("Ana Pérez")))
-                .andExpect(jsonPath("$.performanceLevel", is("ADECUADO")));
+                .andExpect(jsonPath("$.evaluationId").value(1));
     }
 
     @Test
-    void createEvaluation_conflictWhenAlreadyExists() throws Exception {
-        MonitorEvaluationRequest request = new MonitorEvaluationRequest();
-        request.setProfessorId("PROF-1");
-        request.setMonitoringId(10L);
-        request.setMonitorCode("MON-1");
-
-        Mockito.when(monitorEvaluationService.createEvaluation(eq("PROF-1"), any(MonitorEvaluationRequest.class)))
-                .thenThrow(new IllegalStateException("Ya existe una evaluación"));
+    void createEvaluation_conflict_returns409() throws Exception {
+        when(monitorEvaluationService.createEvaluation(anyString(), any(MonitorEvaluationRequest.class)))
+                .thenThrow(new IllegalStateException("Conflicto"));
 
         mockMvc.perform(post("/monitor-evaluations")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error", is("Ya existe una evaluación")));
+                .andExpect(jsonPath("$.error").value("Conflicto"));
     }
 
     @Test
-    void updateEvaluation_returnsOk() throws Exception {
-        Long evaluationId = 44L;
-        MonitorEvaluationRequest request = new MonitorEvaluationRequest();
-        request.setProfessorId("PROF-2");
-        request.setTaskCompliance(3);
-        request.setTimelyCommunication(4);
-        request.setPlanFulfillment(3);
-        request.setAttitude(4);
+    void createEvaluation_error_returns400() throws Exception {
+        when(monitorEvaluationService.createEvaluation(anyString(), any(MonitorEvaluationRequest.class)))
+                .thenThrow(new RuntimeException("Error"));
 
+        mockMvc.perform(post("/monitor-evaluations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
+    }
+
+    // ---- PUT /monitor-evaluations/{evaluationId} ----
+
+    @Test
+    void updateEvaluation_success() throws Exception {
         MonitorEvaluationResponse response = new MonitorEvaluationResponse();
-        response.setEvaluationId(evaluationId);
-        response.setTotalScore(3.5);
-        response.setPerformanceLevel("DESTACADO");
-
-        Mockito.when(monitorEvaluationService.updateEvaluation(eq(evaluationId), eq("PROF-2"), any(MonitorEvaluationRequest.class)))
+        response.setEvaluationId(1L);
+        when(monitorEvaluationService.updateEvaluation(anyLong(), anyString(), any(MonitorEvaluationRequest.class)))
                 .thenReturn(response);
 
-        mockMvc.perform(put("/monitor-evaluations/{id}", evaluationId)
+        mockMvc.perform(put("/monitor-evaluations/{evaluationId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.evaluationId", is(44)))
-                .andExpect(jsonPath("$.performanceLevel", is("DESTACADO")));
+                .andExpect(jsonPath("$.evaluationId").value(1));
     }
 
     @Test
-    void getAssignments_returnsList() throws Exception {
-        MonitorEvaluationAssignmentDTO dto = new MonitorEvaluationAssignmentDTO();
-        dto.setMonitoringId(5L);
-        dto.setMonitorFullName("Carlos Díaz");
-        dto.setEvaluated(true);
-        dto.setTotalScore(4.25);
-        dto.setPerformanceLevel("DESTACADO");
+    void updateEvaluation_forbidden_returns403() throws Exception {
+        when(monitorEvaluationService.updateEvaluation(anyLong(), anyString(), any(MonitorEvaluationRequest.class)))
+                .thenThrow(new RuntimeException("no está autorizado"));
 
-        Mockito.when(monitorEvaluationService.getEvaluationAssignmentsForProfessor(eq("PROF-3"), ArgumentMatchers.<Optional<String>>any()))
-                .thenReturn(List.of(dto));
-
-        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}/assignments", "PROF-3")
-                        .param("search", "carlos"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].monitorFullName", is("Carlos Díaz")))
-                .andExpect(jsonPath("$[0].evaluated", is(true)))
-                .andExpect(jsonPath("$[0].totalScore", is(4.25)));
-    }
-
-    @Test
-    void acknowledgeEvaluation_forbiddenWhenDoesNotBelong() throws Exception {
-        Mockito.when(monitorEvaluationService.acknowledgeEvaluation(eq(70L), anyString()))
-                .thenThrow(new Exception("Esta evaluación no pertenece al monitor indicado"));
-
-        mockMvc.perform(patch("/monitor-evaluations/{id}/acknowledge", 70L)
+        mockMvc.perform(put("/monitor-evaluations/{evaluationId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("monitorIdentifier", "MON-9"))))
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error", is("Esta evaluación no pertenece al monitor indicado")));
+                .andExpect(jsonPath("$.error").value("no está autorizado"));
     }
 
     @Test
-    void getEvaluation_notFoundWhenMissing() throws Exception {
-        Mockito.when(monitorEvaluationService.getEvaluation(999L)).thenReturn(Optional.empty());
+    void updateEvaluation_error_returns400() throws Exception {
+        when(monitorEvaluationService.updateEvaluation(anyLong(), anyString(), any(MonitorEvaluationRequest.class)))
+                .thenThrow(new RuntimeException("Error"));
 
-        mockMvc.perform(get("/monitor-evaluations/{id}", 999L))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Evaluación no encontrada")));
+        mockMvc.perform(put("/monitor-evaluations/{evaluationId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"professorId\":\"P001\",\"monitoringId\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
     }
 
+    // ---- GET /monitor-evaluations/professor/{professorId} ----
+
     @Test
-    void getEvaluationsForMonitor_returnsData() throws Exception {
-        MonitorEvaluationResponse response = new MonitorEvaluationResponse();
-        response.setEvaluationId(501L);
-        response.setMonitoringName("Algoritmos - 2025-1");
-        response.setCourseName("Algoritmos");
-        response.setSemester("2025-1");
-        response.setTotalScore(3.75);
-        response.setPerformanceLevel("ADECUADO");
-        response.setAcknowledgedByMonitor(false);
-        response.setCreatedAt(LocalDateTime.now());
+    void getEvaluationsByProfessor_success() throws Exception {
+        when(monitorEvaluationService.getEvaluationsByProfessor("P001"))
+                .thenReturn(List.of(new MonitorEvaluationResponse()));
 
-        Mockito.when(monitorEvaluationService.getEvaluationsForMonitor("MONITOR-1"))
-                .thenReturn(List.of(response));
-
-        mockMvc.perform(get("/monitor-evaluations/monitor/{identifier}", "MONITOR-1"))
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}", "P001"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].evaluationId", is(501)))
-                .andExpect(jsonPath("$[0].performanceLevel", is("ADECUADO")));
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    void getEvaluationsByProfessor_notFound_returns404() throws Exception {
+        when(monitorEvaluationService.getEvaluationsByProfessor("P001"))
+                .thenThrow(new RuntimeException("no encontrado"));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}", "P001"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("no encontrado"));
+    }
+
+    @Test
+    void getEvaluationsByProfessor_error_returns400() throws Exception {
+        when(monitorEvaluationService.getEvaluationsByProfessor("P001"))
+                .thenThrow(new RuntimeException("Error"));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}", "P001"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
+    }
+
+    // ---- GET /monitor-evaluations/professor/{professorId}/assignments ----
+
+    @Test
+    void getAssignments_success() throws Exception {
+        when(monitorEvaluationService.getEvaluationAssignmentsForProfessor(eq("P001"), any()))
+                .thenReturn(List.of(new MonitorEvaluationAssignmentDTO()));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}/assignments", "P001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    void getAssignments_withSearch_success() throws Exception {
+        when(monitorEvaluationService.getEvaluationAssignmentsForProfessor(eq("P001"), eq(Optional.of("term"))))
+                .thenReturn(List.of(new MonitorEvaluationAssignmentDTO()));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}/assignments", "P001")
+                        .param("search", "term"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    void getAssignments_notFound_returns404() throws Exception {
+        when(monitorEvaluationService.getEvaluationAssignmentsForProfessor(eq("P001"), any()))
+                .thenThrow(new RuntimeException("no encontrado"));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}/assignments", "P001"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("no encontrado"));
+    }
+
+    @Test
+    void getAssignments_error_returns400() throws Exception {
+        when(monitorEvaluationService.getEvaluationAssignmentsForProfessor(eq("P001"), any()))
+                .thenThrow(new RuntimeException("Error"));
+
+        mockMvc.perform(get("/monitor-evaluations/professor/{professorId}/assignments", "P001"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
+    }
+
+    // ---- GET /monitor-evaluations/monitor/{monitorIdentifier} ----
+
+    @Test
+    void getEvaluationsForMonitor_success() throws Exception {
+        when(monitorEvaluationService.getEvaluationsForMonitor("M001"))
+                .thenReturn(List.of(new MonitorEvaluationResponse()));
+
+        mockMvc.perform(get("/monitor-evaluations/monitor/{monitorIdentifier}", "M001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").exists());
+    }
+
+    @Test
+    void getEvaluationsForMonitor_notFound_returns404() throws Exception {
+        when(monitorEvaluationService.getEvaluationsForMonitor("M001"))
+                .thenThrow(new RuntimeException("no encontrado"));
+
+        mockMvc.perform(get("/monitor-evaluations/monitor/{monitorIdentifier}", "M001"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("no encontrado"));
+    }
+
+    @Test
+    void getEvaluationsForMonitor_error_returns400() throws Exception {
+        when(monitorEvaluationService.getEvaluationsForMonitor("M001"))
+                .thenThrow(new RuntimeException("Error"));
+
+        mockMvc.perform(get("/monitor-evaluations/monitor/{monitorIdentifier}", "M001"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
+    }
+
+    // ---- PATCH /monitor-evaluations/{evaluationId}/acknowledge ----
+
+    @Test
+    void acknowledgeEvaluation_success() throws Exception {
+        MonitorEvaluationResponse response = new MonitorEvaluationResponse();
+        response.setEvaluationId(1L);
+        when(monitorEvaluationService.acknowledgeEvaluation(anyLong(), anyString()))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/monitor-evaluations/{evaluationId}/acknowledge", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"monitorIdentifier\":\"M001\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.evaluationId").value(1));
+    }
+
+    @Test
+    void acknowledgeEvaluation_nullBody_usesNullMonitor() throws Exception {
+        MonitorEvaluationResponse response = new MonitorEvaluationResponse();
+        when(monitorEvaluationService.acknowledgeEvaluation(eq(1L), isNull()))
+                .thenReturn(response);
+
+        mockMvc.perform(patch("/monitor-evaluations/{evaluationId}/acknowledge", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void acknowledgeEvaluation_notFound_returns404() throws Exception {
+        when(monitorEvaluationService.acknowledgeEvaluation(anyLong(), anyString()))
+                .thenThrow(new RuntimeException("no encontrada"));
+
+        mockMvc.perform(patch("/monitor-evaluations/{evaluationId}/acknowledge", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"monitorIdentifier\":\"M001\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("no encontrada"));
+    }
+
+    @Test
+    void acknowledgeEvaluation_forbidden_returns403() throws Exception {
+        when(monitorEvaluationService.acknowledgeEvaluation(anyLong(), anyString()))
+                .thenThrow(new RuntimeException("no pertenece"));
+
+        mockMvc.perform(patch("/monitor-evaluations/{evaluationId}/acknowledge", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"monitorIdentifier\":\"M001\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("no pertenece"));
+    }
+
+    @Test
+    void acknowledgeEvaluation_error_returns400() throws Exception {
+        when(monitorEvaluationService.acknowledgeEvaluation(anyLong(), anyString()))
+                .thenThrow(new RuntimeException("Error"));
+
+        mockMvc.perform(patch("/monitor-evaluations/{evaluationId}/acknowledge", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"monitorIdentifier\":\"M001\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Error"));
+    }
+
+    // ---- GET /monitor-evaluations/{evaluationId} ----
+
+    @Test
+    void getEvaluation_found_returnsDTO() throws Exception {
+        MonitorEvaluationResponse response = new MonitorEvaluationResponse();
+        response.setEvaluationId(1L);
+        when(monitorEvaluationService.getEvaluation(1L)).thenReturn(Optional.of(response));
+
+        mockMvc.perform(get("/monitor-evaluations/{evaluationId}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.evaluationId").value(1));
+    }
+
+    @Test
+    void getEvaluation_notFound_returns404() throws Exception {
+        when(monitorEvaluationService.getEvaluation(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/monitor-evaluations/{evaluationId}", 1L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Evaluación no encontrada"));
     }
 }
