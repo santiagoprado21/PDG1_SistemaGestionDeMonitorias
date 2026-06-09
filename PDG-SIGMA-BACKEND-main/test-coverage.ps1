@@ -34,16 +34,53 @@ if (Test-Path $csvPath) {
 
     Write-Host ""
     $instPct = [math]::Round($coveredInst/$totalInst*100,2)
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Instructions", $instPct, $coveredInst, $totalInst) -ForegroundColor (Get-Color $instPct)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Statements", $instPct, $coveredInst, $totalInst) -ForegroundColor (Get-Color $instPct)
     $branchPct = [math]::Round($coveredBranch/$totalBranch*100,2)
     Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Branches", $branchPct, $coveredBranch, $totalBranch) -ForegroundColor (Get-Color $branchPct)
     $linesPct = [math]::Round($coveredLines/$totalLines*100,2)
     Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Lines", $linesPct, $coveredLines, $totalLines) -ForegroundColor (Get-Color $linesPct)
     $methodsPct = [math]::Round($coveredMethods/$totalMethods*100,2)
-    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Methods", $methodsPct, $coveredMethods, $totalMethods) -ForegroundColor (Get-Color $methodsPct)
+    Write-Host ("  {0,-15} {1,8}% ({2,6}/{3,-6})" -f "Functions", $methodsPct, $coveredMethods, $totalMethods) -ForegroundColor (Get-Color $methodsPct)
 
     Write-Host ""
-    Write-Host "Reporte HTML: target/site/jacoco/index.html" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Green
+
+    $surefireDir = "target\surefire-reports"
+    $testFiles = Get-ChildItem -Path $surefireDir -Filter "TEST-*.xml" -ErrorAction SilentlyContinue
+
+    if ($testFiles) {
+        $totalSuites = 0
+        $passedSuites = 0
+        $totalTests = 0
+        $passedTests = 0
+        $totalTime = 0.0
+
+        foreach ($file in $testFiles) {
+            [xml]$xml = Get-Content -Path $file.FullName
+            $suite = $xml.testsuite
+            $totalSuites++
+            $testsAttr = [int]$suite.tests
+            $failuresAttr = [int]$suite.failures
+            $errorsAttr = [int]$suite.errors
+            $skippedAttr = [int]$suite.skipped
+            $timeAttr = [double]$suite.time
+            $totalTests += $testsAttr
+            $passedTests += ($testsAttr - $failuresAttr - $errorsAttr - $skippedAttr)
+            $totalTime += $timeAttr
+            if (($failuresAttr + $errorsAttr) -eq 0) {
+                $passedSuites++
+            }
+        }
+
+        Write-Host ""
+        Write-Host ("  {0,-15} {1,8} passed, {2} total" -f "Test suites:", $passedSuites, $totalSuites) -ForegroundColor Green
+        Write-Host ("  {0,-15} {1,8} passed, {2} total" -f "Tests:", $passedTests, $totalTests) -ForegroundColor Green
+        Write-Host ("  {0,-15} {1,8}" -f "Time:", "$($totalTime.ToString("0.000")) s") -ForegroundColor Green
+    } else {
+        Write-Host "  No se encontraron reportes XML en $surefireDir" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
 } else {
     Write-Host "No se encontró el reporte CSV en $csvPath" -ForegroundColor Red
