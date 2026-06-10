@@ -178,7 +178,7 @@ function SeleccionarMonitor() {
         return (
             <span style={{
                 padding: '6px 12px',
-                borderRadius: '12px',
+                borderRadius: '0',
                 backgroundColor: statusInfo.color,
                 color: 'white',
                 fontSize: '13px',
@@ -325,13 +325,13 @@ function SeleccionarMonitor() {
 
             {/* Modal de confirmación */}
             {showModal && selectedPostulante && (
-                <div className="modal-overlay" onClick={closeModal}>
+                <div className="modal-overlay-seleccionar" onClick={closeModal}>
                     <div className="modal-content-seleccionar" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
+                        <div className="modal-header-seleccionar">
                             <h2>Confirmar Selección de Monitor</h2>
-                            <button className="modal-close" onClick={closeModal}>×</button>
+                            <button className="modal-close-seleccionar" onClick={closeModal}>×</button>
                         </div>
-                        <div className="modal-body">
+                        <div className="modal-body-seleccionar">
                             <div className="postulante-details">
                                 <p><strong>Monitor:</strong> {selectedPostulante.monitorName}</p>
                                 <p><strong>Código:</strong> {selectedPostulante.monitorId}</p>
@@ -345,7 +345,7 @@ function SeleccionarMonitor() {
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="form-group-seleccionar">
                                 <label>Notas adicionales (opcional):</label>
                                 <textarea 
                                     value={notes}
@@ -356,7 +356,7 @@ function SeleccionarMonitor() {
                                 />
                             </div>
 
-                            <div className="warning-box">
+                            <div className="warning-box-seleccionar">
                                 <strong>Importante:</strong>
                                 <p>Al seleccionar este monitor:</p>
                                 <ul>
@@ -366,7 +366,7 @@ function SeleccionarMonitor() {
                                 </ul>
                             </div>
                         </div>
-                        <div className="modal-footer">
+                        <div className="modal-footer-seleccionar">
                             <button className="btn-cancel" onClick={closeModal}>Cancelar</button>
                             <button 
                                 className="btn-confirm-select"
