@@ -143,6 +143,10 @@ public class MonitoringServiceImpl implements MonitoringService{
                         }
                     })
                     .sorted(Comparator.comparing(m -> {
+                        // ANULADA siempre al final (orden 3)
+                        if (m.getApprovalStatus() == MonitoringApprovalStatus.ANULADA) {
+                            return 3;
+                        }
                         Date start = m.getStart();
                         Date end = m.getFinish();
 
@@ -1462,10 +1466,12 @@ public class MonitoringServiceImpl implements MonitoringService{
         if (!monitoring.isPresent()) {
             return false;
         }
-        if(!monitoringMonitorRepository.findByMonitoring(monitoring.get()).isEmpty()) {
+        Monitoring m = monitoring.get();
+        if (m.getApprovalStatus() == MonitoringApprovalStatus.ANULADA) {
             return false;
         }
-        monitoringRepository.delete(monitoring.get());
+        m.setApprovalStatus(MonitoringApprovalStatus.ANULADA);
+        monitoringRepository.save(m);
         return true;
     }
 

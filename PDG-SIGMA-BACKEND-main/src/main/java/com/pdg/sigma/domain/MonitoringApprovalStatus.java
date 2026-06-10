@@ -25,6 +25,12 @@ public enum MonitoringApprovalStatus {
     /**
      * Jefe de departamento rechazó la monitoría
      */
-    RECHAZADA
+    RECHAZADA,
+
+    /**
+     * HU-498: Monitoría anulada (soft-delete). No se elimina de la base de datos.
+     * Una monitoría anulada no puede ser modificada ni aparece en consultas activas.
+     */
+    ANULADA
 }
 
