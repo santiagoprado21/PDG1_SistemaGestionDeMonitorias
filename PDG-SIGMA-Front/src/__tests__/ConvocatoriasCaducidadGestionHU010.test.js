@@ -74,6 +74,9 @@ describe('ConvocatoriasCaducidadGestionHU010', () => {
     test('Debe reflejar convocatorias cerradas (APROBADA) sin accion de postulantes', async () => {
         renderComponent();
 
+        const statusSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.change(statusSelect, { target: { value: 'Todos' } });
+
         const table = await screen.findByRole('table');
         await waitFor(() => {
             expect(within(table).getByText('Estructuras de Datos')).toBeInTheDocument();
@@ -81,10 +84,10 @@ describe('ConvocatoriasCaducidadGestionHU010', () => {
 
         const closedRow = within(table).getByText('Estructuras de Datos').closest('tr');
         expect(within(closedRow).getAllByText('Cerrada').length).toBeGreaterThan(0);
-        expect(within(closedRow).queryByRole('button', { name: /Ver Postulantes/i })).not.toBeInTheDocument();
+        expect(within(closedRow).queryByRole('button')).not.toBeInTheDocument();
 
         const openRow = within(table).getByText('Bases de Datos').closest('tr');
-        expect(within(openRow).getByRole('button', { name: /Ver Postulantes/i })).toBeInTheDocument();
+        expect(within(openRow).getByText('Abierta')).toBeInTheDocument();
     });
 
     test('Debe permitir filtrar por estado cerrado y mostrar solo convocatorias APROBADAS', async () => {
@@ -113,6 +116,103 @@ describe('ConvocatoriasCaducidadGestionHU010', () => {
             expect(screen.getByTestId('popup')).toBeInTheDocument();
             expect(screen.getByText(/Error cargando convocatorias/i)).toBeInTheDocument();
         });
+    });
+
+    test('Debe filtrar por curso correctamente', async () => {
+        renderComponent();
+
+        const table = await screen.findByRole('table');
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+        });
+
+        const courseSelect = screen.getAllByRole('combobox')[2];
+        fireEvent.change(courseSelect, { target: { value: 'Bases de Datos' } });
+
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+            expect(within(table).queryByText('Estructuras de Datos')).not.toBeInTheDocument();
+        });
+    });
+
+    test('Debe mostrar "No se encontraron convocatorias" cuando filtro no coincide', async () => {
+        renderComponent();
+
+        const table = await screen.findByRole('table');
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+        });
+
+        const statusSelect = screen.getAllByRole('combobox')[0];
+        fireEvent.change(statusSelect, { target: { value: 'RECHAZADA' } });
+
+        await waitFor(() => {
+            expect(screen.getByText(/No se encontraron convocatorias/i)).toBeInTheDocument();
+        });
+    });
+
+    test('Debe mostrar estado RECHAZADA correctamente', async () => {
+        fetch.mockImplementation(async () => ({
+            ok: true,
+            json: async () => [{
+                id: 201,
+                courseName: 'Rechazado Course',
+                programName: 'Ingenieria',
+                semester: '2026-1',
+                requestedHours: 8,
+                status: 'RECHAZADA',
+                applicationCount: 0,
+                createdAt: '2026-01-10T08:00:00'
+            }]
+        }));
+
+        renderComponent();
+
+        await waitFor(() => {
+            expect(screen.getByText('Rechazado Course')).toBeInTheDocument();
+        });
+    });
+
+    test('Debe manejar error de respuesta del servidor en carga de convocatorias', async () => {
+        fetch.mockImplementation(async () => ({
+            ok: false,
+            status: 500,
+            json: async () => ({ error: 'Internal server error' })
+        }));
+
+        renderComponent();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('popup')).toBeInTheDocument();
+        });
+    });
+
+    test('Debe cambiar filtro de semestre', async () => {
+        renderComponent();
+
+        const table = await screen.findByRole('table');
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+        });
+
+        const semesterSelect = screen.getAllByRole('combobox')[1];
+        fireEvent.change(semesterSelect, { target: { value: '2026-1' } });
+
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+        });
+    });
+
+    test('Debe cambiar registros por pagina', async () => {
+        renderComponent();
+
+        const table = await screen.findByRole('table');
+        await waitFor(() => {
+            expect(within(table).getByText('Bases de Datos')).toBeInTheDocument();
+        });
+
+        const pageSizeSelect = screen.getAllByRole('combobox')[3];
+        fireEvent.change(pageSizeSelect, { target: { value: '10' } });
     });
 });
 

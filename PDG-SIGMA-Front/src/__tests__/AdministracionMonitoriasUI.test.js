@@ -212,6 +212,149 @@ describe('AdministracionMonitoriasUI', () => {
         });
     });
 
+    test('Debe seleccionar monitor exitosamente llamando POST', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8, requiredAverageGrade: 3.5, requiredCourseGrade: 3.8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: true, json: async () => ([{ id: 9001, monitorName: 'Laura Pérez', monitorId: 'A001', status: 'POSTULADO', applicationDate: '2026-01-20T10:00:00', motivationLetter: 'Estoy motivada' }]) };
+            }
+            if (url.includes('/monitor-application/select')) {
+                return { ok: true, json: async () => ({ message: 'Seleccionado exitosamente' }) };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        await waitFor(() => expect(screen.getByText('Laura Pérez')).toBeInTheDocument());
+
+        fireEvent.click(screen.getByRole('button', { name: /Seleccionar/i }));
+        await waitFor(() => expect(screen.getByText(/Confirmar Selección de Monitor/i)).toBeInTheDocument());
+
+        fireEvent.click(screen.getByRole('button', { name: /Confirmar Selección/i }));
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledWith('http://localhost:5435/monitor-application/select', expect.objectContaining({ method: 'POST' }));
+        });
+        expect(await screen.findByText(/Seleccionado exitosamente/i)).toBeInTheDocument();
+    });
+
+    test('Debe mostrar error HTTP al seleccionar monitor', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: true, json: async () => ([{ id: 9002, monitorName: 'Carlos López', monitorId: 'A002', status: 'POSTULADO', applicationDate: '2026-01-20T10:00:00', motivationLetter: 'Motivado' }]) };
+            }
+            if (url.includes('/monitor-application/select')) {
+                return { ok: false, text: async () => 'Error del servidor' };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        await waitFor(() => expect(screen.getByText('Carlos López')).toBeInTheDocument());
+        fireEvent.click(screen.getByRole('button', { name: /Seleccionar/i }));
+        await waitFor(() => expect(screen.getByText(/Confirmar Selección de Monitor/i)).toBeInTheDocument());
+        fireEvent.click(screen.getByRole('button', { name: /Confirmar Selección/i }));
+        expect(await screen.findByText(/Error: Error del servidor/i)).toBeInTheDocument();
+    });
+
+    test('Debe mostrar error de red al seleccionar monitor', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: true, json: async () => ([{ id: 9003, monitorName: 'Ana María', monitorId: 'A003', status: 'POSTULADO', applicationDate: '2026-01-20T10:00:00', motivationLetter: 'Motivada' }]) };
+            }
+            if (url.includes('/monitor-application/select')) {
+                throw new Error('Network error');
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        await waitFor(() => expect(screen.getByText('Ana María')).toBeInTheDocument());
+        fireEvent.click(screen.getByRole('button', { name: /Seleccionar/i }));
+        await waitFor(() => expect(screen.getByText(/Confirmar Selección de Monitor/i)).toBeInTheDocument());
+        fireEvent.click(screen.getByRole('button', { name: /Confirmar Selección/i }));
+        expect(await screen.findByText(/Error al seleccionar monitor/i)).toBeInTheDocument();
+    });
+
+    test('Debe mostrar convocatoria existente y sin postulantes', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8, requiredAverageGrade: 3.5, requiredCourseGrade: 3.8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: true, json: async () => [] };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        expect(await screen.findByText('Programación II - 2026-1')).toBeInTheDocument();
+        expect(screen.getByText('No hay postulantes para esta convocatoria aún.')).toBeInTheDocument();
+    });
+
+    test('Debe mostrar error de red al cargar convocatoria', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                throw new Error('Network error');
+            }
+            if (url.includes('/monitor-application/request/')) {
+                return { ok: true, json: async () => [] };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        expect(await screen.findByText(/Error al cargar convocatoria/i)).toBeInTheDocument();
+    });
+
+    test('Debe mostrar error HTTP al cargar postulantes', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: false, text: async () => 'Error' };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        expect(await screen.findByText(/Error al cargar postulantes/i)).toBeInTheDocument();
+    });
+
+    test('Debe mostrar postulante con estado SELECCIONADO', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/monitoring-request/501')) {
+                return { ok: true, json: async () => ({ id: 501, courseName: 'Programación II', semester: '2026-1', requestedHours: 8 }) };
+            }
+            if (url.includes('/monitor-application/request/501')) {
+                return { ok: true, json: async () => ([{ id: 9004, monitorName: 'Pedro García', monitorId: 'A004', status: 'SELECCIONADO', applicationDate: '2026-01-20T10:00:00', motivationLetter: 'Motivado' }]) };
+            }
+            return { ok: true, json: async () => ({}) };
+        });
+
+        render(<BrowserRouter><SeleccionarMonitor /></BrowserRouter>);
+
+        await waitFor(() => {
+            expect(screen.getByText('Pedro García')).toBeInTheDocument();
+            expect(screen.getByText('Seleccionado')).toBeInTheDocument();
+            expect(screen.getByText(/Ya seleccionado/i)).toBeInTheDocument();
+        });
+    });
+
     test('Debe modificar y aprobar convocatoria llamando endpoint PUT', async () => {
         fetch.mockImplementation(async (url) => {
             if (url.includes('/pending-head-approval/')) {
