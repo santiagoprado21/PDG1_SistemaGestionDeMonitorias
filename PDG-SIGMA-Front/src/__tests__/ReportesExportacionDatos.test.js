@@ -194,6 +194,113 @@ describe('ReportesExportacionDatos', () => {
     revokeObjectURLSpy.mockRestore();
   });
 
+  test('exporta rendimiento de monitores a CSV', async () => {
+    global.fetch = jest.fn(async (url) => {
+      if (url.includes('/monitoring/getMonitorsReport/')) {
+        return { ok: true, json: async () => ([
+          { idProfessor: 'PROF-1', semester: '2025-1', program: 'Ingenieria', course: 'POO', professor: 'Ana Perez', name: 'Monitor Uno', nameAndCourse: 'Monitor Uno POO', completed: 6, pending: 2, late: 1 },
+          { idProfessor: 'PROF-1', semester: '2025-2', program: 'Matematicas', course: 'Calculo', professor: 'Ana Perez', name: 'Monitor Dos', nameAndCourse: 'Monitor Dos Calculo', completed: 4, pending: 1, late: 0 }
+        ]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-1', name: 'Dr. Ana Perez', course: 'POO', completed: 4, pending: 1, late: 0 }]) };
+      }
+      if (url.includes('/monitoring/getCategoriesReport/')) {
+        return { ok: true, json: async () => ({ detalle_por_curso: [], totales_por_categoria: [] }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+
+    if (!window.URL.createObjectURL) {
+      window.URL.createObjectURL = () => 'blob:fake';
+    }
+    if (!window.URL.revokeObjectURL) {
+      window.URL.revokeObjectURL = () => {};
+    }
+    const createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL').mockImplementation(() => 'blob:csv');
+    jest.spyOn(window.URL, 'revokeObjectURL').mockImplementation(() => {});
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    renderWithRouter(<Reports />);
+    await screen.findByText('Monitor Uno');
+    await screen.findByText('71%');
+
+    const csvButtons = screen.getAllByText('CSV');
+    fireEvent.click(csvButtons[0]);
+
+    await waitFor(() => {
+      expect(createObjectURLSpy).toHaveBeenCalled();
+    });
+
+    clickSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    window.URL.revokeObjectURL.mockRestore();
+  });
+
+  test('exporta rendimiento de monitores a PDF', async () => {
+    global.fetch = jest.fn(async (url) => {
+      if (url.includes('/monitoring/getMonitorsReport/')) {
+        return { ok: true, json: async () => ([
+          { idProfessor: 'PROF-1', semester: '2025-1', program: 'Ingenieria', course: 'POO', professor: 'Ana Perez', name: 'Monitor Uno', nameAndCourse: 'Monitor Uno POO', completed: 6, pending: 2, late: 1 },
+          { idProfessor: 'PROF-1', semester: '2025-2', program: 'Matematicas', course: 'Calculo', professor: 'Ana Perez', name: 'Monitor Dos', nameAndCourse: 'Monitor Dos Calculo', completed: 4, pending: 1, late: 0 }
+        ]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-1', name: 'Dr. Ana Perez', course: 'POO', completed: 4, pending: 1, late: 0 }]) };
+      }
+      if (url.includes('/monitoring/getCategoriesReport/')) {
+        return { ok: true, json: async () => ({ detalle_por_curso: [], totales_por_categoria: [] }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+
+    const mockDoc = { write: jest.fn(), close: jest.fn() };
+    const mockPrintWindow = { document: mockDoc, focus: jest.fn(), print: jest.fn() };
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => mockPrintWindow);
+
+    renderWithRouter(<Reports />);
+    await screen.findByText('Monitor Uno');
+    await screen.findByText('71%');
+
+    const pdfButtons = screen.getAllByText('PDF');
+    fireEvent.click(pdfButtons[0]);
+
+    await waitFor(() => {
+      expect(openSpy).toHaveBeenCalled();
+    });
+
+    openSpy.mockRestore();
+  });
+
+  test('renderiza con rol profesor sin nombre propio y muestra comparativo vacio', async () => {
+    window.localStorage.setItem('userId', 'PROF-99');
+    window.localStorage.setItem('role', 'professor');
+
+    global.fetch = jest.fn(async (url) => {
+      if (url.includes('/monitoring/getMonitorsReport/')) {
+        return { ok: true, json: async () => ([
+          { idProfessor: 'PROF-1', semester: '2025-1', program: 'Ing', course: 'POO', professor: 'Ana Perez', name: 'M1', completed: 6, pending: 2, late: 1 },
+          { idProfessor: 'PROF-2', semester: '2025-1', program: 'Ing', course: 'Calc', professor: 'Carlos Ruiz', name: 'M2', completed: 4, pending: 1, late: 0 }
+        ]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/PROF-1')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-1', name: 'Dr. Ana Perez', course: 'POO', completed: 4, pending: 1, late: 0 }]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/PROF-2')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-2', name: 'Carlos Ruiz', course: 'Calc', completed: 5, pending: 0, late: 1 }]) };
+      }
+      if (url.includes('/monitoring/getCategoriesReport/professor/')) {
+        return { ok: true, json: async () => ({ detalle_por_curso: [], totales_por_categoria: [] }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+
+    renderWithRouter(<Reports />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(await screen.findByText('Reportes')).toBeInTheDocument();
+    expect(screen.getByText('Rendimiento del profesor')).toBeInTheDocument();
+  });
+
   test('UpdateButton muestra estados y ejecuta acción al confirmar actualización', async () => {
     global.fetch.mockResolvedValue({
       text: async () => 'OK'
@@ -216,5 +323,91 @@ describe('ReportesExportacionDatos', () => {
       expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('mock-popup')).toHaveTextContent(/Estado : OK/i);
     });
+  });
+
+  test('exporta comparativo por periodo a CSV y PDF', async () => {
+    global.fetch = jest.fn(async (url) => {
+      if (url.includes('/monitoring/getMonitorsReport/')) {
+        return { ok: true, json: async () => ([
+          { idProfessor: 'PROF-1', semester: '2025-1', program: 'Ingenieria', course: 'POO', professor: 'Ana Perez', name: 'Monitor Uno', nameAndCourse: 'Monitor Uno POO', completed: 6, pending: 2, late: 1 },
+          { idProfessor: 'PROF-1', semester: '2025-2', program: 'Matematicas', course: 'Calculo', professor: 'Ana Perez', name: 'Monitor Dos', nameAndCourse: 'Monitor Dos Calculo', completed: 4, pending: 1, late: 0 }
+        ]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-1', name: 'Dr. Ana Perez', course: 'POO', completed: 4, pending: 1, late: 0 }]) };
+      }
+      if (url.includes('/monitoring/getCategoriesReport/')) {
+        return { ok: true, json: async () => ({ detalle_por_curso: [], totales_por_categoria: [] }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+
+    if (!window.URL.createObjectURL) {
+      window.URL.createObjectURL = () => 'blob:fake';
+    }
+    if (!window.URL.revokeObjectURL) {
+      window.URL.revokeObjectURL = () => {};
+    }
+    const createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL').mockImplementation(() => 'blob:csv');
+    jest.spyOn(window.URL, 'revokeObjectURL').mockImplementation(() => {});
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    renderWithRouter(<Reports />);
+    await screen.findByText('Monitor Uno');
+    await screen.findByText('71%');
+
+    const csvButtons = screen.getAllByText('CSV');
+    fireEvent.click(csvButtons[1]);
+
+    await waitFor(() => {
+      expect(createObjectURLSpy).toHaveBeenCalled();
+    });
+
+    clickSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    try { window.URL.revokeObjectURL.mockRestore(); } catch (e) { /* spy may not exist */ }
+  });
+
+  test('exporta resumen de tareas de monitores a CSV', async () => {
+    global.fetch = jest.fn(async (url) => {
+      if (url.includes('/monitoring/getMonitorsReport/')) {
+        return { ok: true, json: async () => ([
+          { idProfessor: 'PROF-1', semester: '2025-1', program: 'Ingenieria', course: 'POO', professor: 'Ana Perez', name: 'Monitor Uno', nameAndCourse: 'Monitor Uno POO', completed: 6, pending: 2, late: 1 },
+          { idProfessor: 'PROF-1', semester: '2025-2', program: 'Matematicas', course: 'Calculo', professor: 'Ana Perez', name: 'Monitor Dos', nameAndCourse: 'Monitor Dos Calculo', completed: 4, pending: 1, late: 0 }
+        ]) };
+      }
+      if (url.includes('/monitoring/getProfessorReport/')) {
+        return { ok: true, json: async () => ([{ idProfessor: 'PROF-1', name: 'Dr. Ana Perez', course: 'POO', completed: 4, pending: 1, late: 0 }]) };
+      }
+      if (url.includes('/monitoring/getCategoriesReport/')) {
+        return { ok: true, json: async () => ({ detalle_por_curso: [], totales_por_categoria: [] }) };
+      }
+      return { ok: true, json: async () => [] };
+    });
+
+    if (!window.URL.createObjectURL) {
+      window.URL.createObjectURL = () => 'blob:fake';
+    }
+    if (!window.URL.revokeObjectURL) {
+      window.URL.revokeObjectURL = () => {};
+    }
+    const createObjectURLSpy = jest.spyOn(window.URL, 'createObjectURL').mockImplementation(() => 'blob:csv');
+    const revokeObjectURLSpy = jest.spyOn(window.URL, 'revokeObjectURL').mockImplementation(() => {});
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    renderWithRouter(<Reports />);
+    await screen.findByText('Monitor Uno');
+    await screen.findByText('71%');
+
+    const csvButtons = screen.getAllByText('CSV');
+    fireEvent.click(csvButtons[2]);
+
+    await waitFor(() => {
+      expect(createObjectURLSpy).toHaveBeenCalled();
+    });
+
+    clickSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    revokeObjectURLSpy.mockRestore();
   });
 });

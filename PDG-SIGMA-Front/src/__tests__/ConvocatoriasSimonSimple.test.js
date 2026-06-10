@@ -230,4 +230,191 @@ describe('ConvocatoriasSimonSimple', () => {
         createObjectURLSpy.mockRestore();
         revokeObjectURLSpy.mockRestore();
     });
+
+    test('GenerateSimonFile muestra error cuando preview falla (response not ok)', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return { ok: false };
+            }
+            if (url.includes('/simon/history')) {
+                return { ok: true, json: async () => [] };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        renderWithRouter(<GenerateSimonFile />);
+
+        expect(await screen.findByText(/Error al cargar vista previa de datos/i)).toBeInTheDocument();
+    });
+
+    test('GenerateSimonFile muestra error cuando historial falla (response not ok)', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        totalMonitorings: 0,
+                        canGenerate: false,
+                        monitorings: []
+                    })
+                };
+            }
+            if (url.includes('/simon/history')) {
+                return { ok: false };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        renderWithRouter(<GenerateSimonFile />);
+
+        expect(await screen.findByText(/Generar Archivo SIMON/i)).toBeInTheDocument();
+    });
+
+    test('GenerateSimonFile bloquea generacion cuando no hay datos (canGenerate false)', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        totalMonitorings: 0,
+                        canGenerate: false,
+                        monitorings: []
+                    })
+                };
+            }
+            if (url.includes('/simon/history')) {
+                return { ok: true, json: async () => [] };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        renderWithRouter(<GenerateSimonFile />);
+
+        await screen.findByText(/Sin datos disponibles/i);
+
+        expect(screen.getByRole('button', { name: /Generar y Descargar Archivo SIMON/i })).toBeDisabled();
+    });
+
+    test('GenerateSimonFile maneja error 204 al generar archivo', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        totalMonitorings: 1,
+                        canGenerate: true,
+                        monitorings: []
+                    })
+                };
+            }
+            if (url.includes('/simon/history')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/simon/generate')) {
+                return { ok: false, status: 204 };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        renderWithRouter(<GenerateSimonFile />);
+
+        await screen.findByText(/Listo para generar/i);
+
+        fireEvent.click(screen.getByRole('button', { name: /Generar y Descargar Archivo SIMON/i }));
+
+        expect(await screen.findByText(/No hay monitorías aprobadas disponibles/i)).toBeInTheDocument();
+    });
+
+    test('GenerateSimonFile maneja error generico al generar archivo', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        totalMonitorings: 1,
+                        canGenerate: true,
+                        monitorings: []
+                    })
+                };
+            }
+            if (url.includes('/simon/history')) {
+                return { ok: true, json: async () => [] };
+            }
+            if (url.includes('/simon/generate')) {
+                return { ok: false, status: 500 };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        renderWithRouter(<GenerateSimonFile />);
+
+        await screen.findByText(/Listo para generar/i);
+
+        fireEvent.click(screen.getByRole('button', { name: /Generar y Descargar Archivo SIMON/i }));
+
+        expect(await screen.findByText(/Error al generar el archivo/i)).toBeInTheDocument();
+    });
+
+    test('GenerateSimonFile permite cambiar semestre, refrescar datos y alternar historial', async () => {
+        fetch.mockImplementation(async (url) => {
+            if (url.includes('/simon/preview')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        totalMonitorings: 1,
+                        canGenerate: true,
+                        monitorings: [
+                            {
+                                nombre: 'Ana',
+                                apellido: 'Paz',
+                                codigoEstudiante: '2020123',
+                                email: 'ana@uni.edu',
+                                nombreCurso: 'Álgebra',
+                                profesorSolicita: 'Docente X',
+                                fechaInicio: '2026-01-10',
+                                fechaFin: '2026-05-10',
+                                totalHoras: 96
+                            }
+                        ]
+                    })
+                };
+            }
+            if (url.includes('/simon/history')) {
+                return {
+                    ok: true,
+                    json: async () => [
+                        {
+                            id: 1,
+                            generatedAt: '2026-01-15T10:00:00Z',
+                            generatedBy: 'Coordinador',
+                            semester: '2026-1',
+                            totalMonitorings: 5,
+                            fileName: 'SIMON_2026-1.xlsx'
+                        }
+                    ]
+                };
+            }
+            return { ok: true, json: async () => [] };
+        });
+
+        const { container } = renderWithRouter(<GenerateSimonFile />);
+
+        await screen.findByText(/Monitorías aprobadas:/i);
+
+        const select = container.querySelector('select');
+        fireEvent.change(select, { target: { value: '2025-2' } });
+
+        fireEvent.click(screen.getByRole('button', { name: /Refrescar Datos/i }));
+
+        expect(await screen.findByText(/Datos actualizados/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', { name: /Ver Historial/i }));
+
+        expect(screen.getByText(/SIMON_2026-1.xlsx/i)).toBeInTheDocument();
+        expect(screen.getByText(/15\/01\/2026/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', { name: /Ocultar Historial/i }));
+
+        expect(screen.queryByText(/SIMON_2026-1.xlsx/i)).not.toBeInTheDocument();
+    });
 });

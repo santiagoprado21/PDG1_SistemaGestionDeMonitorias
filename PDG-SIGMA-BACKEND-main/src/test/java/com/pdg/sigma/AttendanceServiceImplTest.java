@@ -254,4 +254,12 @@ public class AttendanceServiceImplTest {
         assertEquals(5L, count);
         verify(attendanceRepository, times(1)).count();
     }
+
+    @Test
+    void testValidate() {
+        // Act
+        attendanceService.validate(new Attendance());
+
+        // Assert - no exception thrown
+    }
 }

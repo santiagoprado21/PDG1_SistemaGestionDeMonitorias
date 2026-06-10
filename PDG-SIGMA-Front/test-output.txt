@@ -1,0 +1,1295 @@
+﻿  console.error
+    Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+      62 |         });
+      63 |
+    > 64 |         render(
+         |               ^
+      65 |             <BrowserRouter>
+      66 |                 <CerrarMonitorias />
+      67 |             </BrowserRouter>
+
+      at printWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:71:30)
+      at error (node_modules/react-dom/cjs/react-dom-test-utils.development.js:45:7)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1736:7)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at Object.<anonymous> (src/__tests__/CerrarMonitoriasHU007.test.js:64:15)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  console.warn
+    ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+      62 |         });
+      63 |
+    > 64 |         render(
+         |               ^
+      65 |             <BrowserRouter>
+      66 |                 <CerrarMonitorias />
+      67 |             </BrowserRouter>
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logV6DeprecationWarnings [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router-dom/index.tsx:816:25
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at Object.<anonymous> (src/__tests__/CerrarMonitoriasHU007.test.js:64:15)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  console.warn
+    ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+      62 |         });
+      63 |
+    > 64 |         render(
+         |               ^
+      65 |             <BrowserRouter>
+      66 |                 <CerrarMonitorias />
+      67 |             </BrowserRouter>
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logV6DeprecationWarnings [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router-dom/index.tsx:816:25
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:63:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
+      at Object.<anonymous> (src/__tests__/CerrarMonitoriasHU007.test.js:64:15)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      52 |             
+      53 |             if (activeTab === 'pendientes') {
+    > 54 |                 setMonitorings(data);
+         |                 ^
+      55 |             } else {
+      56 |                 setClosedMonitorings(data);
+      57 |             }
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setMonitorings (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:54:17)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      61 |             setShowPopup(true);
+      62 |         } finally {
+    > 63 |             setIsLoading(false);
+         |             ^
+      64 |         }
+      65 |     };
+      66 |
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:63:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      142 |             }
+      143 |
+    > 144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+          |             ^
+      145 |             setShowPopup(true);
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setPopupMessage (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:144:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      143 |
+      144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+    > 145 |             setShowPopup(true);
+          |             ^
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+      148 |             setSelectedMonitorings([]);
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setShowPopup (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:145:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+      145 |             setShowPopup(true);
+    > 146 |             setShowCloseModal(false);
+          |             ^
+      147 |             setClosureComment('');
+      148 |             setSelectedMonitorings([]);
+      149 |             loadMonitorings();
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setShowCloseModal (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:146:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      145 |             setShowPopup(true);
+      146 |             setShowCloseModal(false);
+    > 147 |             setClosureComment('');
+          |             ^
+      148 |             setSelectedMonitorings([]);
+      149 |             loadMonitorings();
+      150 |         } catch (error) {
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setClosureComment (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:147:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+    > 148 |             setSelectedMonitorings([]);
+          |             ^
+      149 |             loadMonitorings();
+      150 |         } catch (error) {
+      151 |             console.error('Error:', error);
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setSelectedMonitorings (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:148:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      35 |
+      36 |     const loadMonitorings = async () => {
+    > 37 |         setIsLoading(true);
+         |         ^
+      38 |         try {
+      39 |             const endpoint = activeTab === 'pendientes' 
+      40 |                 ? `${BACKEND_URL}/monitoring-closure/ready-for-closure?semester=${semester}`
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:37:9)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:149:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      153 |             setShowPopup(true);
+      154 |         } finally {
+    > 155 |             setIsLoading(false);
+          |             ^
+      156 |         }
+      157 |     };
+      158 |
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:155:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      52 |             
+      53 |             if (activeTab === 'pendientes') {
+    > 54 |                 setMonitorings(data);
+         |                 ^
+      55 |             } else {
+      56 |                 setClosedMonitorings(data);
+      57 |             }
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setMonitorings (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:54:17)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      61 |             setShowPopup(true);
+      62 |         } finally {
+    > 63 |             setIsLoading(false);
+         |             ^
+      64 |         }
+      65 |     };
+      66 |
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:63:13)
+
+  console.error
+    Error: Error: Error al cerrar
+        at handleCloseMonitorings (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:121:27)
+
+      149 |             loadMonitorings();
+      150 |         } catch (error) {
+    > 151 |             console.error('Error:', error);
+          |                     ^
+      152 |             setPopupMessage('Error al cerrar monitor├¡as: ' + error.message);
+      153 |             setShowPopup(true);
+      154 |         } finally {
+
+      at handleCloseMonitorings (src/CerrarMonitorias.js:151:21)
+
+  console.error
+    Error: Error: Error al cargar monitor├¡as
+        at loadMonitorings (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:49:37)
+
+      57 |             }
+      58 |         } catch (error) {
+    > 59 |             console.error('Error:', error);
+         |                     ^
+      60 |             setPopupMessage('Error al cargar las monitor├¡as: ' + error.message);
+      61 |             setShowPopup(true);
+      62 |         } finally {
+
+      at loadMonitorings (src/CerrarMonitorias.js:59:21)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      142 |             }
+      143 |
+    > 144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+          |             ^
+      145 |             setShowPopup(true);
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setPopupMessage (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:144:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      143 |
+      144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+    > 145 |             setShowPopup(true);
+          |             ^
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+      148 |             setSelectedMonitorings([]);
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setShowPopup (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:145:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      144 |             setPopupMessage(`Se ${selectedMonitorings.length === 1 ? 'cerr├│' : 'cerraron'} exitosamente ${selectedMonitorings.length} monitor├¡a${selectedMonitorings.length > 1 ? 's' : ''}`);
+      145 |             setShowPopup(true);
+    > 146 |             setShowCloseModal(false);
+          |             ^
+      147 |             setClosureComment('');
+      148 |             setSelectedMonitorings([]);
+      149 |             loadMonitorings();
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setShowCloseModal (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:146:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      145 |             setShowPopup(true);
+      146 |             setShowCloseModal(false);
+    > 147 |             setClosureComment('');
+          |             ^
+      148 |             setSelectedMonitorings([]);
+      149 |             loadMonitorings();
+      150 |         } catch (error) {
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setClosureComment (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:147:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      146 |             setShowCloseModal(false);
+      147 |             setClosureComment('');
+    > 148 |             setSelectedMonitorings([]);
+          |             ^
+      149 |             loadMonitorings();
+      150 |         } catch (error) {
+      151 |             console.error('Error:', error);
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setSelectedMonitorings (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:148:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      35 |
+      36 |     const loadMonitorings = async () => {
+    > 37 |         setIsLoading(true);
+         |         ^
+      38 |         try {
+      39 |             const endpoint = activeTab === 'pendientes' 
+      40 |                 ? `${BACKEND_URL}/monitoring-closure/ready-for-closure?semester=${semester}`
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:37:9)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:149:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      153 |             setShowPopup(true);
+      154 |         } finally {
+    > 155 |             setIsLoading(false);
+          |             ^
+      156 |         }
+      157 |     };
+      158 |
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at handleCloseMonitorings (src/CerrarMonitorias.js:155:13)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      52 |             
+      53 |             if (activeTab === 'pendientes') {
+    > 54 |                 setMonitorings(data);
+         |                 ^
+      55 |             } else {
+      56 |                 setClosedMonitorings(data);
+      57 |             }
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setMonitorings (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:54:17)
+
+  console.error
+    Warning: An update to CerrarMonitorias inside a test was not wrapped in act(...).
+    
+    When testing, code that causes React state updates should be wrapped into act(...):
+    
+    act(() => {
+      /* fire events that update state */
+    });
+    /* assert on the output */
+    
+    This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+        at CerrarMonitorias (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\src\CerrarMonitorias.js:10:42)
+        at Router (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router\lib\components.tsx:421:13)
+        at BrowserRouter (C:\Users\joans\OneDrive\Escritorio\PDG1_SistemaGestionDeMonitorias\PDG-SIGMA-Front\node_modules\react-router-dom\index.tsx:789:3)
+
+      61 |             setShowPopup(true);
+      62 |         } finally {
+    > 63 |             setIsLoading(false);
+         |             ^
+      64 |         }
+      65 |     };
+      66 |
+
+      at printWarning (node_modules/react-dom/cjs/react-dom.development.js:86:30)
+      at error (node_modules/react-dom/cjs/react-dom.development.js:60:7)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom.development.js:27628:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom.development.js:25547:5)
+      at setIsLoading (node_modules/react-dom/cjs/react-dom.development.js:16708:7)
+      at loadMonitorings (src/CerrarMonitorias.js:63:13)
+
+FAIL src/__tests__/CerrarMonitoriasHU007.test.js
+  CerrarMonitoriasHU007
+    ÔêÜ Debe renderizar el componente correctamente (100 ms)
+    ÔêÜ Debe cargar y mostrar monitor├¡as listas para cerrar (15 ms)
+    ÔêÜ Debe mostrar mensaje cuando no hay monitor├¡as para cerrar (7 ms)
+    ÔêÜ Debe permitir seleccionar monitor├¡as (37 ms)
+    ÔêÜ Debe abrir modal de cierre al hacer clic en "Cerrar Seleccionadas" (25 ms)
+    ÔêÜ Debe cerrar monitor├¡a exitosamente (50 ms)
+    ÔêÜ Debe cambiar a tab de monitor├¡as cerradas (18 ms)
+    ÔêÜ Debe mostrar error si el cierre falla (43 ms)
+    ÔêÜ Debe validar que se ingrese un comentario (29 ms)
+    ÔêÜ Debe mostrar error al cargar monitor├¡as (8 ms)
+    ÔêÜ Debe permitir seleccionar todas y desseleccionar (12 ms)
+    ├ù Debe mostrar mensaje al cerrar sin seleccionar (1020 ms)
+    ÔêÜ Debe cerrar dos monitor├¡as en lote (52 ms)
+    ├ù Debe ver reporte de monitor├¡a cerrada con cumplimiento bajo (26 ms)
+System.Management.Automation.RemoteException
+  ÔùÅ CerrarMonitoriasHU007 ÔÇ║ Debe mostrar mensaje al cerrar sin seleccionar
+System.Management.Automation.RemoteException
+    Unable to find an element with the text: /Debe seleccionar al menos una monitor├¡a/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+System.Management.Automation.RemoteException
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="cerrar-monitorias-container"
+        >
+          <div
+            data-testid="vertical-navbar"
+          >
+            Vertical Navbar
+          </div>
+          <div
+            class="main-content"
+          >
+            <div
+              class="cerrar-monitorias-header app-page-header"
+            >
+              <h1
+                class="app-page-title"
+              >
+                Cierre de Monitor├¡as
+              </h1>
+              <p
+                class="subtitle app-page-subtitle"
+              >
+                Cierre de monitor├¡as al final del periodo
+              </p>
+            </div>
+            <div
+              class="filters-section"
+            >
+              <div
+                class="filter-group"
+              >
+                <label>
+                  Periodo:
+                </label>
+                <select>
+                  <option
+                    value="2026-1"
+                  >
+                    2026-1
+                  </option>
+                  <option
+                    value="2026-2"
+                  >
+                    2026-2
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div
+              class="tabs-container"
+            >
+              <button
+                class="tab active"
+              >
+                Listas para Cerrar (
+                1
+                )
+              </button>
+              <button
+                class="tab "
+              >
+                Monitor├¡as Cerradas (
+                0
+                )
+              </button>
+            </div>
+            <div
+              class="actions-bar"
+            >
+              <div
+                class="actions-left"
+              >
+                <label
+                  class="checkbox-container"
+                >
+                  <input
+                    type="checkbox"
+                  />
+                  <span>
+                    Seleccionar todas
+                  </span>
+                </label>
+                <span
+                  class="actions-selection-hint"
+                >
+                  0
+                   seleccionada
+                  s
+                </span>
+              </div>
+              <button
+                class="btn-primary actions-close-btn"
+                disabled=""
+              >
+                Cerrar Seleccionadas (
+                0
+                )
+              </button>
+            </div>
+            <div
+              class="monitorings-grid"
+            >
+              <div
+                class="monitoring-card"
+              >
+                <div
+                  class="card-header"
+                >
+                  <input
+                    type="checkbox"
+                  />
+                  <h3>
+                    Programaci├│n Avanzada
+                  </h3>
+                </div>
+                <div
+                  class="card-body"
+                >
+                  <p>
+                    <strong>
+                      Programa:
+                    </strong>
+                     
+                    Ingenier├¡a de Sistemas
+                  </p>
+                  <p>
+                    <strong>
+                      Profesor:
+                    </strong>
+                     
+                    Juan P├®rez
+                  </p>
+                  <p>
+                    <strong>
+                      Monitor:
+                    </strong>
+                     
+                    Ana Garc├¡a
+                  </p>
+                  <p>
+                    <strong>
+                      Horas contratadas:
+                    </strong>
+                     
+                    40
+                    h
+                  </p>
+                  <p>
+                    <strong>
+                      Periodo:
+                    </strong>
+                     
+                    2026-1
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+System.Management.Automation.RemoteException
+      376 |         fireEvent.click(closeButton);
+      377 |
+    > 378 |         await waitFor(() => {
+          |                      ^
+      379 |             expect(screen.getByText(/Debe seleccionar al menos una monitor├¡a/i)).toBeInTheDocument();
+      380 |         });
+      381 |     });
+System.Management.Automation.RemoteException
+      at waitForWrapper (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:166:27)
+      at Object.<anonymous> (src/__tests__/CerrarMonitoriasHU007.test.js:378:22)
+System.Management.Automation.RemoteException
+  ÔùÅ CerrarMonitoriasHU007 ÔÇ║ Debe ver reporte de monitor├¡a cerrada con cumplimiento bajo
+System.Management.Automation.RemoteException
+    TestingLibraryElementError: Found multiple elements with the text: 50%
+System.Management.Automation.RemoteException
+    Here are the matching elements:
+System.Management.Automation.RemoteException
+    Ignored nodes: comments, script, style
+    <span
+      style="color: rgb(233, 104, 59); font-weight: bold; margin-left: 5px;"
+    >
+      50
+      %
+    </span>
+System.Management.Automation.RemoteException
+    Ignored nodes: comments, script, style
+    <div
+      class="metric-value"
+      style="color: rgb(233, 104, 59);"
+    >
+      50
+      %
+    </div>
+System.Management.Automation.RemoteException
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+System.Management.Automation.RemoteException
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="cerrar-monitorias-container"
+        >
+          <div
+            data-testid="vertical-navbar"
+          >
+            Vertical Navbar
+          </div>
+          <div
+            class="main-content"
+          >
+            <div
+              class="cerrar-monitorias-header app-page-header"
+            >
+              <h1
+                class="app-page-title"
+              >
+                Cierre de Monitor├¡as
+              </h1>
+              <p
+                class="subtitle app-page-subtitle"
+              >
+                Cierre de monitor├¡as al final del periodo
+              </p>
+            </div>
+            <div
+              class="filters-section"
+            >
+              <div
+                class="filter-group"
+              >
+                <label>
+                  Periodo:
+                </label>
+                <select>
+                  <option
+                    value="2026-1"
+                  >
+                    2026-1
+                  </option>
+                  <option
+                    value="2026-2"
+                  >
+                    2026-2
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div
+              class="tabs-container"
+            >
+              <button
+                class="tab "
+              >
+                Listas para Cerrar (
+                0
+                )
+              </button>
+              <button
+                class="tab active"
+              >
+                Monitor├¡as Cerradas (
+                1
+                )
+              </button>
+            </div>
+            <div
+              class="monitorings-grid"
+            >
+              <div
+                class="monitoring-card closed"
+              >
+                <div
+                  class="card-header"
+                >
+                  <h3>
+                    Programaci├│n Avanzada
+                  </h3>
+                  <span
+                    class="badge-closed"
+                  >
+                    Cerrada
+                  </span>
+                </div>
+                <div
+                  class="card-body"
+                >
+                  <p>
+                    <strong>
+                      Programa:
+                    </strong>
+                     
+                    Ingenier├¡a de Sistemas
+                  </p>
+                  <p>
+                    <strong>
+                      Profesor:
+                    </strong>
+                     
+                    Juan P├®rez
+                  </p>
+                  <p>
+                    <strong>
+                      Monitor:
+                    </strong>
+                     
+                    Ana Garc├¡a
+                  </p>
+                  <p>
+                    <strong>
+                      Cerrada el:
+                    </strong>
+                     
+                    21/1/2026
+                  </p>
+                  <p>
+                    <strong>
+                      Cumplimiento:
+                    </strong>
+                    <span
+                      style="color: rgb(233, 104, 59); font-weight: bold; margin-left: 5px;"
+                    >
+                      50
+                      %
+                    </span>
+                  </p>
+                </div>
+                <div
+                  class="card-footer"
+                >
+                  <button
+                    class="btn-secondary"
+                  >
+                    Ver Reporte
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              class="modal-overlay"
+            >
+              <div
+                class="modal-content modal-large"
+              >
+                <div
+                  class="modal-header"
+                >
+                  <h2>
+                    Reporte de Cumplimiento
+                  </h2>
+                  <button
+                    class="btn-close btn-secondary"
+                  >
+                    ├ù
+                  </button>
+                </div>
+                <div
+                  class="modal-body report-body"
+                >
+                  <div
+                    class="report-section"
+                  >
+                    <h3>
+                      Informaci├│n General
+                    </h3>
+                    <p>
+                      <strong>
+                        Curso:
+                      </strong>
+                       
+                      Programaci├│n Avanzada
+                    </p>
+                    <p>
+                      <strong>
+                        Programa:
+                      </strong>
+                       
+                      Ingenier├¡a de Sistemas
+                    </p>
+                    <p>
+                      <strong>
+                        Profesor:
+                      </strong>
+                       
+                      Juan P├®rez
+                    </p>
+                    <p>
+                      <strong>
+                        Monitor:
+                      </strong>
+                       
+                      Ana Garc├¡a
+                    </p>
+                    <p>
+                      <strong>
+                        Periodo:
+                      </strong>
+                       
+                      2026-1
+                    </p>
+                  </div>
+                  <div
+                    class="report-section"
+                  >
+                    <h3>
+                      Fechas
+                    </h3>
+                    <p>
+                      <strong>
+                        Inicio:
+                      </strong>
+                       
+                      14/1/2026
+                    </p>
+                    <p>
+                      <strong>
+                        Fin:
+                      </strong>
+                       
+                      14/6/2026
+                    </p>
+                    <p>
+                      <strong>
+                        Fecha de cierre:
+                      </strong>
+                       
+                      20/1/2026
+                    </p>
+                  </div>
+                  <div
+                    class="report-section"
+                  >
+                    <h3>
+                      M├®tricas de Cumplimiento
+                    </h3>
+                    <div
+                      class="metrics-grid"
+                    >
+                      <div
+                        class="metric-card"
+                      >
+                        <div
+                          class="metric-value"
+                          style="color: rgb(233, 104, 59);"
+                        >
+                          50
+                          %
+                        </div>
+                        <div
+                          class="metric-label"
+                        >
+                          Cumplimiento General
+                        </div>
+                      </div>
+                      <div
+                        class="metric-card"
+                      >
+                        <div
+                          class="metric-value"
+                        >
+                          3
+                           / 
+                          6
+                        </div>
+                        <div
+                          class="metric-label"
+                        >
+                          Actividades
+                        </div>
+                      </div>
+                      <div
+                        class="metric-card"
+                      >
+                        <div
+                          class="metric-value"
+                        >
+                          20
+                          h / 
+                          40
+                          h
+                        </div>
+                        <div
+                          class="metric-label"
+                        >
+                          Horas
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="report-section"
+                  >
+                    <h3>
+                      Auditor├¡a
+                    </h3>
+                    <p>
+                      <strong>
+                        Cerrada por:
+                      </strong>
+                       
+                      Admin
+                    </p>
+                    <p>
+                      <strong>
+                        Comentario:
+                      </strong>
+                       
+                      Cierre por bajo rendimiento
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="modal-footer"
+                >
+                  <button
+                    class="btn-secondary"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+System.Management.Automation.RemoteException
+      446 |
+      447 |         expect(await screen.findByText('Reporte de Cumplimiento')).toBeInTheDocument();
+    > 448 |         expect(screen.getByText('50%')).toBeInTheDocument();
+          |                       ^
+      449 |         expect(screen.getByText('3 / 6')).toBeInTheDocument();
+      450 |         expect(screen.getByText('20h / 40h')).toBeInTheDocument();
+      451 |     });
+System.Management.Automation.RemoteException
+      at Object.getElementError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getElementError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+      at getMultipleElementsFoundError (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+      at node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+      at getByText (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
+      at Object.<anonymous> (src/__tests__/CerrarMonitoriasHU007.test.js:448:23)
+System.Management.Automation.RemoteException
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 12 passed, 14 total
+Snapshots:   0 total
+Time:        2.381 s, estimated 3 s
+Ran all test suites matching /CerrarMonitoriasHU007/i.

@@ -275,5 +275,74 @@ describe('MisPostulacionesHU2273', () => {
             );
         });
     });
+
+    test('Muestra mensaje de error HTTP cuando response.ok es false', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: false,
+            status: 400,
+            json: async () => ({ error: 'Bad request' })
+        });
+        renderComponent();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('popup')).toBeInTheDocument();
+            expect(screen.getByText(/Error al cargar tus postulaciones/i)).toBeInTheDocument();
+        });
+    });
+
+    test('Maneja applicationDate nulo en formato de fecha', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => [
+                {
+                    id: 1,
+                    courseName: 'Algebra',
+                    programName: 'Ingenieria',
+                    semester: '2026-1',
+                    status: 'APROBADA',
+                    applicationDate: null,
+                    professorName: 'Dr. Perez',
+                    requestedHours: 8,
+                    requestStatus: 'CONVOCATORIA_ABIERTA'
+                }
+            ]
+        });
+        renderComponent();
+
+        await waitFor(() => {
+            expect(screen.getByText('Algebra')).toBeInTheDocument();
+            expect(screen.getByText('N/A')).toBeInTheDocument();
+        });
+    });
+
+    test('Filtra por estado y no encuentra resultados', async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => [
+                {
+                    id: 1,
+                    courseName: 'Algebra',
+                    programName: 'Ingenieria',
+                    semester: '2026-1',
+                    status: 'APROBADA',
+                    professorName: 'Dr. Perez',
+                    requestedHours: 8,
+                    requestStatus: 'CONVOCATORIA_ABIERTA',
+                    applicationDate: '2026-01-15T10:00:00Z'
+                }
+            ]
+        });
+        renderComponent();
+
+        await screen.findByText('Algebra');
+
+        const filterButtons = screen.getAllByRole('button');
+        const filtroRechazada = filterButtons.find(btn => btn.textContent.includes('No seleccionado'));
+        fireEvent.click(filtroRechazada);
+
+        await waitFor(() => {
+            expect(screen.getByText(/en este estado/i)).toBeInTheDocument();
+        });
+    });
 });
 
